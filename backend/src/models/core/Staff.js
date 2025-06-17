@@ -11,7 +11,7 @@ const personalSchema = new mongoose.Schema({
       message: '{VALUE} no es un número entero válido para identificación'
     }
   },
-  nombrePe: {
+  nombrePe: { 
     type: String,
     required: true,
     trim: true,
