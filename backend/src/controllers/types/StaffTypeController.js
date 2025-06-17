@@ -1,7 +1,7 @@
 const StaffType = require('../../models/types/StaffType');
 const Staff = require('../../models/core/Staff');
 
-// Obtener todos los tipos de personal
+// Obtener todos los tipos de personal (Admin y coordinador)
 exports.getAllStaffTypes = async (req, res) => {
     console.log('[STAFFTYPE CONTROLLER] Ejecutando getAllStaffTypes');
     try {
@@ -21,7 +21,7 @@ exports.getAllStaffTypes = async (req, res) => {
     }
 };
 
-// Obtener tipo de personal específico
+// Obtener tipo de personal específico (Admin y coordinador)
 exports.getStaffTypeById = async (req, res) => {
     console.log('[STAFFTYPE CONTROLLER] Ejecutando getStaffTypeById para ID:', req.params.id);
     try {
@@ -180,7 +180,7 @@ exports.deleteStaffType = async (req, res) => {
     }
 };
 
-// Obtener personal por tipo
+// Obtener personal por tipo (Admin y coordinador)
 exports.getStaffByType = async (req, res) => {
     console.log('[STAFFTYPE CONTROLLER] Ejecutando getStaffByType para tipo:', req.params.id);
     try {
