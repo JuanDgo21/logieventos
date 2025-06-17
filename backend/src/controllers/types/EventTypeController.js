@@ -161,3 +161,5 @@ exports.deactivateEventType = async (req, res) => {
         });
     }
 };
+
+// Movimiento
