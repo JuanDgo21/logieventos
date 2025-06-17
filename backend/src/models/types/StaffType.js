@@ -112,3 +112,5 @@ tipoPersonalSchema.statics.buscarPorNivelAutoridad = function(min, max) {
 };
 
 module.exports = mongoose.model('TipoPersonal', tipoPersonalSchema);
+
+// Pruebajejejejejeje
