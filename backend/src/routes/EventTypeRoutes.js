@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const eventTypeController = require('../controllers/eventTypeController');
+const eventTypeController = require('../../src/controllers/types/EventTypeController');
 const { verifyToken, checkRole } = require('../middlewares/authJwt');
 
 // Rutas principales
 router.post('/', 
   verifyToken, 
-  checkRole(['admin', 'planner']), 
+  checkRole(['admin', 'lider']), 
   eventTypeController.createEventType
 );
 
@@ -22,7 +22,7 @@ router.get('/:id',
 
 router.put('/:id', 
   verifyToken, 
-  checkRole(['admin', 'planner']), 
+  checkRole(['admin', 'lider']), 
   eventTypeController.updateEventType
 );
 
@@ -36,7 +36,7 @@ router.patch('/:id/deactivate',
 // Ruta especial para clonar
 router.post('/:id/clone', 
   verifyToken, 
-  checkRole(['admin', 'planner']), 
+  checkRole(['admin', 'lider']), 
   eventTypeController.cloneEventType
 );
 
