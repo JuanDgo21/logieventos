@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const eventController = require('../../src/controllers/core/EventController');
+const eventController = require('../../controllers/core/eventController');
 const { verifyToken, checkRole } = require('../middlewares/authJwt');
 
 router.post('/', verifyToken, checkRole(['coordinador', 'admin']), eventController.createEvent);
