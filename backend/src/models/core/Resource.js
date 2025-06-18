@@ -1,29 +1,27 @@
 const mongoose = require('mongoose');
 
-const proveedorSchema = new mongoose.Schema({
-    Mproveedores: {
-        type: Number,
-        required: true,
-        unique: true  // Asumo que es un identificador único
-    },
-    nombre: {
-        type: String,
-        required: true,
-        trim: true,
-        maxlength: 45
-    },
-    telefono: {
+const recursoSchema = new mongoose.Schema({
+    idRecursos: {
         type: Number,
         required: true
     },
-    correo_electronico: {
+    nombreRecursos: {
         type: String,
         required: true,
         trim: true,
-        lowercase: true,
         maxlength: 45
     },
-    disponible: {
+    cantidadRecursos: {
+        type: Number,
+        required: true
+    },
+    disponibilidadR: {
+        type: String,
+        required: true,
+        trim: true,
+        maxlength: 45
+    },
+    mantenimientoR: {
         type: String,
         required: true,
         trim: true,
@@ -31,4 +29,4 @@ const proveedorSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Proveedor', proveedorSchema);
+module.exports = mongoose.model('Recurso', recursoSchema);
