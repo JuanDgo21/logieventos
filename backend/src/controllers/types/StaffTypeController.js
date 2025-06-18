@@ -1,269 +1,239 @@
 const StaffType = require('../../models/types/StaffType');
+const User = require('../../models/main/User');
+
+console.log('Controlador de StaffType inicializado');
 
 /**
- * Controlador para gestionar tipos de personal con control de permisos
+ * Controlador para tipos de personal con permisos por rol:
+ * - Admin: CRUD completo
+ * - Coordinador: Lectura + edición limitada (solo descripción)
+ * - Líder: Solo lectura de tipos asignados a su equipo
  */
 module.exports = {
-    /**
-     * Obtener todos los tipos de personal (Acceso: Líder+)
-     */
-    async getAllStaffTypes(req, res) {
+    // ----------------------------------------
+    // Obtener todos los tipos (Líder+)
+    // ----------------------------------------
+    async getAll(req, res) {
+        console.log('Ejecutando getAll - Listado de tipos de personal');
         try {
-            console.log('[StaffType] Obteniendo todos los tipos de personal');
-            console.log(`[StaffType] Solicitado por: ${req.user.email} (${req.user.role})`);
+            const { role } = req.user;
+            console.log(`Solicitud recibida de usuario con rol: ${role}`);
 
-            const staffTypes = await StaffType.find().sort({ nombre: 1 });
+            // Filtro base: solo tipos activos
+            let filter = { isActive: true };
             
-            console.log(`[StaffType] Encontrados ${staffTypes.length} registros`);
-            res.status(200).json({
+            // Filtro adicional para Líder: solo tipos asignados a su equipo
+            if (role === 'Líder') {
+                console.log('Aplicando filtro para Líder...');
+                const staffInEvents = await User.find(
+                    { leaderId: req.user._id },
+                    { staffTypeId: 1 }
+                ).distinct('staffTypeId');
+                
+                console.log(`Tipos encontrados en su equipo: ${staffInEvents.length}`);
+                filter._id = { $in: staffInEvents };
+            }
+
+            const staffTypes = await StaffType.find(filter);
+            console.log(`Tipos de personal encontrados: ${staffTypes.length}`);
+
+            res.json({
                 success: true,
-                count: staffTypes.length,
                 data: staffTypes
             });
+
         } catch (error) {
-            console.error('[StaffType] Error al obtener tipos:', error.message);
+            console.error('[StaffType] Error en getAll:', error.message);
+            console.error(error.stack);
             res.status(500).json({
                 success: false,
-                message: 'Error al obtener tipos de personal'
+                message: 'Error al obtener tipos de personal',
+                error: process.env.NODE_ENV === 'development' ? error.message : undefined
             });
         }
     },
 
-    /**
-     * Crear nuevo tipo de personal (Acceso: Admin/Coordinador)
-     */
-    async createStaffType(req, res) {
+    // ----------------------------------------
+    // Crear tipo (Admin)
+    // ----------------------------------------
+    async create(req, res) {
+        console.log('Ejecutando create - Crear nuevo tipo de personal');
         try {
-            console.log('[StaffType] Creando nuevo tipo. Usuario:', req.user.email);
-            const { nombre, descripcion, roles } = req.body;
+            const { name, description, requiredCertifications } = req.body;
+            console.log('Datos recibidos:', { name, description, requiredCertifications });
 
             // Validación básica
-            if (!nombre || !descripcion || !roles || !Array.isArray(roles)) {
-                console.log('[StaffType] Validación fallida - Campos faltantes');
+            if (!name) {
+                console.warn('Intento de creación sin nombre');
                 return res.status(400).json({
                     success: false,
-                    message: 'Nombre, descripción y roles son requeridos'
+                    message: 'El nombre es obligatorio'
                 });
             }
 
-            // Validar roles
-            if (roles.length === 0) {
-                console.log('[StaffType] Validación fallida - Sin roles');
-                return res.status(400).json({
-                    success: false,
-                    message: 'Debe incluir al menos un rol'
-                });
-            }
-
-            const newStaffType = new StaffType({
-                nombre,
-                descripcion,
-                roles,
-                creadoPor: req.user._id
+            const newStaffType = await StaffType.create({
+                name,
+                description,
+                requiredCertifications,
+                createdBy: req.user._id
             });
 
-            await newStaffType.save();
-            console.log(`[StaffType] Creado exitosamente ID: ${newStaffType._id}`);
-
+            console.log(`Nuevo tipo creado con ID: ${newStaffType._id}`);
             res.status(201).json({
                 success: true,
-                message: 'Tipo de personal creado',
                 data: newStaffType
             });
+
         } catch (error) {
-            console.error('[StaffType] Error al crear:', error.message);
+            console.error('[StaffType] Error en create:', error.message);
             
             if (error.code === 11000) {
+                console.warn('Intento de crear tipo con nombre duplicado');
                 res.status(400).json({
                     success: false,
-                    message: 'El nombre del tipo ya existe'
+                    message: 'Ya existe un tipo con ese nombre'
                 });
             } else {
+                console.error('Error interno:', error.stack);
                 res.status(500).json({
                     success: false,
-                    message: 'Error al crear tipo de personal'
+                    message: 'Error al crear tipo de personal',
+                    error: process.env.NODE_ENV === 'development' ? error.message : undefined
                 });
             }
         }
     },
 
-    /**
-     * Obtener tipo por ID (Acceso: Líder+)
-     */
-    async getStaffTypeById(req, res) {
+    // ----------------------------------------
+    // Actualizar tipo (Admin + Coordinador)
+    // ----------------------------------------
+    async update(req, res) {
+        console.log(`Ejecutando update - Actualizando tipo ID: ${req.params.id}`);
         try {
-            console.log(`[StaffType] Buscando tipo ID: ${req.params.id}`);
-            const staffType = await StaffType.findById(req.params.id);
+            const { id } = req.params;
+            const { role } = req.user;
+            const updates = req.body;
+            
+            console.log(`Usuario rol: ${role}, Actualizaciones solicitadas:`, updates);
 
-            if (!staffType) {
-                console.log(`[StaffType] No encontrado ID: ${req.params.id}`);
-                return res.status(404).json({
+            // Validación para Coordinador (solo puede editar descripción)
+            if (role === 'Coordinador' && 
+                (updates.name || updates.requiredCertifications)) {
+                console.warn('Coordinador intentó modificar campos restringidos');
+                return res.status(403).json({
                     success: false,
-                    message: 'Tipo de personal no encontrado'
+                    message: 'Solo administradores pueden modificar nombre o certificaciones'
                 });
-            }
-
-            console.log(`[StaffType] Encontrado: ${staffType.nombre}`);
-            res.status(200).json({
-                success: true,
-                data: staffType
-            });
-        } catch (error) {
-            console.error('[StaffType] Error al buscar por ID:', error.message);
-            res.status(500).json({
-                success: false,
-                message: 'Error al obtener tipo de personal'
-            });
-        }
-    },
-
-    /**
-     * Actualizar tipo de personal (Acceso: Admin/Coordinador)
-     */
-    async updateStaffType(req, res) {
-        try {
-            console.log(`[StaffType] Actualizando ID: ${req.params.id}`);
-            console.log('Datos recibidos:', req.body);
-
-            // Verificar existencia
-            const existingType = await StaffType.findById(req.params.id);
-            if (!existingType) {
-                console.log(`[StaffType] No encontrado para actualizar: ${req.params.id}`);
-                return res.status(404).json({
-                    success: false,
-                    message: 'Tipo de personal no encontrado'
-                });
-            }
-
-            // Validación especial para coordinadores
-            if (req.user.role === 'coordinador') {
-                console.log('[StaffType] Validando permisos de coordinador');
-                if (req.body.roles && JSON.stringify(req.body.roles) !== JSON.stringify(existingType.roles)) {
-                    return res.status(403).json({
-                        success: false,
-                        message: 'Coordinadores no pueden modificar la estructura de roles'
-                    });
-                }
             }
 
             const updatedStaffType = await StaffType.findByIdAndUpdate(
-                req.params.id,
-                req.body,
+                id, 
+                updates, 
                 { new: true, runValidators: true }
             );
 
-            console.log(`[StaffType] Actualizado ID: ${req.params.id}`);
-            res.status(200).json({
+            if (!updatedStaffType) {
+                console.warn(`Tipo no encontrado ID: ${id}`);
+                return res.status(404).json({
+                    success: false,
+                    message: 'Tipo de personal no encontrado'
+                });
+            }
+
+            console.log(`Tipo actualizado correctamente ID: ${id}`);
+            res.json({
                 success: true,
-                message: 'Tipo de personal actualizado',
                 data: updatedStaffType
             });
+
         } catch (error) {
-            console.error('[StaffType] Error al actualizar:', error.message);
+            console.error('[StaffType] Error en update:', error.message);
+            console.error(error.stack);
             res.status(500).json({
                 success: false,
-                message: 'Error al actualizar tipo de personal'
+                message: 'Error al actualizar tipo de personal',
+                error: process.env.NODE_ENV === 'development' ? error.message : undefined
             });
         }
     },
 
-    /**
-     * Eliminar tipo de personal (Acceso: Solo Admin)
-     */
-    async deleteStaffType(req, res) {
+    // ----------------------------------------
+    // Eliminación lógica (Admin)
+    // ----------------------------------------
+    async delete(req, res) {
+        console.log(`Ejecutando delete - Desactivando tipo ID: ${req.params.id}`);
         try {
-            console.log(`[StaffType] Eliminando ID: ${req.params.id}`);
-            
-            // Verificación redundante de permisos
-            if (req.user.role !== 'admin') {
-                console.log(`[StaffType] Intento de eliminación no autorizado por ${req.user.role}`);
-                return res.status(403).json({
-                    success: false,
-                    message: 'Solo admines pueden eliminar tipos'
-                });
-            }
-
-            const deletedStaffType = await StaffType.findByIdAndDelete(req.params.id);
-
-            if (!deletedStaffType) {
-                console.log(`[StaffType] No encontrado para eliminar: ${req.params.id}`);
-                return res.status(404).json({
-                    success: false,
-                    message: 'Tipo de personal no encontrado'
-                });
-            }
-
-            console.log(`[StaffType] Eliminado ID: ${req.params.id}`);
-            res.status(200).json({
-                success: true,
-                message: 'Tipo de personal eliminado',
-                data: deletedStaffType
-            });
-        } catch (error) {
-            console.error('[StaffType] Error al eliminar:', error.message);
-            res.status(500).json({
-                success: false,
-                message: 'Error al eliminar tipo de personal'
-            });
-        }
-    },
-
-    /**
-     * Agregar rol a tipo existente (Acceso: Admin/Coordinador)
-     */
-    async addRoleToStaffType(req, res) {
-        try {
-            console.log(`[StaffType] Agregando rol a ID: ${req.params.id}`);
-            const { nombre, descripcion, requiereCertificacion } = req.body;
-
-            // Validación básica
-            if (!nombre) {
-                console.log('[StaffType] Validación fallida - Nombre de rol faltante');
-                return res.status(400).json({
-                    success: false,
-                    message: 'El nombre del rol es requerido'
-                });
-            }
-
             const staffType = await StaffType.findById(req.params.id);
+            
             if (!staffType) {
-                console.log(`[StaffType] No encontrado ID: ${req.params.id}`);
+                console.warn(`Tipo no encontrado para eliminar ID: ${req.params.id}`);
                 return res.status(404).json({
                     success: false,
                     message: 'Tipo de personal no encontrado'
                 });
             }
 
-            // Verificar si el rol ya existe
-            const roleExists = staffType.roles.some(r => r.nombre === nombre);
-            if (roleExists) {
-                console.log(`[StaffType] Rol ya existe: ${nombre}`);
+            // Verificar si hay usuarios activos asignados
+            console.log('Verificando usuarios asignados...');
+            const usersAssigned = await User.countDocuments({ 
+                staffTypeId: staffType._id,
+                status: 'active'
+            });
+
+            if (usersAssigned > 0) {
+                console.warn(`Intento de eliminar tipo con ${usersAssigned} usuarios asignados`);
                 return res.status(400).json({
                     success: false,
-                    message: 'El rol ya existe en este tipo'
+                    message: 'No se puede eliminar: hay personal activo asignado',
+                    usersAssigned
                 });
             }
 
-            const newRole = {
-                nombre,
-                descripcion: descripcion || '',
-                requiereCertificacion: requiereCertificacion || false
-            };
-
-            staffType.roles.push(newRole);
+            // Eliminación lógica (desactivación)
+            staffType.isActive = false;
             await staffType.save();
+            console.log(`Tipo desactivado correctamente ID: ${staffType._id}`);
 
-            console.log(`[StaffType] Rol agregado a ID: ${req.params.id}`);
-            res.status(200).json({
+            res.json({
                 success: true,
-                message: 'Rol agregado exitosamente',
-                data: staffType
+                message: 'Tipo de personal desactivado'
             });
+
         } catch (error) {
-            console.error('[StaffType] Error al agregar rol:', error.message);
+            console.error('[StaffType] Error en delete:', error.message);
+            console.error(error.stack);
             res.status(500).json({
                 success: false,
-                message: 'Error al agregar rol'
+                message: 'Error al eliminar tipo de personal',
+                error: process.env.NODE_ENV === 'development' ? error.message : undefined
+            });
+        }
+    },
+
+    // ----------------------------------------
+    // Obtener personal por tipo (Líder+)
+    // ----------------------------------------
+    async getStaffByType(req, res) {
+        console.log(`Ejecutando getStaffByType - Para tipo ID: ${req.params.id}`);
+        try {
+            const staff = await User.find({
+                staffTypeId: req.params.id,
+                status: 'active'
+            }).select('name email phone');
+
+            console.log(`Personal encontrado: ${staff.length}`);
+            res.json({
+                success: true,
+                data: staff
+            });
+
+        } catch (error) {
+            console.error('[StaffType] Error en getStaffByType:', error.message);
+            console.error(error.stack);
+            res.status(500).json({
+                success: false,
+                message: 'Error al obtener personal',
+                error: process.env.NODE_ENV === 'development' ? error.message : undefined
             });
         }
     }

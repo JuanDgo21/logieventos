@@ -2,104 +2,92 @@ const mongoose = require('mongoose');
 
 /**
  * Modelo de Tipo de Personal (StaffType)
- * Define las categorías principales y roles específicos del personal de eventos
- * Ejemplo: 
- * - Tipo: "Coordinación y Gestión"
- * - Roles incluidos: ["Coordinador General", "Productor", "Encargado de Logística", etc.]
+ * - Define las categorías de personal que pueden existir en el sistema
+ * - Se relaciona con el modelo User para asignar tipos a usuarios
+ * - Ejemplos: "Técnico", "Logística", "Seguridad", etc.
  */
 const staffTypeSchema = new mongoose.Schema({
-    // Nombre de la categoría principal
-    nombre: {
+    // Nombre del tipo de personal (debe ser único)
+    name: {
         type: String,
-        required: [true, 'El nombre del tipo de personal es obligatorio'],
-        trim: true,
-        unique: true,
-        enum: [ // Lista de categorías principales
-            'Coordinación y Gestión',
-            'Presentación y Animación',
-            'Personal Técnico',
+        required: [true, 'El nombre es obligatorio'], // Validación: campo requerido
+        trim: true, // Elimina espacios en blanco al inicio/final
+        unique: true, // No puede haber dos tipos con el mismo nombre
+        // Lista de valores permitidos (categorías predefinidas)
+        enum: [
+            'Coordinación y Gestión', 
+            'Personal Técnico', 
             'Servicios Generales',
-            'Seguridad y Emergencias',
-            'Comunicación y Prensa',
-            'Apoyo y Atención al Público',
-            'Soporte Tecnológico'
-        ],
-        message: 'Categoría de personal no válida'
+            'Seguridad',
+            'Logística'
+        ]
     },
-
-    // Descripción general de la categoría
-    descripcion: {
+    // Descripción opcional del tipo de personal
+    description: {
         type: String,
-        required: [true, 'La descripción es obligatoria'],
-        trim: true,
-        maxlength: [300, 'La descripción no puede exceder los 300 caracteres']
+        maxlength: [300, 'Máximo 300 caracteres'] // Validación: longitud máxima
     },
-
-    // Lista de roles específicos dentro de esta categoría
-    roles: {
-        type: [{
-            nombre: {
-                type: String,
-                required: [true, 'El nombre del rol es obligatorio'],
-                trim: true
-            },
-            descripcion: {
-                type: String,
-                trim: true,
-                maxlength: [200, 'La descripción del rol no puede exceder 200 caracteres']
-            },
-            requiereCertificacion: {
-                type: Boolean,
-                default: false
-            }
-        }],
-        required: [true, 'Debe especificar al menos un rol para este tipo'],
-        validate: {
-            validator: function(roles) {
-                return roles.length > 0;
-            },
-            message: 'Debe existir al menos un rol para este tipo de personal'
-        }
+    // Indica si el tipo de personal está activo (no se usa para asignaciones si es false)
+    isActive: {
+        type: Boolean,
+        default: true // Por defecto se crea como activo
     },
-
-    // Icono representativo (para interfaces gráficas)
-    icono: {
+    // Array de certificaciones requeridas para este tipo de personal
+    requiredCertifications: [{
         type: String,
-        default: '👔'
-    }
+        // Lista de certificaciones permitidas (puede crecer según necesidades)
+        enum: ['Manipulación de alimentos', 'Primeros auxilios', 'Seguridad laboral']
+    }]
 }, {
-    timestamps: true,  // Agrega createdAt y updatedAt automáticamente
-    versionKey: false // Elimina el campo __v
+    timestamps: true, // Añade automáticamente createdAt y updatedAt
+    versionKey: false // Desactiva el campo __v que Mongoose añade por defecto
 });
 
-// Middleware para validar antes de guardar
-staffTypeSchema.pre('save', function(next) {
-    console.log(`[StaffType] Preparando para guardar tipo: ${this.nombre}`);
+console.log('Definido el esquema base de StaffType con sus campos y validaciones');
+
+// ----- Middlewares (Funciones que se ejecutan antes/después de ciertas acciones) -----
+
+/**
+ * Middleware PRE-REMOVE: Se ejecuta antes de eliminar un tipo de personal
+ * - Verifica que no haya usuarios asignados a este tipo
+ * - Si hay usuarios asignados, lanza un error y cancela la eliminación
+ */
+staffTypeSchema.pre('remove', async function(next) {
+    console.log(`Ejecutando pre-remove para StaffType con ID: ${this._id}`);
     
-    // Asegurar que los nombres de roles sean únicos dentro del tipo
-    const rolesUnicos = new Set(this.roles.map(r => r.nombre.toLowerCase()));
-    if (rolesUnicos.size !== this.roles.length) {
-        throw new Error('No puede haber roles duplicados dentro de un mismo tipo');
+    // Busca usuarios que tengan asignado este tipo de personal
+    const usersWithThisType = await mongoose.model('User').countDocuments({ 
+        staffTypeId: this._id 
+    });
+    
+    console.log(`Usuarios encontrados con este tipo: ${usersWithThisType}`);
+    
+    if (usersWithThisType > 0) {
+        console.error('Intento de eliminar tipo de personal con usuarios asignados');
+        throw new Error('No se puede eliminar: hay personal asignado a esta categoría');
     }
     
-    next();
+    next(); // Continúa con la operación si no hay usuarios asignados
 });
 
-// Manejo de errores de duplicados
-staffTypeSchema.post('save', function(error, doc, next) {
-    if (error.name === 'MongoServerError' && error.code === 11000) {
-        console.error('[StaffType] Error de duplicado:', error.message);
-        next(new Error('Ya existe un tipo de personal con ese nombre'));
-    } else {
-        next(error);
-    }
-});
+// ----- Métodos del Modelo (Funciones disponibles en las instancias) -----
 
-// Método para agregar un nuevo rol al tipo
-staffTypeSchema.methods.agregarRol = function(nuevoRol) {
-    console.log(`[StaffType] Agregando rol "${nuevoRol.nombre}" a ${this.nombre}`);
-    this.roles.push(nuevoRol);
-    return this.save();
+/**
+ * Método de instancia: Obtiene todos los usuarios activos de este tipo de personal
+ * @returns {Promise<Array>} Lista de usuarios activos con este staffType
+ */
+staffTypeSchema.methods.getActiveStaff = async function() {
+    console.log(`Buscando usuarios activos para StaffType ID: ${this._id}`);
+    
+    const activeStaff = await mongoose.model('User').find({ 
+        staffTypeId: this._id, 
+        status: 'active' 
+    });
+    
+    console.log(`Usuarios activos encontrados: ${activeStaff.length}`);
+    return activeStaff;
 };
 
+// Exporta el modelo para poder usarlo en otras partes de la aplicación
 module.exports = mongoose.model('StaffType', staffTypeSchema);
+console.log('Modelo StaffType exportado correctamente');
