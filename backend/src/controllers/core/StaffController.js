@@ -1,206 +1,184 @@
-const Staff = require('../models/core/Staff');
+const Personal = require('../models/core/Personal');
 const StaffType = require('../models/types/StaffType');
 
+/**
+ * Controlador para gestionar el personal con control de roles
+ */
 module.exports = {
-    // Obtener todo el personal
-    async getAllStaff(req, res) {
+    // Obtener todo el personal (Líder+)
+    async getAll(req, res) {
         try {
-            console.log('[Staff] Obteniendo listado de personal');
-            const staff = await Staff.find()
-                .populate('tipoPersonal', 'nombre descripcion');
-
-            console.log(`[Staff] Encontrados ${staff.length} registros`);
-            res.status(200).json({ success: true, data: staff });
+            console.log(`[Personal] GET all - Solicitado por: ${req.user.email} (${req.user.role})`);
+            
+            const personal = await Personal.find()
+                .populate('tipoPersonal', 'nombre');
+            
+            res.status(200).json({ 
+                success: true, 
+                count: personal.length,
+                data: personal 
+            });
         } catch (error) {
-            console.error('[Staff] Error al obtener personal:', error.message);
-            res.status(500).json({ success: false, message: 'Error del servidor' });
+            console.error('[Personal] Error al listar:', error.message);
+            res.status(500).json({ 
+                success: false, 
+                message: 'Error al obtener personal' 
+            });
         }
     },
 
-    // Crear nuevo miembro del personal
-    async createStaff(req, res) {
+    // Crear nuevo personal (Admin/Coordinador)
+    async create(req, res) {
         try {
-            console.log('[Staff] Creando nuevo registro:', req.body);
-            const { identificacion, nombreCompleto, tipoPersonal, rol } = req.body;
+            console.log(`[Personal] CREATE - Usuario: ${req.user.email}`);
+            const { identificacion, tipoPersonal } = req.body;
 
-            // Validaciones básicas
-            if (!identificacion || !nombreCompleto || !tipoPersonal || !rol) {
-                console.log('[Staff] Faltan campos obligatorios');
+            // Validación básica
+            if (!identificacion || !tipoPersonal) {
                 return res.status(400).json({ 
                     success: false, 
-                    message: 'Identificación, nombre completo, tipo y rol son requeridos' 
+                    message: 'Identificación y tipo son requeridos' 
                 });
             }
 
-            // Crear y guardar
-            const newStaff = new Staff(req.body);
-            await newStaff.save();
+            // Verificar tipo existente
+            const tipoValido = await StaffType.findById(tipoPersonal);
+            if (!tipoValido) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: 'Tipo de personal no válido' 
+                });
+            }
 
-            console.log(`[Staff] Registro creado exitosamente: ${newStaff._id}`);
-            res.status(201).json({ success: true, data: newStaff });
-        } catch (error) {
-            console.error('[Staff] Error al crear:', error.message);
+            const nuevoPersonal = new Personal({
+                ...req.body,
+                creadoPor: req.user._id
+            });
+
+            await nuevoPersonal.save();
             
-            // Manejo de errores específicos
+            res.status(201).json({ 
+                success: true, 
+                data: nuevoPersonal 
+            });
+        } catch (error) {
+            console.error('[Personal] Error al crear:', error.message);
+            
             if (error.code === 11000) {
                 res.status(400).json({ 
                     success: false, 
-                    message: 'La identificación ya está registrada' 
-                });
-            } else if (error.message.includes('no existe en la categoría')) {
-                res.status(400).json({ 
-                    success: false, 
-                    message: error.message 
+                    message: 'Identificación ya registrada' 
                 });
             } else {
                 res.status(500).json({ 
                     success: false, 
-                    message: 'Error del servidor' 
+                    message: 'Error al crear personal' 
                 });
             }
         }
     },
 
-    // Obtener personal por ID
-    async getStaffById(req, res) {
+    // Obtener personal por ID (Líder+)
+    async getById(req, res) {
         try {
-            const { id } = req.params;
-            console.log(`[Staff] Buscando registro con ID: ${id}`);
+            console.log(`[Personal] GET by ID - ID: ${req.params.id}`);
+            const personal = await Personal.findById(req.params.id)
+                .populate('tipoPersonal', 'nombre roles');
 
-            const staff = await Staff.findById(id)
-                .populate('tipoPersonal', 'nombre descripcion roles');
-
-            if (!staff) {
-                console.log(`[Staff] Registro no encontrado: ${id}`);
+            if (!personal) {
                 return res.status(404).json({ 
                     success: false, 
                     message: 'Personal no encontrado' 
                 });
             }
 
-            console.log(`[Staff] Registro encontrado: ${staff.nombreCompleto}`);
-            res.status(200).json({ success: true, data: staff });
-        } catch (error) {
-            console.error('[Staff] Error al buscar por ID:', error.message);
-            res.status(500).json({ 
-                success: false, 
-                message: 'Error del servidor' 
-            });
-        }
-    },
-
-    // Actualizar personal
-    async updateStaff(req, res) {
-        try {
-            const { id } = req.params;
-            console.log(`[Staff] Actualizando registro ${id}:`, req.body);
-
-            // Verificar si se está cambiando el tipo o rol
-            if (req.body.tipoPersonal || req.body.rol) {
-                const tipo = await StaffType.findById(req.body.tipoPersonal || req.staff.tipoPersonal);
-                if (!tipo) {
-                    throw new Error('Tipo de personal no encontrado');
-                }
-
-                const rol = req.body.rol || req.staff.rol;
-                const rolExiste = tipo.roles.some(r => r.nombre === rol);
-                if (!rolExiste) {
-                    throw new Error(`El rol "${rol}" no existe en la categoría "${tipo.nombre}"`);
-                }
-            }
-
-            const updatedStaff = await Staff.findByIdAndUpdate(
-                id, 
-                req.body, 
-                { new: true, runValidators: true }
-            ).populate('tipoPersonal', 'nombre descripcion');
-
-            if (!updatedStaff) {
-                console.log(`[Staff] Registro no encontrado para actualizar: ${id}`);
-                return res.status(404).json({ 
-                    success: false, 
-                    message: 'Personal no encontrado' 
-                });
-            }
-
-            console.log(`[Staff] Actualizado correctamente: ${id}`);
-            res.status(200).json({ success: true, data: updatedStaff });
-        } catch (error) {
-            console.error('[Staff] Error al actualizar:', error.message);
-            
-            if (error.message.includes('no existe en la categoría')) {
-                res.status(400).json({ 
-                    success: false, 
-                    message: error.message 
-                });
-            } else {
-                res.status(500).json({ 
-                    success: false, 
-                    message: 'Error del servidor' 
-                });
-            }
-        }
-    },
-
-    // Cambiar estado del personal (borrado lógico)
-    async changeStaffStatus(req, res) {
-        try {
-            const { id } = req.params;
-            const { activo, disponibilidad } = req.body;
-            console.log(`[Staff] Cambiando estado del registro: ${id}`);
-
-            const updateData = {};
-            if (activo !== undefined) updateData['estado.activo'] = activo;
-            if (disponibilidad !== undefined) updateData['estado.disponibilidad'] = disponibilidad;
-
-            const updatedStaff = await Staff.findByIdAndUpdate(
-                id,
-                updateData,
-                { new: true }
-            ).populate('tipoPersonal', 'nombre');
-
-            if (!updatedStaff) {
-                console.log(`[Staff] Registro no encontrado: ${id}`);
-                return res.status(404).json({ 
-                    success: false, 
-                    message: 'Personal no encontrado' 
-                });
-            }
-
-            console.log(`[Staff] Estado actualizado: ${updatedStaff.estado.activo ? 'Activo' : 'Inactivo'}`);
             res.status(200).json({ 
                 success: true, 
-                message: 'Estado actualizado',
-                data: {
-                    activo: updatedStaff.estado.activo,
-                    disponibilidad: updatedStaff.estado.disponibilidad
-                }
+                data: personal 
             });
         } catch (error) {
-            console.error('[Staff] Error al cambiar estado:', error.message);
+            console.error('[Personal] Error al buscar:', error.message);
             res.status(500).json({ 
                 success: false, 
-                message: 'Error del servidor' 
+                message: 'Error al obtener personal' 
             });
         }
     },
 
-    // Obtener personal por tipo
-    async getStaffByType(req, res) {
+    // Actualizar personal (Admin/Coordinador)
+    async update(req, res) {
         try {
-            const { tipoId } = req.params;
-            console.log(`[Staff] Buscando personal por tipo: ${tipoId}`);
+            console.log(`[Personal] UPDATE - ID: ${req.params.id}`);
+            
+            // Coordinadores no pueden cambiar el tipo
+            if (req.user.role === 'coordinador' && req.body.tipoPersonal) {
+                return res.status(403).json({ 
+                    success: false, 
+                    message: 'No puedes modificar el tipo de personal' 
+                });
+            }
 
-            const staff = await Staff.find({ tipoPersonal: tipoId })
-                .populate('tipoPersonal', 'nombre');
+            const actualizado = await Personal.findByIdAndUpdate(
+                req.params.id, 
+                req.body, 
+                { new: true, runValidators: true }
+            );
 
-            console.log(`[Staff] Encontrados ${staff.length} registros para el tipo ${tipoId}`);
-            res.status(200).json({ success: true, data: staff });
+            if (!actualizado) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: 'Personal no encontrado' 
+                });
+            }
+
+            res.status(200).json({ 
+                success: true, 
+                data: actualizado 
+            });
         } catch (error) {
-            console.error('[Staff] Error al buscar por tipo:', error.message);
+            console.error('[Personal] Error al actualizar:', error.message);
             res.status(500).json({ 
                 success: false, 
-                message: 'Error del servidor' 
+                message: 'Error al actualizar personal' 
+            });
+        }
+    },
+
+    // Cambiar estado (Admin)
+    async changeStatus(req, res) {
+        try {
+            console.log(`[Personal] CHANGE STATUS - ID: ${req.params.id}`);
+            
+            // Solo admin puede desactivar
+            if (req.user.role !== 'admin') {
+                return res.status(403).json({ 
+                    success: false, 
+                    message: 'Solo admines pueden cambiar estados' 
+                });
+            }
+
+            const personal = await Personal.findByIdAndUpdate(
+                req.params.id,
+                { 'estado.activo': req.body.activo },
+                { new: true }
+            );
+
+            if (!personal) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: 'Personal no encontrado' 
+                });
+            }
+
+            res.status(200).json({ 
+                success: true, 
+                message: `Estado actualizado a ${personal.estado.activo ? 'activo' : 'inactivo'}` 
+            });
+        } catch (error) {
+            console.error('[Personal] Error al cambiar estado:', error.message);
+            res.status(500).json({ 
+                success: false, 
+                message: 'Error al cambiar estado' 
             });
         }
     }

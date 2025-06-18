@@ -1,24 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const StaffTypeController = require('../controllers/StaffTypeController');
-const { checkAdmin } = require('../middleware/authMiddleware');
+const StaffTypeController = require('../controllers/types/StaffTypeController');
+const { fullAccess, readWriteAccess, readOnlyAccess } = require('../middlewares/role');
 
-// Obtener todos los tipos de personal
-router.get('/', checkAdmin, StaffTypeController.getStaffTypes);
+// Obtener todos (Líder+)
+router.get('/', readOnlyAccess, StaffTypeController.getAllStaffTypes);
 
-// Crear un nuevo tipo de personal
-router.post('/', checkAdmin, StaffTypeController.createStaffType);
+// Crear nuevo (Admin/Coordinador)
+router.post('/', readWriteAccess, StaffTypeController.createStaffType);
 
-// Obtener un tipo de personal por ID
-router.get('/:id', checkAdmin, StaffTypeController.getStaffTypeById);
+// Obtener por ID (Líder+)
+router.get('/:id', readOnlyAccess, StaffTypeController.getStaffTypeById);
 
-// Actualizar un tipo de personal
-router.put('/:id', checkAdmin, StaffTypeController.updateStaffType);
+// Actualizar (Admin/Coordinador)
+router.put('/:id', readWriteAccess, StaffTypeController.updateStaffType);
 
-// Eliminar un tipo de personal
-router.delete('/:id', checkAdmin, StaffTypeController.deleteStaffType);
+// Eliminar (Solo Admin)
+router.delete('/:id', fullAccess, StaffTypeController.deleteStaffType);
 
-// **Ruta adicional para gestión de roles**
-router.post('/:id/roles', checkAdmin, StaffTypeController.addRoleToStaffType);
+// Agregar rol (Admin/Coordinador)
+router.post('/:id/roles', readWriteAccess, StaffTypeController.addRoleToStaffType);
 
 module.exports = router;

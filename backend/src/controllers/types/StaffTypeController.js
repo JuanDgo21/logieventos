@@ -1,294 +1,270 @@
-// backend/controllers/types/StaffTypeController.js
-const StaffType = require('../../src/models/types/StaffType');
+const StaffType = require('../../models/types/StaffType');
 
 /**
- * @desc    Obtener todos los tipos de personal
- * @route   GET /api/staff-types
- * @access  Private/Admin
+ * Controlador para gestionar tipos de personal con control de permisos
  */
-exports.getStaffTypes = async (req, res) => {
-    try {
-        console.log('Obteniendo todos los tipos de personal');
-        const staffTypes = await StaffType.find().sort({ nombre: 1 });
+module.exports = {
+    /**
+     * Obtener todos los tipos de personal (Acceso: Líder+)
+     */
+    async getAllStaffTypes(req, res) {
+        try {
+            console.log('[StaffType] Obteniendo todos los tipos de personal');
+            console.log(`[StaffType] Solicitado por: ${req.user.email} (${req.user.role})`);
 
-        res.status(200).json({
-            success: true,
-            count: staffTypes.length,
-            data: staffTypes
-        });
-    } catch (error) {
-        console.error('Error en getStaffTypes:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener tipos de personal'
-        });
-    }
-};
-
-/**
- * @desc    Crear un nuevo tipo de personal
- * @route   POST /api/staff-types
- * @access  Private/Admin
- */
-exports.createStaffType = async (req, res) => {
-    try {
-        console.log('Intentando crear nuevo tipo de personal:', req.body);
-        const { nombre, descripcion, roles, icono } = req.body;
-
-        // Validación de campos requeridos
-        if (!nombre || !descripcion || !roles || !Array.isArray(roles) || roles.length === 0) {
-            console.log('Validación fallida: campos requeridos faltantes');
-            return res.status(400).json({
+            const staffTypes = await StaffType.find().sort({ nombre: 1 });
+            
+            console.log(`[StaffType] Encontrados ${staffTypes.length} registros`);
+            res.status(200).json({
+                success: true,
+                count: staffTypes.length,
+                data: staffTypes
+            });
+        } catch (error) {
+            console.error('[StaffType] Error al obtener tipos:', error.message);
+            res.status(500).json({
                 success: false,
-                message: 'Nombre, descripción y al menos un rol son requeridos'
+                message: 'Error al obtener tipos de personal'
             });
         }
+    },
 
-        // Validar que los roles tengan nombre
-        const invalidRoles = roles.some(role => !role.nombre);
-        if (invalidRoles) {
-            console.log('Validación fallida: roles sin nombre');
-            return res.status(400).json({
-                success: false,
-                message: 'Todos los roles deben tener un nombre'
-            });
-        }
+    /**
+     * Crear nuevo tipo de personal (Acceso: Admin/Coordinador)
+     */
+    async createStaffType(req, res) {
+        try {
+            console.log('[StaffType] Creando nuevo tipo. Usuario:', req.user.email);
+            const { nombre, descripcion, roles } = req.body;
 
-        // Crear el nuevo tipo
-        const newStaffType = new StaffType({
-            nombre,
-            descripcion,
-            roles,
-            icono: icono || '👔'
-        });
-
-        // Guardar en la base de datos
-        const savedStaffType = await newStaffType.save();
-        console.log(`Tipo de personal creado exitosamente: ${savedStaffType._id}`);
-
-        res.status(201).json({
-            success: true,
-            message: 'Tipo de personal creado exitosamente',
-            data: savedStaffType
-        });
-
-    } catch (error) {
-        console.error('Error en createStaffType:', error);
-        
-        // Manejo de errores específicos
-        if (error.message.includes('duplicados')) {
-            return res.status(400).json({
-                success: false,
-                message: error.message
-            });
-        }
-        
-        if (error.name === 'ValidationError') {
-            return res.status(400).json({
-                success: false,
-                message: error.message
-            });
-        }
-
-        res.status(500).json({
-            success: false,
-            message: 'Error al crear tipo de personal'
-        });
-    }
-};
-
-/**
- * @desc    Obtener un tipo de personal por ID
- * @route   GET /api/staff-types/:id
- * @access  Private/Admin
- */
-exports.getStaffTypeById = async (req, res) => {
-    try {
-        console.log(`Buscando tipo de personal con ID: ${req.params.id}`);
-        const staffType = await StaffType.findById(req.params.id);
-
-        if (!staffType) {
-            console.log(`Tipo de personal no encontrado para ID: ${req.params.id}`);
-            return res.status(404).json({
-                success: false,
-                message: 'Tipo de personal no encontrado'
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            data: staffType
-        });
-    } catch (error) {
-        console.error('Error en getStaffTypeById:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener tipo de personal'
-        });
-    }
-};
-
-/**
- * @desc    Actualizar un tipo de personal
- * @route   PUT /api/staff-types/:id
- * @access  Private/Admin
- */
-exports.updateStaffType = async (req, res) => {
-    try {
-        console.log(`Actualizando tipo de personal con ID: ${req.params.id}`, req.body);
-        const { nombre, descripcion, roles, icono } = req.body;
-        const updateData = {};
-
-        // Preparar datos para actualización
-        if (nombre !== undefined) updateData.nombre = nombre;
-        if (descripcion !== undefined) updateData.descripcion = descripcion;
-        if (icono !== undefined) updateData.icono = icono;
-        
-        // Manejo especial para roles (solo si se proporcionan)
-        if (roles !== undefined) {
-            if (!Array.isArray(roles) || roles.length === 0) {
+            // Validación básica
+            if (!nombre || !descripcion || !roles || !Array.isArray(roles)) {
+                console.log('[StaffType] Validación fallida - Campos faltantes');
                 return res.status(400).json({
                     success: false,
-                    message: 'Debe proporcionar al menos un rol válido'
+                    message: 'Nombre, descripción y roles son requeridos'
                 });
             }
-            updateData.roles = roles;
-        }
 
-        const updatedStaffType = await StaffType.findByIdAndUpdate(
-            req.params.id,
-            updateData,
-            {
-                new: true,
-                runValidators: true
+            // Validar roles
+            if (roles.length === 0) {
+                console.log('[StaffType] Validación fallida - Sin roles');
+                return res.status(400).json({
+                    success: false,
+                    message: 'Debe incluir al menos un rol'
+                });
             }
-        );
 
-        if (!updatedStaffType) {
-            console.log(`Tipo de personal no encontrado para ID: ${req.params.id}`);
-            return res.status(404).json({
+            const newStaffType = new StaffType({
+                nombre,
+                descripcion,
+                roles,
+                creadoPor: req.user._id
+            });
+
+            await newStaffType.save();
+            console.log(`[StaffType] Creado exitosamente ID: ${newStaffType._id}`);
+
+            res.status(201).json({
+                success: true,
+                message: 'Tipo de personal creado',
+                data: newStaffType
+            });
+        } catch (error) {
+            console.error('[StaffType] Error al crear:', error.message);
+            
+            if (error.code === 11000) {
+                res.status(400).json({
+                    success: false,
+                    message: 'El nombre del tipo ya existe'
+                });
+            } else {
+                res.status(500).json({
+                    success: false,
+                    message: 'Error al crear tipo de personal'
+                });
+            }
+        }
+    },
+
+    /**
+     * Obtener tipo por ID (Acceso: Líder+)
+     */
+    async getStaffTypeById(req, res) {
+        try {
+            console.log(`[StaffType] Buscando tipo ID: ${req.params.id}`);
+            const staffType = await StaffType.findById(req.params.id);
+
+            if (!staffType) {
+                console.log(`[StaffType] No encontrado ID: ${req.params.id}`);
+                return res.status(404).json({
+                    success: false,
+                    message: 'Tipo de personal no encontrado'
+                });
+            }
+
+            console.log(`[StaffType] Encontrado: ${staffType.nombre}`);
+            res.status(200).json({
+                success: true,
+                data: staffType
+            });
+        } catch (error) {
+            console.error('[StaffType] Error al buscar por ID:', error.message);
+            res.status(500).json({
                 success: false,
-                message: 'Tipo de personal no encontrado'
+                message: 'Error al obtener tipo de personal'
             });
         }
+    },
 
-        console.log(`Tipo de personal actualizado exitosamente: ${req.params.id}`);
-        res.status(200).json({
-            success: true,
-            message: 'Tipo de personal actualizado exitosamente',
-            data: updatedStaffType
-        });
-    } catch (error) {
-        console.error('Error en updateStaffType:', error);
-        
-        if (error.message.includes('duplicados')) {
-            return res.status(400).json({
+    /**
+     * Actualizar tipo de personal (Acceso: Admin/Coordinador)
+     */
+    async updateStaffType(req, res) {
+        try {
+            console.log(`[StaffType] Actualizando ID: ${req.params.id}`);
+            console.log('Datos recibidos:', req.body);
+
+            // Verificar existencia
+            const existingType = await StaffType.findById(req.params.id);
+            if (!existingType) {
+                console.log(`[StaffType] No encontrado para actualizar: ${req.params.id}`);
+                return res.status(404).json({
+                    success: false,
+                    message: 'Tipo de personal no encontrado'
+                });
+            }
+
+            // Validación especial para coordinadores
+            if (req.user.role === 'coordinador') {
+                console.log('[StaffType] Validando permisos de coordinador');
+                if (req.body.roles && JSON.stringify(req.body.roles) !== JSON.stringify(existingType.roles)) {
+                    return res.status(403).json({
+                        success: false,
+                        message: 'Coordinadores no pueden modificar la estructura de roles'
+                    });
+                }
+            }
+
+            const updatedStaffType = await StaffType.findByIdAndUpdate(
+                req.params.id,
+                req.body,
+                { new: true, runValidators: true }
+            );
+
+            console.log(`[StaffType] Actualizado ID: ${req.params.id}`);
+            res.status(200).json({
+                success: true,
+                message: 'Tipo de personal actualizado',
+                data: updatedStaffType
+            });
+        } catch (error) {
+            console.error('[StaffType] Error al actualizar:', error.message);
+            res.status(500).json({
                 success: false,
-                message: error.message
+                message: 'Error al actualizar tipo de personal'
             });
         }
-        
-        if (error.name === 'ValidationError') {
-            return res.status(400).json({
+    },
+
+    /**
+     * Eliminar tipo de personal (Acceso: Solo Admin)
+     */
+    async deleteStaffType(req, res) {
+        try {
+            console.log(`[StaffType] Eliminando ID: ${req.params.id}`);
+            
+            // Verificación redundante de permisos
+            if (req.user.role !== 'admin') {
+                console.log(`[StaffType] Intento de eliminación no autorizado por ${req.user.role}`);
+                return res.status(403).json({
+                    success: false,
+                    message: 'Solo admines pueden eliminar tipos'
+                });
+            }
+
+            const deletedStaffType = await StaffType.findByIdAndDelete(req.params.id);
+
+            if (!deletedStaffType) {
+                console.log(`[StaffType] No encontrado para eliminar: ${req.params.id}`);
+                return res.status(404).json({
+                    success: false,
+                    message: 'Tipo de personal no encontrado'
+                });
+            }
+
+            console.log(`[StaffType] Eliminado ID: ${req.params.id}`);
+            res.status(200).json({
+                success: true,
+                message: 'Tipo de personal eliminado',
+                data: deletedStaffType
+            });
+        } catch (error) {
+            console.error('[StaffType] Error al eliminar:', error.message);
+            res.status(500).json({
                 success: false,
-                message: error.message
+                message: 'Error al eliminar tipo de personal'
             });
         }
+    },
 
-        res.status(500).json({
-            success: false,
-            message: 'Error al actualizar tipo de personal'
-        });
-    }
-};
+    /**
+     * Agregar rol a tipo existente (Acceso: Admin/Coordinador)
+     */
+    async addRoleToStaffType(req, res) {
+        try {
+            console.log(`[StaffType] Agregando rol a ID: ${req.params.id}`);
+            const { nombre, descripcion, requiereCertificacion } = req.body;
 
-/**
- * @desc    Eliminar un tipo de personal
- * @route   DELETE /api/staff-types/:id
- * @access  Private/Admin
- */
-exports.deleteStaffType = async (req, res) => {
-    try {
-        console.log(`Eliminando tipo de personal con ID: ${req.params.id}`);
-        const deletedStaffType = await StaffType.findByIdAndDelete(req.params.id);
+            // Validación básica
+            if (!nombre) {
+                console.log('[StaffType] Validación fallida - Nombre de rol faltante');
+                return res.status(400).json({
+                    success: false,
+                    message: 'El nombre del rol es requerido'
+                });
+            }
 
-        if (!deletedStaffType) {
-            console.log(`Tipo de personal no encontrado para ID: ${req.params.id}`);
-            return res.status(404).json({
+            const staffType = await StaffType.findById(req.params.id);
+            if (!staffType) {
+                console.log(`[StaffType] No encontrado ID: ${req.params.id}`);
+                return res.status(404).json({
+                    success: false,
+                    message: 'Tipo de personal no encontrado'
+                });
+            }
+
+            // Verificar si el rol ya existe
+            const roleExists = staffType.roles.some(r => r.nombre === nombre);
+            if (roleExists) {
+                console.log(`[StaffType] Rol ya existe: ${nombre}`);
+                return res.status(400).json({
+                    success: false,
+                    message: 'El rol ya existe en este tipo'
+                });
+            }
+
+            const newRole = {
+                nombre,
+                descripcion: descripcion || '',
+                requiereCertificacion: requiereCertificacion || false
+            };
+
+            staffType.roles.push(newRole);
+            await staffType.save();
+
+            console.log(`[StaffType] Rol agregado a ID: ${req.params.id}`);
+            res.status(200).json({
+                success: true,
+                message: 'Rol agregado exitosamente',
+                data: staffType
+            });
+        } catch (error) {
+            console.error('[StaffType] Error al agregar rol:', error.message);
+            res.status(500).json({
                 success: false,
-                message: 'Tipo de personal no encontrado'
+                message: 'Error al agregar rol'
             });
         }
-
-        console.log(`Tipo de personal eliminado exitosamente: ${req.params.id}`);
-        res.status(200).json({
-            success: true,
-            message: 'Tipo de personal eliminado exitosamente',
-            data: deletedStaffType
-        });
-    } catch (error) {
-        console.error('Error en deleteStaffType:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error al eliminar tipo de personal'
-        });
-    }
-};
-
-/**
- * @desc    Agregar un rol a un tipo de personal existente
- * @route   POST /api/staff-types/:id/roles
- * @access  Private/Admin
- */
-exports.addRoleToStaffType = async (req, res) => {
-    try {
-        console.log(`Agregando rol a tipo de personal con ID: ${req.params.id}`, req.body);
-        const { nombre, descripcion, requiereCertificacion } = req.body;
-
-        // Validación
-        if (!nombre) {
-            return res.status(400).json({
-                success: false,
-                message: 'El nombre del rol es requerido'
-            });
-        }
-
-        const staffType = await StaffType.findById(req.params.id);
-        if (!staffType) {
-            return res.status(404).json({
-                success: false,
-                message: 'Tipo de personal no encontrado'
-            });
-        }
-
-        // Usar el método personalizado del modelo
-        const newRole = {
-            nombre,
-            descripcion: descripcion || '',
-            requiereCertificacion: requiereCertificacion || false
-        };
-
-        await staffType.agregarRol(newRole);
-        
-        console.log(`Rol agregado exitosamente a tipo de personal: ${req.params.id}`);
-        res.status(200).json({
-            success: true,
-            message: 'Rol agregado exitosamente',
-            data: staffType
-        });
-    } catch (error) {
-        console.error('Error en addRoleToStaffType:', error);
-        
-        if (error.message.includes('duplicados')) {
-            return res.status(400).json({
-                success: false,
-                message: error.message
-            });
-        }
-
-        res.status(500).json({
-            success: false,
-            message: 'Error al agregar rol'
-        });
     }
 };

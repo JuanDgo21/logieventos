@@ -1,31 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const StaffController = require('../controllers/StaffController');
-const { checkAdmin } = require('../middleware/authMiddleware');
+const PersonalController = require('../controllers/PersonalController');
+const { fullAccess, readWriteAccess, readOnlyAccess } = require('../middlewares/role');
 
-/**
- * @swagger
- * tags:
- *   name: Staff
- *   description: Gestión del personal de eventos
- */
+// Obtener todo (Líder+)
+router.get('/', readOnlyAccess, PersonalController.getAll);
 
-// Obtener todo el personal
-router.get('/', checkAdmin, StaffController.getAllStaff);
+// Crear (Admin/Coordinador)
+router.post('/', readWriteAccess, PersonalController.create);
 
-// Crear nuevo personal
-router.post('/', checkAdmin, StaffController.createStaff);
+// Obtener por ID (Líder+)
+router.get('/:id', readOnlyAccess, PersonalController.getById);
 
-// Obtener personal por ID
-router.get('/:id', checkAdmin, StaffController.getStaffById);
+// Actualizar (Admin/Coordinador)
+router.put('/:id', readWriteAccess, PersonalController.update);
 
-// Actualizar datos del personal
-router.put('/:id', checkAdmin, StaffController.updateStaff);
-
-// Cambiar estado (activo/inactivo) o disponibilidad
-router.patch('/:id/status', checkAdmin, StaffController.changeStaffStatus);
-
-// Obtener personal por tipo (filtrado)
-router.get('/type/:tipoId', checkAdmin, StaffController.getStaffByType);
+// Cambiar estado (Solo Admin)
+router.patch('/:id/status', fullAccess, PersonalController.changeStatus);
 
 module.exports = router;

@@ -1,56 +1,70 @@
 /**
- * Middleware para verificar roles permitidos
+ * Middleware para verificar roles permitidos con reglas específicas
  * @param {...string} allowedRoles - Roles que tienen permiso para la acción
  * @returns Middleware function que verifica los permisos del usuario
  */
 const checkRole = (...allowedRoles) => {
     return (req, res, next) => {
-        console.log(`Verificando permisos para ruta: ${req.path}`);
+        console.log(`[Role Check] Ruta: ${req.method} ${req.path} | Usuario: ${req.user?.email}`);
         
-        // 1. Verificar que el usuario esté autenticado y tenga rol
+        // 1. Verificación básica de autenticación
         if (!req.user || !req.user.role) {
-            console.error('ERROR: Usuario no autenticado o sin rol definido');
+            console.error('[Role Check] Error: Usuario no autenticado');
             return res.status(401).json({
                 success: false,
-                message: 'Acceso no autorizado: usuario no autenticado o sin rol'
+                message: 'Autenticación requerida'
             });
         }
 
-        console.log(`Usuario autenticado: ${req.user.email}, Rol: ${req.user.role}`);
-
-        // 2. Verificar que el rol del usuario esté permitido
-        if (!allowedRoles.includes(req.user.role)) {
-            console.warn(`ADVERTENCIA: Rol ${req.user.role} no tiene permisos para esta acción`);
+        // 2. Reglas especiales por método HTTP
+        if (req.user.role === 'coordinador' && req.method === 'DELETE') {
+            console.warn('[Role Check] Coordinador intentando eliminar');
             return res.status(403).json({
                 success: false,
-                message: `Acceso denegado: Rol ${req.user.role} no tiene permisos para esta acción`,
-                requiredRoles: allowedRoles
+                message: 'Coordinadores no pueden eliminar registros'
             });
         }
 
-        console.log(`Permiso concedido para ${req.user.role}`);
+        if (req.user.role === 'lider' && req.method !== 'GET') {
+            console.warn('[Role Check] Líder intentando modificar');
+            return res.status(403).json({
+                success: false,
+                message: 'Líderes solo pueden consultar información'
+            });
+        }
+
+        // 3. Verificación general de roles permitidos
+        if (!allowedRoles.includes(req.user.role)) {
+            console.warn(`[Role Check] Rol no autorizado: ${req.user.role}`);
+            return res.status(403).json({
+                success: false,
+                message: 'Permisos insuficientes para esta acción',
+                requiredRoles: allowedRoles,
+                yourRole: req.user.role
+            });
+        }
+
+        console.log(`[Role Check] Acceso concedido a ${req.user.role}`);
         next();
     };
 };
 
-// Funciones específicas por rol (para verificación directa)
-const isAdmin = checkRole('administrador');
-const isCoordinador = checkRole('coordinador');
-const isLider = checkRole('lider');
+// Funciones específicas por rol
+const isAdmin = checkRole('admin');
+const isCoordinador = checkRole('admin', 'coordinador'); // Incluye admin para flexibilidad
+const isLider = checkRole('admin', 'coordinador', 'lider');
 
-// Funciones combinadas para operaciones CRUD según permisos
-const canCreate = checkRole('administrador', 'coordinador');      // Admin y Coordinador pueden crear
-const canRead = checkRole('administrador', 'coordinador', 'lider'); // Todos pueden leer
-const canUpdate = checkRole('administrador', 'coordinador');     // Admin y Coordinador pueden actualizar
-const canDelete = checkRole('administrador');                     // Solo Admin puede eliminar
+// Funciones para operaciones CRUD (versión mejorada)
+const fullAccess = checkRole('admin');
+const readWriteAccess = checkRole('admin', 'coordinador');
+const readOnlyAccess = checkRole('admin', 'coordinador', 'lider');
 
 module.exports = {
     checkRole,
     isAdmin,
     isCoordinador,
     isLider,
-    canCreate,
-    canRead,
-    canUpdate,
-    canDelete
+    fullAccess,       // Solo Admin
+    readWriteAccess,  // Admin + Coordinador (excepto DELETE)
+    readOnlyAccess    // Todos los roles (solo GET)
 };
