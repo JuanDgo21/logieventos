@@ -1,220 +1,250 @@
 const StaffType = require('../../models/types/StaffType');
-const Staff = require('../../models/core/Staff');
+const { validationResult } = require('express-validator');
 
-// Obtener todos los tipos de personal (Admin y coordinador)
-exports.getAllStaffTypes = async (req, res) => {
-    console.log('[STAFFTYPE CONTROLLER] Ejecutando getAllStaffTypes');
-    try {
-        const staffTypes = await StaffType.find().sort({ name: 1 });
-        console.log(`[STAFFTYPE CONTROLLER] ${staffTypes.length} tipos de personal encontrados`);
-        res.status(200).json({
-            success: true,
-            count: staffTypes.length,
-            data: staffTypes
-        });
-    } catch (error) {
-        console.error('[STAFFTYPE CONTROLLER] Error en getAllStaffTypes:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener los tipos de personal'
-        });
-    }
-};
-
-// Obtener tipo de personal específico (Admin y coordinador)
-exports.getStaffTypeById = async (req, res) => {
-    console.log('[STAFFTYPE CONTROLLER] Ejecutando getStaffTypeById para ID:', req.params.id);
-    try {
-        const staffType = await StaffType.findById(req.params.id);
-
-        if (!staffType) {
-            console.log('[STAFFTYPE CONTROLLER] Tipo de personal no encontrado');
-            return res.status(404).json({
+/**
+ * Controlador para gestionar operaciones CRUD de tipos de personal
+ * (Adaptado para el esquema Mongoose actual)
+ */
+const StaffTypeController = {
+    /**
+     * Obtener todos los tipos de personal
+     */
+    getAll: async (req, res) => {
+        try {
+            console.log('[StaffTypeController] Obteniendo todos los tipos de personal');
+            const staffTypes = await StaffType.find({})
+                .sort({ nombre: 1 });
+            
+            console.log(`[StaffTypeController] Encontrados ${staffTypes.length} tipos de personal`);
+            res.status(200).json({
+                success: true,
+                data: staffTypes
+            });
+        } catch (error) {
+            console.error('[StaffTypeController] Error al obtener tipos de personal:', error.message);
+            res.status(500).json({
                 success: false,
-                message: 'Tipo de personal no encontrado'
+                message: 'Error interno del servidor'
             });
         }
+    },
 
-        res.status(200).json({
-            success: true,
-            data: staffType
-        });
-    } catch (error) {
-        console.error('[STAFFTYPE CONTROLLER] Error en getStaffTypeById:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener el tipo de personal',
-            error: error.message
-        });
-    }
-};
-
-// Crear nuevo tipo de personal (Solo Admin)
-exports.createStaffType = async (req, res) => {
-    console.log('[STAFFTYPE CONTROLLER] Ejecutando createStaffType');
-    try {
-        const { name, description, permissions } = req.body;
-
-        // Validar que no exista ya un tipo con el mismo nombre
-        const existingType = await StaffType.findOne({ name });
-        if (existingType) {
-            console.log('[STAFFTYPE CONTROLLER] Tipo de personal ya existe');
+    /**
+     * Crear un nuevo tipo de personal
+     */
+    create: async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            console.warn('[StaffTypeController] Validación fallida al crear tipo de personal:', errors.array());
             return res.status(400).json({
                 success: false,
-                message: 'Ya existe un tipo de personal con este nombre'
+                errors: errors.array()
             });
         }
 
-        const newStaffType = new StaffType({
-            name,
-            description,
-            permissions: permissions || []
-        });
+        try {
+            console.log('[StaffTypeController] Intentando crear nuevo tipo de personal:', req.body.nombre);
+            
+            const { nombre, descripcion, roles, icono } = req.body;
+            
+            const newStaffType = new StaffType({
+                nombre,
+                descripcion,
+                roles,
+                icono: icono || '👔'
+            });
 
-        const savedStaffType = await newStaffType.save();
-        console.log('[STAFFTYPE CONTROLLER] Tipo de personal creado:', savedStaffType._id);
+            await newStaffType.save();
 
-        res.status(201).json({
-            success: true,
-            message: 'Tipo de personal creado exitosamente',
-            data: savedStaffType
-        });
-    } catch (error) {
-        console.error('[STAFFTYPE CONTROLLER] Error en createStaffType:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al crear el tipo de personal',
-            error: error.message
-        });
-    }
-};
-
-// Actualizar tipo de personal (Solo Admin)
-exports.updateStaffType = async (req, res) => {
-    console.log('[STAFFTYPE CONTROLLER] Ejecutando updateStaffType para ID:', req.params.id);
-    try {
-        // Verificar que el tipo existe
-        const existingType = await StaffType.findById(req.params.id);
-        if (!existingType) {
-            console.log('[STAFFTYPE CONTROLLER] Tipo de personal no encontrado');
-            return res.status(404).json({
+            console.log(`[StaffTypeController] Tipo de personal creado exitosamente - ID: ${newStaffType._id}`);
+            res.status(201).json({
+                success: true,
+                data: newStaffType
+            });
+        } catch (error) {
+            console.error('[StaffTypeController] Error al crear tipo de personal:', error.message);
+            
+            let errorMessage = 'Error al crear tipo de personal';
+            if (error.message.includes('duplicados')) {
+                errorMessage = error.message;
+            }
+            
+            res.status(500).json({
                 success: false,
-                message: 'Tipo de personal no encontrado'
+                message: errorMessage
             });
         }
+    },
 
-        // Validar que el nuevo nombre no colisione con otro tipo
-        if (req.body.name && req.body.name !== existingType.name) {
-            const nameExists = await StaffType.findOne({ 
-                name: req.body.name,
-                _id: { $ne: req.params.id }
-            });
-            if (nameExists) {
-                console.log('[STAFFTYPE CONTROLLER] Nombre de tipo ya existe');
-                return res.status(400).json({
+    /**
+     * Obtener un tipo de personal por ID
+     */
+    getById: async (req, res) => {
+        try {
+            const { id } = req.params;
+            console.log(`[StaffTypeController] Buscando tipo de personal ID: ${id}`);
+            
+            const staffType = await StaffType.findById(id);
+            if (!staffType) {
+                console.warn(`[StaffTypeController] Tipo de personal no encontrado - ID: ${id}`);
+                return res.status(404).json({
                     success: false,
-                    message: 'Ya existe otro tipo de personal con este nombre'
+                    message: 'Tipo de personal no encontrado'
                 });
             }
-        }
 
-        const updatedStaffType = await StaffType.findByIdAndUpdate(
-            req.params.id,
-            { $set: req.body },
-            { new: true, runValidators: true }
-        );
-
-        console.log('[STAFFTYPE CONTROLLER] Tipo de personal actualizado:', updatedStaffType._id);
-        res.status(200).json({
-            success: true,
-            message: 'Tipo de personal actualizado exitosamente',
-            data: updatedStaffType
-        });
-    } catch (error) {
-        console.error('[STAFFTYPE CONTROLLER] Error en updateStaffType:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al actualizar el tipo de personal',
-            error: error.message
-        });
-    }
-};
-
-// Eliminar tipo de personal (Solo Admin, con validaciones)
-exports.deleteStaffType = async (req, res) => {
-    console.log('[STAFFTYPE CONTROLLER] Ejecutando deleteStaffType para ID:', req.params.id);
-    try {
-        // Verificar que el tipo existe
-        const staffType = await StaffType.findById(req.params.id);
-        if (!staffType) {
-            console.log('[STAFFTYPE CONTROLLER] Tipo de personal no encontrado');
-            return res.status(404).json({
+            console.log(`[StaffTypeController] Tipo de personal encontrado - ID: ${id}`);
+            res.status(200).json({
+                success: true,
+                data: staffType
+            });
+        } catch (error) {
+            console.error(`[StaffTypeController] Error al buscar tipo de personal ID: ${req.params.id}:`, error.message);
+            res.status(500).json({
                 success: false,
-                message: 'Tipo de personal no encontrado'
+                message: 'Error al obtener tipo de personal'
             });
         }
+    },
 
-        // Verificar que no hay personal asignado a este tipo
-        const staffWithThisType = await Staff.findOne({ type: req.params.id });
-        if (staffWithThisType) {
-            console.log('[STAFFTYPE CONTROLLER] Intento de eliminar tipo en uso');
+    /**
+     * Actualizar un tipo de personal existente
+     */
+    update: async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            console.warn('[StaffTypeController] Validación fallida al actualizar tipo de personal:', errors.array());
             return res.status(400).json({
                 success: false,
-                message: 'No se puede eliminar el tipo de personal porque está asignado a uno o más miembros del personal'
+                errors: errors.array()
             });
         }
 
-        const deletedStaffType = await StaffType.findByIdAndDelete(req.params.id);
-        console.log('[STAFFTYPE CONTROLLER] Tipo de personal eliminado:', deletedStaffType._id);
-
-        res.status(200).json({
-            success: true,
-            message: 'Tipo de personal eliminado exitosamente'
-        });
-    } catch (error) {
-        console.error('[STAFFTYPE CONTROLLER] Error en deleteStaffType:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al eliminar el tipo de personal'
-        });
-    }
-};
-
-// Obtener personal por tipo (Admin y coordinador)
-exports.getStaffByType = async (req, res) => {
-    console.log('[STAFFTYPE CONTROLLER] Ejecutando getStaffByType para tipo:', req.params.id);
-    try {
-        // Verificar que el tipo existe
-        const staffType = await StaffType.findById(req.params.id);
-        if (!staffType) {
-            console.log('[STAFFTYPE CONTROLLER] Tipo de personal no encontrado');
-            return res.status(404).json({
-                success: false,
-                message: 'Tipo de personal no encontrado'
-            });
-        }
-
-        const staffMembers = await Staff.find({ type: req.params.id })
-            .populate('userId', 'username email role -_id')
-            .populate('type', 'name -_id');
-
-        res.status(200).json({
-            success: true,
-            data: {
-                type: {
-                    id: staffType._id,
-                    name: staffType.name,
-                    description: staffType.description
+        try {
+            const { id } = req.params;
+            console.log(`[StaffTypeController] Intentando actualizar tipo de personal ID: ${id}`);
+            
+            const { nombre, descripcion, roles, icono } = req.body;
+            
+            const updatedStaffType = await StaffType.findByIdAndUpdate(
+                id,
+                {
+                    nombre,
+                    descripcion,
+                    roles,
+                    icono
                 },
-                staff: staffMembers,
-                count: staffMembers.length
+                { new: true, runValidators: true }
+            );
+
+            if (!updatedStaffType) {
+                console.warn(`[StaffTypeController] Tipo de personal no encontrado - ID: ${id}`);
+                return res.status(404).json({
+                    success: false,
+                    message: 'Tipo de personal no encontrado'
+                });
             }
-        });
-    } catch (error) {
-        console.error('[STAFFTYPE CONTROLLER] Error en getStaffByType:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener el personal por tipo'
-        });
+
+            console.log(`[StaffTypeController] Tipo de personal actualizado exitosamente - ID: ${id}`);
+            res.status(200).json({
+                success: true,
+                data: updatedStaffType
+            });
+        } catch (error) {
+            console.error(`[StaffTypeController] Error al actualizar tipo de personal ID: ${req.params.id}:`, error.message);
+            
+            let errorMessage = 'Error al actualizar tipo de personal';
+            if (error.message.includes('duplicados')) {
+                errorMessage = error.message;
+            }
+            
+            res.status(500).json({
+                success: false,
+                message: errorMessage
+            });
+        }
+    },
+
+    /**
+     * Agregar un nuevo rol a un tipo de personal existente
+     */
+    agregarRol: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { nombre, descripcion, requiereCertificacion } = req.body;
+            
+            console.log(`[StaffTypeController] Agregando rol a tipo de personal ID: ${id}`);
+            
+            const staffType = await StaffType.findById(id);
+            if (!staffType) {
+                console.warn(`[StaffTypeController] Tipo de personal no encontrado - ID: ${id}`);
+                return res.status(404).json({
+                    success: false,
+                    message: 'Tipo de personal no encontrado'
+                });
+            }
+
+            const nuevoRol = {
+                nombre,
+                descripcion,
+                requiereCertificacion: requiereCertificacion || false
+            };
+
+            // Usamos el método personalizado del modelo
+            await staffType.agregarRol(nuevoRol);
+
+            console.log(`[StaffTypeController] Rol agregado exitosamente a tipo ID: ${id}`);
+            res.status(200).json({
+                success: true,
+                data: staffType
+            });
+        } catch (error) {
+            console.error(`[StaffTypeController] Error al agregar rol a tipo ID: ${req.params.id}:`, error.message);
+            
+            let errorMessage = 'Error al agregar rol';
+            if (error.message.includes('duplicados')) {
+                errorMessage = 'Ya existe un rol con ese nombre en este tipo de personal';
+            }
+            
+            res.status(500).json({
+                success: false,
+                message: errorMessage
+            });
+        }
+    },
+
+    /**
+     * Eliminar (desactivar) un tipo de personal
+     * Nota: En tu esquema actual no hay campo isActive, podrías considerar añadirlo
+     */
+    delete: async (req, res) => {
+        try {
+            const { id } = req.params;
+            console.log(`[StaffTypeController] Eliminando tipo de personal ID: ${id}`);
+            
+            const deletedStaffType = await StaffType.findByIdAndDelete(id);
+            
+            if (!deletedStaffType) {
+                console.warn(`[StaffTypeController] Tipo de personal no encontrado - ID: ${id}`);
+                return res.status(404).json({
+                    success: false,
+                    message: 'Tipo de personal no encontrado'
+                });
+            }
+
+            console.log(`[StaffTypeController] Tipo de personal eliminado exitosamente - ID: ${id}`);
+            res.status(200).json({
+                success: true,
+                message: 'Tipo de personal eliminado correctamente'
+            });
+        } catch (error) {
+            console.error(`[StaffTypeController] Error al eliminar tipo de personal ID: ${req.params.id}:`, error.message);
+            res.status(500).json({
+                success: false,
+                message: 'Error al eliminar tipo de personal'
+            });
+        }
     }
 };
+
+module.exports = StaffTypeController;
