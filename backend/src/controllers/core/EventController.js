@@ -1,5 +1,5 @@
 const Evento = require('../../models/core/Event');
-const { verifyToken, checkRole } = require('../middlewares/authJwt');
+const { verifyToken, checkRole } = require('../../middlewares/authJwt');
 
 // Crear nuevo evento
 exports.createEvent = async (req, res) => {

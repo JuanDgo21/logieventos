@@ -204,8 +204,8 @@ exports.getResourcesByType = async (req, res) => {
                 type: {
                     id: resourceType._id,
                     name: resourceType.name,
-                    description: resourceType.description,
-                    requiresMaintenance: resourceType.requiresMaintenance
+                    description: resourceType.description, //ELIMINAR
+                    requiresMaintenance: resourceType.requiresMaintenance  //ELIMINAR
                 },
                 resources: resources,
                 count: resources.length

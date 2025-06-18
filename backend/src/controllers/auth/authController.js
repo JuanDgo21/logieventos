@@ -16,7 +16,7 @@ const checkPermission = (userRole, allowedRoles) => {
 };
 
 // 1. Registro de usuarios (SOLO ADMIN)
-exports.signup = async (req, res) => {
+exports.register = async (req, res) => {
     try {
         // Validación manual adicional
         if (!req.body.name || req.body.name.trim() === '') {
@@ -91,7 +91,7 @@ exports.signup = async (req, res) => {
     }
 };
 
-exports.signin = async (req, res) => {
+exports.login = async (req, res) => {
     try {
         const { email, password} = req.body;
 

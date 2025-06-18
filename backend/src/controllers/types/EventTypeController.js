@@ -1,5 +1,5 @@
 const EventType = require('../../models/types/EventType');
-const { verifyToken, checkRole } = require('../middlewares/authJwt');
+const { verifyToken, checkRole } = require('../../middlewares/authJwt');
 
 // Crear nuevo tipo de evento
 exports.createEventType = async (req, res) => {
