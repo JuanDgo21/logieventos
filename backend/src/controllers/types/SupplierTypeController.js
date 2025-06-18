@@ -1,220 +1,164 @@
 const SupplierType = require('../../models/types/SupplierType');
 const Supplier = require('../../models/core/Supplier');
 
-// Obtener todos los tipos de proveedores
-exports.getAllSupplierTypes = async (req, res) => {
-    console.log('[SUPPLIERTYPE CONTROLLER] Ejecutando getAllSupplierTypes');
+/**
+ * Controlador para gestionar las operaciones CRUD de tipos de proveedores.
+ */
+const SupplierTypeController = {
+  /**
+   * Crea un nuevo tipo de proveedor
+   * @param {Object} req - Request object
+   * @param {Object} res - Response object
+   */
+  async create(req, res) {
     try {
-        const supplierTypes = await SupplierType.find().sort({ name: 1 });
-        console.log(`[SUPPLIERTYPE CONTROLLER] ${supplierTypes.length} tipos de proveedores encontrados`);
-        res.status(200).json({
-            success: true,
-            count: supplierTypes.length,
-            data: supplierTypes
-        });
+      console.log('[SupplierType] Creando nuevo tipo de proveedor:', req.body);
+      
+      const supplierType = new SupplierType(req.body);
+      await supplierType.save();
+      
+      console.log('[SupplierType] Tipo de proveedor creado:', supplierType);
+      res.status(201).json(supplierType);
     } catch (error) {
-        console.error('[SUPPLIERTYPE CONTROLLER] Error en getAllSupplierTypes:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener los tipos de proveedores'
-        });
+      console.error('[SupplierType] Error al crear:', error.message);
+      res.status(400).json({ error: error.message });
     }
+  },
+
+  /**
+   * Obtiene todos los tipos de proveedores
+   * @param {Object} req - Request object
+   * @param {Object} res - Response object
+   */
+  async getAll(req, res) {
+    try {
+      console.log('[SupplierType] Obteniendo todos los tipos de proveedores');
+      
+      // Opciones de consulta: filtrar por estado si se proporciona
+      const filter = {};
+      if (req.query.status) {
+        filter.status = req.query.status;
+      }
+      
+      const supplierTypes = await SupplierType.find(filter).sort({ created_at: -1 });
+      
+      console.log(`[SupplierType] Encontrados ${supplierTypes.length} tipos de proveedores`);
+      res.json(supplierTypes);
+    } catch (error) {
+      console.error('[SupplierType] Error al obtener todos:', error.message);
+      res.status(500).json({ error: 'Error al obtener los tipos de proveedores' });
+    }
+  },
+
+  /**
+   * Obtiene un tipo de proveedor por ID
+   * @param {Object} req - Request object
+   * @param {Object} res - Response object
+   */
+  async getById(req, res) {
+    try {
+      console.log(`[SupplierType] Obteniendo tipo de proveedor con ID: ${req.params.id}`);
+      
+      const supplierType = await SupplierType.findById(req.params.id);
+      
+      if (!supplierType) {
+        console.log(`[SupplierType] Tipo de proveedor no encontrado: ${req.params.id}`);
+        return res.status(404).json({ error: 'Tipo de proveedor no encontrado' });
+      }
+      
+      console.log('[SupplierType] Tipo de proveedor encontrado:', supplierType);
+      res.json(supplierType);
+    } catch (error) {
+      console.error('[SupplierType] Error al obtener por ID:', error.message);
+      res.status(500).json({ error: 'Error al obtener el tipo de proveedor' });
+    }
+  },
+
+  /**
+   * Actualiza un tipo de proveedor
+   * @param {Object} req - Request object
+   * @param {Object} res - Response object
+   */
+  async update(req, res) {
+    try {
+      console.log(`[SupplierType] Actualizando tipo de proveedor con ID: ${req.params.id}`, req.body);
+      
+      const supplierType = await SupplierType.findByIdAndUpdate(
+        req.params.id, 
+        req.body, 
+        { new: true, runValidators: true }
+      );
+      
+      if (!supplierType) {
+        console.log(`[SupplierType] Tipo de proveedor no encontrado para actualizar: ${req.params.id}`);
+        return res.status(404).json({ error: 'Tipo de proveedor no encontrado' });
+      }
+      
+      console.log('[SupplierType] Tipo de proveedor actualizado:', supplierType);
+      res.json(supplierType);
+    } catch (error) {
+      console.error('[SupplierType] Error al actualizar:', error.message);
+      res.status(400).json({ error: error.message });
+    }
+  },
+
+  /**
+   * Elimina un tipo de proveedor
+   * @param {Object} req - Request object
+   * @param {Object} res - Response object
+   */
+  async delete(req, res) {
+    try {
+      console.log(`[SupplierType] Eliminando tipo de proveedor con ID: ${req.params.id}`);
+      
+      // Verificar si hay proveedores asociados
+      const suppliersCount = await Supplier.countDocuments({ supplier_type: req.params.id });
+      
+      if (suppliersCount > 0) {
+        console.log(`[SupplierType] Error: Hay ${suppliersCount} proveedores asociados`);
+        return res.status(400).json({ 
+          error: `No se puede eliminar el tipo de proveedor porque tiene ${suppliersCount} proveedor(es) asociado(s)`
+        });
+      }
+      
+      const supplierType = await SupplierType.findByIdAndDelete(req.params.id);
+      
+      if (!supplierType) {
+        console.log(`[SupplierType] Tipo de proveedor no encontrado para eliminar: ${req.params.id}`);
+        return res.status(404).json({ error: 'Tipo de proveedor no encontrado' });
+      }
+      
+      console.log('[SupplierType] Tipo de proveedor eliminado:', supplierType);
+      res.json({ message: 'Tipo de proveedor eliminado correctamente' });
+    } catch (error) {
+      console.error('[SupplierType] Error al eliminar:', error.message);
+      res.status(500).json({ error: 'Error al eliminar el tipo de proveedor' });
+    }
+  },
+
+  /**
+   * Obtiene todos los proveedores de un tipo específico
+   * @param {Object} req - Request object
+   * @param {Object} res - Response object
+   */
+  async getSuppliersByType(req, res) {
+    try {
+      console.log(`[SupplierType] Obteniendo proveedores para tipo: ${req.params.id}`);
+      
+      const supplierType = await SupplierType.findById(req.params.id).populate('suppliers');
+      
+      if (!supplierType) {
+        console.log(`[SupplierType] Tipo de proveedor no encontrado: ${req.params.id}`);
+        return res.status(404).json({ error: 'Tipo de proveedor no encontrado' });
+      }
+      
+      console.log(`[SupplierType] Encontrados ${supplierType.suppliers.length} proveedores para el tipo ${req.params.id}`);
+      res.json(supplierType.suppliers);
+    } catch (error) {
+      console.error('[SupplierType] Error al obtener proveedores por tipo:', error.message);
+      res.status(500).json({ error: 'Error al obtener los proveedores del tipo' });
+    }
+  }
 };
 
-// Obtener tipo de proveedor específico
-exports.getSupplierTypeById = async (req, res) => {
-    console.log('[SUPPLIERTYPE CONTROLLER] Ejecutando getSupplierTypeById para ID:', req.params.id);
-    try {
-        const supplierType = await SupplierType.findById(req.params.id);
-
-        if (!supplierType) {
-            console.log('[SUPPLIERTYPE CONTROLLER] Tipo de proveedor no encontrado');
-            return res.status(404).json({
-                success: false,
-                message: 'Tipo de proveedor no encontrado'
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            data: supplierType
-        });
-    } catch (error) {
-        console.error('[SUPPLIERTYPE CONTROLLER] Error en getSupplierTypeById:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener el tipo de proveedor',
-            error: error.message
-        });
-    }
-};
-
-// Crear nuevo tipo de proveedor (Solo Admin)
-exports.createSupplierType = async (req, res) => {
-    console.log('[SUPPLIERTYPE CONTROLLER] Ejecutando createSupplierType');
-    try {
-        const { name, description, category } = req.body;
-
-        // Validar que no exista ya un tipo con el mismo nombre
-        const existingType = await SupplierType.findOne({ name });
-        if (existingType) {
-            console.log('[SUPPLIERTYPE CONTROLLER] Tipo de proveedor ya existe');
-            return res.status(400).json({
-                success: false,
-                message: 'Ya existe un tipo de proveedor con este nombre'
-            });
-        }
-
-        const newSupplierType = new SupplierType({
-            name,
-            description,
-            category: category || 'general'
-        });
-
-        const savedSupplierType = await newSupplierType.save();
-        console.log('[SUPPLIERTYPE CONTROLLER] Tipo de proveedor creado:', savedSupplierType._id);
-
-        res.status(201).json({
-            success: true,
-            message: 'Tipo de proveedor creado exitosamente',
-            data: savedSupplierType
-        });
-    } catch (error) {
-        console.error('[SUPPLIERTYPE CONTROLLER] Error en createSupplierType:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al crear el tipo de proveedor',
-            error: error.message
-        });
-    }
-};
-
-// Actualizar tipo de proveedor (Solo Admin)
-exports.updateSupplierType = async (req, res) => {
-    console.log('[SUPPLIERTYPE CONTROLLER] Ejecutando updateSupplierType para ID:', req.params.id);
-    try {
-        // Verificar que el tipo existe
-        const existingType = await SupplierType.findById(req.params.id);
-        if (!existingType) {
-            console.log('[SUPPLIERTYPE CONTROLLER] Tipo de proveedor no encontrado');
-            return res.status(404).json({
-                success: false,
-                message: 'Tipo de proveedor no encontrado'
-            });
-        }
-
-        // Validar que el nuevo nombre no colisione con otro tipo
-        if (req.body.name && req.body.name !== existingType.name) {
-            const nameExists = await SupplierType.findOne({ 
-                name: req.body.name,
-                _id: { $ne: req.params.id }
-            });
-            if (nameExists) {
-                console.log('[SUPPLIERTYPE CONTROLLER] Nombre de tipo ya existe');
-                return res.status(400).json({
-                    success: false,
-                    message: 'Ya existe otro tipo de proveedor con este nombre'
-                });
-            }
-        }
-
-        const updatedSupplierType = await SupplierType.findByIdAndUpdate(
-            req.params.id,
-            { $set: req.body },
-            { new: true, runValidators: true }
-        );
-
-        console.log('[SUPPLIERTYPE CONTROLLER] Tipo de proveedor actualizado:', updatedSupplierType._id);
-        res.status(200).json({
-            success: true,
-            message: 'Tipo de proveedor actualizado exitosamente',
-            data: updatedSupplierType
-        });
-    } catch (error) {
-        console.error('[SUPPLIERTYPE CONTROLLER] Error en updateSupplierType:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al actualizar el tipo de proveedor',
-            error: error.message
-        });
-    }
-};
-
-// Eliminar tipo de proveedor (Solo Admin, con validaciones)
-exports.deleteSupplierType = async (req, res) => {
-    console.log('[SUPPLIERTYPE CONTROLLER] Ejecutando deleteSupplierType para ID:', req.params.id);
-    try {
-        // Verificar que el tipo existe
-        const supplierType = await SupplierType.findById(req.params.id);
-        if (!supplierType) {
-            console.log('[SUPPLIERTYPE CONTROLLER] Tipo de proveedor no encontrado');
-            return res.status(404).json({
-                success: false,
-                message: 'Tipo de proveedor no encontrado'
-            });
-        }
-
-        // Verificar que no hay proveedores asignados a este tipo
-        const suppliersWithThisType = await Supplier.findOne({ type: req.params.id });
-        if (suppliersWithThisType) {
-            console.log('[SUPPLIERTYPE CONTROLLER] Intento de eliminar tipo en uso');
-            return res.status(400).json({
-                success: false,
-                message: 'No se puede eliminar el tipo de proveedor porque está asignado a uno o más proveedores'
-            });
-        }
-
-        const deletedSupplierType = await SupplierType.findByIdAndDelete(req.params.id);
-        console.log('[SUPPLIERTYPE CONTROLLER] Tipo de proveedor eliminado:', deletedSupplierType._id);
-
-        res.status(200).json({
-            success: true,
-            message: 'Tipo de proveedor eliminado exitosamente'
-        });
-    } catch (error) {
-        console.error('[SUPPLIERTYPE CONTROLLER] Error en deleteSupplierType:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al eliminar el tipo de proveedor'
-        });
-    }
-};
-
-// Obtener proveedores por tipo
-exports.getSuppliersByType = async (req, res) => {
-    console.log('[SUPPLIERTYPE CONTROLLER] Ejecutando getSuppliersByType para tipo:', req.params.id);
-    try {
-        // Verificar que el tipo existe
-        const supplierType = await SupplierType.findById(req.params.id);
-        if (!supplierType) {
-            console.log('[SUPPLIERTYPE CONTROLLER] Tipo de proveedor no encontrado');
-            return res.status(404).json({
-                success: false,
-                message: 'Tipo de proveedor no encontrado'
-            });
-        }
-
-        const suppliers = await Supplier.find({ type: req.params.id })
-            .populate('type', 'name -_id');
-
-        res.status(200).json({
-            success: true,
-            data: {
-                type: {
-                    id: supplierType._id,
-                    name: supplierType.name,
-                    description: supplierType.description,
-                    category: supplierType.category
-                },
-                suppliers: suppliers,
-                count: suppliers.length
-            }
-        });
-    } catch (error) {
-        console.error('[SUPPLIERTYPE CONTROLLER] Error en getSuppliersByType:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener los proveedores por tipo'
-        });
-    }
-};
+module.exports = SupplierTypeController;

@@ -1,27 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const supplierTypeController = require('../../controllers/core/supplierTypeController');
-const { authenticate, authorize } = require('../../config/auth');
+const SupplierTypeController = require('../controllers/types/SupplierTypeController');
+const { checkRole } = require('../middlewares/role');
 
-// Middleware de autenticación para todas las rutas
-router.use(authenticate);
+// Middlewares de roles
+const adminOnly = checkRole(['admin']);
+const editorOrAdmin = checkRole(['editor', 'admin']);
 
-// Obtener todos los tipos de proveedores
-router.get('/', authorize(['admin', 'coordinador']), supplierTypeController.getAllSupplierTypes);
+// CRUD para tipos de proveedor
+router.post('/', adminOnly, SupplierTypeController.create);          // Crear tipo
+router.get('/', SupplierTypeController.getAll);                     // Obtener todos
+router.get('/:id', SupplierTypeController.getById);                 // Obtener por ID
+router.put('/:id', editorOrAdmin, SupplierTypeController.update);   // Actualizar
+router.delete('/:id', adminOnly, SupplierTypeController.delete);    // Eliminar
 
-// Obtener tipo de proveedor específico
-router.get('/:id', authorize(['admin', 'coordinador']), supplierTypeController.getSupplierTypeById);
-
-// Crear nuevo tipo de proveedor (Solo Admin)
-router.post('/', authorize(['admin']), supplierTypeController.createSupplierType);
-
-// Actualizar tipo de proveedor (Solo Admin)
-router.put('/:id', authorize(['admin']), supplierTypeController.updateSupplierType);
-
-// Eliminar tipo de proveedor (Solo Admin)
-router.delete('/:id', authorize(['admin']), supplierTypeController.deleteSupplierType);
-
-// Obtener proveedores por tipo
-router.get('/:id/suppliers', authorize(['admin', 'coordinador']), supplierTypeController.getSuppliersByType);
+// Relaciones
+router.get('/:id/suppliers', SupplierTypeController.getSuppliersByType); // Proveedores por tipo
 
 module.exports = router;

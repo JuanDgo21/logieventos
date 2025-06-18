@@ -1,116 +1,153 @@
 const mongoose = require('mongoose');
-const validator = require('validator');
 
-const proveedorSchema = new mongoose.Schema({
-  idproveedores: {
-    type: Number,
-    required: [true, 'El ID de proveedor es obligatorio'],
+/**
+ * Esquema para el modelo de Proveedores
+ * Define la estructura de datos, validaciones y comportamientos de los proveedores
+ */
+const supplierSchema = new mongoose.Schema({
+  // ID único del proveedor (entero requerido)
+  supplier_id: { 
+    type: Number, 
+    required: [true, 'El ID del proveedor es obligatorio'], 
     unique: true,
-    index: true,
     validate: {
       validator: Number.isInteger,
-      message: 'El ID de proveedor debe ser un número entero'
+      message: '{VALUE} debe ser un número entero'
     }
   },
-  nombreP: {
-    type: String,
+  
+  // Nombre del proveedor (string requerido)
+  name: { 
+    type: String, 
     required: [true, 'El nombre del proveedor es obligatorio'],
     trim: true,
-    maxlength: [100, 'El nombre no puede exceder los 100 caracteres'],
-    minlength: [2, 'El nombre debe tener al menos 2 caracteres']
+    maxlength: [45, 'El nombre no puede exceder los 45 caracteres']
   },
-  telefonoP: {
-    type: String, // Usamos String en lugar de Number para permitir formatos internacionales
+  
+  // Teléfono del proveedor (validación de formato)
+  phone: { 
+    type: String,
     required: [true, 'El teléfono es obligatorio'],
     validate: {
       validator: function(v) {
-        return /^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/.test(v);
+        return /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/.test(v);
       },
-      message: props => `${props.value} no es un número de teléfono válido!`
-    },
-    trim: true
-  },
-  correoP: {
-    type: String,
-    required: [true, 'El correo electrónico es obligatorio'],
-    unique: true,
-    trim: true,
-    lowercase: true,
-    validate: {
-      validator: validator.isEmail,
-      message: props => `${props.value} no es un correo electrónico válido!`
+      message: props => `"${props.value}" no es un número de teléfono válido`
     }
   },
-  disponibleP: {
+  
+  // Email del proveedor (validación de formato)
+  email: {
+    type: String,
+    required: [true, 'El email es obligatorio'],
+    lowercase: true,
+    trim: true,
+    validate: {
+      validator: function(v) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      },
+      message: props => `"${props.value}" no es un email válido`
+    }
+  },
+  
+  // Disponibilidad del proveedor (valores predefinidos)
+  availability: {
     type: String,
     required: true,
     enum: {
-      values: ['Disponible', 'No disponible', 'Limitado', 'Solo emergencias'],
-      message: 'El estado de disponibilidad no es válido'
+      values: ['available', 'unavailable', 'limited'],
+      message: 'La disponibilidad debe ser: available, unavailable o limited'
     },
-    default: 'Disponible'
+    default: 'available'
   },
-  servicios: {
-    type: [String],
-    enum: ['Catering', 'Audio', 'Video', 'Iluminación', 'Mobiliario', 'Seguridad', 'Otros'],
-    default: []
+  
+  // Referencia al tipo de proveedor
+  supplier_type: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'SupplierType',
+    required: [true, 'El tipo de proveedor es obligatorio']
   },
-  fechaRegistro: {
+  
+  // Dirección del proveedor (opcional)
+  address: {
+    type: String,
+    trim: true
+  },
+  
+  // Fecha de registro (autogenerada)
+  registration_date: {
     type: Date,
     default: Date.now
   },
-  calificacion: {
+  
+  // Especialidades del proveedor (array de strings)
+  specialties: [{
+    type: String,
+    trim: true
+  }],
+  
+  // Calificación del proveedor (rango 1-5)
+  rating: {
     type: Number,
     min: [1, 'La calificación mínima es 1'],
     max: [5, 'La calificación máxima es 5'],
     default: 3
   }
 }, {
-  timestamps: true,
+  // Opciones del esquema
+  timestamps: { 
+    createdAt: 'created_at', 
+    updatedAt: 'updated_at' 
+  },
+  versionKey: false,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
 
-// Índices para mejorar el rendimiento
-proveedorSchema.index({ nombreP: 'text' });
-proveedorSchema.index({ disponibleP: 1 });
-proveedorSchema.index({ servicios: 1 });
+// Índices para optimizar búsquedas frecuentes
+supplierSchema.index({ name: 'text', specialties: 'text' }); // Búsqueda por texto
+supplierSchema.index({ supplier_type: 1 });                 // Búsqueda por tipo
+supplierSchema.index({ availability: 1 });                  // Búsqueda por disponibilidad
 
-// Middleware para validaciones adicionales
-proveedorSchema.pre('save', function(next) {
-  // Eliminar espacios en blanco adicionales
-  if (this.telefonoP) {
-    this.telefonoP = this.telefonoP.replace(/\s+/g, '').trim();
+/**
+ * Middleware para validar la existencia del tipo de proveedor antes de guardar
+ */
+supplierSchema.pre('save', async function(next) {
+  console.log(`[Supplier] Validando tipo de proveedor para ${this.name}`);
+  
+  try {
+    const typeExists = await mongoose.model('SupplierType').exists({ _id: this.supplier_type });
+    if (!typeExists) {
+      console.log(`[Supplier] Error: Tipo de proveedor no encontrado (ID: ${this.supplier_type})`);
+      throw new Error('El tipo de proveedor especificado no existe');
+    }
+    next();
+  } catch (error) {
+    console.error(`[Supplier] Error en validación: ${error.message}`);
+    next(error);
   }
+});
+
+/**
+ * Middleware para limpiar referencias antes de eliminar
+ */
+supplierSchema.pre('remove', async function(next) {
+  console.log(`[Supplier] Limpiando referencias del proveedor ${this._id}`);
+  // Aquí podrías añadir lógica para limpiar relaciones si es necesario
   next();
 });
 
-// Método para verificar disponibilidad
-proveedorSchema.methods.estaDisponible = function() {
-  return this.disponibleP === 'Disponible' || this.disponibleP === 'Limitado';
-};
-
-// Método para agregar servicios
-proveedorSchema.methods.agregarServicio = function(servicio) {
-  if (!this.servicios.includes(servicio)) {
-    this.servicios.push(servicio);
-  }
-  return this.save();
-};
-
-// Virtual para información resumida
-proveedorSchema.virtual('infoResumida').get(function() {
-  return `${this.nombreP} - ${this.servicios.join(', ')} (${this.disponibleP})`;
+/**
+ * Virtual para acceder a eventos relacionados (si tu modelo los tiene)
+ */
+supplierSchema.virtual('events', {
+  ref: 'Event',
+  localField: '_id',
+  foreignField: 'suppliers',
+  justOne: false
 });
 
-// Static method para buscar proveedores por disponibilidad
-proveedorSchema.statics.buscarPorDisponibilidad = function(estado) {
-  return this.find({ disponibleP: estado });
-};
+// Creación del modelo
+const Supplier = mongoose.model('Supplier', supplierSchema);
 
-// Static method para buscar proveedores por servicio
-proveedorSchema.statics.buscarPorServicio = function(servicio) {
-  return this.find({ servicios: servicio });
-};
-
-module.exports = mongoose.model('Proveedor', proveedorSchema);
+module.exports = Supplier;
