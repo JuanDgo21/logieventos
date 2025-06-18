@@ -1,116 +1,136 @@
 const mongoose = require('mongoose');
-const uniqueValidator = require('mongoose-unique-validator');
+const { Schema } = mongoose;
 
-const tipoPersonalSchema = new mongoose.Schema({
-  idtipo_personal: {
-    type: Number,
-    required: [true, 'El ID de tipo de personal es obligatorio'],
-    unique: true,
-    index: true,
-    validate: {
-      validator: Number.isInteger,
-      message: 'El ID de tipo de personal debe ser un número entero'
-    }
-  },
-  tipo_personal: {
+/**
+ * Esquema para TipoPersonal (Especializado para Eventos)
+ * Define los diferentes roles o tipos de personal que pueden existir en la organización de eventos
+ */
+const TipoPersonalSchema = new Schema({
+  codigo: {
     type: String,
-    required: [true, 'El tipo de personal es obligatorio'],
+    required: [true, 'El código es obligatorio'],
     unique: true,
     trim: true,
     uppercase: true,
-    maxlength: [50, 'El tipo de personal no puede exceder los 50 caracteres'],
-    minlength: [3, 'El tipo de personal debe tener al menos 3 caracteres'],
+    maxlength: [10, 'El código no puede exceder 10 caracteres'],
+    match: [/^[A-Z0-9]+$/, 'El código solo puede contener letras mayúsculas y números'],
+    example: "COORD-GEN" // Ejemplo de código para Coordinador General
+  },
+  nombre: {
+    type: String,
+    required: [true, 'El nombre es obligatorio'],
+    trim: true,
+    unique: true,
+    maxlength: [50, 'El nombre no puede exceder 50 caracteres'],
+    example: "Coordinador General del Evento" // Ejemplo de nombre
+  },
+  categoria: {
+    type: String,
+    required: [true, 'La categoría es obligatoria'],
     enum: {
       values: [
-        'ORGANIZADOR', 
-        'LOGISTICA', 
-        'SEGURIDAD', 
-        'ATENCION', 
-        'TECNICO', 
-        'COORDINADOR',
-        'AYUDANTE',
-        'SUPERVISOR'
+        'Coordinación y Gestión',
+        'Presentación y Animación',
+        'Técnico',
+        'Servicios Generales',
+        'Seguridad y Emergencias',
+        'Comunicación y Prensa',
+        'Atención al Público',
+        'Soporte Tecnológico',
+        'Otros'
       ],
-      message: 'Tipo de personal no válido. Valores permitidos: ORGANIZADOR, LOGISTICA, SEGURIDAD, ATENCION, TECNICO, COORDINADOR, AYUDANTE, SUPERVISOR'
-    }
+      message: 'Categoría no válida'
+    },
+    example: "Coordinación y Gestión"
   },
   descripcion: {
     type: String,
     trim: true,
-    maxlength: [200, 'La descripción no puede exceder los 200 caracteres']
+    maxlength: [200, 'La descripción no puede exceder 200 caracteres'],
+    example: "Responsable de la planificación general y supervisión de todo el evento"
   },
-  nivel_autoridad: {
+  nivelJerarquico: {
     type: Number,
-    min: [1, 'El nivel mínimo de autoridad es 1'],
-    max: [10, 'El nivel máximo de autoridad es 10'],
-    default: 1
+    min: [1, 'El nivel jerárquico mínimo es 1'],
+    max: [10, 'El nivel jerárquico máximo es 10'],
+    example: 1 // Para cargos de alta dirección
   },
-  requiere_certificacion: {
+  requiereCertificaciones: {
     type: Boolean,
-    default: false
+    default: false,
+    example: true // Para personal de seguridad o técnicos
   },
+  habilidadesRequeridas: [{
+    type: String,
+    trim: true,
+    maxlength: [50, 'Cada habilidad no puede exceder 50 caracteres'],
+    example: "Manejo de equipos de sonido profesional"
+  }],
   activo: {
     type: Boolean,
     default: true
   },
-  fecha_creacion: {
+  fechaCreacion: {
+    type: Date,
+    default: Date.now
+  },
+  fechaActualizacion: {
     type: Date,
     default: Date.now
   }
 }, {
-  timestamps: true,
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true }
+  versionKey: false,
+  timestamps: { createdAt: 'fechaCreacion', updatedAt: 'fechaActualizacion' }
 });
 
-// Plugin para mensajes de error más descriptivos en campos únicos
-tipoPersonalSchema.plugin(uniqueValidator, { 
-  message: 'Error, el {PATH} {VALUE} ya existe' 
-});
+console.log('Esquema de TipoPersonal para eventos creado:', TipoPersonalSchema);
 
-// Índices para mejorar el rendimiento
-tipoPersonalSchema.index({ tipo_personal: 1 });
-tipoPersonalSchema.index({ nivel_autoridad: 1 });
-tipoPersonalSchema.index({ activo: 1 });
+// Índices para búsquedas frecuentes
+TipoPersonalSchema.index({ codigo: 1 });
+TipoPersonalSchema.index({ nombre: 1 });
+TipoPersonalSchema.index({ categoria: 1 });
+TipoPersonalSchema.index({ nivelJerarquico: 1 });
 
-// Middleware para normalización de datos
-tipoPersonalSchema.pre('save', function(next) {
-  // Eliminar espacios múltiples y normalizar
-  if (this.tipo_personal) {
-    this.tipo_personal = this.tipo_personal.trim().replace(/\s+/g, ' ');
-  }
+/**
+ * Middleware para registrar en consola antes de guardar
+ */
+TipoPersonalSchema.pre('save', function(next) {
+  console.log(`Guardando/actualizando tipo de personal: ${this.nombre}`);
+  this.fechaActualizacion = Date.now();
   next();
 });
 
-// Método para activar/desactivar tipo de personal
-tipoPersonalSchema.methods.cambiarEstado = function(activo) {
-  this.activo = activo;
-  return this.save();
+/**
+ * Método para obtener todos los tipos por categoría
+ */
+TipoPersonalSchema.statics.porCategoria = function(categoria) {
+  console.log(`Buscando tipos de personal para categoría: ${categoria}`);
+  return this.find({ categoria, activo: true }).sort({ nivelJerarquico: 1 });
 };
 
-// Método para verificar si requiere certificación
-tipoPersonalSchema.methods.requiereCertificacion = function() {
-  return this.requiere_certificacion;
+/**
+ * Método para añadir un nuevo tipo de personal dinámicamente
+ */
+TipoPersonalSchema.statics.crearNuevoTipo = async function(datosTipo) {
+  try {
+    console.log('Intentando crear nuevo tipo de personal:', datosTipo);
+    
+    // Si la categoría no existe, se añade a "Otros"
+    if (!this.schema.path('categoria').enumValues.includes(datosTipo.categoria)) {
+      console.warn('Categoría no estándar detectada, asignando a "Otros"');
+      datosTipo.categoria = 'Otros';
+    }
+    
+    const nuevoTipo = new this(datosTipo);
+    return await nuevoTipo.save();
+  } catch (error) {
+    console.error('Error al crear nuevo tipo de personal:', error.message);
+    throw error;
+  }
 };
 
-// Virtual para información completa
-tipoPersonalSchema.virtual('infoCompleta').get(function() {
-  return `${this.tipo_personal} (Nivel ${this.nivel_autoridad}) - ${this.descripcion || 'Sin descripción'}`;
-});
+const TipoPersonal = mongoose.model('TipoPersonal', TipoPersonalSchema);
 
-// Static method para buscar tipos activos
-tipoPersonalSchema.statics.buscarActivos = function() {
-  return this.find({ activo: true }).sort({ nivel_autoridad: -1 });
-};
+console.log('Modelo TipoPersonal para eventos registrado en Mongoose');
 
-// Static method para buscar por nivel de autoridad
-tipoPersonalSchema.statics.buscarPorNivelAutoridad = function(min, max) {
-  return this.find({ 
-    nivel_autoridad: { $gte: min, $lte: max },
-    activo: true
-  });
-};
-
-module.exports = mongoose.model('TipoPersonal', tipoPersonalSchema);
-
-// Pruebajejejejejeje
+module.exports = TipoPersonal;
