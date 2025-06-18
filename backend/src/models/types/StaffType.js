@@ -1,116 +1,93 @@
 const mongoose = require('mongoose');
-const uniqueValidator = require('mongoose-unique-validator');
 
-const tipoPersonalSchema = new mongoose.Schema({
-  idtipo_personal: {
-    type: Number,
-    required: [true, 'El ID de tipo de personal es obligatorio'],
-    unique: true,
-    index: true,
-    validate: {
-      validator: Number.isInteger,
-      message: 'El ID de tipo de personal debe ser un número entero'
-    }
-  },
-  tipo_personal: {
-    type: String,
-    required: [true, 'El tipo de personal es obligatorio'],
-    unique: true,
-    trim: true,
-    uppercase: true,
-    maxlength: [50, 'El tipo de personal no puede exceder los 50 caracteres'],
-    minlength: [3, 'El tipo de personal debe tener al menos 3 caracteres'],
-    enum: {
-      values: [
-        'ORGANIZADOR', 
-        'LOGISTICA', 
-        'SEGURIDAD', 
-        'ATENCION', 
-        'TECNICO', 
-        'COORDINADOR',
-        'AYUDANTE',
-        'SUPERVISOR'
-      ],
-      message: 'Tipo de personal no válido. Valores permitidos: ORGANIZADOR, LOGISTICA, SEGURIDAD, ATENCION, TECNICO, COORDINADOR, AYUDANTE, SUPERVISOR'
-    }
-  },
-  descripcion: {
-    type: String,
-    trim: true,
-    maxlength: [200, 'La descripción no puede exceder los 200 caracteres']
-  },
-  nivel_autoridad: {
-    type: Number,
-    min: [1, 'El nivel mínimo de autoridad es 1'],
-    max: [10, 'El nivel máximo de autoridad es 10'],
-    default: 1
-  },
-  requiere_certificacion: {
-    type: Boolean,
-    default: false
-  },
-  activo: {
-    type: Boolean,
-    default: true
-  },
-  fecha_creacion: {
-    type: Date,
-    default: Date.now
-  }
+/**
+ * Modelo de Tipo de Personal (StaffType)
+ * - Define las categorías de personal que pueden existir en el sistema
+ * - Se relaciona con el modelo User para asignar tipos a usuarios
+ * - Ejemplos: "Técnico", "Logística", "Seguridad", etc.
+ */
+const staffTypeSchema = new mongoose.Schema({
+    // Nombre del tipo de personal (debe ser único)
+    name: {
+        type: String,
+        required: [true, 'El nombre es obligatorio'], // Validación: campo requerido
+        trim: true, // Elimina espacios en blanco al inicio/final
+        unique: true, // No puede haber dos tipos con el mismo nombre
+        // Lista de valores permitidos (categorías predefinidas)
+        enum: [
+            'Coordinación y Gestión', 
+            'Personal Técnico', 
+            'Servicios Generales',
+            'Seguridad',
+            'Logística'
+        ]
+    },
+    // Descripción opcional del tipo de personal
+    description: {
+        type: String,
+        maxlength: [300, 'Máximo 300 caracteres'] // Validación: longitud máxima
+    },
+    // Indica si el tipo de personal está activo (no se usa para asignaciones si es false)
+    isActive: {
+        type: Boolean,
+        default: true // Por defecto se crea como activo
+    },
+    // Array de certificaciones requeridas para este tipo de personal
+    requiredCertifications: [{
+        type: String,
+        // Lista de certificaciones permitidas (puede crecer según necesidades)
+        enum: ['Manipulación de alimentos', 'Primeros auxilios', 'Seguridad laboral']
+    }]
 }, {
-  timestamps: true,
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true }
+    timestamps: true, // Añade automáticamente createdAt y updatedAt
+    versionKey: false // Desactiva el campo __v que Mongoose añade por defecto
 });
 
-// Plugin para mensajes de error más descriptivos en campos únicos
-tipoPersonalSchema.plugin(uniqueValidator, { 
-  message: 'Error, el {PATH} {VALUE} ya existe' 
+console.log('Definido el esquema base de StaffType con sus campos y validaciones');
+
+// ----- Middlewares (Funciones que se ejecutan antes/después de ciertas acciones) -----
+
+/**
+ * Middleware PRE-REMOVE: Se ejecuta antes de eliminar un tipo de personal
+ * - Verifica que no haya usuarios asignados a este tipo
+ * - Si hay usuarios asignados, lanza un error y cancela la eliminación
+ */
+staffTypeSchema.pre('remove', async function(next) {
+    console.log(`Ejecutando pre-remove para StaffType con ID: ${this._id}`);
+    
+    // Busca usuarios que tengan asignado este tipo de personal
+    const usersWithThisType = await mongoose.model('User').countDocuments({ 
+        staffTypeId: this._id 
+    });
+    
+    console.log(`Usuarios encontrados con este tipo: ${usersWithThisType}`);
+    
+    if (usersWithThisType > 0) {
+        console.error('Intento de eliminar tipo de personal con usuarios asignados');
+        throw new Error('No se puede eliminar: hay personal asignado a esta categoría');
+    }
+    
+    next(); // Continúa con la operación si no hay usuarios asignados
 });
 
-// Índices para mejorar el rendimiento
-tipoPersonalSchema.index({ tipo_personal: 1 });
-tipoPersonalSchema.index({ nivel_autoridad: 1 });
-tipoPersonalSchema.index({ activo: 1 });
+// ----- Métodos del Modelo (Funciones disponibles en las instancias) -----
 
-// Middleware para normalización de datos
-tipoPersonalSchema.pre('save', function(next) {
-  // Eliminar espacios múltiples y normalizar
-  if (this.tipo_personal) {
-    this.tipo_personal = this.tipo_personal.trim().replace(/\s+/g, ' ');
-  }
-  next();
-});
-
-// Método para activar/desactivar tipo de personal
-tipoPersonalSchema.methods.cambiarEstado = function(activo) {
-  this.activo = activo;
-  return this.save();
+/**
+ * Método de instancia: Obtiene todos los usuarios activos de este tipo de personal
+ * @returns {Promise<Array>} Lista de usuarios activos con este staffType
+ */
+staffTypeSchema.methods.getActiveStaff = async function() {
+    console.log(`Buscando usuarios activos para StaffType ID: ${this._id}`);
+    
+    const activeStaff = await mongoose.model('User').find({ 
+        staffTypeId: this._id, 
+        status: 'active' 
+    });
+    
+    console.log(`Usuarios activos encontrados: ${activeStaff.length}`);
+    return activeStaff;
 };
 
-// Método para verificar si requiere certificación
-tipoPersonalSchema.methods.requiereCertificacion = function() {
-  return this.requiere_certificacion;
-};
-
-// Virtual para información completa
-tipoPersonalSchema.virtual('infoCompleta').get(function() {
-  return `${this.tipo_personal} (Nivel ${this.nivel_autoridad}) - ${this.descripcion || 'Sin descripción'}`;
-});
-
-// Static method para buscar tipos activos
-tipoPersonalSchema.statics.buscarActivos = function() {
-  return this.find({ activo: true }).sort({ nivel_autoridad: -1 });
-};
-
-// Static method para buscar por nivel de autoridad
-tipoPersonalSchema.statics.buscarPorNivelAutoridad = function(min, max) {
-  return this.find({ 
-    nivel_autoridad: { $gte: min, $lte: max },
-    activo: true
-  });
-};
-
-module.exports = mongoose.model('TipoPersonal', tipoPersonalSchema);
-
-// Pruebajejejejejeje
+// Exporta el modelo para poder usarlo en otras partes de la aplicación
+module.exports = mongoose.model('StaffType', staffTypeSchema);
+console.log('Modelo StaffType exportado correctamente');
