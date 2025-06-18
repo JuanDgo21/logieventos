@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const eventTypeController = require('../../src/controllers/types/EventTypeController');
+const eventTypeController = require('../../controllers/types/EventTypeController');
 const { verifyToken, checkRole } = require('../middlewares/authJwt');
 
 // Rutas principales
