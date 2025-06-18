@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../../controllers/auth/authController');
 const { verify } = require('jsonwebtoken');
-const verifyRegister = require('');
+const verifyRegister = require('../../middlewares/verifyRegister');
 
 // // Importación de verificación
 let verifyToken;

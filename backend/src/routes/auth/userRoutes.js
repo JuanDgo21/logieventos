@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../../controllers/auth/userController');
-const { verifyToken } = require('');
-const { checkRole } = require('');
+const { verifyToken } = require('../../middlewares/authJwt');
+const { checkRole } = require('../../middlewares/role');
 
 // Middleware de diagnóstico para todas las rutas
 router.use((req, res, next) => {
