@@ -72,7 +72,7 @@ const StaffSchema = new mongoose.Schema({
         trim: true
     },
 
-    // --- Información Profesional ---
+    // --- Información Profesional --- ELIMINAR
     certifications: [{
         name: { type: String, required: true }, // Nombre de la certificación
         fileUrl: { type: String, required: true }, // URL del documento
@@ -151,7 +151,7 @@ StaffSchema.pre('save', async function(next) {
         throw new Error('Tipo de personal no encontrado');
     }
 
-    // Verificar certificaciones requeridas
+    // Verificar certificaciones requeridas -- ELIMINAR
     console.log('Verificando certificaciones requeridas...');
     const missingCerts = staffType.requiredCertifications.filter(cert => 
         !this.certifications.some(c => c.name === cert)

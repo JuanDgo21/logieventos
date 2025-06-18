@@ -1,31 +1,26 @@
-const Resource = require('../../models/core/Resource');
-const ResourceType = require('../../models/core/ResourceType');
-const Event = require('../../models/core/Event');
+const Recurso = require('../../models/core/Recurso');
+const Evento = require('../../models/core/Evento'); // Asumiendo que existe un modelo Evento
 
 // Obtener todos los recursos
-exports.getAllResources = async (req, res) => {
-    console.log('[RESOURCE CONTROLLER] Ejecutando getAllResources');
+exports.getAllRecursos = async (req, res) => {
+    console.log('[RECURSO CONTROLLER] Ejecutando getAllRecursos');
     try {
-        const { type, available, event } = req.query;
+        const { disponibilidadR, mantenimientoR } = req.query;
         let query = {};
         
-        // Filtros opcionales
-        if (type) query.type = type;
-        if (available) query.available = available === 'true';
-        if (event) query.events = event;
+        if (disponibilidadR) query.disponibilidadR = disponibilidadR;
+        if (mantenimientoR) query.mantenimientoR = mantenimientoR;
 
-        const resources = await Resource.find(query)
-            .populate('type', 'name description -_id')
-            .populate('events', 'title startDate endDate -_id');
+        const recursos = await Recurso.find(query)
+            .sort({ nombreRecursos: 1 });
 
-        console.log(`[RESOURCE CONTROLLER] ${resources.length} recursos encontrados`);
         res.status(200).json({
             success: true,
-            count: resources.length,
-            data: resources
+            count: recursos.length,
+            data: recursos
         });
     } catch (error) {
-        console.error('[RESOURCE CONTROLLER] Error en getAllResources:', error.message);
+        console.error('[RECURSO CONTROLLER] Error en getAllRecursos:', error.message);
         res.status(500).json({
             success: false,
             message: 'Error al obtener los recursos'
@@ -33,16 +28,34 @@ exports.getAllResources = async (req, res) => {
     }
 };
 
-// Obtener recurso específico
-exports.getResourceById = async (req, res) => {
-    console.log('[RESOURCE CONTROLLER] Ejecutando getResourceById para ID:', req.params.id);
+// Obtener recursos disponibles
+exports.getRecursosDisponibles = async (req, res) => {
+    console.log('[RECURSO CONTROLLER] Ejecutando getRecursosDisponibles');
     try {
-        const resource = await Resource.findById(req.params.id)
-            .populate('type', 'name description -_id')
-            .populate('events', 'title startDate endDate -_id');
+        const recursos = await Recurso.find({ disponibilidadR: 'Disponible' })
+            .select('idRecursos nombreRecursos cantidadRecursos');
 
-        if (!resource) {
-            console.log('[RESOURCE CONTROLLER] Recurso no encontrado');
+        res.status(200).json({
+            success: true,
+            count: recursos.length,
+            data: recursos
+        });
+    } catch (error) {
+        console.error('[RECURSO CONTROLLER] Error en getRecursosDisponibles:', error.message);
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener recursos disponibles'
+        });
+    }
+};
+
+// Obtener recurso específico por ID
+exports.getRecursoById = async (req, res) => {
+    console.log('[RECURSO CONTROLLER] Ejecutando getRecursoById para ID:', req.params.id);
+    try {
+        const recurso = await Recurso.findById(req.params.id);
+
+        if (!recurso) {
             return res.status(404).json({
                 success: false,
                 message: 'Recurso no encontrado'
@@ -51,57 +64,65 @@ exports.getResourceById = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            data: resource
+            data: recurso
         });
     } catch (error) {
-        console.error('[RESOURCE CONTROLLER] Error en getResourceById:', error.message);
+        console.error('[RECURSO CONTROLLER] Error en getRecursoById:', error.message);
         res.status(500).json({
             success: false,
-            message: 'Error al obtener el recurso',
-            error: error.message
+            message: 'Error al obtener el recurso'
         });
     }
 };
 
-// Crear nuevo recurso (Admin y coordinador)
-exports.createResource = async (req, res) => {
-    console.log('[RESOURCE CONTROLLER] Ejecutando createResource');
+// Crear nuevo recurso
+exports.createRecurso = async (req, res) => {
+    console.log('[RECURSO CONTROLLER] Ejecutando createRecurso');
     try {
-        const { name, description, quantity, type, location } = req.body;
+        const { idRecursos, nombreRecursos, cantidadRecursos, disponibilidadR, mantenimientoR } = req.body;
 
-        // Validar tipo de recurso
-        const resourceType = await ResourceType.findById(type);
-        if (!resourceType) {
-            console.log('[RESOURCE CONTROLLER] Tipo de recurso no válido');
+        // Validar campos requeridos
+        if (!idRecursos || !nombreRecursos || !cantidadRecursos || !disponibilidadR || !mantenimientoR) {
             return res.status(400).json({
                 success: false,
-                message: 'Tipo de recurso no válido'
+                message: 'Todos los campos son obligatorios'
             });
         }
 
-        const newResource = new Resource({
-            name,
-            description,
-            quantity: quantity || 1,
-            type,
-            location,
-            available: true
+        // Validar longitud máxima
+        if (nombreRecursos.length > 45 || disponibilidadR.length > 45 || mantenimientoR.length > 45) {
+            return res.status(400).json({
+                success: false,
+                message: 'Los campos de texto no pueden exceder los 45 caracteres'
+            });
+        }
+
+        // Verificar si el ID de recurso ya existe
+        const existeRecurso = await Recurso.findOne({ idRecursos });
+        if (existeRecurso) {
+            return res.status(400).json({
+                success: false,
+                message: 'El ID de recurso ya está en uso'
+            });
+        }
+
+        const nuevoRecurso = new Recurso({
+            idRecursos,
+            nombreRecursos,
+            cantidadRecursos,
+            disponibilidadR,
+            mantenimientoR
         });
 
-        const savedResource = await newResource.save();
+        const recursoGuardado = await nuevoRecurso.save();
         
-        // Populate para la respuesta
-        const populatedResource = await Resource.findById(savedResource._id)
-            .populate('type', 'name -_id');
-
-        console.log('[RESOURCE CONTROLLER] Recurso creado:', populatedResource._id);
         res.status(201).json({
             success: true,
             message: 'Recurso creado exitosamente',
-            data: populatedResource
+            data: recursoGuardado
         });
     } catch (error) {
-        console.error('[RESOURCE CONTROLLER] Error en createResource:', error.message);
+        console.error('[RECURSO CONTROLLER] Error en createRecurso:', error.message);
         res.status(500).json({
             success: false,
             message: 'Error al crear el recurso',
@@ -110,83 +131,94 @@ exports.createResource = async (req, res) => {
     }
 };
 
-// Actualizar recurso (Admin y coordinador)
-exports.updateResource = async (req, res) => {
-    console.log('[RESOURCE CONTROLLER] Ejecutando updateResource para ID:', req.params.id);
+// Actualizar recurso
+exports.updateRecurso = async (req, res) => {
+    console.log('[RECURSO CONTROLLER] Ejecutando updateRecurso para ID:', req.params.id);
     try {
-        // Validar tipo si se está actualizando
-        if (req.body.type) {
-            const resourceType = await ResourceType.findById(req.body.type);
-            if (!resourceType) {
-                console.log('[RESOURCE CONTROLLER] Tipo de recurso no válido');
-                return res.status(400).json({
-                    success: false,
-                    message: 'Tipo de recurso no válido'
-                });
-            }
+        const { nombreRecursos, cantidadRecursos, disponibilidadR, mantenimientoR } = req.body;
+
+        // Validar longitud máxima si se actualizan estos campos
+        if (nombreRecursos && nombreRecursos.length > 45) {
+            return res.status(400).json({
+                success: false,
+                message: 'El nombre no puede exceder los 45 caracteres'
+            });
         }
 
-        const updatedResource = await Resource.findByIdAndUpdate(
-            req.params.id,
-            { $set: req.body },
-            { new: true }
-        ).populate('type', 'name -_id');
+        if (disponibilidadR && disponibilidadR.length > 45) {
+            return res.status(400).json({
+                success: false,
+                message: 'La disponibilidad no puede exceder los 45 caracteres'
+            });
+        }
 
-        if (!updatedResource) {
-            console.log('[RESOURCE CONTROLLER] Recurso no encontrado para actualizar');
+        if (mantenimientoR && mantenimientoR.length > 45) {
+            return res.status(400).json({
+                success: false,
+                message: 'El mantenimiento no puede exceder los 45 caracteres'
+            });
+        }
+
+        const recursoActualizado = await Recurso.findByIdAndUpdate(
+            req.params.id,
+            {
+                nombreRecursos,
+                cantidadRecursos,
+                disponibilidadR,
+                mantenimientoR
+            },
+            { new: true, runValidators: true }
+        );
+
+        if (!recursoActualizado) {
             return res.status(404).json({
                 success: false,
                 message: 'Recurso no encontrado'
             });
         }
 
-        console.log('[RESOURCE CONTROLLER] Recurso actualizado:', updatedResource._id);
         res.status(200).json({
             success: true,
             message: 'Recurso actualizado exitosamente',
-            data: updatedResource
+            data: recursoActualizado
         });
     } catch (error) {
-        console.error('[RESOURCE CONTROLLER] Error en updateResource:', error.message);
+        console.error('[RECURSO CONTROLLER] Error en updateRecurso:', error.message);
         res.status(500).json({
             success: false,
-            message: 'Error al actualizar el recurso',
-            error: error.message
+            message: 'Error al actualizar el recurso'
         });
     }
 };
 
-// Eliminar recurso (Solo Admin)
-exports.deleteResource = async (req, res) => {
-    console.log('[RESOURCE CONTROLLER] Ejecutando deleteResource para ID:', req.params.id);
+// Eliminar recurso
+exports.deleteRecurso = async (req, res) => {
+    console.log('[RECURSO CONTROLLER] Ejecutando deleteRecurso para ID:', req.params.id);
     try {
-        // Verificar que el recurso no esté asignado a eventos
-        const resourceInEvents = await Event.exists({ resources: req.params.id });
-        if (resourceInEvents) {
-            console.log('[RESOURCE CONTROLLER] Intento de eliminar recurso asignado a eventos');
+        // Verificar si el recurso está asignado a algún evento
+        const enEvento = await Evento.exists({ recursos: req.params.id });
+        if (enEvento) {
             return res.status(400).json({
                 success: false,
-                message: 'No se puede eliminar el recurso porque está asignado a uno o más eventos'
+                message: 'No se puede eliminar el recurso porque está asignado a un evento'
             });
         }
 
-        const deletedResource = await Resource.findByIdAndDelete(req.params.id);
+        const recursoEliminado = await Recurso.findByIdAndDelete(req.params.id);
 
-        if (!deletedResource) {
-            console.log('[RESOURCE CONTROLLER] Recurso no encontrado para eliminar');
+        if (!recursoEliminado) {
             return res.status(404).json({
                 success: false,
                 message: 'Recurso no encontrado'
             });
         }
 
-        console.log('[RESOURCE CONTROLLER] Recurso eliminado:', deletedResource._id);
         res.status(200).json({
             success: true,
             message: 'Recurso eliminado exitosamente'
         });
     } catch (error) {
-        console.error('[RESOURCE CONTROLLER] Error en deleteResource:', error.message);
+        console.error('[RECURSO CONTROLLER] Error en deleteRecurso:', error.message);
         res.status(500).json({
             success: false,
             message: 'Error al eliminar el recurso'
@@ -194,161 +226,42 @@ exports.deleteResource = async (req, res) => {
     }
 };
 
-// Asignar recurso a evento (Coordinador y admin)
-exports.assignToEvent = async (req, res) => {
-    console.log('[RESOURCE CONTROLLER] Ejecutando assignToEvent para recurso:', req.params.id, 'y evento:', req.body.eventId);
+// Cambiar estado de mantenimiento
+exports.cambiarMantenimiento = async (req, res) => {
+    console.log('[RECURSO CONTROLLER] Ejecutando cambiarMantenimiento');
     try {
-        const { eventId } = req.body;
-
-        // Verificar que existe el evento
-        const event = await Event.findById(eventId);
-        if (!event) {
-            console.log('[RESOURCE CONTROLLER] Evento no encontrado');
-            return res.status(404).json({
+        const { estadoMantenimiento } = req.body;
+        
+        if (!estadoMantenimiento || estadoMantenimiento.length > 45) {
+            return res.status(400).json({
                 success: false,
-                message: 'Evento no encontrado'
+                message: 'Estado de mantenimiento no válido'
             });
         }
 
-        // Verificar que existe el recurso
-        const resource = await Resource.findById(req.params.id);
-        if (!resource) {
-            console.log('[RESOURCE CONTROLLER] Recurso no encontrado');
+        const recurso = await Recurso.findByIdAndUpdate(
+            req.params.id,
+            { mantenimientoR: estadoMantenimiento },
+            { new: true }
+        );
+
+        if (!recurso) {
             return res.status(404).json({
                 success: false,
                 message: 'Recurso no encontrado'
             });
         }
 
-        // Verificar disponibilidad
-        if (!resource.available) {
-            console.log('[RESOURCE CONTROLLER] Recurso no disponible');
-            return res.status(400).json({
-                success: false,
-                message: 'El recurso no está disponible'
-            });
-        }
-
-        // Verificar que no esté ya asignado
-        if (resource.events.includes(eventId)) {
-            console.log('[RESOURCE CONTROLLER] Recurso ya asignado a este evento');
-            return res.status(400).json({
-                success: false,
-                message: 'El recurso ya está asignado a este evento'
-            });
-        }
-
-        // Actualizar recurso
-        resource.events.push(eventId);
-        resource.available = false;
-        await resource.save();
-
-        // Actualizar evento
-        event.resources.push(req.params.id);
-        await event.save();
-
-        console.log('[RESOURCE CONTROLLER] Recurso asignado correctamente');
         res.status(200).json({
             success: true,
-            message: 'Recurso asignado al evento exitosamente',
-            data: {
-                resourceId: resource._id,
-                eventId: event._id,
-                resourceName: resource.name,
-                eventTitle: event.title
-            }
+            message: 'Estado de mantenimiento actualizado',
+            data: recurso
         });
     } catch (error) {
-        console.error('[RESOURCE CONTROLLER] Error en assignToEvent:', error.message);
+        console.error('[RECURSO CONTROLLER] Error en cambiarMantenimiento:', error.message);
         res.status(500).json({
             success: false,
-            message: 'Error al asignar el recurso al evento',
-            error: error.message
-        });
-    }
-};
-
-// Liberar recurso de evento (Coordinador y admin)
-exports.releaseFromEvent = async (req, res) => {
-    console.log('[RESOURCE CONTROLLER] Ejecutando releaseFromEvent para recurso:', req.params.id, 'y evento:', req.body.eventId);
-    try {
-        const { eventId } = req.body;
-
-        // Verificar que existe el evento
-        const event = await Event.findById(eventId);
-        if (!event) {
-            console.log('[RESOURCE CONTROLLER] Evento no encontrado');
-            return res.status(404).json({
-                success: false,
-                message: 'Evento no encontrado'
-            });
-        }
-
-        // Verificar que existe el recurso
-        const resource = await Resource.findById(req.params.id);
-        if (!resource) {
-            console.log('[RESOURCE CONTROLLER] Recurso no encontrado');
-            return res.status(404).json({
-                success: false,
-                message: 'Recurso no encontrado'
-            });
-        }
-
-        // Verificar que está asignado
-        if (!resource.events.includes(eventId)) {
-            console.log('[RESOURCE CONTROLLER] Recurso no asignado a este evento');
-            return res.status(400).json({
-                success: false,
-                message: 'El recurso no está asignado a este evento'
-            });
-        }
-
-        // Actualizar recurso
-        resource.events = resource.events.filter(e => e.toString() !== eventId);
-        resource.available = resource.events.length === 0;
-        await resource.save();
-
-        // Actualizar evento
-        event.resources = event.resources.filter(r => r.toString() !== req.params.id);
-        await event.save();
-
-        console.log('[RESOURCE CONTROLLER] Recurso liberado correctamente');
-        res.status(200).json({
-            success: true,
-            message: 'Recurso liberado del evento exitosamente',
-            data: {
-                resourceId: resource._id,
-                eventId: event._id
-            }
-        });
-    } catch (error) {
-        console.error('[RESOURCE CONTROLLER] Error en releaseFromEvent:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al liberar el recurso del evento',
-            error: error.message
-        });
-    }
-};
-
-// Obtener recursos disponibles
-exports.getAvailableResources = async (req, res) => {
-    console.log('[RESOURCE CONTROLLER] Ejecutando getAvailableResources');
-    try {
-        const resources = await Resource.find({ available: true })
-            .populate('type', 'name -_id');
-
-        console.log(`[RESOURCE CONTROLLER] ${resources.length} recursos disponibles encontrados`);
-        res.status(200).json({
-            success: true,
-            count: resources.length,
-            data: resources
-        });
-    } catch (error) {
-        console.error('[RESOURCE CONTROLLER] Error en getAvailableResources:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener los recursos disponibles'
+            message: 'Error al cambiar estado de mantenimiento'
         });
     }
 };

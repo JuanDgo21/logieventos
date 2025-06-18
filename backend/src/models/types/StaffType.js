@@ -32,7 +32,7 @@ const staffTypeSchema = new mongoose.Schema({
         type: Boolean,
         default: true // Por defecto se crea como activo
     },
-    // Array de certificaciones requeridas para este tipo de personal
+    // Array de certificaciones requeridas para este tipo de personal -- ELIMINAR
     requiredCertifications: [{
         type: String,
         // Lista de certificaciones permitidas (puede crecer según necesidades)
