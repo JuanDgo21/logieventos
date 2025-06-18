@@ -1,136 +1,105 @@
 const mongoose = require('mongoose');
-const { Schema } = mongoose;
 
 /**
- * Esquema para TipoPersonal (Especializado para Eventos)
- * Define los diferentes roles o tipos de personal que pueden existir en la organización de eventos
+ * Modelo de Tipo de Personal (StaffType)
+ * Define las categorías principales y roles específicos del personal de eventos
+ * Ejemplo: 
+ * - Tipo: "Coordinación y Gestión"
+ * - Roles incluidos: ["Coordinador General", "Productor", "Encargado de Logística", etc.]
  */
-const TipoPersonalSchema = new Schema({
-  codigo: {
-    type: String,
-    required: [true, 'El código es obligatorio'],
-    unique: true,
-    trim: true,
-    uppercase: true,
-    maxlength: [10, 'El código no puede exceder 10 caracteres'],
-    match: [/^[A-Z0-9]+$/, 'El código solo puede contener letras mayúsculas y números'],
-    example: "COORD-GEN" // Ejemplo de código para Coordinador General
-  },
-  nombre: {
-    type: String,
-    required: [true, 'El nombre es obligatorio'],
-    trim: true,
-    unique: true,
-    maxlength: [50, 'El nombre no puede exceder 50 caracteres'],
-    example: "Coordinador General del Evento" // Ejemplo de nombre
-  },
-  categoria: {
-    type: String,
-    required: [true, 'La categoría es obligatoria'],
-    enum: {
-      values: [
-        'Coordinación y Gestión',
-        'Presentación y Animación',
-        'Técnico',
-        'Servicios Generales',
-        'Seguridad y Emergencias',
-        'Comunicación y Prensa',
-        'Atención al Público',
-        'Soporte Tecnológico',
-        'Otros'
-      ],
-      message: 'Categoría no válida'
+const staffTypeSchema = new mongoose.Schema({
+    // Nombre de la categoría principal
+    nombre: {
+        type: String,
+        required: [true, 'El nombre del tipo de personal es obligatorio'],
+        trim: true,
+        unique: true,
+        enum: [ // Lista de categorías principales
+            'Coordinación y Gestión',
+            'Presentación y Animación',
+            'Personal Técnico',
+            'Servicios Generales',
+            'Seguridad y Emergencias',
+            'Comunicación y Prensa',
+            'Apoyo y Atención al Público',
+            'Soporte Tecnológico'
+        ],
+        message: 'Categoría de personal no válida'
     },
-    example: "Coordinación y Gestión"
-  },
-  descripcion: {
-    type: String,
-    trim: true,
-    maxlength: [200, 'La descripción no puede exceder 200 caracteres'],
-    example: "Responsable de la planificación general y supervisión de todo el evento"
-  },
-  nivelJerarquico: {
-    type: Number,
-    min: [1, 'El nivel jerárquico mínimo es 1'],
-    max: [10, 'El nivel jerárquico máximo es 10'],
-    example: 1 // Para cargos de alta dirección
-  },
-  requiereCertificaciones: {
-    type: Boolean,
-    default: false,
-    example: true // Para personal de seguridad o técnicos
-  },
-  habilidadesRequeridas: [{
-    type: String,
-    trim: true,
-    maxlength: [50, 'Cada habilidad no puede exceder 50 caracteres'],
-    example: "Manejo de equipos de sonido profesional"
-  }],
-  activo: {
-    type: Boolean,
-    default: true
-  },
-  fechaCreacion: {
-    type: Date,
-    default: Date.now
-  },
-  fechaActualizacion: {
-    type: Date,
-    default: Date.now
-  }
+
+    // Descripción general de la categoría
+    descripcion: {
+        type: String,
+        required: [true, 'La descripción es obligatoria'],
+        trim: true,
+        maxlength: [300, 'La descripción no puede exceder los 300 caracteres']
+    },
+
+    // Lista de roles específicos dentro de esta categoría
+    roles: {
+        type: [{
+            nombre: {
+                type: String,
+                required: [true, 'El nombre del rol es obligatorio'],
+                trim: true
+            },
+            descripcion: {
+                type: String,
+                trim: true,
+                maxlength: [200, 'La descripción del rol no puede exceder 200 caracteres']
+            },
+            requiereCertificacion: {
+                type: Boolean,
+                default: false
+            }
+        }],
+        required: [true, 'Debe especificar al menos un rol para este tipo'],
+        validate: {
+            validator: function(roles) {
+                return roles.length > 0;
+            },
+            message: 'Debe existir al menos un rol para este tipo de personal'
+        }
+    },
+
+    // Icono representativo (para interfaces gráficas)
+    icono: {
+        type: String,
+        default: '👔'
+    }
 }, {
-  versionKey: false,
-  timestamps: { createdAt: 'fechaCreacion', updatedAt: 'fechaActualizacion' }
+    timestamps: true,  // Agrega createdAt y updatedAt automáticamente
+    versionKey: false // Elimina el campo __v
 });
 
-console.log('Esquema de TipoPersonal para eventos creado:', TipoPersonalSchema);
-
-// Índices para búsquedas frecuentes
-TipoPersonalSchema.index({ codigo: 1 });
-TipoPersonalSchema.index({ nombre: 1 });
-TipoPersonalSchema.index({ categoria: 1 });
-TipoPersonalSchema.index({ nivelJerarquico: 1 });
-
-/**
- * Middleware para registrar en consola antes de guardar
- */
-TipoPersonalSchema.pre('save', function(next) {
-  console.log(`Guardando/actualizando tipo de personal: ${this.nombre}`);
-  this.fechaActualizacion = Date.now();
-  next();
-});
-
-/**
- * Método para obtener todos los tipos por categoría
- */
-TipoPersonalSchema.statics.porCategoria = function(categoria) {
-  console.log(`Buscando tipos de personal para categoría: ${categoria}`);
-  return this.find({ categoria, activo: true }).sort({ nivelJerarquico: 1 });
-};
-
-/**
- * Método para añadir un nuevo tipo de personal dinámicamente
- */
-TipoPersonalSchema.statics.crearNuevoTipo = async function(datosTipo) {
-  try {
-    console.log('Intentando crear nuevo tipo de personal:', datosTipo);
+// Middleware para validar antes de guardar
+staffTypeSchema.pre('save', function(next) {
+    console.log(`[StaffType] Preparando para guardar tipo: ${this.nombre}`);
     
-    // Si la categoría no existe, se añade a "Otros"
-    if (!this.schema.path('categoria').enumValues.includes(datosTipo.categoria)) {
-      console.warn('Categoría no estándar detectada, asignando a "Otros"');
-      datosTipo.categoria = 'Otros';
+    // Asegurar que los nombres de roles sean únicos dentro del tipo
+    const rolesUnicos = new Set(this.roles.map(r => r.nombre.toLowerCase()));
+    if (rolesUnicos.size !== this.roles.length) {
+        throw new Error('No puede haber roles duplicados dentro de un mismo tipo');
     }
     
-    const nuevoTipo = new this(datosTipo);
-    return await nuevoTipo.save();
-  } catch (error) {
-    console.error('Error al crear nuevo tipo de personal:', error.message);
-    throw error;
-  }
+    next();
+});
+
+// Manejo de errores de duplicados
+staffTypeSchema.post('save', function(error, doc, next) {
+    if (error.name === 'MongoServerError' && error.code === 11000) {
+        console.error('[StaffType] Error de duplicado:', error.message);
+        next(new Error('Ya existe un tipo de personal con ese nombre'));
+    } else {
+        next(error);
+    }
+});
+
+// Método para agregar un nuevo rol al tipo
+staffTypeSchema.methods.agregarRol = function(nuevoRol) {
+    console.log(`[StaffType] Agregando rol "${nuevoRol.nombre}" a ${this.nombre}`);
+    this.roles.push(nuevoRol);
+    return this.save();
 };
 
-const TipoPersonal = mongoose.model('TipoPersonal', TipoPersonalSchema);
-
-console.log('Modelo TipoPersonal para eventos registrado en Mongoose');
-
-module.exports = TipoPersonal;
+module.exports = mongoose.model('StaffType', staffTypeSchema);
