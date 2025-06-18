@@ -74,7 +74,7 @@ const supplierSchema = new mongoose.Schema({
     trim: true
   },
   
-  // Fecha de registro (autogenerada)
+  // Fecha de registro (autogenerada)  ejemplo
   registration_date: {
     type: Date,
     default: Date.now
