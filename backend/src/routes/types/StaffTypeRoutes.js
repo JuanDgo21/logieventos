@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const StaffTypeController = require('../../controllers/types/StaffTypeController');
+const StaffTypeController = require('../controllers/types/StaffTypeController');
 const { 
     authenticateJWT, 
     checkRole 
-} = require('../../middlewares/auth');
+} = require('../middlewares/auth');
 
 console.log('Inicializando rutas de StaffType...');
 

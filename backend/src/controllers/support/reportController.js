@@ -1,383 +1,379 @@
 const Report = require('../../models/support/Report');
 const User = require('../../models/core/User');
 const Event = require('../../models/core/Event');
+const Contract = require('../../models/core/Contract');
 
-// Obtener todos los reportes (Admin y coordinador)
-exports.getAllReports = async (req, res) => {
-    console.log('[REPORT CONTROLLER] Ejecutando getAllReports');
+/**
+ * Controlador para gestión de reportes con control de acceso por roles
+ */
+const ReportController = {
+  /**
+   * Crear un nuevo reporte (Admin, Coordinador)
+   */
+  async create(req, res) {
     try {
-        let query = {};
-        
-        // Filtros por rol
-        if (req.user.role === 'coordinador') {
-            query = { $or: [{ createdBy: req.user.id }, { visibility: 'public' }] };
-        } else if (req.user.role === 'auxiliar') {
-            query = { createdBy: req.user.id };
-        }
+      console.log('[Report] Creación iniciada por:', req.user.role);
+      
+      // Verificar permisos
+      if (!['admin', 'coordinator'].includes(req.user.role)) {
+        console.log('[Report] Intento no autorizado. Rol:', req.user.role);
+        return res.status(403).json({ error: 'No tiene permisos para crear reportes' });
+      }
 
-        const reports = await Report.find(query)
-            .populate('createdBy', 'username email -_id')
-            .populate('relatedEvent', 'title startDate -_id')
-            .sort({ createdAt: -1 });
-
-        console.log(`[REPORT CONTROLLER] ${reports.length} reportes encontrados`);
-        res.status(200).json({
-            success: true,
-            count: reports.length,
-            data: reports
-        });
+      // Validar y completar datos
+      const reportData = await prepareReportData(req.body, req.user);
+      const report = new Report(reportData);
+      
+      await report.save();
+      console.log('[Report] Nuevo reporte creado:', report._id);
+      
+      res.status(201).json(report);
     } catch (error) {
-        console.error('[REPORT CONTROLLER] Error en getAllReports:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener los reportes'
-        });
+      console.error('[Report] Error en creación:', error.message);
+      res.status(400).json({ error: error.message });
     }
+  },
+
+  /**
+   * Obtener reportes con filtros por rol
+   */
+  async getAll(req, res) {
+    try {
+      console.log(`[Report] Solicitud de listado por: ${req.user.role}`);
+      
+      const filter = buildRoleBasedFilter(req.query, req.user);
+      const reports = await Report.find(filter)
+        .populate(buildRoleBasedPopulate(req.user.role))
+        .sort({ date: -1 });
+      
+      console.log(`[Report] Enviados ${reports.length} reportes a ${req.user.role}`);
+      
+      // Filtrar datos sensibles según rol
+      const filteredReports = reports.map(report => 
+        filterReportByRole(report, req.user.role)
+      );
+      
+      res.json(filteredReports);
+    } catch (error) {
+      console.error('[Report] Error en listado:', error.message);
+      res.status(500).json({ error: 'Error al obtener reportes' });
+    }
+  },
+
+  /**
+   * Obtener reporte específico con control de acceso
+   */
+  async getById(req, res) {
+    try {
+      console.log(`[Report] Solicitud de reporte ${req.params.id} por: ${req.user.role}`);
+      
+      const report = await Report.findById(req.params.id)
+        .populate(buildRoleBasedPopulate(req.user.role));
+      
+      if (!report) {
+        console.log('[Report] Reporte no encontrado');
+        return res.status(404).json({ error: 'Reporte no encontrado' });
+      }
+
+      // Verificar acceso al reporte específico
+      if (!canAccessReport(report, req.user)) {
+        console.log('[Report] Acceso denegado al reporte');
+        return res.status(403).json({ error: 'No tiene acceso a este reporte' });
+      }
+
+      // Aplicar filtrado de campos según rol
+      const filteredReport = filterReportByRole(report, req.user.role);
+      
+      console.log('[Report] Entrega de reporte filtrado');
+      res.json(filteredReport);
+    } catch (error) {
+      console.error('[Report] Error al obtener:', error.message);
+      res.status(500).json({ error: 'Error al obtener reporte' });
+    }
+  },
+
+  /**
+   * Actualizar reporte (Admin, Coordinador, Líder para sus eventos)
+   */
+  async update(req, res) {
+    try {
+      console.log(`[Report] Intento de actualización por: ${req.user.role}`);
+      
+      const report = await Report.findById(req.params.id);
+      if (!report) {
+        return res.status(404).json({ error: 'Reporte no encontrado' });
+      }
+
+      // Verificar permisos de actualización
+      if (!canModifyReport(report, req.user)) {
+        console.log('[Report] Intento no autorizado de modificación');
+        return res.status(403).json({ error: 'No tiene permisos para modificar este reporte' });
+      }
+
+      // Preparar datos según rol
+      const updateData = prepareUpdateData(req.body, req.user.role);
+      
+      const updatedReport = await Report.findByIdAndUpdate(
+        req.params.id,
+        updateData,
+        { new: true, runValidators: true }
+      ).populate(buildRoleBasedPopulate(req.user.role));
+      
+      console.log('[Report] Actualización exitosa');
+      res.json(updatedReport);
+    } catch (error) {
+      console.error('[Report] Error en actualización:', error.message);
+      res.status(400).json({ error: error.message });
+    }
+  },
+
+  /**
+   * Cerrar reporte (Admin, Coordinador)
+   */
+  async closeReport(req, res) {
+    try {
+      console.log(`[Report] Intento de cierre por: ${req.user.role}`);
+      
+      if (!['admin', 'coordinator'].includes(req.user.role)) {
+        return res.status(403).json({ error: 'No tiene permisos para cerrar reportes' });
+      }
+
+      const report = await Report.findById(req.params.id);
+      if (!report) {
+        return res.status(404).json({ error: 'Reporte no encontrado' });
+      }
+
+      report.status = 'closed';
+      report.closed_at = new Date();
+      report.solution = req.body.solution;
+      
+      await report.save();
+      
+      console.log('[Report] Reporte cerrado:', report._id);
+      res.json(report);
+    } catch (error) {
+      console.error('[Report] Error al cerrar:', error.message);
+      res.status(400).json({ error: error.message });
+    }
+  }
 };
 
-// Obtener reporte específico
-exports.getReportById = async (req, res) => {
-    console.log('[REPORT CONTROLLER] Ejecutando getReportById para ID:', req.params.id);
-    try {
-        const report = await Report.findById(req.params.id)
-            .populate('createdBy', 'username email -_id')
-            .populate('relatedEvent', 'title startDate -_id');
+// ==================== HELPERS ====================
 
-        if (!report) {
-            console.log('[REPORT CONTROLLER] Reporte no encontrado');
-            return res.status(404).json({
-                success: false,
-                message: 'Reporte no encontrado'
-            });
-        }
+/**
+ * Prepara los datos del reporte antes de crear
+ */
+async function prepareReportData(body, user) {
+  const data = { ...body, created_by: user._id };
+  
+  // Validar referencias
+  if (data.event) {
+    const eventExists = await Event.exists({ _id: data.event });
+    if (!eventExists) throw new Error('El evento no existe');
+  }
+  
+  if (data.contract) {
+    const contractExists = await Contract.exists({ _id: data.contract });
+    if (!contractExists) throw new Error('El contrato no existe');
+  }
+  
+  return data;
+}
 
-        // Validar acceso
-        if (req.user.role !== 'admin' && 
-            report.visibility === 'private' && 
-            report.createdBy.toString() !== req.user.id) {
-            console.log('[REPORT CONTROLLER] Acceso no autorizado');
-            return res.status(403).json({
-                success: false,
-                message: 'No tienes permiso para acceder a este reporte'
-            });
-        }
+/**
+ * Construye filtro basado en rol del usuario
+ */
+function buildRoleBasedFilter(query, user) {
+  const filter = { ...query };
+  
+  switch (user.role) {
+    case 'admin':
+      break;
+      
+    case 'coordinator':
+      filter.$or = [
+        { type: { $in: ['financial', 'operational'] } },
+        { created_by: user._id },
+        { event: { $in: user.assignedEvents || [] } }
+    ];
 
-        res.status(200).json({
-            success: true,
-            data: report
-        });
-    } catch (error) {
-        console.error('[REPORT CONTROLLER] Error en getReportById:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener el reporte',
-            error: error.message
-        });
-    }
-};
+      if (!filter.date) {
+        filter.date = { $gte: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000) };
+      }
+      break;
+      
+    case 'leader':
+      filter.event = { $in: user.assignedEvents || [] };
+      filter.date = { 
+        $gte: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+        $lte: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+      };
+      break;
+      
+    case 'staff':
+    case 'supplier':
+      filter.$or = [
+        { created_by: user._id },
+        { 'notes.author': user._id },
+        { event: { $in: user.associatedEvents || [] } }
+      ];
+      break;
+      
+    default:
+      throw new Error('Rol no reconocido');
+  }
+  
+  return filter;
+}
 
-// Crear nuevo reporte
-exports.createReport = async (req, res) => {
-    console.log('[REPORT CONTROLLER] Ejecutando createReport');
-    try {
-        const { title, description, type, relatedEvent, visibility } = req.body;
+/**
+ * Determina las relaciones a popular según rol
+ */
+function buildRoleBasedPopulate(role) {
+  const base = [
+    { path: 'created_by', select: 'name email' },
+    { path: 'event', select: 'name' },
+    { path: 'contract', select: 'name' }
+  ];
+  
+  if (role === 'admin') {
+    base.push({ path: 'notes.author', select: 'name role' });
+  }
+  
+  return base;
+}
 
-        // Validar evento relacionado si existe
-        if (relatedEvent) {
-            const eventExists = await Event.exists({ _id: relatedEvent });
-            if (!eventExists) {
-                console.log('[REPORT CONTROLLER] Evento relacionado no encontrado');
-                return res.status(400).json({
-                    success: false,
-                    message: 'El evento relacionado no existe'
-                });
-            }
-        }
+/**
+ * Verifica si el usuario puede acceder a un reporte
+ */
+function canAccessReport(report, user) {
+  if (user.role === 'admin') return true;
+  
+  if (report.created_by.equals(user._id)) return true;
+  
+  if (user.role === 'coordinator') {
+    return (
+      (report.event && (user.assignedEvents || []).includes(report.event)) ||
+      ['financial', 'operational'].includes(report.type)
+    );
+  }
+  
+  if (user.role === 'leader') {
+    return (
+      report.event && 
+      (user.assignedEvents || []).includes(report.event) &&
+      isWithinTimeWindow(report.date)
+    );
+  }
+  
+  if (['staff', 'supplier'].includes(user.role)) {
+    return (
+      report.notes.some(n => n.author.equals(user._id)) ||
+      (report.event && (user.associatedEvents || []).includes(report.event))
+    );
+  }
+  
+  return false;
+}
 
-        const newReport = new Report({
-            title,
-            description,
-            type,
-            relatedEvent: relatedEvent || null,
-            createdBy: req.user.id,
-            visibility: visibility || 'private',
-            status: 'open'
-        });
+/**
+ * Verifica si el usuario puede modificar un reporte
+ */
+function canModifyReport(report, user) {
+  if (user.role === 'admin') return true;
+  
+  if (report.created_by.equals(user._id)) return true;
+  
+  if (user.role === 'coordinator') {
+    return ['financial', 'operational'].includes(report.type);
+  }
+  
+  if (user.role === 'leader') {
+    return (
+      report.event && 
+      (user.assignedEvents || []).includes(report.event) &&
+      isWithinTimeWindow(report.date)
+    );
+  }
+  
+  return false;
+}
 
-        const savedReport = await newReport.save();
-        
-        // Populate para la respuesta
-        const populatedReport = await Report.findById(savedReport._id)
-            .populate('createdBy', 'username -_id')
-            .populate('relatedEvent', 'title -_id');
+/**
+ * Filtra los campos del reporte según el rol
+ */
+function filterReportByRole(report, role) {
+  const reportObj = report.toObject();
+  
+  // Campos sensibles
+  const adminOnlyFields = [
+    'financialDetails',
+    'costBreakdown',
+    'rawData',
+    'auditLogs'
+  ];
+  
+  // Campos restringidos
+  const coordinatorRestricted = [
+    'unitCosts',
+    'profitMargins'
+  ];
+  
+  // Aplicar filtros
+  if (role !== 'admin') {
+    adminOnlyFields.forEach(field => delete reportObj[field]);
+  }
+  
+  if (role === 'coordinator') {
+    coordinatorRestricted.forEach(field => delete reportObj[field]);
+  }
+  
+  if (role === 'leader') {
+    delete reportObj.detailedCosts;
+    delete reportObj.sensitiveNotes;
+  }
+  
+  if (['staff', 'supplier'].includes(role)) {
+    return {
+        _id: reportObj._id,
+        title: reportObj.title,
+        date: reportObj.date,
+        status: reportObj.status,
+        notes: reportObj.notes.filter(n => 
+            n.visibility === 'public' || n.author.equals(user._id)
+        )
+    };
+}
+  
+  return reportObj;
+}
 
-        console.log('[REPORT CONTROLLER] Reporte creado:', populatedReport._id);
-        res.status(201).json({
-            success: true,
-            message: 'Reporte creado exitosamente',
-            data: populatedReport
-        });
-    } catch (error) {
-        console.error('[REPORT CONTROLLER] Error en createReport:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al crear el reporte',
-            error: error.message
-        });
-    }
-};
+/**
+ * Prepara datos de actualización según rol
+ */
+function prepareUpdateData(body, role) {
+  const data = { ...body };
+  
+  if (role !== 'admin') {
+    delete data.financialDetails;
+    delete data.rawData;
+  }
+  
+  if (role === 'coordinator') {
+    delete data.unitCosts;
+  }
+  
+  return data;
+}
 
-// Actualizar reporte (Creador, Admin y coordinador)
-exports.updateReport = async (req, res) => {
-    console.log('[REPORT CONTROLLER] Ejecutando updateReport para ID:', req.params.id);
-    try {
-        // Obtener reporte existente
-        const existingReport = await Report.findById(req.params.id);
-        if (!existingReport) {
-            console.log('[REPORT CONTROLLER] Reporte no encontrado');
-            return res.status(404).json({
-                success: false,
-                message: 'Reporte no encontrado'
-            });
-        }
+/**
+ * Verifica si una fecha está dentro del rango permitido para líderes
+ */
+function isWithinTimeWindow(date) {
+  const now = new Date();
+  const start = new Date(now - 3 * 24 * 60 * 60 * 1000);
+  const end = new Date(now + 3 * 24 * 60 * 60 * 1000);
+  return date >= start && date <= end;
+}
 
-        // Validar permisos
-        if (req.user.role !== 'admin' && 
-            existingReport.createdBy.toString() !== req.user.id) {
-            console.log('[REPORT CONTROLLER] No autorizado para actualizar');
-            return res.status(403).json({
-                success: false,
-                message: 'No estás autorizado para actualizar este reporte'
-            });
-        }
-
-        // Preparar datos para actualización
-        const updateData = { ...req.body };
-        
-        // Solo admin puede cambiar el estado
-        if (req.user.role !== 'admin' && 'status' in updateData) {
-            delete updateData.status;
-        }
-
-        // Solo admin puede cambiar la visibilidad
-        if (req.user.role !== 'admin' && 'visibility' in updateData) {
-            delete updateData.visibility;
-        }
-
-        const updatedReport = await Report.findByIdAndUpdate(
-            req.params.id,
-            updateData,
-            { new: true }
-        ).populate('createdBy', 'username -_id')
-         .populate('relatedEvent', 'title -_id');
-
-        console.log('[REPORT CONTROLLER] Reporte actualizado:', updatedReport._id);
-        res.status(200).json({
-            success: true,
-            message: 'Reporte actualizado exitosamente',
-            data: updatedReport
-        });
-    } catch (error) {
-        console.error('[REPORT CONTROLLER] Error en updateReport:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al actualizar el reporte',
-            error: error.message
-        });
-    }
-};
-
-// Cambiar estado de reporte (Admin y coordinador)
-exports.changeReportStatus = async (req, res) => {
-    console.log('[REPORT CONTROLLER] Ejecutando changeReportStatus para ID:', req.params.id);
-    try {
-        const { status, resolutionNotes } = req.body;
-        const validStatuses = ['open', 'in_progress', 'resolved', 'closed'];
-
-        if (!validStatuses.includes(status)) {
-            console.log('[REPORT CONTROLLER] Estado no válido');
-            return res.status(400).json({
-                success: false,
-                message: 'Estado no válido'
-            });
-        }
-
-        const updatedReport = await Report.findByIdAndUpdate(
-            req.params.id,
-            { 
-                status,
-                resolutionNotes: status === 'resolved' ? resolutionNotes : null,
-                resolvedAt: status === 'resolved' ? Date.now() : null,
-                resolvedBy: status === 'resolved' ? req.user.id : null
-            },
-            { new: true }
-        ).populate('createdBy', 'username -_id')
-         .populate('resolvedBy', 'username -_id')
-         .populate('relatedEvent', 'title -_id');
-
-        if (!updatedReport) {
-            console.log('[REPORT CONTROLLER] Reporte no encontrado');
-            return res.status(404).json({
-                success: false,
-                message: 'Reporte no encontrado'
-            });
-        }
-
-        console.log('[REPORT CONTROLLER] Estado de reporte actualizado:', updatedReport.status);
-        res.status(200).json({
-            success: true,
-            message: 'Estado de reporte actualizado exitosamente',
-            data: updatedReport
-        });
-    } catch (error) {
-        console.error('[REPORT CONTROLLER] Error en changeReportStatus:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al cambiar el estado del reporte',
-            error: error.message
-        });
-    }
-};
-
-// Eliminar reporte (Admin y creador)
-exports.deleteReport = async (req, res) => {
-    console.log('[REPORT CONTROLLER] Ejecutando deleteReport para ID:', req.params.id);
-    try {
-        const report = await Report.findById(req.params.id);
-
-        if (!report) {
-            console.log('[REPORT CONTROLLER] Reporte no encontrado');
-            return res.status(404).json({
-                success: false,
-                message: 'Reporte no encontrado'
-            });
-        }
-
-        // Validar permisos
-        if (req.user.role !== 'admin' && report.createdBy.toString() !== req.user.id) {
-            console.log('[REPORT CONTROLLER] No autorizado para eliminar');
-            return res.status(403).json({
-                success: false,
-                message: 'No estás autorizado para eliminar este reporte'
-            });
-        }
-
-        const deletedReport = await Report.findByIdAndDelete(req.params.id);
-        console.log('[REPORT CONTROLLER] Reporte eliminado:', deletedReport._id);
-
-        res.status(200).json({
-            success: true,
-            message: 'Reporte eliminado exitosamente'
-        });
-    } catch (error) {
-        console.error('[REPORT CONTROLLER] Error en deleteReport:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al eliminar el reporte'
-        });
-    }
-};
-
-// Obtener reportes por evento
-exports.getReportsByEvent = async (req, res) => {
-    console.log('[REPORT CONTROLLER] Ejecutando getReportsByEvent para evento ID:', req.params.eventId);
-    try {
-        // Verificar que el evento existe
-        const eventExists = await Event.exists({ _id: req.params.eventId });
-        if (!eventExists) {
-            console.log('[REPORT CONTROLLER] Evento no encontrado');
-            return res.status(404).json({
-                success: false,
-                message: 'Evento no encontrado'
-            });
-        }
-
-        let query = { relatedEvent: req.params.eventId };
-        
-        // Filtros por rol
-        if (req.user.role === 'coordinador') {
-            query = { 
-                $and: [
-                    { relatedEvent: req.params.eventId },
-                    { $or: [{ createdBy: req.user.id }, { visibility: 'public' }] }
-                ]
-            };
-        } else if (req.user.role === 'auxiliar') {
-            query = { 
-                $and: [
-                    { relatedEvent: req.params.eventId },
-                    { createdBy: req.user.id }
-                ]
-            };
-        }
-
-        const reports = await Report.find(query)
-            .populate('createdBy', 'username -_id')
-            .sort({ createdAt: -1 });
-
-        res.status(200).json({
-            success: true,
-            count: reports.length,
-            data: reports
-        });
-    } catch (error) {
-        console.error('[REPORT CONTROLLER] Error en getReportsByEvent:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener reportes por evento'
-        });
-    }
-};
-
-// Obtener estadísticas de reportes (Admin)
-exports.getReportStatistics = async (req, res) => {
-    console.log('[REPORT CONTROLLER] Ejecutando getReportStatistics');
-    try {
-        if (req.user.role !== 'admin') {
-            console.log('[REPORT CONTROLLER] Acceso no autorizado a estadísticas');
-            return res.status(403).json({
-                success: false,
-                message: 'No estás autorizado para ver estas estadísticas'
-            });
-        }
-
-        const stats = await Report.aggregate([
-            {
-                $group: {
-                    _id: '$status',
-                    count: { $sum: 1 },
-                    latest: { $max: '$createdAt' }
-                }
-            },
-            {
-                $project: {
-                    status: '$_id',
-                    count: 1,
-                    latest: 1,
-                    _id: 0
-                }
-            }
-        ]);
-
-        const total = await Report.countDocuments();
-        const resolvedLastMonth = await Report.countDocuments({
-            status: 'resolved',
-            resolvedAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
-        });
-
-        res.status(200).json({
-            success: true,
-            data: {
-                stats,
-                total,
-                resolvedLastMonth
-            }
-        });
-    } catch (error) {
-        console.error('[REPORT CONTROLLER] Error en getReportStatistics:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener estadísticas de reportes'
-        });
-    }
-};
+module.exports = ReportController;
