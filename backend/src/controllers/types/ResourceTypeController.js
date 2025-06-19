@@ -5,7 +5,7 @@ const Resource = require('../../models/core/Resource');
 exports.getAllResourceTypes = async (req, res) => {
     console.log('[RESOURCETYPE CONTROLLER] Ejecutando getAllResourceTypes');
     try {
-        const resourceTypes = await ResourceType.find().sort({ name: 1 });
+        const resourceTypes = await ResourceType.find().sort({ tipo_recursos: 1 });
         console.log(`[RESOURCETYPE CONTROLLER] ${resourceTypes.length} tipos de recursos encontrados`);
         res.status(200).json({
             success: true,
@@ -53,22 +53,21 @@ exports.getResourceTypeById = async (req, res) => {
 exports.createResourceType = async (req, res) => {
     console.log('[RESOURCETYPE CONTROLLER] Ejecutando createResourceType');
     try {
-        const { name, description, requiresMaintenance } = req.body;
+        const { totipo_recursos, tipo_recursos } = req.body;
 
-        // Validar que no exista ya un tipo con el mismo nombre
-        const existingType = await ResourceType.findOne({ name });
+        // Validar que no exista ya un tipo con el mismo totipo_recursos
+        const existingType = await ResourceType.findOne({ totipo_recursos });
         if (existingType) {
             console.log('[RESOURCETYPE CONTROLLER] Tipo de recurso ya existe');
             return res.status(400).json({
                 success: false,
-                message: 'Ya existe un tipo de recurso con este nombre'
+                message: 'Ya existe un tipo de recurso con este identificador'
             });
         }
 
         const newResourceType = new ResourceType({
-            name,
-            description,
-            requiresMaintenance: requiresMaintenance || false
+            totipo_recursos,
+            tipo_recursos
         });
 
         const savedResourceType = await newResourceType.save();
@@ -103,17 +102,17 @@ exports.updateResourceType = async (req, res) => {
             });
         }
 
-        // Validar que el nuevo nombre no colisione con otro tipo
-        if (req.body.name && req.body.name !== existingType.name) {
-            const nameExists = await ResourceType.findOne({ 
-                name: req.body.name,
+        // Validar que el nuevo totipo_recursos no colisione con otro tipo
+        if (req.body.totipo_recursos && req.body.totipo_recursos !== existingType.totipo_recursos) {
+            const idExists = await ResourceType.findOne({ 
+                totipo_recursos: req.body.totipo_recursos,
                 _id: { $ne: req.params.id }
             });
-            if (nameExists) {
-                console.log('[RESOURCETYPE CONTROLLER] Nombre de tipo ya existe');
+            if (idExists) {
+                console.log('[RESOURCETYPE CONTROLLER] Identificador de tipo ya existe');
                 return res.status(400).json({
                     success: false,
-                    message: 'Ya existe otro tipo de recurso con este nombre'
+                    message: 'Ya existe otro tipo de recurso con este identificador'
                 });
             }
         }
@@ -195,17 +194,15 @@ exports.getResourcesByType = async (req, res) => {
         }
 
         const resources = await Resource.find({ type: req.params.id })
-            .populate('type', 'name -_id')
-            .populate('events', 'title -_id');
+            .populate('type', 'tipo_recursos -_id');
 
         res.status(200).json({
             success: true,
             data: {
                 type: {
                     id: resourceType._id,
-                    name: resourceType.name,
-                    description: resourceType.description, //ELIMINAR
-                    requiresMaintenance: resourceType.requiresMaintenance  //ELIMINAR
+                    totipo_recursos: resourceType.totipo_recursos,
+                    tipo_recursos: resourceType.tipo_recursos
                 },
                 resources: resources,
                 count: resources.length
