@@ -1,6 +1,5 @@
 const Staff = require('../../models/core/Staff');
 const StaffType = require('../../models/types/StaffType');
-const Event = require('../../models/main/Event');
 
 console.log('Controlador de Staff inicializado');
 
@@ -15,8 +14,8 @@ module.exports = {
             const { role, _id } = req.user;
             console.log(`Solicitud recibida de usuario con rol: ${role}`);
 
-            // Filtro base: solo personal activo
-            let query = { isActive: true };
+            // Filtro base
+            let query = {};
 
             // Filtro adicional para Líder: solo su equipo
             if (role === 'Líder') {
@@ -26,7 +25,7 @@ module.exports = {
 
             console.log('Consultando base de datos...');
             const staff = await Staff.find(query)
-                .populate('staffTypeId', 'name requiredCertifications')
+                .populate('staffTypeId', 'name')
                 .populate('userId', 'email role');
 
             console.log(`Personal encontrado: ${staff.length} registros`);
@@ -65,12 +64,6 @@ module.exports = {
                 });
             }
 
-            // Restricción para Coordinadores: no pueden asignar líderes
-            if (role === 'Coordinador' && req.body.leaderId) {
-                console.warn('Coordinador intentó asignar líder - Campo removido');
-                delete req.body.leaderId;
-            }
-
             console.log('Creando nuevo registro...');
             const newStaff = await Staff.create(req.body);
             console.log(`Nuevo personal creado con ID: ${newStaff._id}`);
@@ -101,61 +94,6 @@ module.exports = {
     },
 
     // ----------------------------------------
-    // Asignar a evento (Coordinador)
-    // ----------------------------------------
-    async assignToEvent(req, res) {
-        console.log(`Ejecutando assignToEvent - Asignando personal ID: ${req.params.id}`);
-        try {
-            const { eventId, role } = req.body;
-            console.log(`Datos de asignación - eventId: ${eventId}, role: ${role}`);
-
-            const staff = await Staff.findById(req.params.id);
-            if (!staff) {
-                console.warn('Personal no encontrado para asignación');
-                return res.status(404).json({ 
-                    success: false, 
-                    message: 'Personal no encontrado' 
-                });
-            }
-
-            // Verificar disponibilidad del personal
-            console.log('Verificando disponibilidad...');
-            const isAvailable = await staff.checkAvailability(eventId);
-            if (!isAvailable) {
-                console.warn('El personal no está disponible para el evento');
-                return res.status(400).json({ 
-                    success: false, 
-                    message: 'El personal no está disponible en esas fechas' 
-                });
-            }
-
-            console.log('Realizando asignación...');
-            staff.assignedEvents.push({ eventId, role });
-            await staff.save();
-
-            // Actualizar el evento con el nuevo personal asignado
-            await Event.findByIdAndUpdate(eventId, {
-                $push: { assignedStaff: { staffId: staff._id, role } }
-            });
-            console.log('Asignación completada exitosamente');
-
-            res.json({ 
-                success: true, 
-                message: 'Asignación exitosa' 
-            });
-
-        } catch (error) {
-            console.error('[Staff] Error en assignToEvent:', error.message);
-            console.error(error.stack);
-            res.status(500).json({ 
-                success: false, 
-                message: error.message,
-                error: process.env.NODE_ENV === 'development' ? error.message : undefined
-            });
-        }
-    },
-
-    // ----------------------------------------
     // Actualizar personal (Admin/Coordinador)
     // ----------------------------------------
     async update(req, res) {
@@ -164,15 +102,6 @@ module.exports = {
             const { role } = req.user;
             const updates = req.body;
             console.log(`Actualizaciones solicitadas:`, updates);
-
-            // Restricción para Coordinadores: no pueden cambiar el tipo de personal
-            if (role === 'Coordinador' && updates.staffTypeId) {
-                console.warn('Coordinador intentó modificar tipo de personal');
-                return res.status(403).json({ 
-                    success: false, 
-                    message: 'No puedes modificar el tipo de personal' 
-                });
-            }
 
             console.log('Realizando actualización...');
             const updatedStaff = await Staff.findByIdAndUpdate(
@@ -207,34 +136,37 @@ module.exports = {
     },
 
     // ----------------------------------------
-    // Desactivar personal (Admin)
+    // Registrar asistencia (Admin/Coordinador)
     // ----------------------------------------
-    async deactivate(req, res) {
-        console.log(`Ejecutando deactivate - Desactivando personal ID: ${req.params.id}`);
+    async updateAsistencia(req, res) {
+        console.log(`Ejecutando updateAsistencia - Actualizando asistencia ID: ${req.params.id}`);
         try {
-            console.log('Buscando personal...');
-            const staff = await Staff.findByIdAndUpdate(
-                req.params.id,
-                { isActive: false },
+            const { asistencia } = req.body;
+            console.log(`Nuevo estado de asistencia: ${asistencia}`);
+
+            const updatedStaff = await Staff.findByIdAndUpdate(
+                req.params.id, 
+                { asistencia }, 
                 { new: true }
             );
 
-            if (!staff) {
-                console.warn('Personal no encontrado para desactivación');
+            if (!updatedStaff) {
+                console.warn('Personal no encontrado');
                 return res.status(404).json({ 
                     success: false, 
                     message: 'Personal no encontrado' 
                 });
             }
 
-            console.log(`Personal desactivado ID: ${staff._id}`);
+            console.log(`Asistencia actualizada para ID: ${updatedStaff._id}`);
             res.json({ 
                 success: true, 
-                message: 'Personal desactivado' 
+                message: 'Asistencia actualizada',
+                data: updatedStaff
             });
 
         } catch (error) {
-            console.error('[Staff] Error en deactivate:', error.message);
+            console.error('[Staff] Error en updateAsistencia:', error.message);
             console.error(error.stack);
             res.status(500).json({ 
                 success: false, 
