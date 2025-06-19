@@ -1,112 +1,127 @@
 const mongoose = require('mongoose');
 
 /**
- * Esquema para los tipos de proveedores en el sistema.
- * Define la estructura de datos y validaciones para las categorías de proveedores.
+ * Esquema para tipos/categorías de proveedores
+ * Combina categorías principales y subcategorías en una sola estructura
  */
 const supplierTypeSchema = new mongoose.Schema({
-  // ID único del tipo de proveedor (entero)
-  supplier_type_id: { 
-    type: Number, 
-    required: [true, 'El ID del tipo de proveedor es requerido'], 
-    unique: true,
-    validate: {
-      validator: Number.isInteger,
-      message: '{VALUE} no es un valor entero válido'
-    }
-  },
-  
-  // Nombre del tipo de proveedor
-  name: { 
-    type: String, 
-    required: [true, 'El nombre del tipo de proveedor es requerido'],
-    trim: true,
-    maxlength: [45, 'El nombre no puede exceder los 45 caracteres'],
-    minlength: [3, 'El nombre debe tener al menos 3 caracteres']
-  },
-  
-  // Fecha de creación (se autogenera)
-  created_at: {
-    type: Date,
-    default: Date.now
-  },
-  
-  // Estado del tipo de proveedor (activo/inactivo)
-  status: {
+  // Nivel 1: Categoría principal (ej. "Equipamiento Técnico")
+  mainCategory: {
     type: String,
-    enum: {
-      values: ['active', 'inactive'],
-      message: 'El estado debe ser "active" o "inactive"'
-    },
-    default: 'active'
+    required: true,
+    enum: [
+      'Proveedores de Espacios',
+      'Proveedores Técnicos y de Producción',
+      'Proveedores de Alimentos y Bebidas',
+      'Proveedores de Decoración y Ambientación',
+      'Proveedores de Vestuario y Estética',
+      'Proveedores de Entretenimiento',
+      'Proveedores de Logística y Servicios Generales',
+      'Proveedores de Publicidad y Comunicación',
+      'Proveedores de Seguridad y Emergencias',
+      'Proveedores Tecnológicos'
+    ],
+    index: true
   },
   
-  // Descripción opcional del tipo de proveedor
+  // Nivel 2: Subcategoría específica (ej. "Sonido profesional")
+  subCategory: {
+    type: String,
+    required: true,
+    trim: true,
+    maxlength: 50
+  },
+  
+  // Icono representativo
+  icon: {
+    type: String,
+    default: '🏛️',
+    maxlength: 2
+  },
+  
+  // Descripción detallada
   description: {
     type: String,
     trim: true,
-    maxlength: [255, 'La descripción no puede exceder los 255 caracteres']
+    maxlength: 500
+  },
+  
+  // Estado
+  status: {
+    type: String,
+    enum: ['active', 'inactive'],
+    default: 'active'
+  },
+  
+  // Fechas de creación y actualización
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date
   }
 }, {
-  // Opciones del esquema
-  versionKey: false, // Elimina el campo __v
-  timestamps: false, // Desactiva createdAt y updatedAt (usamos created_at personalizado)
-  toJSON: { virtuals: true }, // Incluye virtuals al convertir a JSON
+  versionKey: false,
+  toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
 
-/**
- * Relación virtual con los proveedores de este tipo.
- * Permite acceder a todos los proveedores asociados a este tipo.
- */
-supplierTypeSchema.virtual('suppliers', {
-  ref: 'Supplier', // Modelo relacionado
-  localField: '_id', // Campo en este modelo
-  foreignField: 'supplier_type', // Campo en el modelo relacionado
-  justOne: false // Relación uno a muchos
-});
+// Índice compuesto para evitar duplicados
+supplierTypeSchema.index(
+  { mainCategory: 1, subCategory: 1 }, 
+  { unique: true, name: 'category_unique' }
+);
 
-/**
- * Middleware que se ejecuta antes de eliminar un tipo de proveedor.
- * Limpia las referencias en los proveedores asociados.
- */
-supplierTypeSchema.pre('remove', async function(next) {
-  console.log(`[SupplierType] Limpiando referencias de tipo de proveedor ${this._id} en proveedores...`);
-  
-  try {
-    await mongoose.model('Supplier').updateMany(
-      { supplier_type: this._id },
-      { $unset: { supplier_type: 1 } }
-    );
-    console.log(`[SupplierType] Referencias limpiadas exitosamente para ${this._id}`);
-    next();
-  } catch (error) {
-    console.error(`[SupplierType] Error limpiando referencias: ${error.message}`);
-    next(error);
-  }
-});
-
-/**
- * Middleware para validar que no haya proveedores asociados antes de desactivar
- */
-supplierTypeSchema.pre('save', async function(next) {
-  if (this.isModified('status') && this.status === 'inactive') {
-    console.log(`[SupplierType] Validando proveedores activos para el tipo ${this._id}`);
-    
-    const activeSuppliersCount = await mongoose.model('Supplier').countDocuments({
-      supplier_type: this._id,
-      status: 'active'
-    });
-    
-    if (activeSuppliersCount > 0) {
-      console.log(`[SupplierType] Error: Hay ${activeSuppliersCount} proveedores activos asociados`);
-      throw new Error(`No se puede desactivar el tipo de proveedor porque tiene ${activeSuppliersCount} proveedores activos asociados`);
-    }
-  }
+// Middleware para actualizar fecha de modificación
+supplierTypeSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
   next();
 });
 
-// Creación del modelo
+// Relación virtual con proveedores
+supplierTypeSchema.virtual('suppliers', {
+  ref: 'Supplier',
+  localField: '_id',
+  foreignField: 'supplierType',
+  justOne: false
+});
+
+/**
+ * Métodos estáticos para gestión de categorías
+ */
+supplierTypeSchema.statics = {
+  // Obtener todas las categorías principales únicas
+  async getMainCategories() {
+    return this.aggregate([
+      { $group: { _id: '$mainCategory', icon: { $first: '$icon' } } },
+      { $sort: { _id: 1 } }
+    ]);
+  },
+  
+  // Obtener subcategorías de una categoría principal
+  async getSubcategories(mainCategory) {
+    return this.find({ mainCategory, status: 'active' })
+      .select('subCategory description')
+      .sort('subCategory');
+  },
+  
+  // Añadir nueva subcategoría
+  async addSubcategory(mainCategory, subCategory, description = '', icon = '🏛️') {
+    const existing = await this.findOne({ mainCategory, subCategory });
+    if (existing) {
+      throw new Error('Subcategoría ya existe para esta categoría principal');
+    }
+    
+    return this.create({
+      mainCategory,
+      subCategory,
+      description,
+      icon
+    });
+  }
+};
+
 const SupplierType = mongoose.model('SupplierType', supplierTypeSchema);
 
 module.exports = SupplierType;

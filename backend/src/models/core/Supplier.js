@@ -1,153 +1,122 @@
 const mongoose = require('mongoose');
 
 /**
- * Esquema para el modelo de Proveedores
- * Define la estructura de datos, validaciones y comportamientos de los proveedores
+ * Esquema para proveedores concretos
  */
 const supplierSchema = new mongoose.Schema({
-  // ID único del proveedor (entero requerido)
-  supplier_id: { 
-    type: Number, 
-    required: [true, 'El ID del proveedor es obligatorio'], 
-    unique: true,
-    validate: {
-      validator: Number.isInteger,
-      message: '{VALUE} debe ser un número entero'
-    }
-  },
-  
-  // Nombre del proveedor (string requerido)
-  name: { 
-    type: String, 
-    required: [true, 'El nombre del proveedor es obligatorio'],
-    trim: true,
-    maxlength: [45, 'El nombre no puede exceder los 45 caracteres']
-  },
-  
-  // Teléfono del proveedor (validación de formato)
-  phone: { 
-    type: String,
-    required: [true, 'El teléfono es obligatorio'],
-    validate: {
-      validator: function(v) {
-        return /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/.test(v);
-      },
-      message: props => `"${props.value}" no es un número de teléfono válido`
-    }
-  },
-  
-  // Email del proveedor (validación de formato)
-  email: {
-    type: String,
-    required: [true, 'El email es obligatorio'],
-    lowercase: true,
-    trim: true,
-    validate: {
-      validator: function(v) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-      },
-      message: props => `"${props.value}" no es un email válido`
-    }
-  },
-  
-  // Disponibilidad del proveedor (valores predefinidos)
-  availability: {
-    type: String,
-    required: true,
-    enum: {
-      values: ['available', 'unavailable', 'limited'],
-      message: 'La disponibilidad debe ser: available, unavailable o limited'
-    },
-    default: 'available'
-  },
-  
-  // Referencia al tipo de proveedor
-  supplier_type: {
+  // Referencia al tipo/subcategoría
+  supplierType: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'SupplierType',
-    required: [true, 'El tipo de proveedor es obligatorio']
+    required: true
   },
   
-  // Dirección del proveedor (opcional)
-  address: {
+  // Datos básicos
+  name: {
     type: String,
-    trim: true
+    required: true,
+    trim: true,
+    maxlength: 100
   },
   
-  // Fecha de registro (autogenerada)  ejemplo
-  registration_date: {
+  // Información de contacto
+  contact: {
+    email: {
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true
+    },
+    phone: String,
+    contactPerson: String,
+    website: String
+  },
+  
+  // Información adicional específica por tipo
+  details: {
+    // Ejemplo para proveedores técnicos
+    equipmentSpecs: {
+      type: Map,
+      of: String
+    },
+    // Ejemplo para catering
+    menuOptions: [String],
+    // Campo genérico para otros datos
+    otherInfo: String
+  },
+  
+  // Documentos requeridos
+  documents: [{
+    name: String,
+    fileUrl: String,
+    expiryDate: Date,
+    isValid: Boolean
+  }],
+  
+  // Estado
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'pending_review'],
+    default: 'pending_review'
+  },
+  
+  // Metadata
+  createdAt: {
     type: Date,
     default: Date.now
   },
-  
-  // Especialidades del proveedor (array de strings)
-  specialties: [{
-    type: String,
-    trim: true
-  }],
-  
-  // Calificación del proveedor (rango 1-5)
-  rating: {
-    type: Number,
-    min: [1, 'La calificación mínima es 1'],
-    max: [5, 'La calificación máxima es 5'],
-    default: 3
+  updatedAt: {
+    type: Date
   }
 }, {
-  // Opciones del esquema
-  timestamps: { 
-    createdAt: 'created_at', 
-    updatedAt: 'updated_at' 
-  },
   versionKey: false,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
 
-// Índices para optimizar búsquedas frecuentes
-supplierSchema.index({ name: 'text', specialties: 'text' }); // Búsqueda por texto
-supplierSchema.index({ supplier_type: 1 });                 // Búsqueda por tipo
-supplierSchema.index({ availability: 1 });                  // Búsqueda por disponibilidad
-
-/**
- * Middleware para validar la existencia del tipo de proveedor antes de guardar
- */
+// Middleware para validar referencia al tipo
 supplierSchema.pre('save', async function(next) {
-  console.log(`[Supplier] Validando tipo de proveedor para ${this.name}`);
-  
-  try {
-    const typeExists = await mongoose.model('SupplierType').exists({ _id: this.supplier_type });
+  if (this.supplierType) {
+    const typeExists = await mongoose.model('SupplierType').exists({ 
+      _id: this.supplierType,
+      status: 'active'
+    });
     if (!typeExists) {
-      console.log(`[Supplier] Error: Tipo de proveedor no encontrado (ID: ${this.supplier_type})`);
-      throw new Error('El tipo de proveedor especificado no existe');
+      throw new Error('El tipo de proveedor no existe o está inactivo');
     }
-    next();
-  } catch (error) {
-    console.error(`[Supplier] Error en validación: ${error.message}`);
-    next(error);
   }
+  next();
 });
 
-/**
- * Middleware para limpiar referencias antes de eliminar
- */
-supplierSchema.pre('remove', async function(next) {
-  console.log(`[Supplier] Limpiando referencias del proveedor ${this._id}`);
-  // Aquí podrías añadir lógica para limpiar relaciones si es necesario
+// Middleware para actualizar fecha de modificación
+supplierSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
   next();
 });
 
 /**
- * Virtual para acceder a eventos relacionados (si tu modelo los tiene)
+ * Métodos estáticos para gestión de proveedores
  */
-supplierSchema.virtual('events', {
-  ref: 'Event',
-  localField: '_id',
-  foreignField: 'suppliers',
-  justOne: false
-});
+supplierSchema.statics = {
+  // Obtener proveedores por tipo
+  async getByType(supplierTypeId) {
+    return this.find({ supplierType: supplierTypeId })
+      .populate('supplierType', 'mainCategory subCategory')
+      .sort('name');
+  },
+  
+  // Buscar proveedores por categoría principal
+  async getByMainCategory(mainCategory) {
+    const types = await mongoose.model('SupplierType')
+      .find({ mainCategory }, '_id');
+      
+    return this.find({ 
+      supplierType: { $in: types.map(t => t._id) },
+      status: 'active'
+    }).populate('supplierType', 'subCategory');
+  }
+};
 
-// Creación del modelo
 const Supplier = mongoose.model('Supplier', supplierSchema);
 
 module.exports = Supplier;
