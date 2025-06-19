@@ -1,104 +1,54 @@
 const express = require('express');
 const router = express.Router();
 const SupplierTypeController = require('../../controllers/types/SupplierTypeController');
-const { 
-    authenticateJWT, 
-    checkRole 
-} = require('../../middlewares/auth');
+const { authenticateJWT, checkRole } = require('../../middlewares/auth');
 
-console.log('Inicializando rutas de SupplierType...');
-
-// ----------------------------------------
-// Ruta: Obtener todos los tipos de proveedores
-// Permisos: Líder, Coordinador, Admin
-// ----------------------------------------
+// GET / - Get all supplier types (filtered by role)
 router.get(
-    '/',
-    authenticateJWT,
-    checkRole(['Admin', 'Coordinador', 'Líder']),
-    (req, res, next) => {
-        console.log(`Solicitud GET /supplier-types recibida - Usuario: ${req.user._id} Rol: ${req.user.role}`);
-        next();
-    },
-    SupplierTypeController.getAll
+  '/',
+  authenticateJWT,
+  checkRole(['Admin', 'Coordinator', 'Leader']),
+  SupplierTypeController.getAll
 );
 
-// ----------------------------------------
-// Ruta: Crear nuevo tipo de proveedor
-// Permisos: Solo Admin
-// ----------------------------------------
+// POST / - Create new supplier type (Admin only)
 router.post(
-    '/',
-    authenticateJWT,
-    checkRole(['Admin']),
-    (req, res, next) => {
-        console.log(`Solicitud POST /supplier-types recibida - Usuario: ${req.user._id}`);
-        console.log('Datos recibidos:', req.body);
-        next();
-    },
-    SupplierTypeController.create
+  '/',
+  authenticateJWT,
+  checkRole(['Admin']),
+  SupplierTypeController.create
 );
 
-// ----------------------------------------
-// Ruta: Obtener un tipo específico
-// Permisos: Líder, Coordinador, Admin
-// ----------------------------------------
+// GET /:id - Get specific supplier type
 router.get(
-    '/:id',
-    authenticateJWT,
-    checkRole(['Admin', 'Coordinador', 'Líder']),
-    (req, res, next) => {
-        console.log(`Solicitud GET /supplier-types/${req.params.id} recibida - Usuario: ${req.user._id}`);
-        next();
-    },
-    SupplierTypeController.getById
+  '/:id',
+  authenticateJWT,
+  checkRole(['Admin', 'Coordinator', 'Leader']),
+  SupplierTypeController.getById
 );
 
-// ----------------------------------------
-// Ruta: Obtener proveedores por tipo
-// Permisos: Líder (solo activos), Coordinador, Admin
-// ----------------------------------------
+// GET /:id/suppliers - Get suppliers by type
 router.get(
-    '/:id/suppliers',
-    authenticateJWT,
-    checkRole(['Admin', 'Coordinador', 'Líder']),
-    (req, res, next) => {
-        console.log(`Solicitud GET /supplier-types/${req.params.id}/suppliers recibida - Usuario: ${req.user._id}`);
-        next();
-    },
-    SupplierTypeController.getSuppliersByType
+  '/:id/suppliers',
+  authenticateJWT,
+  checkRole(['Admin', 'Coordinator', 'Leader']),
+  SupplierTypeController.getSuppliersByType
 );
 
-// ----------------------------------------
-// Ruta: Actualizar tipo de proveedor
-// Permisos: Solo Admin
-// ----------------------------------------
+// PUT /:id - Update supplier type (Admin only)
 router.put(
-    '/:id',
-    authenticateJWT,
-    checkRole(['Admin']),
-    (req, res, next) => {
-        console.log(`Solicitud PUT /supplier-types/${req.params.id} recibida - Usuario: ${req.user._id}`);
-        console.log('Datos de actualización:', req.body);
-        next();
-    },
-    SupplierTypeController.update
+  '/:id',
+  authenticateJWT,
+  checkRole(['Admin']),
+  SupplierTypeController.update
 );
 
-// ----------------------------------------
-// Ruta: Desactivar tipo de proveedor (eliminación lógica)
-// Permisos: Solo Admin
-// ----------------------------------------
+// PATCH /:id/deactivate - Deactivate supplier type (Admin only)
 router.patch(
-    '/:id/deactivate',
-    authenticateJWT,
-    checkRole(['Admin']),
-    (req, res, next) => {
-        console.log(`Solicitud PATCH /supplier-types/${req.params.id}/deactivate recibida - Usuario: ${req.user._id}`);
-        next();
-    },
-    SupplierTypeController.deactivate
+  '/:id/deactivate',
+  authenticateJWT,
+  checkRole(['Admin']),
+  SupplierTypeController.deactivate
 );
 
-console.log('Rutas de SupplierType configuradas correctamente');
 module.exports = router;

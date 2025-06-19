@@ -1,89 +1,54 @@
 const express = require('express');
 const router = express.Router();
-const StaffTypeController = require('../controllers/types/StaffTypeController');
-const { 
-    authenticateJWT, 
-    checkRole 
-} = require('../middlewares/auth');
+const StaffTypeController = require('../../controllers/types/StaffTypeController');
+const { authenticateJWT, checkRole } = require('../../middlewares/auth');
 
-console.log('Inicializando rutas de StaffType...');
-
-// ----------------------------------------
-// Ruta: Obtener todos los tipos de personal
-// Permisos: Líder, Coordinador, Admin
-// ----------------------------------------
+// Ruta GET / - Obtener todos los tipos de personal
 router.get(
-    '/',
-    authenticateJWT,
-    checkRole(['Admin', 'Coordinador', 'Líder']),
-    (req, res, next) => {
-        console.log(`Solicitud GET /staff-types recibida - Usuario: ${req.user._id} Rol: ${req.user.role}`);
-        next();
-    },
-    StaffTypeController.getAll
+  '/',
+  authenticateJWT,
+  checkRole(['Admin', 'Coordinador', 'Líder']), // Solo estos roles
+  StaffTypeController.getAll
 );
 
-// ----------------------------------------
-// Ruta: Crear nuevo tipo de personal
-// Permisos: Solo Admin
-// ----------------------------------------
+// Ruta GET /:id - Obtener un tipo específico
+router.get(
+  '/:id',
+  authenticateJWT,
+  checkRole(['Admin', 'Coordinador', 'Líder']),
+  StaffTypeController.getById
+);
+
+// Ruta POST / - Crear nuevo tipo (solo Admin)
 router.post(
-    '/',
-    authenticateJWT,
-    checkRole(['Admin']),
-    (req, res, next) => {
-        console.log(`Solicitud POST /staff-types recibida - Usuario: ${req.user._id}`);
-        console.log('Datos recibidos:', req.body);
-        next();
-    },
-    StaffTypeController.create
+  '/',
+  authenticateJWT,
+  checkRole(['Admin']), // Solo Admin puede crear
+  StaffTypeController.create
 );
 
-// ----------------------------------------
-// Ruta: Obtener personal por tipo
-// Permisos: Líder, Coordinador, Admin
-// ----------------------------------------
+// Ruta GET /:id/staff - Obtener staff por tipo
 router.get(
-    '/:id/staff',
-    authenticateJWT,
-    checkRole(['Admin', 'Coordinador', 'Líder']),
-    (req, res, next) => {
-        console.log(`Solicitud GET /staff-types/${req.params.id}/staff recibida - Usuario: ${req.user._id}`);
-        next();
-    },
-    StaffTypeController.getStaffByType
+  '/:id/staff',
+  authenticateJWT,
+  checkRole(['Admin', 'Coordinador', 'Líder']),
+  StaffTypeController.getStaffByType
 );
 
-// ----------------------------------------
-// Ruta: Actualizar tipo de personal
-// Permisos: Admin (completo), Coordinador (solo descripción)
-// ----------------------------------------
+// Ruta PUT /:id - Actualizar tipo
 router.put(
-    '/:id',
-    authenticateJWT,
-    checkRole(['Admin', 'Coordinador']),
-    (req, res, next) => {
-        console.log(`Solicitud PUT /staff-types/${req.params.id} recibida - Usuario: ${req.user._id}`);
-        console.log('Datos de actualización:', req.body);
-        next();
-    },
-    StaffTypeController.update
+  '/:id',
+  authenticateJWT,
+  checkRole(['Admin', 'Coordinador']), // Admin y Coord pueden actualizar
+  StaffTypeController.update
 );
 
-// ----------------------------------------
-// Ruta: Eliminación lógica de tipo
-// Permisos: Solo Admin
-// ----------------------------------------
+// Ruta DELETE /:id - Eliminar tipo (solo Admin)
 router.delete(
-    '/:id',
-    authenticateJWT,
-    checkRole(['Admin']),
-    (req, res, next) => {
-        console.log(`Solicitud DELETE /staff-types/${req.params.id} recibida - Usuario: ${req.user._id}`);
-        next();
-    },
-    StaffTypeController.delete
+  '/:id',
+  authenticateJWT,
+  checkRole(['Admin']), // Solo Admin puede eliminar
+  StaffTypeController.delete
 );
 
-console.log('Rutas de StaffType configuradas correctamente');
 module.exports = router;
