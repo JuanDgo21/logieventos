@@ -7,7 +7,7 @@ const { authenticateJWT, checkRole } = require('../../middlewares/auth');
 router.get(
   '/',
   authenticateJWT,
-  checkRole(['Admin', 'Coordinador', 'Líder']), // Solo estos roles
+  checkRole(['admin', 'coordinador', 'lider']), // Solo estos roles
   StaffTypeController.getAll
 );
 
@@ -15,15 +15,15 @@ router.get(
 router.get(
   '/:id',
   authenticateJWT,
-  checkRole(['Admin', 'Coordinador', 'Líder']),
+  checkRole(['admin', 'coordinador', 'lider']),
   StaffTypeController.getById
 );
 
-// Ruta POST / - Crear nuevo tipo (solo Admin)
+// Ruta POST / - Crear nuevo tipo (solo admin)
 router.post(
   '/',
   authenticateJWT,
-  checkRole(['Admin']), // Solo Admin puede crear
+  checkRole(['admin']), // Solo admin puede crear
   StaffTypeController.create
 );
 
@@ -31,7 +31,7 @@ router.post(
 router.get(
   '/:id/staff',
   authenticateJWT,
-  checkRole(['Admin', 'Coordinador', 'Líder']),
+  checkRole(['admin', 'coordinador', 'lider']),
   StaffTypeController.getStaffByType
 );
 
@@ -39,15 +39,15 @@ router.get(
 router.put(
   '/:id',
   authenticateJWT,
-  checkRole(['Admin', 'Coordinador']), // Admin y Coord pueden actualizar
+  checkRole(['admin', 'coordinador']), // admin y Coord pueden actualizar
   StaffTypeController.update
 );
 
-// Ruta DELETE /:id - Eliminar tipo (solo Admin)
+// Ruta DELETE /:id - Eliminar tipo (solo admin)
 router.delete(
   '/:id',
   authenticateJWT,
-  checkRole(['Admin']), // Solo Admin puede eliminar
+  checkRole(['admin']), // Solo admin puede eliminar
   StaffTypeController.delete
 );
 

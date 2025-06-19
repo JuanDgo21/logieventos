@@ -11,8 +11,8 @@ console.log('Inicializando rutas de Reportes...');
 // Mapeo de roles para consistencia
 const ROLES = {
   admin: 'admin',
-  coordinator: 'coordinator',
-  leader: 'leader',
+  coordinador: 'coordinador',
+  lider: 'lider',
   staff: 'staff',
   supplier: 'supplier'
 };
@@ -23,7 +23,7 @@ const ROLES = {
 router.get(
     '/',
     authenticateJWT,
-    checkRole([ROLES.admin, ROLES.coordinator, ROLES.leader]),
+    checkRole([ROLES.admin, ROLES.coordinador, ROLES.lider]),
     (req, res, next) => {
         console.log(`[REPORT] GET / - Solicitado por usuario ${req.user._id} (${req.user.role})`);
         next();
@@ -37,7 +37,7 @@ router.get(
 router.post(
     '/',
     authenticateJWT,
-    checkRole([ROLES.admin, ROLES.coordinator]),
+    checkRole([ROLES.admin, ROLES.coordinador]),
     (req, res, next) => {
         console.log(`[REPORT] POST / - Creación solicitada por ${req.user._id}`);
         next();
@@ -64,7 +64,7 @@ router.get(
 router.put(
     '/:id',
     authenticateJWT,
-    checkRole([ROLES.admin, ROLES.coordinator, ROLES.leader]),
+    checkRole([ROLES.admin, ROLES.coordinador, ROLES.lider]),
     (req, res, next) => {
         console.log(`[REPORT] PUT /${req.params.id} - Actualización solicitada por ${req.user._id}`);
         next();
@@ -78,7 +78,7 @@ router.put(
 router.post(
     '/:id/close',
     authenticateJWT,
-    checkRole([ROLES.admin, ROLES.coordinator]),
+    checkRole([ROLES.admin, ROLES.coordinador]),
     (req, res, next) => {
         console.log(`[REPORT] POST /${req.params.id}/close - Cierre solicitado por ${req.user._id}`);
         next();

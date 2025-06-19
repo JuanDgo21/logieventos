@@ -8,14 +8,14 @@ const Contract = require('../../models/core/Contract');
  */
 const ReportController = {
   /**
-   * Crear un nuevo reporte (Admin, Coordinador)
+   * Crear un nuevo reporte (admin, Coordinador)
    */
   async create(req, res) {
     try {
       console.log('[Report] Creación iniciada por:', req.user.role);
       
       // Verificar permisos
-      if (!['admin', 'coordinator'].includes(req.user.role)) {
+      if (!['admin', 'coordinador'].includes(req.user.role)) {
         console.log('[Report] Intento no autorizado. Rol:', req.user.role);
         return res.status(403).json({ error: 'No tiene permisos para crear reportes' });
       }
@@ -93,7 +93,7 @@ const ReportController = {
   },
 
   /**
-   * Actualizar reporte (Admin, Coordinador, Líder para sus eventos)
+   * Actualizar reporte (admin, Coordinador, Líder para sus eventos)
    */
   async update(req, res) {
     try {
@@ -128,13 +128,13 @@ const ReportController = {
   },
 
   /**
-   * Cerrar reporte (Admin, Coordinador)
+   * Cerrar reporte (admin, Coordinador)
    */
   async closeReport(req, res) {
     try {
       console.log(`[Report] Intento de cierre por: ${req.user.role}`);
       
-      if (!['admin', 'coordinator'].includes(req.user.role)) {
+      if (!['admin', 'coordinador'].includes(req.user.role)) {
         return res.status(403).json({ error: 'No tiene permisos para cerrar reportes' });
       }
 
@@ -158,7 +158,7 @@ const ReportController = {
   },
 
   /**
-   * Eliminar reporte (Solo Admin)
+   * Eliminar reporte (Solo admin)
    */
   async delete(req, res) {
     try {
@@ -217,7 +217,7 @@ function buildRoleBasedFilter(query, user) {
     case 'admin':
       break;
       
-    case 'coordinator':
+    case 'coordinador':
       filter.$or = [
         { type: { $in: ['financial', 'operational'] } },
         { created_by: user._id },
@@ -229,7 +229,7 @@ function buildRoleBasedFilter(query, user) {
       }
       break;
       
-    case 'leader':
+    case 'lider':
       filter.event = { $in: user.assignedEvents || [] };
       filter.date = { 
         $gte: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
@@ -277,14 +277,14 @@ function canAccessReport(report, user) {
   
   if (report.created_by.equals(user._id)) return true;
   
-  if (user.role === 'coordinator') {
+  if (user.role === 'coordinador') {
     return (
       (report.event && (user.assignedEvents || []).includes(report.event)) ||
       ['financial', 'operational'].includes(report.type)
     );
   }
   
-  if (user.role === 'leader') {
+  if (user.role === 'lider') {
     return (
       report.event && 
       (user.assignedEvents || []).includes(report.event) &&
@@ -309,11 +309,11 @@ function canModifyReport(report, user) {
   
   if (report.created_by.equals(user._id)) return true;
   
-  if (user.role === 'coordinator') {
+  if (user.role === 'coordinador') {
     return ['financial', 'operational'].includes(report.type);
   }
   
-  if (user.role === 'leader') {
+  if (user.role === 'lider') {
     return (
       report.event && 
       (user.assignedEvents || []).includes(report.event) &&
@@ -339,7 +339,7 @@ function filterReportByRole(report, role) {
   ];
   
   // Campos restringidos
-  const coordinatorRestricted = [
+  const coordinadorRestricted = [
     'unitCosts',
     'profitMargins'
   ];
@@ -349,11 +349,11 @@ function filterReportByRole(report, role) {
     adminOnlyFields.forEach(field => delete reportObj[field]);
   }
   
-  if (role === 'coordinator') {
-    coordinatorRestricted.forEach(field => delete reportObj[field]);
+  if (role === 'coordinador') {
+    coordinadorRestricted.forEach(field => delete reportObj[field]);
   }
   
-  if (role === 'leader') {
+  if (role === 'lider') {
     delete reportObj.detailedCosts;
     delete reportObj.sensitiveNotes;
   }
@@ -381,7 +381,7 @@ function prepareUpdateData(body, role) {
     delete data.rawData;
   }
   
-  if (role === 'coordinator') {
+  if (role === 'coordinador') {
     delete data.unitCosts;
   }
   

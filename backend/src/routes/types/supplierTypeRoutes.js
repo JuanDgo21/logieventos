@@ -7,15 +7,15 @@ const { authenticateJWT, checkRole } = require('../../middlewares/auth');
 router.get(
   '/',
   authenticateJWT,
-  checkRole(['Admin', 'Coordinator', 'Leader']),
+  checkRole(['admin', 'coordinador', 'lider']),
   SupplierTypeController.getAll
 );
 
-// POST / - Create new supplier type (Admin only)
+// POST / - Create new supplier type (admin only)
 router.post(
   '/',
   authenticateJWT,
-  checkRole(['Admin']),
+  checkRole(['admin']),
   SupplierTypeController.create
 );
 
@@ -23,7 +23,7 @@ router.post(
 router.get(
   '/:id',
   authenticateJWT,
-  checkRole(['Admin', 'Coordinator', 'Leader']),
+  checkRole(['admin', 'coordinador', 'lider']),
   SupplierTypeController.getById
 );
 
@@ -31,23 +31,23 @@ router.get(
 router.get(
   '/:id/suppliers',
   authenticateJWT,
-  checkRole(['Admin', 'Coordinator', 'Leader']),
+  checkRole(['admin', 'coordinador', 'lider']),
   SupplierTypeController.getSuppliersByType
 );
 
-// PUT /:id - Update supplier type (Admin only)
+// PUT /:id - Update supplier type (admin only)
 router.put(
   '/:id',
   authenticateJWT,
-  checkRole(['Admin']),
+  checkRole(['admin']),
   SupplierTypeController.update
 );
 
-// PATCH /:id/deactivate - Deactivate supplier type (Admin only)
+// PATCH /:id/deactivate - Deactivate supplier type (admin only)
 router.patch(
   '/:id/deactivate',
   authenticateJWT,
-  checkRole(['Admin']),
+  checkRole(['admin']),
   SupplierTypeController.deactivate
 );
 

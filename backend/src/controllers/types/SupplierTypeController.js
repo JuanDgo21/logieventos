@@ -7,7 +7,7 @@ const { logAction } = require('../../helpers/logger');
  */
 class SupplierTypeController {
   /**
-   * Crear un nuevo tipo de proveedor (Solo Admin)
+   * Crear un nuevo tipo de proveedor (Solo admin)
    * @param {Object} req - Request object
    * @param {Object} res - Response object
    */
@@ -80,7 +80,7 @@ class SupplierTypeController {
       }
 
       // Para líderes, mostrar solo tipos básicos
-      if (req.userRole === 'leader') {
+      if (req.userRole === 'lider') {
         const basicTypes = types.map(type => ({
           _id: type._id,
           mainCategory: type.mainCategory,
@@ -91,7 +91,7 @@ class SupplierTypeController {
         return res.json(basicTypes);
       }
 
-      // Admin ve todo
+      // admin ve todo
       console.log('[SupplierType] Total de tipos encontrados:', types.length);
       res.json(types);
     } catch (error) {
@@ -117,7 +117,7 @@ class SupplierTypeController {
       }
 
       // Verificar permisos para ver detalles completos
-      if (req.userRole === 'leader' && type.mainCategory === 'Proveedores de Seguridad y Emergencias') {
+      if (req.userRole === 'lider' && type.mainCategory === 'Proveedores de Seguridad y Emergencias') {
         console.log('[SupplierType] Líder no puede ver detalles de seguridad');
         return res.status(403).json({ error: 'No autorizado para este tipo' });
       }
@@ -131,7 +131,7 @@ class SupplierTypeController {
   }
 
   /**
-   * Actualizar un tipo de proveedor (Solo Admin)
+   * Actualizar un tipo de proveedor (Solo admin)
    * @param {Object} req - Request object
    * @param {Object} res - Response object
    */
@@ -179,7 +179,7 @@ class SupplierTypeController {
   }
 
   /**
-   * Desactivar un tipo de proveedor (Solo Admin)
+   * Desactivar un tipo de proveedor (Solo admin)
    * @param {Object} req - Request object
    * @param {Object} res - Response object
    */
@@ -256,13 +256,13 @@ class SupplierTypeController {
         ];
         
         if (!allowedCategories.includes(type.mainCategory)) {
-          console.log('[SupplierType] Coordinador no autorizado para este tipo');
+          console.log('[SupplierType] coordinador no autorizado para este tipo');
           return res.status(403).json({ error: 'No autorizado para este tipo de proveedor' });
         }
       }
 
       // Líderes solo ven proveedores activos
-      const statusFilter = req.userRole === 'leader' ? { status: 'active' } : {};
+      const statusFilter = req.userRole === 'lider' ? { status: 'active' } : {};
 
       const suppliers = await Supplier.find({ 
         supplierType: id,

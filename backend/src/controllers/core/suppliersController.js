@@ -9,7 +9,7 @@ console.log('[Suppliers] Inicializando controlador de proveedores');
  */
 class SuppliersController {
   /**
-   * Crear un nuevo proveedor (Admin o Coordinador con aprobación pendiente)
+   * Crear un nuevo proveedor (admin o coordinador con aprobación pendiente)
    */
   static async create(req, res) {
     try {
@@ -28,7 +28,7 @@ class SuppliersController {
 
       // Configurar estado según rol
       let status = 'pending_review';
-      if (req.user.role === 'Admin') {
+      if (req.user.role === 'admin') {
         status = 'active';
       }
 
@@ -51,7 +51,7 @@ class SuppliersController {
 
       res.status(201).json({
         ...newSupplier.toObject(),
-        message: req.user.role === 'Admin' 
+        message: req.user.role === 'admin' 
           ? 'Proveedor creado y activado' 
           : 'Proveedor creado, pendiente de revisión'
       });
@@ -72,8 +72,8 @@ class SuppliersController {
       let query = {};
       let projection = {};
 
-      // Filtros para Coordinador
-      if (req.user.role === 'Coordinador') {
+      // Filtros para coordinador
+      if (req.user.role === 'coordinador') {
         const allowedTypes = await SupplierType.find({
           mainCategory: { 
             $in: [
@@ -141,7 +141,7 @@ class SuppliersController {
   }
 
   /**
-   * Actualizar proveedor (Admin: completo, Coordinador: parcial)
+   * Actualizar proveedor (admin: completo, coordinador: parcial)
    */
   static async update(req, res) {
     try {
@@ -162,15 +162,15 @@ class SuppliersController {
         return res.status(403).json({ error: 'No autorizado' });
       }
 
-      // Coordinador solo puede actualizar ciertos campos
-      if (req.user.role === 'Coordinador') {
+      // coordinador solo puede actualizar ciertos campos
+      if (req.user.role === 'coordinador') {
         const allowedFields = ['contact'];
         Object.keys(req.body).forEach(key => {
           if (!allowedFields.includes(key)) {
             delete req.body[key];
           }
         });
-        console.log('[Suppliers] Campos permitidos para Coordinador:', req.body);
+        console.log('[Suppliers] Campos permitidos para coordinador:', req.body);
       }
 
       const updatedSupplier = await Supplier.findByIdAndUpdate(
@@ -194,7 +194,7 @@ class SuppliersController {
   }
 
   /**
-   * Cambiar estado del proveedor (Solo Admin)
+   * Cambiar estado del proveedor (Solo admin)
    */
   static async changeStatus(req, res) {
     try {
@@ -203,8 +203,8 @@ class SuppliersController {
       console.log(`[Suppliers] Cambiando estado proveedor ID: ${id} a ${status}`);
       console.log('[Suppliers] Usuario:', req.user._id, 'Rol:', req.user.role);
 
-      if (req.user.role !== 'Admin') {
-        console.log('[Suppliers] Solo Admin puede cambiar estado');
+      if (req.user.role !== 'admin') {
+        console.log('[Suppliers] Solo admin puede cambiar estado');
         return res.status(403).json({ error: 'No autorizado' });
       }
 

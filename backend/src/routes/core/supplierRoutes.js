@@ -3,11 +3,11 @@ const router = express.Router();
 const SuppliersController = require('../../controllers/core/suppliersController');
 const { authenticateJWT, checkRole } = require('../../middlewares/auth');
 
-// POST / - Create supplier (Admin, Coordinator)
+// POST / - Create supplier (admin, Coordinator)
 router.post(
   '/',
   authenticateJWT,
-  checkRole(['Admin', 'Coordinador']),
+  checkRole(['admin', 'coordinador']),
   SuppliersController.create
 );
 
@@ -15,7 +15,7 @@ router.post(
 router.get(
   '/',
   authenticateJWT,
-  checkRole(['Admin', 'Coordinador', 'Líder']),
+  checkRole(['admin', 'coordinador', 'lider']),
   SuppliersController.getAll
 );
 
@@ -23,23 +23,23 @@ router.get(
 router.get(
   '/:id',
   authenticateJWT,
-  checkRole(['Admin', 'Coordinador', 'Líder']),
+  checkRole(['admin', 'coordinador', 'lider']),
   SuppliersController.getById
 );
 
-// PUT /:id - Update supplier (Admin: full, Coordinator: partial)
+// PUT /:id - Update supplier (admin: full, Coordinator: partial)
 router.put(
   '/:id',
   authenticateJWT,
-  checkRole(['Admin', 'Coordinador']),
+  checkRole(['admin', 'coordinador']),
   SuppliersController.update
 );
 
-// PATCH /:id/status - Change supplier status (Admin only)
+// PATCH /:id/status - Change supplier status (admin only)
 router.patch(
   '/:id/status',
   authenticateJWT,
-  checkRole(['Admin']),
+  checkRole(['admin']),
   SuppliersController.changeStatus
 );
 
@@ -47,7 +47,7 @@ router.patch(
 router.get(
   '/type/:typeId',
   authenticateJWT,
-  checkRole(['Admin', 'Coordinador', 'Líder']),
+  checkRole(['admin', 'coordinador', 'lider']),
   SuppliersController.getByType
 );
 

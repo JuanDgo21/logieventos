@@ -7,7 +7,7 @@ const { authenticateJWT, checkRole } = require('../../middlewares/auth');
 router.get(
   '/',
   authenticateJWT,
-  checkRole(['Admin', 'Coordinador', 'Líder']),
+  checkRole(['admin', 'coordinador', 'lider']),
   StaffController.getAll
 );
 
@@ -15,7 +15,7 @@ router.get(
 router.post(
   '/',
   authenticateJWT,
-  checkRole(['Admin', 'Coordinador']),
+  checkRole(['admin', 'coordinador']),
   StaffController.create
 );
 
@@ -23,7 +23,7 @@ router.post(
 router.get(
   '/:id',
   authenticateJWT,
-  checkRole(['Admin', 'Coordinador', 'Líder']),
+  checkRole(['admin', 'coordinador', 'lider']),
   StaffController.getById
 );
 
@@ -31,7 +31,7 @@ router.get(
 router.put(
   '/:id',
   authenticateJWT,
-  checkRole(['Admin', 'Coordinador']),
+  checkRole(['admin', 'coordinador']),
   StaffController.update
 );
 
@@ -39,7 +39,7 @@ router.put(
 router.patch(
   '/:id/asistencia',
   authenticateJWT,
-  checkRole(['Admin', 'Coordinador']),
+  checkRole(['admin', 'coordinador']),
   StaffController.updateAsistencia
 );
 
