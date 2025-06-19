@@ -155,6 +155,33 @@ const ReportController = {
       console.error('[Report] Error al cerrar:', error.message);
       res.status(400).json({ error: error.message });
     }
+  },
+
+  /**
+   * Eliminar reporte (Solo Admin)
+   */
+  async delete(req, res) {
+    try {
+      console.log(`[Report] Intento de eliminación por: ${req.user.role}`);
+      
+      if (req.user.role !== 'admin') {
+        console.log('[Report] Intento no autorizado de eliminación');
+        return res.status(403).json({ error: 'Solo administradores pueden eliminar reportes' });
+      }
+
+      const report = await Report.findByIdAndDelete(req.params.id);
+      
+      if (!report) {
+        console.log('[Report] Reporte no encontrado para eliminar');
+        return res.status(404).json({ error: 'Reporte no encontrado' });
+      }
+
+      console.log('[Report] Reporte eliminado exitosamente');
+      res.json({ message: 'Reporte eliminado correctamente' });
+    } catch (error) {
+      console.error('[Report] Error al eliminar:', error.message);
+      res.status(500).json({ error: 'Error al eliminar reporte' });
+    }
   }
 };
 
@@ -195,7 +222,7 @@ function buildRoleBasedFilter(query, user) {
         { type: { $in: ['financial', 'operational'] } },
         { created_by: user._id },
         { event: { $in: user.assignedEvents || [] } }
-    ];
+      ];
 
       if (!filter.date) {
         filter.date = { $gte: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000) };
@@ -214,7 +241,6 @@ function buildRoleBasedFilter(query, user) {
     case 'supplier':
       filter.$or = [
         { created_by: user._id },
-        { 'notes.author': user._id },
         { event: { $in: user.associatedEvents || [] } }
       ];
       break;
@@ -268,7 +294,6 @@ function canAccessReport(report, user) {
   
   if (['staff', 'supplier'].includes(user.role)) {
     return (
-      report.notes.some(n => n.author.equals(user._id)) ||
       (report.event && (user.associatedEvents || []).includes(report.event))
     );
   }
@@ -335,15 +360,12 @@ function filterReportByRole(report, role) {
   
   if (['staff', 'supplier'].includes(role)) {
     return {
-        _id: reportObj._id,
-        title: reportObj.title,
-        date: reportObj.date,
-        status: reportObj.status,
-        notes: reportObj.notes.filter(n => 
-            n.visibility === 'public' || n.author.equals(user._id)
-        )
+      _id: reportObj._id,
+      title: reportObj.title,
+      date: reportObj.date,
+      status: reportObj.status
     };
-}
+  }
   
   return reportObj;
 }

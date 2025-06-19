@@ -107,30 +107,6 @@ const reportSchema = new Schema({
     }
   },
   
-  // Evidencias multimedia
-  evidences: [{
-    url: String,
-    type: String,
-    description: String,
-    uploaded_at: {
-      type: Date,
-      default: Date.now
-    }
-  }],
-  
-  // Notas de seguimiento
-  notes: [{
-    content: String,
-    author: {
-      type: Schema.Types.ObjectId,
-      ref: 'User'
-    },
-    date: {
-      type: Date,
-      default: Date.now
-    }
-  }],
-  
   // Fecha de cierre (si aplica)
   closed_at: Date,
   
@@ -142,9 +118,7 @@ const reportSchema = new Schema({
     createdAt: 'created_at',
     updatedAt: 'updated_at'
   },
-  versionKey: false,
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true }
+  versionKey: false
 });
 
 // Índices para optimizar búsquedas
@@ -165,15 +139,6 @@ reportSchema.pre('save', function(next) {
     throw err;
   }
   next();
-});
-
-/**
- * Virtual: Días que lleva abierto el reporte
- */
-reportSchema.virtual('days_open').get(function() {
-  if (this.status === 'resolved' && this.closed_at) return null;
-  const diff = new Date() - this.date;
-  return Math.floor(diff / (1000 * 60 * 60 * 24));
 });
 
 /**

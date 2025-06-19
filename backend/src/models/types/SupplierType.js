@@ -32,20 +32,6 @@ const supplierTypeSchema = new mongoose.Schema({
     maxlength: 50
   },
   
-  // Icono representativo
-  icon: {
-    type: String,
-    default: '🏛️',
-    maxlength: 2
-  },
-  
-  // Descripción detallada
-  description: {
-    type: String,
-    trim: true,
-    maxlength: 500
-  },
-  
   // Estado
   status: {
     type: String,
@@ -62,9 +48,7 @@ const supplierTypeSchema = new mongoose.Schema({
     type: Date
   }
 }, {
-  versionKey: false,
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true }
+  versionKey: false
 });
 
 // Índice compuesto para evitar duplicados
@@ -79,14 +63,6 @@ supplierTypeSchema.pre('save', function(next) {
   next();
 });
 
-// Relación virtual con proveedores
-supplierTypeSchema.virtual('suppliers', {
-  ref: 'Supplier',
-  localField: '_id',
-  foreignField: 'supplierType',
-  justOne: false
-});
-
 /**
  * Métodos estáticos para gestión de categorías
  */
@@ -94,7 +70,7 @@ supplierTypeSchema.statics = {
   // Obtener todas las categorías principales únicas
   async getMainCategories() {
     return this.aggregate([
-      { $group: { _id: '$mainCategory', icon: { $first: '$icon' } } },
+      { $group: { _id: '$mainCategory' } },
       { $sort: { _id: 1 } }
     ]);
   },
@@ -102,12 +78,12 @@ supplierTypeSchema.statics = {
   // Obtener subcategorías de una categoría principal
   async getSubcategories(mainCategory) {
     return this.find({ mainCategory, status: 'active' })
-      .select('subCategory description')
+      .select('subCategory')
       .sort('subCategory');
   },
   
   // Añadir nueva subcategoría
-  async addSubcategory(mainCategory, subCategory, description = '', icon = '🏛️') {
+  async addSubcategory(mainCategory, subCategory) {
     const existing = await this.findOne({ mainCategory, subCategory });
     if (existing) {
       throw new Error('Subcategoría ya existe para esta categoría principal');
@@ -115,9 +91,7 @@ supplierTypeSchema.statics = {
     
     return this.create({
       mainCategory,
-      subCategory,
-      description,
-      icon
+      subCategory
     });
   }
 };

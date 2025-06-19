@@ -32,27 +32,6 @@ const supplierSchema = new mongoose.Schema({
     website: String
   },
   
-  // Información adicional específica por tipo
-  details: {
-    // Ejemplo para proveedores técnicos
-    equipmentSpecs: {
-      type: Map,
-      of: String
-    },
-    // Ejemplo para catering
-    menuOptions: [String],
-    // Campo genérico para otros datos
-    otherInfo: String
-  },
-  
-  // Documentos requeridos
-  documents: [{
-    name: String,
-    fileUrl: String,
-    expiryDate: Date,
-    isValid: Boolean
-  }],
-  
   // Estado
   status: {
     type: String,
@@ -69,9 +48,7 @@ const supplierSchema = new mongoose.Schema({
     type: Date
   }
 }, {
-  versionKey: false,
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true }
+  versionKey: false
 });
 
 // Middleware para validar referencia al tipo

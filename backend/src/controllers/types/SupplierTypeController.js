@@ -23,7 +23,7 @@ class SupplierTypeController {
         return res.status(403).json({ error: 'No autorizado' });
       }
 
-      const { mainCategory, subCategory, description } = req.body;
+      const { mainCategory, subCategory } = req.body;
 
       // Verificar si ya existe
       const existingType = await SupplierType.findOne({ mainCategory, subCategory });
@@ -35,7 +35,6 @@ class SupplierTypeController {
       const newType = new SupplierType({
         mainCategory,
         subCategory,
-        description,
         createdBy: req.userId
       });
 
@@ -67,10 +66,9 @@ class SupplierTypeController {
       // Para coordinadores, mostrar solo tipos relevantes a sus permisos
       if (req.userRole === 'coordinator') {
         const allowedCategories = [
-          'Equipamiento Técnico',
-          'Mobiliario',
-          'Gastronomía',
-          'Ambientación'
+          'Proveedores Técnicos y de Producción',
+          'Proveedores de Alimentos y Bebidas',
+          'Proveedores de Decoración y Ambientación'
         ];
         
         const filteredTypes = types.filter(type => 
@@ -119,7 +117,7 @@ class SupplierTypeController {
       }
 
       // Verificar permisos para ver detalles completos
-      if (req.userRole === 'leader' && type.mainCategory === 'Seguridad') {
+      if (req.userRole === 'leader' && type.mainCategory === 'Proveedores de Seguridad y Emergencias') {
         console.log('[SupplierType] Líder no puede ver detalles de seguridad');
         return res.status(403).json({ error: 'No autorizado para este tipo' });
       }
@@ -252,10 +250,9 @@ class SupplierTypeController {
       // Validar permisos según el tipo de proveedor
       if (req.userRole === 'coordinator') {
         const allowedCategories = [
-          'Equipamiento Técnico',
-          'Mobiliario',
-          'Gastronomía',
-          'Ambientación'
+          'Proveedores Técnicos y de Producción',
+          'Proveedores de Alimentos y Bebidas',
+          'Proveedores de Decoración y Ambientación'
         ];
         
         if (!allowedCategories.includes(type.mainCategory)) {
