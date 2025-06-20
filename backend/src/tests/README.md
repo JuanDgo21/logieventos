@@ -104,7 +104,7 @@ Se recomienda usar variables de entorno en Postman para facilitar la gestión de
 
 ## 📬 Enlace a la colección en Postman
 
-🔗 [Haz clic aquí para ver la colección Postman](https://postman.postman.co/workspace/My-Workspace~9b94955b-ef3c-4f2e-83a7-7cec4e39d572/collection/35040370-fc27d9d8-5cb2-4835-b01c-9684f73da4f7)
+🔗 [Haz clic aquí para ver la colección Postman](https://warped-station-929017.postman.co/workspace/Team-Workspace~732cfcbe-bdda-440a-8dfc-2b193e5e495e/collection/35040370-aad36faf-683b-4365-8987-1f1f691ddcf4?action=share&creator=35040370)
 
 ---
 
