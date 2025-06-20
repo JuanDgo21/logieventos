@@ -1,6 +1,6 @@
 const Staff = require('../../models/core/Staff');
 const StaffType = require('../../models/types/StaffType');
-const Event = require('../../models/main/Event');
+const Event = require('../../models/core/Event');
 
 console.log('Controlador de Staff inicializado');
 

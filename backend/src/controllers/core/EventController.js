@@ -1,5 +1,6 @@
 const Evento = require('../../models/core/Event');
-const { verifyToken, checkRole } = require('../../middlewares/authJwt');
+const { verifyToken } = require('../../middlewares/authJwt');
+const { checkRole } = require('../../middlewares/role');
 
 // Crear nuevo evento
 exports.createEvent = async (req, res) => {
@@ -104,20 +105,21 @@ exports.deleteEvent = async (req, res) => {
 };
 
 // Controlador especial: Asignar proveedor a recurso
-exports.assingProviderToResource = async (req, res) => {
+exports.assignProviderToResource = async (req, res) => {
     try {
         const { eventId, resourceIndex, providerId } = req.params;
+        const event = await Evento.findById(eventId);
 
-        if (!Evento) {
+        if (!event) {
             return res.status(400).json({ message: 'Evento no encontrado' });
         }
 
-        if (resourceIndex >= Evento.requiredResources.length) {
+        if (resourceIndex >= event.requiredResources.length) {
             return res.status(400).json({ message: 'Recurso no encontrado' });
         }
 
-        Evento.requiredResources[resourceIndex].assignedProvider = providerId;
-        Evento.lastmodified = Date.now();
+        event.requiredResources[resourceIndex].assignedProvider = providerId;
+        event.lastmodified = Date.now();
 
         const updatedEvent = await event.save();
         res.status(200).json(updatedEvent);

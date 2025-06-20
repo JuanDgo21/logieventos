@@ -1,7 +1,7 @@
-const moongose = require('mongoose');
-const Schema = moongose.Schema;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const EventSchema = new Schema({
+const eventSchema = new Schema({
     name: {
         type: String,
         required: [true, 'El nombre del evento es obligatorio'],
@@ -101,17 +101,17 @@ const EventSchema = new Schema({
 });
 
 // Índices para búsquedas frecuentes
-eventoSchema.index({ startDate: 1 });
-eventoSchema.index({ endDate: 1 });
-eventoSchema.index({ status: 1 });
-eventoSchema.index({ responsable: 1 });
+eventSchema.index({ startDate: 1 });
+eventSchema.index({ endDate: 1 });
+eventSchema.index({ status: 1 });
+eventSchema.index({ responsable: 1 });
 
 // Middleware para actualizar la fecha de modificación
-eventoSchema.pre('save', function(next) {
+eventSchema.pre('save', function(next) {
   this.lastModified = new Date();
   next();
 });
 
-const Evento = mongoose.model('Evento', eventoSchema);
+const Evento = mongoose.model('Evento', eventSchema);
 
 module.exports = Evento;

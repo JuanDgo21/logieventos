@@ -52,13 +52,13 @@ exports.getAllEventTypes = async (req, res) => {
         const { includeInactive } = req.query;
         const filter = includeInactive === 'true' ? {} : { active: true };
 
-        const EventType = await EventType.find(filter)
+        const eventTypes = await EventType.find(filter)
             .sort({ name: 1 })
 
         res.status(200).json({
             success: true,
-            count: EventType.length,
-            data: EventType
+            count: eventTypes.length,
+            data: eventTypes
         });
     } catch (error) {
         res.status(500).json({
@@ -74,7 +74,7 @@ exports.getEventTypeById = async (req, res) => {
     try {
         const eventType = await EventType.findById(req.params.id);
 
-        if (!EventType) {
+        if (!eventType) {
             return res.status(404).json({
                 success: false,
                 message: 'Tipo de evento no encontrado'
@@ -83,7 +83,7 @@ exports.getEventTypeById = async (req, res) => {
 
     res.status(200).json({
         success: true,
-        data: EventType
+        data: eventType
     });
 
     } catch (error) {
@@ -162,4 +162,33 @@ exports.deactivateEventType = async (req, res) => {
     }
 };
 
-// Movimiento
+// Funcion para clonar un tipo de evento
+exports.cloneEventType = async (req, res) => {
+    try {
+        const original = await EventType.findById(req.params.id);
+        if (!original) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Tipo de evento no encontrado' 
+            });
+        }
+
+        const clone = new EventType({
+            ...original.toObject(),
+            name: `${original.name} (Copia)`,
+            _id: undefined,  // Para que MongoDB genere uno nuevo
+            createdAt: new Date()
+        });
+
+        await clone.save();
+        res.status(201).json({
+            success: true,
+            data: clone
+        });
+    } catch (error) {
+        res.status(500).json({ 
+            success: false, 
+            error: error.message 
+        });
+    }
+};

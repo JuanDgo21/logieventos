@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const eventTypeController = require('../../controllers/types/EventTypeController');
-const { verifyToken, checkRole } = require('../middlewares/authJwt');
+const { verifyToken } = require('../../middlewares/authJwt');
+const { checkRole } = require('../../middlewares/role');
 
 // Rutas principales
 router.post('/', 

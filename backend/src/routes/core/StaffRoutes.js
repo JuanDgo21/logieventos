@@ -1,10 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const StaffController = require('../../controllers/core/StaffController');
-const { 
-    authenticateJWT, 
-    checkRole 
-} = require('../../middlewares/auth');
+const { verifyToken } = require('../../middlewares/authJwt');
+const { checkRole } = require('../../middlewares/role');
 
 console.log('Inicializando rutas de Staff...'); // Log de inicio
 
@@ -15,7 +13,7 @@ console.log('Inicializando rutas de Staff...'); // Log de inicio
 // ----------------------------------------
 router.get(
     '/',
-    authenticateJWT,
+    verifyToken,
     checkRole(['Admin', 'Coordinador', 'Líder']),
     (req, res, next) => {
         console.log(`[STAFF] GET / - Solicitado por usuario ${req.user._id} (${req.user.role})`);
@@ -35,7 +33,7 @@ router.get(
 // ----------------------------------------
 router.post(
     '/',
-    authenticateJWT,
+    verifyToken,
     checkRole(['Admin', 'Coordinador']),
     (req, res, next) => {
         console.log(`[STAFF] POST / - Creación solicitada por ${req.user._id}`);
@@ -56,7 +54,7 @@ router.post(
 // ----------------------------------------
 router.post(
     '/:id/assign',
-    authenticateJWT,
+    verifyToken,
     checkRole(['Admin', 'Coordinador']),
     (req, res, next) => {
         console.log(`[STAFF] POST /${req.params.id}/assign - Asignación a evento`);
@@ -77,7 +75,7 @@ router.post(
 // ----------------------------------------
 router.put(
     '/:id',
-    authenticateJWT,
+    verifyToken,
     checkRole(['Admin', 'Coordinador']),
     (req, res, next) => {
         console.log(`[STAFF] PUT /${req.params.id} - Actualización solicitada por ${req.user._id}`);
@@ -97,7 +95,7 @@ router.put(
 // ----------------------------------------
 router.patch(
     '/:id/deactivate',
-    authenticateJWT,
+    verifyToken,
     checkRole(['Admin']),
     (req, res, next) => {
         console.log(`[STAFF] PATCH /${req.params.id}/deactivate - Desactivación solicitada`);

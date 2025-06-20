@@ -1,5 +1,5 @@
 const StaffType = require('../../models/types/StaffType');
-const User = require('../../models/main/User');
+const User = require('../../models/core/User');
 
 console.log('Controlador de StaffType inicializado');
 

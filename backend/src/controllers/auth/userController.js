@@ -3,7 +3,7 @@ const User = require('../../models/core/User');
 const bcrypt = require('bcryptjs');
 
 // Obtener todos los usuarios (Solo Admin)
-exports.getAllusers = async (req, res) => {
+exports.getAllUsers = async (req, res) => {
     console.log('[CONTROLLER] Ejecutando getAllusers');
     try {
         let users;

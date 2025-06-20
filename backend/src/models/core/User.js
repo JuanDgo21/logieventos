@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
         unique: true,
         trim: true,
         lowercase: true,
-        match: [/^[+]?[(]?[0-9]{1,4}[)]?[-\s.][0-9]{1,4}[-\s.]?[0-9]{1,6}$/, 'Telefono no valido']
+        //match: [/^[+]?[(]?[0-9]{1,4}[)]?[-\s.][0-9]{1,4}[-\s.]?[0-9]{1,6}$/, 'Telefono no valido']
     },
     password: {
         type: String,

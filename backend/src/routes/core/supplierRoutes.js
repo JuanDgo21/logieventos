@@ -1,117 +1,83 @@
 const express = require('express');
 const router = express.Router();
 const SuppliersController = require('../../controllers/core/suppliersController');
-const { authenticateJWT, checkRole } = require('../../middlewares/auth');
+const { verifyToken } = require('../../middlewares/authJwt');
+const { checkRole } = require('../../middlewares/role');
 
 console.log('Inicializando rutas de proveedores...');
 
 // ----------------------------------------
 // Ruta: Crear nuevo proveedor
-// Permisos: Admin (directo), Coordinador (pendiente)
 // ----------------------------------------
 router.post(
   '/',
-  authenticateJWT,
+  verifyToken,
   checkRole(['Admin', 'Coordinador']),
   (req, res, next) => {
     console.log(`POST /suppliers - Usuario: ${req.user._id} Rol: ${req.user.role}`);
-    console.log('Datos recibidos:', req.body);
     next();
   },
-  SuppliersController.create
+  SuppliersController.createSupplier // Cambiado de create a createSupplier
 );
 
 // ----------------------------------------
 // Ruta: Obtener todos los proveedores
-// Permisos: Todos (filtrado por rol)
 // ----------------------------------------
 router.get(
   '/',
-  authenticateJWT,
+  verifyToken,
   checkRole(['Admin', 'Coordinador', 'Líder']),
-  (req, res, next) => {
-    console.log(`GET /suppliers - Usuario: ${req.user._id} Rol: ${req.user.role}`);
-    next();
-  },
-  SuppliersController.getAll
+  SuppliersController.getAllSuppliers // Cambiado de getAll a getAllSuppliers
 );
 
 // ----------------------------------------
 // Ruta: Obtener proveedor específico
-// Permisos: Todos (filtrado por rol)
 // ----------------------------------------
 router.get(
   '/:id',
-  authenticateJWT,
+  verifyToken,
   checkRole(['Admin', 'Coordinador', 'Líder']),
-  (req, res, next) => {
-    console.log(`GET /suppliers/${req.params.id} - Usuario: ${req.user._id}`);
-    next();
-  },
-  SuppliersController.getById
+  SuppliersController.getSupplierById // Cambiado de getById a getSupplierById
 );
 
 // ----------------------------------------
 // Ruta: Actualizar proveedor
-// Permisos: Admin (completo), Coordinador (parcial)
 // ----------------------------------------
 router.put(
   '/:id',
-  authenticateJWT,
+  verifyToken,
   checkRole(['Admin', 'Coordinador']),
-  (req, res, next) => {
-    console.log(`PUT /suppliers/${req.params.id} - Usuario: ${req.user._id}`);
-    console.log('Cambios solicitados:', req.body);
-    next();
-  },
-  SuppliersController.update
+  SuppliersController.updateSupplier // Cambiado de update a updateSupplier
 );
 
 // ----------------------------------------
 // Ruta: Aprobar/Rechazar proveedor
-// Permisos: Solo Admin
 // ----------------------------------------
 router.post(
   '/:id/approve',
-  authenticateJWT,
+  verifyToken,
   checkRole(['Admin']),
-  (req, res, next) => {
-    console.log(`POST /suppliers/${req.params.id}/approve - Usuario: ${req.user._id}`);
-    console.log('Datos:', req.body);
-    next();
-  },
-  SuppliersController.approve
+  SuppliersController.changeSupplierStatus // Cambiado de approve a changeSupplierStatus
 );
 
 // ----------------------------------------
-// Ruta: Calificar proveedor
-// Permisos: Todos (diferente impacto)
+// Ruta: Calificar proveedor (requiere implementación)
 // ----------------------------------------
 router.post(
   '/:id/rate',
-  authenticateJWT,
+  verifyToken,
   checkRole(['Admin', 'Coordinador', 'Líder']),
-  (req, res, next) => {
-    console.log(`POST /suppliers/${req.params.id}/rate - Usuario: ${req.user._id}`);
-    console.log('Calificación:', req.body);
-    next();
-  },
-  SuppliersController.rate
+  (req, res) => res.status(501).json({ message: 'Por implementar' }) // Placeholder
 );
 
 // ----------------------------------------
 // Ruta: Obtener proveedores por tipo
-// Permisos: Todos (filtrado por rol)
 // ----------------------------------------
 router.get(
   '/type/:typeId',
-  authenticateJWT,
+  verifyToken,
   checkRole(['Admin', 'Coordinador', 'Líder']),
-  (req, res, next) => {
-    console.log(`GET /suppliers/type/${req.params.typeId} - Usuario: ${req.user._id}`);
-    next();
-  },
-  SuppliersController.getByType
+  SuppliersController.getSuppliersByType // Cambiado de getByType a getSuppliersByType
 );
 
 console.log('Rutas de proveedores configuradas correctamente');

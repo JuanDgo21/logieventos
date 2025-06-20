@@ -1,5 +1,6 @@
-const Contract = require('../../models/contract');
-const { verifyToken, checkRole } = require('../../middlewares/authJwt');
+const Contract = require('../../models/core/Contract');
+const { verifyToken } = require('../../middlewares/authJwt');
+const { checkRole } = require('../../middlewares/role');
 
 // Crear nuevo contrato
 exports.createContract = async (req, res) => {

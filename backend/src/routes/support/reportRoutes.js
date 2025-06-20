@@ -1,10 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const ReportController = require('../../controllers/support/reportController');
-const { 
-    authenticateJWT, 
-    checkRole 
-} = require('../../middlewares/auth');
+const { verifyToken } = require('../../middlewares/authJwt');
+const { checkRole } = require('../../middlewares/role');
 
 console.log('Inicializando rutas de Reportes...'); // Log de inicio
 
@@ -15,7 +13,7 @@ console.log('Inicializando rutas de Reportes...'); // Log de inicio
 // ----------------------------------------
 router.get(
     '/',
-    authenticateJWT,
+    verifyToken,
     checkRole(['Admin', 'Coordinador', 'Líder']),
     (req, res, next) => {
         console.log(`[REPORT] GET / - Solicitado por usuario ${req.user._id} (${req.user.role})`);
@@ -36,7 +34,7 @@ router.get(
 // ----------------------------------------
 router.post(
     '/',
-    authenticateJWT,
+    verifyToken,
     checkRole(['Admin', 'Coordinador']),
     (req, res, next) => {
         console.log(`[REPORT] POST / - Creación solicitada por ${req.user._id}`);
@@ -57,7 +55,7 @@ router.post(
 // ----------------------------------------
 router.get(
     '/:id',
-    authenticateJWT,
+    verifyToken,
     (req, res, next) => {
         console.log(`[REPORT] GET /${req.params.id} - Solicitado por ${req.user._id}`);
         console.log('Verificando permisos de acceso...');
@@ -73,7 +71,7 @@ router.get(
 // ----------------------------------------
 router.put(
     '/:id',
-    authenticateJWT,
+    verifyToken,
     checkRole(['Admin', 'Coordinador', 'Líder']),
     (req, res, next) => {
         console.log(`[REPORT] PUT /${req.params.id} - Actualización solicitada por ${req.user._id}`);
@@ -93,7 +91,7 @@ router.put(
 // ----------------------------------------
 router.post(
     '/:id/close',
-    authenticateJWT,
+    verifyToken,
     checkRole(['Admin', 'Coordinador']),
     (req, res, next) => {
         console.log(`[REPORT] POST /${req.params.id}/close - Cierre solicitado por ${req.user._id}`);
@@ -110,7 +108,7 @@ router.post(
 // ----------------------------------------
 router.post(
     '/:id/notes',
-    authenticateJWT,
+    verifyToken,
     (req, res, next) => {
         console.log(`[REPORT] POST /${req.params.id}/notes - Nueva nota por ${req.user._id}`);
         console.log('Longitud de nota:', req.body.content.length, 'caracteres');
@@ -126,7 +124,7 @@ router.post(
 // ----------------------------------------
 router.get(
     '/financial/generate',
-    authenticateJWT,
+    verifyToken,
     checkRole(['Admin']),
     (req, res, next) => {
         console.log(`[REPORT] GET /financial/generate - Solicitado por Admin ${req.user.email}`);
@@ -147,7 +145,7 @@ router.get(
 // ----------------------------------------
 router.get(
     '/operational/generate',
-    authenticateJWT,
+    verifyToken,
     checkRole(['Admin', 'Coordinador']),
     (req, res, next) => {
         console.log(`[REPORT] GET /operational/generate - Solicitado por ${req.user.role}`);

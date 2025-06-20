@@ -1,358 +1,200 @@
-const Supplier = require('../../models/core/Supplier');
+const Supplier = require('../../models/core/supplier');
 const SupplierType = require('../../models/types/SupplierType');
-const Contract = require('../../models/core/Contract');
-const { logAction } = require('../../helpers/logger');
-
-console.log('[Suppliers] Inicializando controlador de proveedores');
+const { validationResult } = require('express-validator');
 
 /**
- * Controlador para la gestión de proveedores
+ * Obtener todos los proveedores (con filtros)
  */
-class SuppliersController {
-  /**
-   * Crear un nuevo proveedor (Admin o Coordinador con aprobación pendiente)
-   */
-  static async create(req, res) {
-    try {
-      console.log('[Suppliers] Iniciando creación de proveedor');
-      console.log('[Suppliers] Usuario:', req.user._id, 'Rol:', req.user.role);
-      console.log('[Suppliers] Datos recibidos:', req.body);
+exports.getAllSuppliers = async (req, res) => {
+  try {
+    const { status, supplierType, mainCategory } = req.query;
+    const filter = {};
 
-      const { supplierType, name, contact, details } = req.body;
+    if (status) filter.status = status;
+    if (supplierType) filter.supplierType = supplierType;
 
-      // Validar que el tipo de proveedor exista
-      const typeExists = await SupplierType.findById(supplierType);
-      if (!typeExists) {
-        console.log('[Suppliers] Tipo de proveedor no encontrado');
-        return res.status(400).json({ error: 'Tipo de proveedor no válido' });
-      }
+    // Filtrar por categoría principal si se especifica
+    let query = Supplier.find(filter).populate('supplierType', 'mainCategory subCategory');
+    
+    if (mainCategory) {
+      const types = await SupplierType.find({ mainCategory }, '_id');
+      query = Supplier.find({ 
+        ...filter,
+        supplierType: { $in: types.map(t => t._id) }
+      }).populate('supplierType', 'subCategory');
+    }
 
-      // Configurar estado según rol
-      let status = 'pending_approval';
-      if (req.user.role === 'Admin') {
-        status = 'active';
-      }
+    const suppliers = await query.sort('name');
+    res.status(200).json(suppliers);
+  } catch (error) {
+    res.status(500).json({ 
+      message: 'Error al obtener proveedores',
+      error: error.message 
+    });
+  }
+};
 
-      const newSupplier = new Supplier({
-        supplierType,
-        name,
-        contact,
-        details,
-        status,
-        createdBy: req.user._id
+/**
+ * Crear un nuevo proveedor (Solo Admin)
+ */
+exports.createSupplier = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
+    const { supplierType, name, contact, details, documents } = req.body;
+
+    // Validar que el tipo de proveedor exista y esté activo
+    const type = await SupplierType.findOne({ 
+      _id: supplierType, 
+      status: 'active' 
+    });
+    if (!type) {
+      return res.status(400).json({ message: 'Tipo de proveedor no válido o inactivo' });
+    }
+
+    const newSupplier = await Supplier.create({
+      supplierType,
+      name,
+      contact,
+      details,
+      documents,
+      status: 'pending_review' // Estado inicial
+    });
+
+    res.status(201).json({
+      message: 'Proveedor creado (pendiente de revisión)',
+      data: newSupplier
+    });
+  } catch (error) {
+    res.status(400).json({ 
+      message: 'Error al crear proveedor',
+      error: error.message 
+    });
+  }
+};
+
+/**
+ * Obtener proveedor por ID
+ */
+exports.getSupplierById = async (req, res) => {
+  try {
+    const supplier = await Supplier.findById(req.params.id)
+      .populate('supplierType', 'mainCategory subCategory');
+
+    if (!supplier) {
+      return res.status(404).json({ message: 'Proveedor no encontrado' });
+    }
+
+    res.status(200).json(supplier);
+  } catch (error) {
+    res.status(500).json({ 
+      message: 'Error al obtener proveedor',
+      error: error.message 
+    });
+  }
+};
+
+/**
+ * Actualizar proveedor (Admin y Coordinador)
+ */
+exports.updateSupplier = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, contact, details, documents, status } = req.body;
+
+    // Coordinadores solo pueden actualizar ciertos campos
+    if (req.user.role === 'Coordinador') {
+      const allowedUpdates = { contact, details };
+      const supplier = await Supplier.findByIdAndUpdate(id, allowedUpdates, { 
+        new: true,
+        runValidators: true 
       });
-
-      await newSupplier.save();
-
-      console.log('[Suppliers] Proveedor creado con ID:', newSupplier._id);
-      await logAction(
-        req.user._id, 
-        'SUPPLIER_CREATE', 
-        `Nuevo proveedor: ${name} (${typeExists.subCategory})`
-      );
-
-      res.status(201).json({
-        ...newSupplier.toObject(),
-        message: req.user.role === 'Admin' 
-          ? 'Proveedor creado y activado' 
-          : 'Proveedor creado, pendiente de aprobación'
+      return res.status(200).json({
+        message: 'Proveedor actualizado (campos limitados para coordinadores)',
+        data: supplier
       });
-    } catch (error) {
-      console.error('[Suppliers] Error al crear proveedor:', error.message);
-      res.status(500).json({ error: 'Error al crear proveedor' });
     }
+
+    // Admins pueden actualizar todo
+    const supplier = await Supplier.findByIdAndUpdate(
+      id,
+      { name, contact, details, documents, status, updatedAt: Date.now() },
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      message: 'Proveedor actualizado',
+      data: supplier
+    });
+  } catch (error) {
+    res.status(400).json({ 
+      message: 'Error al actualizar proveedor',
+      error: error.message 
+    });
   }
+};
 
-  /**
-   * Obtener todos los proveedores (filtrados por rol)
-   */
-  static async getAll(req, res) {
-    try {
-      console.log('[Suppliers] Obteniendo proveedores');
-      console.log('[Suppliers] Usuario:', req.user._id, 'Rol:', req.user.role);
+/**
+ * Cambiar estado de proveedor (Solo Admin)
+ */
+exports.changeSupplierStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
 
-      let query = {};
-      let projection = {};
-
-      // Filtros para Coordinador
-      if (req.user.role === 'Coordinador') {
-        const allowedTypes = await SupplierType.find({
-          mainCategory: { 
-            $in: ['Equipamiento Técnico', 'Mobiliario', 'Gastronomía', 'Ambientación'] 
-          }
-        }).select('_id');
-
-        query = {
-          supplierType: { $in: allowedTypes.map(t => t._id) },
-          status: 'active'
-        };
-        projection = { details: 1, name: 1, contact: 1, supplierType: 1, rating: 1 };
-      }
-
-      // Filtros para Líder (solo activos)
-      if (req.user.role === 'Líder') {
-        query = { status: 'active' };
-        projection = { name: 1, contact: { phone: 1, contactPerson: 1 }, supplierType: 1 };
-      }
-
-      const suppliers = await Supplier.find(query)
-        .select(projection)
-        .populate('supplierType', 'mainCategory subCategory');
-
-      console.log(`[Suppliers] Total proveedores encontrados: ${suppliers.length}`);
-      res.json(suppliers);
-    } catch (error) {
-      console.error('[Suppliers] Error al obtener proveedores:', error.message);
-      res.status(500).json({ error: 'Error al obtener proveedores' });
+    if (!['active', 'inactive', 'pending_review'].includes(status)) {
+      return res.status(400).json({ message: 'Estado no válido' });
     }
+
+    const supplier = await Supplier.findByIdAndUpdate(
+      id,
+      { status, updatedAt: Date.now() },
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: `Estado del proveedor actualizado a "${status}"`,
+      data: supplier
+    });
+  } catch (error) {
+    res.status(400).json({ 
+      message: 'Error al cambiar estado',
+      error: error.message 
+    });
   }
+};
 
-  /**
-   * Obtener un proveedor específico
-   */
-  static async getById(req, res) {
-    try {
-      const { id } = req.params;
-      console.log(`[Suppliers] Obteniendo proveedor ID: ${id}`);
-      console.log('[Suppliers] Usuario:', req.user._id, 'Rol:', req.user.role);
-
-      const supplier = await Supplier.findById(id)
-        .populate('supplierType', 'mainCategory subCategory');
-
-      if (!supplier) {
-        console.log('[Suppliers] Proveedor no encontrado');
-        return res.status(404).json({ error: 'Proveedor no encontrado' });
-      }
-
-      // Validar acceso según rol
-      if (req.user.role === 'Líder' && supplier.status !== 'active') {
-        console.log('[Suppliers] Líder no puede ver proveedores inactivos');
-        return res.status(403).json({ error: 'No autorizado' });
-      }
-
-      // Limitar datos para Coordinador
-      let supplierData = supplier.toObject();
-      if (req.user.role === 'Coordinador') {
-        delete supplierData.documents;
-        delete supplierData.internalNotes;
-      }
-
-      console.log('[Suppliers] Proveedor encontrado:', supplier.name);
-      res.json(supplierData);
-    } catch (error) {
-      console.error('[Suppliers] Error al obtener proveedor:', error.message);
-      res.status(500).json({ error: 'Error al obtener proveedor' });
-    }
+/**
+ * Obtener proveedores por tipo (Público)
+ */
+exports.getSuppliersByType = async (req, res) => {
+  try {
+    const suppliers = await Supplier.getByType(req.params.supplierTypeId);
+    res.status(200).json(suppliers);
+  } catch (error) {
+    res.status(500).json({ 
+      message: 'Error al obtener proveedores por tipo',
+      error: error.message 
+    });
   }
+};
 
-  /**
-   * Actualizar proveedor (Admin: completo, Coordinador: parcial)
-   */
-  static async update(req, res) {
-    try {
-      const { id } = req.params;
-      console.log(`[Suppliers] Actualizando proveedor ID: ${id}`);
-      console.log('[Suppliers] Usuario:', req.user._id, 'Rol:', req.user.role);
-      console.log('[Suppliers] Cambios solicitados:', req.body);
-
-      const supplier = await Supplier.findById(id);
-      if (!supplier) {
-        console.log('[Suppliers] Proveedor no encontrado');
-        return res.status(404).json({ error: 'Proveedor no encontrado' });
-      }
-
-      // Validar permisos
-      if (req.user.role === 'Líder') {
-        console.log('[Suppliers] Líder no puede modificar proveedores');
-        return res.status(403).json({ error: 'No autorizado' });
-      }
-
-      // Coordinador solo puede actualizar ciertos campos
-      if (req.user.role === 'Coordinador') {
-        const allowedFields = ['contact', 'details.menuOptions', 'details.equipmentSpecs'];
-        Object.keys(req.body).forEach(key => {
-          if (!allowedFields.includes(key)) {
-            delete req.body[key];
-          }
-        });
-        console.log('[Suppliers] Campos permitidos para Coordinador:', req.body);
-      }
-
-      const updatedSupplier = await Supplier.findByIdAndUpdate(
-        id, 
-        req.body, 
-        { new: true, runValidators: true }
-      );
-
-      console.log('[Suppliers] Proveedor actualizado');
-      await logAction(
-        req.user._id, 
-        'SUPPLIER_UPDATE', 
-        `Actualizado proveedor: ${updatedSupplier.name}`
-      );
-
-      res.json(updatedSupplier);
-    } catch (error) {
-      console.error('[Suppliers] Error al actualizar proveedor:', error.message);
-      res.status(400).json({ error: error.message });
-    }
+/**
+ * Obtener proveedores por categoría principal (Público)
+ */
+exports.getSuppliersByMainCategory = async (req, res) => {
+  try {
+    const suppliers = await Supplier.getByMainCategory(req.params.mainCategory);
+    res.status(200).json(suppliers);
+  } catch (error) {
+    res.status(500).json({ 
+      message: 'Error al obtener proveedores por categoría',
+      error: error.message 
+    });
   }
+};
 
-  /**
-   * Aprobar/Rechazar proveedor (Solo Admin)
-   */
-  static async approve(req, res) {
-    try {
-      const { id } = req.params;
-      const { status, reason } = req.body;
-      console.log(`[Suppliers] Cambiando estado proveedor ID: ${id} a ${status}`);
-      console.log('[Suppliers] Usuario:', req.user._id, 'Rol:', req.user.role);
-
-      if (req.user.role !== 'Admin') {
-        console.log('[Suppliers] Solo Admin puede aprobar/rechazar');
-        return res.status(403).json({ error: 'No autorizado' });
-      }
-
-      if (!['active', 'rejected'].includes(status)) {
-        console.log('[Suppliers] Estado no válido');
-        return res.status(400).json({ error: 'Estado no válido' });
-      }
-
-      const updatedSupplier = await Supplier.findByIdAndUpdate(
-        id,
-        { 
-          status,
-          approvalDate: status === 'active' ? new Date() : null,
-          rejectionReason: status === 'rejected' ? reason : null
-        },
-        { new: true }
-      );
-
-      if (!updatedSupplier) {
-        console.log('[Suppliers] Proveedor no encontrado');
-        return res.status(404).json({ error: 'Proveedor no encontrado' });
-      }
-
-      const action = status === 'active' ? 'APROBADO' : 'RECHAZADO';
-      console.log(`[Suppliers] Proveedor ${action}: ${updatedSupplier.name}`);
-      await logAction(
-        req.user._id, 
-        `SUPPLIER_${action}`,
-        `Proveedor ${action.toLowerCase()}: ${updatedSupplier.name}` +
-        (reason ? ` Razón: ${reason}` : '')
-      );
-
-      res.json({
-        message: `Proveedor ${action.toLowerCase()} correctamente`,
-        supplier: updatedSupplier
-      });
-    } catch (error) {
-      console.error('[Suppliers] Error al cambiar estado:', error.message);
-      res.status(500).json({ error: 'Error al cambiar estado del proveedor' });
-    }
-  }
-
-  /**
-   * Calificar proveedor post-evento
-   */
-  static async rate(req, res) {
-    try {
-      const { id } = req.params;
-      const { rating, comments } = req.body;
-      console.log(`[Suppliers] Calificando proveedor ID: ${id}`);
-      console.log('[Suppliers] Usuario:', req.user._id, 'Rol:', req.user.role);
-      console.log('[Suppliers] Calificación:', rating, 'Comentarios:', comments);
-
-      // Validar calificación
-      if (rating < 1 || rating > 5) {
-        console.log('[Suppliers] Calificación inválida');
-        return res.status(400).json({ error: 'La calificación debe ser entre 1 y 5' });
-      }
-
-      const supplier = await Supplier.findById(id);
-      if (!supplier) {
-        console.log('[Suppliers] Proveedor no encontrado');
-        return res.status(404).json({ error: 'Proveedor no encontrado' });
-      }
-
-      // Solo líder puede calificar inicialmente
-      if (req.user.role === 'Líder') {
-        supplier.ratings.push({
-          value: rating,
-          comments,
-          ratedBy: req.user._id,
-          role: 'Líder'
-        });
-      } 
-      // Admin/Coordinador puede sobreescribir
-      else {
-        supplier.rating = rating;
-        if (comments) {
-          supplier.internalNotes = comments;
-        }
-      }
-
-      // Recalcular rating promedio
-      if (supplier.ratings.length > 0) {
-        const sum = supplier.ratings.reduce((acc, curr) => acc + curr.value, 0);
-        supplier.rating = parseFloat((sum / supplier.ratings.length).toFixed(1));
-      }
-
-      await supplier.save();
-
-      console.log(`[Suppliers] Proveedor ${supplier.name} calificado: ${supplier.rating}/5`);
-      await logAction(
-        req.user._id, 
-        'SUPPLIER_RATE', 
-        `Calificación ${rating}/5 para ${supplier.name}`
-      );
-
-      res.json({
-        message: 'Calificación registrada',
-        currentRating: supplier.rating
-      });
-    } catch (error) {
-      console.error('[Suppliers] Error al calificar:', error.message);
-      res.status(500).json({ error: 'Error al calificar proveedor' });
-    }
-  }
-
-  /**
-   * Obtener proveedores por tipo
-   */
-  static async getByType(req, res) {
-    try {
-      const { typeId } = req.params;
-      console.log(`[Suppliers] Obteniendo proveedores por tipo ID: ${typeId}`);
-      console.log('[Suppliers] Usuario:', req.user._id, 'Rol:', req.user.role);
-
-      const type = await SupplierType.findById(typeId);
-      if (!type) {
-        console.log('[Suppliers] Tipo no encontrado');
-        return res.status(404).json({ error: 'Tipo de proveedor no encontrado' });
-      }
-
-      let query = { supplierType: typeId };
-      
-      // Solo activos para líder
-      if (req.user.role === 'Líder') {
-        query.status = 'active';
-      }
-
-      const suppliers = await Supplier.find(query)
-        .select(req.user.role === 'Líder' ? 'name contact.phone' : '')
-        .sort('name');
-
-      console.log(`[Suppliers] Encontrados ${suppliers.length} proveedores de tipo ${type.subCategory}`);
-      res.json({
-        type: type.subCategory,
-        suppliers
-      });
-    } catch (error) {
-      console.error('[Suppliers] Error al obtener por tipo:', error.message);
-      res.status(500).json({ error: 'Error al obtener proveedores por tipo' });
-    }
-  }
-}
-
-module.exports = SuppliersController;
+//module.exports = SuppliersController;

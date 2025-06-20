@@ -1,290 +1,151 @@
 const SupplierType = require('../../models/types/SupplierType');
-const Supplier = require('../../models/core/Supplier');
-const { logAction } = require('../../helpers/logger');
+const { validationResult } = require('express-validator');
 
 /**
- * Controlador para gestionar los tipos/categorías de proveedores
+ * Obtener todas las categorías principales únicas
  */
-class SupplierTypeController {
-  /**
-   * Crear un nuevo tipo de proveedor (Solo Admin)
-   * @param {Object} req - Request object
-   * @param {Object} res - Response object
-   */
-  static async create(req, res) {
-    try {
-      console.log('[SupplierType] Iniciando creación de tipo de proveedor');
-      console.log('[SupplierType] Datos recibidos:', req.body);
-      console.log('[SupplierType] Usuario solicitante:', req.userId);
+exports.getMainCategories = async (req, res) => {
+  try {
+    const mainCategories = await SupplierType.getMainCategories();
+    res.status(200).json(mainCategories);
+  } catch (error) {
+    res.status(500).json({ 
+      message: 'Error al obtener categorías principales',
+      error: error.message 
+    });
+  }
+};
 
-      // Validar permisos (solo admin puede crear tipos)
-      if (req.userRole !== 'admin') {
-        console.log('[SupplierType] Intento no autorizado. Rol:', req.userRole);
-        return res.status(403).json({ error: 'No autorizado' });
-      }
+/**
+ * Obtener subcategorías por categoría principal
+ */
+exports.getSubcategories = async (req, res) => {
+  const { mainCategory } = req.params;
 
-      const { mainCategory, subCategory, description } = req.body;
-
-      // Verificar si ya existe
-      const existingType = await SupplierType.findOne({ mainCategory, subCategory });
-      if (existingType) {
-        console.log('[SupplierType] Tipo ya existe:', existingType._id);
-        return res.status(400).json({ error: 'Este tipo de proveedor ya existe' });
-      }
-
-      const newType = new SupplierType({
-        mainCategory,
-        subCategory,
-        description,
-        createdBy: req.userId
+  try {
+    const subcategories = await SupplierType.getSubcategories(mainCategory);
+    if (subcategories.length === 0) {
+      return res.status(404).json({ 
+        message: 'No se encontraron subcategorías para esta categoría principal' 
       });
-
-      await newType.save();
-      
-      console.log('[SupplierType] Tipo creado exitosamente:', newType._id);
-      await logAction(req.userId, 'CREATE_SUPPLIER_TYPE', `Nuevo tipo: ${mainCategory} > ${subCategory}`);
-
-      res.status(201).json(newType);
-    } catch (error) {
-      console.error('[SupplierType] Error al crear:', error.message);
-      res.status(500).json({ error: 'Error al crear el tipo de proveedor' });
     }
+    res.status(200).json(subcategories);
+  } catch (error) {
+    res.status(500).json({ 
+      message: 'Error al obtener subcategorías',
+      error: error.message 
+    });
+  }
+};
+
+/**
+ * Crear una nueva subcategoría
+ */
+exports.createSubcategory = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
 
-  /**
-   * Obtener todos los tipos de proveedores (Todos los roles)
-   * @param {Object} req - Request object
-   * @param {Object} res - Response object
-   */
-  static async getAll(req, res) {
-    try {
-      console.log('[SupplierType] Obteniendo todos los tipos de proveedores');
-      console.log('[SupplierType] Rol del usuario:', req.userRole);
+  const { mainCategory, subCategory, description, icon } = req.body;
 
-      const types = await SupplierType.find({ status: 'active' })
-        .sort({ mainCategory: 1, subCategory: 1 });
-
-      // Para coordinadores, mostrar solo tipos relevantes a sus permisos
-      if (req.userRole === 'coordinator') {
-        const allowedCategories = [
-          'Equipamiento Técnico',
-          'Mobiliario',
-          'Gastronomía',
-          'Ambientación'
-        ];
-        
-        const filteredTypes = types.filter(type => 
-          allowedCategories.includes(type.mainCategory)
-        );
-        
-        console.log('[SupplierType] Tipos filtrados para coordinador:', filteredTypes.length);
-        return res.json(filteredTypes);
-      }
-
-      // Para líderes, mostrar solo tipos básicos
-      if (req.userRole === 'leader') {
-        const basicTypes = types.map(type => ({
-          _id: type._id,
-          mainCategory: type.mainCategory,
-          subCategory: type.subCategory
-        }));
-        
-        console.log('[SupplierType] Tipos básicos para líder:', basicTypes.length);
-        return res.json(basicTypes);
-      }
-
-      // Admin ve todo
-      console.log('[SupplierType] Total de tipos encontrados:', types.length);
-      res.json(types);
-    } catch (error) {
-      console.error('[SupplierType] Error al obtener tipos:', error.message);
-      res.status(500).json({ error: 'Error al obtener tipos de proveedores' });
-    }
+  try {
+    const newSubcategory = await SupplierType.addSubcategory(
+      mainCategory,
+      subCategory,
+      description,
+      icon
+    );
+    res.status(201).json({
+      message: 'Subcategoría creada exitosamente',
+      data: newSubcategory
+    });
+  } catch (error) {
+    res.status(400).json({ 
+      message: 'Error al crear subcategoría',
+      error: error.message 
+    });
   }
+};
 
-  /**
-   * Obtener un tipo específico por ID (Todos los roles)
-   * @param {Object} req - Request object
-   * @param {Object} res - Response object
-   */
-  static async getById(req, res) {
-    try {
-      const { id } = req.params;
-      console.log('[SupplierType] Obteniendo tipo por ID:', id);
+/**
+ * Actualizar una subcategoría existente
+ */
+exports.updateSubcategory = async (req, res) => {
+  const { id } = req.params;
+  const { subCategory, description, icon, status } = req.body;
 
-      const type = await SupplierType.findById(id);
-      if (!type) {
-        console.log('[SupplierType] Tipo no encontrado');
-        return res.status(404).json({ error: 'Tipo de proveedor no encontrado' });
-      }
+  try {
+    const updatedSubcategory = await SupplierType.findByIdAndUpdate(
+      id,
+      { subCategory, description, icon, status, updatedAt: Date.now() },
+      { new: true, runValidators: true }
+    );
 
-      // Verificar permisos para ver detalles completos
-      if (req.userRole === 'leader' && type.mainCategory === 'Seguridad') {
-        console.log('[SupplierType] Líder no puede ver detalles de seguridad');
-        return res.status(403).json({ error: 'No autorizado para este tipo' });
-      }
-
-      console.log('[SupplierType] Tipo encontrado:', type.subCategory);
-      res.json(type);
-    } catch (error) {
-      console.error('[SupplierType] Error al obtener tipo:', error.message);
-      res.status(500).json({ error: 'Error al obtener el tipo de proveedor' });
+    if (!updatedSubcategory) {
+      return res.status(404).json({ message: 'Subcategoría no encontrada' });
     }
+
+    res.status(200).json({
+      message: 'Subcategoría actualizada',
+      data: updatedSubcategory
+    });
+  } catch (error) {
+    res.status(400).json({ 
+      message: 'Error al actualizar subcategoría',
+      error: error.message 
+    });
   }
+};
 
-  /**
-   * Actualizar un tipo de proveedor (Solo Admin)
-   * @param {Object} req - Request object
-   * @param {Object} res - Response object
-   */
-  static async update(req, res) {
-    try {
-      const { id } = req.params;
-      console.log('[SupplierType] Iniciando actualización de tipo:', id);
-      console.log('[SupplierType] Datos a actualizar:', req.body);
+/**
+ * Eliminar una subcategoría (cambio de estado a "inactive")
+ */
+exports.deleteSubcategory = async (req, res) => {
+  const { id } = req.params;
 
-      if (req.userRole !== 'admin') {
-        console.log('[SupplierType] Intento no autorizado. Rol:', req.userRole);
-        return res.status(403).json({ error: 'No autorizado' });
-      }
+  try {
+    const deletedSubcategory = await SupplierType.findByIdAndUpdate(
+      id,
+      { status: 'inactive', updatedAt: Date.now() },
+      { new: true }
+    );
 
-      // Verificar si hay proveedores asociados antes de cambiar categoría
-      if (req.body.mainCategory || req.body.subCategory) {
-        const suppliersCount = await Supplier.countDocuments({ supplierType: id });
-        if (suppliersCount > 0) {
-          console.log('[SupplierType] No se puede modificar. Proveedores asociados:', suppliersCount);
-          return res.status(400).json({ 
-            error: 'No se puede modificar el tipo con proveedores asociados' 
-          });
-        }
-      }
-
-      const updatedType = await SupplierType.findByIdAndUpdate(
-        id, 
-        req.body, 
-        { new: true, runValidators: true }
-      );
-
-      if (!updatedType) {
-        console.log('[SupplierType] Tipo no encontrado para actualizar');
-        return res.status(404).json({ error: 'Tipo de proveedor no encontrado' });
-      }
-
-      console.log('[SupplierType] Tipo actualizado exitosamente');
-      await logAction(req.userId, 'UPDATE_SUPPLIER_TYPE', `Actualizado: ${updatedType.mainCategory} > ${updatedType.subCategory}`);
-
-      res.json(updatedType);
-    } catch (error) {
-      console.error('[SupplierType] Error al actualizar:', error.message);
-      res.status(400).json({ error: error.message });
+    if (!deletedSubcategory) {
+      return res.status(404).json({ message: 'Subcategoría no encontrada' });
     }
+
+    res.status(200).json({
+      message: 'Subcategoría desactivada',
+      data: deletedSubcategory
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      message: 'Error al desactivar subcategoría',
+      error: error.message 
+    });
   }
+};
 
-  /**
-   * Desactivar un tipo de proveedor (Solo Admin)
-   * @param {Object} req - Request object
-   * @param {Object} res - Response object
-   */
-  static async deactivate(req, res) {
-    try {
-      const { id } = req.params;
-      console.log('[SupplierType] Iniciando desactivación de tipo:', id);
+/**
+ * Obtener todas las subcategorías (con filtros opcionales)
+ */
+exports.getAllSubcategories = async (req, res) => {
+  const { status, mainCategory } = req.query;
+  const filter = {};
 
-      if (req.userRole !== 'admin') {
-        console.log('[SupplierType] Intento no autorizado. Rol:', req.userRole);
-        return res.status(403).json({ error: 'No autorizado' });
-      }
+  if (status) filter.status = status;
+  if (mainCategory) filter.mainCategory = mainCategory;
 
-      // Verificar proveedores activos asociados
-      const activeSuppliers = await Supplier.countDocuments({ 
-        supplierType: id,
-        status: 'active'
-      });
-
-      if (activeSuppliers > 0) {
-        console.log('[SupplierType] No se puede desactivar. Proveedores activos:', activeSuppliers);
-        return res.status(400).json({ 
-          error: `No se puede desactivar con ${activeSuppliers} proveedores activos asociados` 
-        });
-      }
-
-      const deactivatedType = await SupplierType.findByIdAndUpdate(
-        id,
-        { status: 'inactive' },
-        { new: true }
-      );
-
-      if (!deactivatedType) {
-        console.log('[SupplierType] Tipo no encontrado para desactivar');
-        return res.status(404).json({ error: 'Tipo de proveedor no encontrado' });
-      }
-
-      console.log('[SupplierType] Tipo desactivado exitosamente');
-      await logAction(req.userId, 'DEACTIVATE_SUPPLIER_TYPE', `Desactivado: ${deactivatedType.mainCategory} > ${deactivatedType.subCategory}`);
-
-      res.json({ 
-        message: 'Tipo desactivado correctamente',
-        type: deactivatedType 
-      });
-    } catch (error) {
-      console.error('[SupplierType] Error al desactivar:', error.message);
-      res.status(500).json({ error: 'Error al desactivar el tipo de proveedor' });
-    }
+  try {
+    const subcategories = await SupplierType.find(filter)
+      .sort({ mainCategory: 1, subCategory: 1 });
+    
+    res.status(200).json(subcategories);
+  } catch (error) {
+    res.status(500).json({ 
+      message: 'Error al obtener subcategorías',
+      error: error.message 
+    });
   }
-
-  /**
-   * Obtener proveedores por tipo (Roles con permisos)
-   * @param {Object} req - Request object
-   * @param {Object} res - Response object
-   */
-  static async getSuppliersByType(req, res) {
-    try {
-      const { id } = req.params;
-      console.log('[SupplierType] Obteniendo proveedores para tipo:', id);
-      console.log('[SupplierType] Rol del usuario:', req.userRole);
-
-      const type = await SupplierType.findById(id);
-      if (!type) {
-        console.log('[SupplierType] Tipo no encontrado');
-        return res.status(404).json({ error: 'Tipo de proveedor no encontrado' });
-      }
-
-      // Validar permisos según el tipo de proveedor
-      if (req.userRole === 'coordinator') {
-        const allowedCategories = [
-          'Equipamiento Técnico',
-          'Mobiliario',
-          'Gastronomía',
-          'Ambientación'
-        ];
-        
-        if (!allowedCategories.includes(type.mainCategory)) {
-          console.log('[SupplierType] Coordinador no autorizado para este tipo');
-          return res.status(403).json({ error: 'No autorizado para este tipo de proveedor' });
-        }
-      }
-
-      // Líderes solo ven proveedores activos
-      const statusFilter = req.userRole === 'leader' ? { status: 'active' } : {};
-
-      const suppliers = await Supplier.find({ 
-        supplierType: id,
-        ...statusFilter
-      }).select('-__v -createdAt -updatedAt');
-
-      console.log(`[SupplierType] Proveedores encontrados: ${suppliers.length}`);
-      res.json({
-        type: {
-          mainCategory: type.mainCategory,
-          subCategory: type.subCategory
-        },
-        suppliers
-      });
-    } catch (error) {
-      console.error('[SupplierType] Error al obtener proveedores:', error.message);
-      res.status(500).json({ error: 'Error al obtener proveedores por tipo' });
-    }
-  }
-}
-
-module.exports = SupplierTypeController;
+};

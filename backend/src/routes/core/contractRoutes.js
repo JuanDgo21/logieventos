@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const contractController = require('../controllers/contractController');
-const { verifyToken, checkRole } = require('../middlewares/authJwt');
+const contractController = require('../../controllers/core/contractController');
+const { verifyToken } = require('../../middlewares/authJwt');
+const { checkRole } = require('../../middlewares/role');
 
 // Rutas principales
 router.post('/', 

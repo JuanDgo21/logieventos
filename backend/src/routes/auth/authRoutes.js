@@ -7,7 +7,7 @@ const verifyRegister = require('../../middlewares/verifyRegister');
 // // Importación de verificación
 let verifyToken;
 try {
-    const authJwt = require('');
+    const authJwt = require('../../middlewares/authJwt');
     verifyToken = authJwt.verifyToken;
     console.log('[AuthRoutes] verifyToken importado correctamente', typeof verifyToken);
 
