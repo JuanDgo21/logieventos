@@ -63,3 +63,4 @@ contractSchema.post('save', function(error,doc, next){
 });
 
 module.exports = mongoose.model('Contract', contractSchema)
+
