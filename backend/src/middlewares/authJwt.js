@@ -20,12 +20,15 @@ const verifyToken = (req, res, next) => {
         // Verificar y decodificar token
         const decoded = jwt.verify(token, config.secret);
         
-        // Establecer usuario en request
+        // Establecer usuario en request (versión mejorada)
         req.user = {
-            _id: decoded.id,     // Asegurar que sea _id para MongoDB
+            id: decoded.id,     // Cambiado de _id a id para consistencia
+            _id: decoded.id,    // Mantenemos _id para compatibilidad con MongoDB
             email: decoded.email,
             role: decoded.role
         };
+        req.userId = decoded.id;
+        req.userRole = decoded.role;
         
         console.log(`[AuthJWT] Token válido para: ${decoded.email} (Rol: ${decoded.role})`);
         next();

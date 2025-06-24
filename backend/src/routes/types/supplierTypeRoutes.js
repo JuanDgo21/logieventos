@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const SupplierTypeController = require('../../controllers/types/SupplierTypeController');
-const { verifyToken } = require('../../middlewares/authJwt');  // ✔️ Usa verifyToken en lugar de verifyToken
-const { checkRole } = require('../../middlewares/role');       // ✔️ Importa checkRole desde el archivo correcto
+const { verifyToken } = require('../../middlewares/authJwt');
+const { checkRole } = require('../../middlewares/role');
 
 // GET / - Get all supplier types (filtered by role)
 router.get(
   '/',
   verifyToken,
-  checkRole(['admin', 'coordinador', 'lider']),
+  checkRole('admin', 'coordinador', 'lider'),
   SupplierTypeController.getAll
 );
 
@@ -16,7 +16,7 @@ router.get(
 router.post(
   '/',
   verifyToken,
-  checkRole(['admin']),
+  checkRole('admin'),
   SupplierTypeController.create
 );
 
@@ -24,7 +24,7 @@ router.post(
 router.get(
   '/:id',
   verifyToken,
-  checkRole(['admin', 'coordinador', 'lider']),
+  checkRole('admin', 'coordinador', 'lider'),
   SupplierTypeController.getById
 );
 
@@ -32,7 +32,7 @@ router.get(
 router.get(
   '/:id/suppliers',
   verifyToken,
-  checkRole(['admin', 'coordinador', 'lider']),
+  checkRole('admin', 'coordinador', 'lider'),
   SupplierTypeController.getSuppliersByType
 );
 
@@ -40,7 +40,7 @@ router.get(
 router.put(
   '/:id',
   verifyToken,
-  checkRole(['admin']),
+  checkRole('admin'),
   SupplierTypeController.update
 );
 
@@ -48,8 +48,16 @@ router.put(
 router.patch(
   '/:id/deactivate',
   verifyToken,
-  checkRole(['admin']),
+  checkRole('admin'),
   SupplierTypeController.deactivate
+);
+
+// DELETE /:id - Delete supplier type permanently (admin only)
+router.delete(
+  '/:id',
+  verifyToken,
+  checkRole('admin'),
+  SupplierTypeController.delete
 );
 
 module.exports = router;

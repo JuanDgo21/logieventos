@@ -40,9 +40,8 @@ class SupplierTypeController {
       await newType.save();
       
       console.log('[SupplierType] Tipo creado exitosamente:', newType._id);
-      await logAction(req.userId, 'CREATE_SUPPLIER_TYPE', `Nuevo tipo: ${mainCategory} > ${subCategory}`);
-
       res.status(201).json(newType);
+
     } catch (error) {
       console.error('[SupplierType] Error al crear:', error.message);
       res.status(500).json({ error: 'Error al crear el tipo de proveedor' });
@@ -168,8 +167,6 @@ class SupplierTypeController {
       }
 
       console.log('[SupplierType] Tipo actualizado exitosamente');
-      await logAction(req.userId, 'UPDATE_SUPPLIER_TYPE', `Actualizado: ${updatedType.mainCategory} > ${updatedType.subCategory}`);
-
       res.json(updatedType);
     } catch (error) {
       console.error('[SupplierType] Error al actualizar:', error.message);
@@ -217,8 +214,6 @@ class SupplierTypeController {
       }
 
       console.log('[SupplierType] Tipo desactivado exitosamente');
-      await logAction(req.userId, 'DEACTIVATE_SUPPLIER_TYPE', `Desactivado: ${deactivatedType.mainCategory} > ${deactivatedType.subCategory}`);
-
       res.json({ 
         message: 'Tipo desactivado correctamente',
         type: deactivatedType 
@@ -255,7 +250,7 @@ class SupplierTypeController {
         ];
         
         if (!allowedCategories.includes(type.mainCategory)) {
-          console.log('[SupplierType] coordinador no autorizado para este tipo');
+          console.log('[SupplierType] Coordinador no autorizado para este tipo');
           return res.status(403).json({ error: 'No autorizado para este tipo de proveedor' });
         }
       }
@@ -281,6 +276,49 @@ class SupplierTypeController {
       res.status(500).json({ error: 'Error al obtener proveedores por tipo' });
     }
   }
+
+  /**
+ * Eliminar permanentemente un tipo de proveedor (Solo admin)
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
+ */
+static async delete(req, res) {
+  try {
+    const { id } = req.params;
+    console.log('[SupplierType] Iniciando eliminación de tipo:', id);
+
+    if (req.userRole !== 'admin') {
+      console.log('[SupplierType] Intento no autorizado. Rol:', req.userRole);
+      return res.status(403).json({ error: 'No autorizado' });
+    }
+
+    // Verificar si hay proveedores asociados
+    const suppliersCount = await Supplier.countDocuments({ supplierType: id });
+    if (suppliersCount > 0) {
+      console.log('[SupplierType] No se puede eliminar. Proveedores asociados:', suppliersCount);
+      return res.status(400).json({ 
+        error: `No se puede eliminar con ${suppliersCount} proveedores asociados` 
+      });
+    }
+
+    const deletedType = await SupplierType.findByIdAndDelete(id);
+
+    if (!deletedType) {
+      console.log('[SupplierType] Tipo no encontrado para eliminar');
+      return res.status(404).json({ error: 'Tipo de proveedor no encontrado' });
+    }
+
+    console.log('[SupplierType] Tipo eliminado permanentemente');
+    res.json({ 
+      message: 'Tipo eliminado permanentemente',
+      type: deletedType 
+    });
+  } catch (error) {
+    console.error('[SupplierType] Error al eliminar:', error.message);
+    res.status(500).json({ error: 'Error al eliminar el tipo de proveedor' });
+  }
+}
+ij
 }
 
 module.exports = SupplierTypeController;
