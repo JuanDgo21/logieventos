@@ -4,6 +4,9 @@
  * @returns Middleware function que verifica los permisos del usuario
  */
 const checkRole = (...allowedRoles) => {
+    // Aplanamos los roles en caso de que se pase un array por error
+    const flattenedRoles = allowedRoles.flat();
+    
     return (req, res, next) => {
         console.log(`[Role Check] Ruta: ${req.method} ${req.path} | Usuario: ${req.user?.email}`);
         
@@ -34,12 +37,12 @@ const checkRole = (...allowedRoles) => {
         }
 
         // 3. Verificación general de roles permitidos
-        if (!allowedRoles.includes(req.user.role)) {
+        if (!flattenedRoles.includes(req.user.role)) {
             console.warn(`[Role Check] Rol no autorizado: ${req.user.role}`);
             return res.status(403).json({
                 success: false,
                 message: 'Permisos insuficientes para esta acción',
-                requiredRoles: allowedRoles,
+                requiredRoles: flattenedRoles,
                 yourRole: req.user.role
             });
         }
@@ -49,12 +52,12 @@ const checkRole = (...allowedRoles) => {
     };
 };
 
-// Funciones específicas por rol
+// Funciones específicas por rol (versión corregida)
 const isAdmin = checkRole('admin');
-const isCoordinador = checkRole('admin', 'coordinador'); // Incluye admin para flexibilidad
+const isCoordinador = checkRole('admin', 'coordinador');
 const isLider = checkRole('admin', 'coordinador', 'lider');
 
-// Funciones para operaciones CRUD (versión mejorada)
+// Funciones para operaciones CRUD (versión mejorada y corregida)
 const fullAccess = checkRole('admin');
 const readWriteAccess = checkRole('admin', 'coordinador');
 const readOnlyAccess = checkRole('admin', 'coordinador', 'lider');
