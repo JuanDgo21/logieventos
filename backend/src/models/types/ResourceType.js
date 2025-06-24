@@ -14,4 +14,4 @@ const tipoRecursoSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model('TipoRecurso', tipoRecursoSchema);
+module.exports = mongoose.model('ResourceType', tipoRecursoSchema);

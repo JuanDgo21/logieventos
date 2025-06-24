@@ -33,6 +33,6 @@ EventSchema.pre('save', function(next) {
 });
 
 // CORRECCIÓN: Usar EventSchema en lugar de eventoSchema
-const Evento = mongoose.model('Evento', EventSchema);
+const Evento = mongoose.model('Event', EventSchema);
 
 module.exports = Evento;

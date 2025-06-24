@@ -29,4 +29,4 @@ const recursoSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Recurso', recursoSchema);
+module.exports = mongoose.model('Resource', recursoSchema);
