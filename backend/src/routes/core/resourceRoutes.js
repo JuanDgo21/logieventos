@@ -1,22 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const resourceController = require('../../controllers/core/resourceController');
-const { authenticate, authorize } = require('../../middlewares/auth');
+const resourceController = require('./../../controllers/core/resourceController'); // Asegúrate de que la ruta sea correcta
+const { verifyToken } = require('../../middlewares/authJwt');
+const { checkRole } = require('../../middlewares/role');
 
-// Middleware de autenticación (global para todas las rutas)
-router.use(authenticate);
+// Rutas principales
+router.get('/', verifyToken, checkRole(['admin', 'coordinador', 'lider']), resourceController.getAllResources);
+router.get('/available', verifyToken, checkRole(['admin', 'coordinador', 'lider']), resourceController.getAvailableResources);
+router.get('/:id', verifyToken, checkRole(['admin', 'coordinador', 'lider']), resourceController.getResourceById);
+router.post('/', verifyToken, checkRole(['admin', 'coordinador']), resourceController.createResource);
+router.put('/:id', verifyToken, checkRole(['admin', 'coordinador']), resourceController.updateResource);
+router.delete('/:id', verifyToken, checkRole(['admin']), resourceController.deleteResource);
 
-// 🔥 Corrige los nombres de las funciones del controlador para que coincidan
-router.get('/', authorize(['admin', 'coordinador', 'lider']), resourceController.getAllRecursos); // ✔️ Cambiado a getAllRecursos
-router.get('/available', authorize(['admin', 'coordinador', 'lider']), resourceController.getRecursosDisponibles); // ✔️ Cambiado a getRecursosDisponibles
-router.get('/:id', authorize(['admin', 'coordinador', 'lider']), resourceController.getRecursoById); // ✔️ Cambiado a getRecursoById
-router.post('/', authorize(['admin', 'coordinador']), resourceController.createRecurso); // ✔️ Cambiado a createRecurso
-router.put('/:id', authorize(['admin', 'coordinador']), resourceController.updateRecurso); // ✔️ Cambiado a updateRecurso
-router.delete('/:id', authorize(['admin']), resourceController.deleteRecurso); // ✔️ Cambiado a deleteRecurso
-
-// 🔥 Si no existen estas funciones, comenta las rutas o impleméntalas:
-// router.post('/:id/assign', authorize(['admin', 'coordinador']), resourceController.assignToEvent); // ❌ Falta implementar
-// router.post('/:id/release', authorize(['admin', 'coordinador']), resourceController.releaseFromEvent); // ❌ Falta implementar
-// router.get('/type/:typeId', authorize(['admin', 'coordinador', 'lider']), resourceController.getResourcesByType); // ❌ Falta implementar
+// Rutas adicionales (opcionales)
+// router.post('/:id/assign', verifyToken, checkRole(['admin', 'coordinador']), resourceController.assignToEvent);
+// router.post('/:id/release', verifyToken, checkRole(['admin', 'coordinador']), resourceController.releaseFromEvent);
+// router.get('/type/:typeId', verifyToken, checkRole(['admin', 'coordinador', 'lider']), resourceController.getResourcesByType);
 
 module.exports = router;

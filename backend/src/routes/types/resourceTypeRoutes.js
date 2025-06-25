@@ -1,27 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const resourceTypeController = require('../../controllers/types/resourceTypeController');
-const { authenticate, authorize } = require('../../middlewares/auth');
-
-// Middleware de autenticación
-router.use(authenticate);
+const { verifyToken } = require('../../middlewares/authJwt');
+const { checkRole } = require('../../middlewares/role');
 
 // Obtener todos los tipos de recursos
-router.get('/', authorize(['admin', 'coordinador', 'lider']), resourceTypeController.getAllResourceTypes);
+router.get('/', verifyToken, checkRole(['admin', 'coordinador', 'lider']), resourceTypeController.getAllResourceTypes);
 
 // Obtener tipo de recurso específico
-router.get('/:id', authorize(['admin', 'coordinador', 'lider']), resourceTypeController.getResourceTypeById);
+router.get('/:id', verifyToken, checkRole(['admin', 'coordinador', 'lider']), resourceTypeController.getResourceTypeById);
 
 // Crear nuevo tipo de recurso (Solo Admin)
-router.post('/', authorize(['admin']), resourceTypeController.createResourceType);
+router.post('/', verifyToken, checkRole(['admin']), resourceTypeController.createResourceType);
 
 // Actualizar tipo de recurso (Solo Admin)
-router.put('/:id', authorize(['admin']), resourceTypeController.updateResourceType);
+router.put('/:id', verifyToken, checkRole(['admin']), resourceTypeController.updateResourceType);
 
 // Eliminar tipo de recurso (Solo Admin)
-router.delete('/:id', authorize(['admin']), resourceTypeController.deleteResourceType);
-
-// Obtener recursos por tipo
-router.get('/:id/resources', authorize(['admin', 'coordinador', 'lider']), resourceTypeController.getResourcesByType);
+router.delete('/:id', verifyToken, checkRole(['admin']), resourceTypeController.deleteResourceType);
 
 module.exports = router;

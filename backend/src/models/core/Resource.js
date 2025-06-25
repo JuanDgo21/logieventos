@@ -1,32 +1,37 @@
 const mongoose = require('mongoose');
 
-const recursoSchema = new mongoose.Schema({
-    idRecursos: {
+const resourceSchema = new mongoose.Schema({
+    resourceId: {  // Antes: idRecursos
         type: Number,
         required: true
     },
-    nombreRecursos: {
+    name: {  // Antes: nombreRecursos
         type: String,
         required: true,
         trim: true,
         maxlength: 45
     },
-    cantidadRecursos: {
+    quantity: {  // Antes: cantidadRecursos
         type: Number,
         required: true
     },
-    disponibilidadR: {
+    availability: {  // Antes: disponibilidadR
         type: String,
         required: true,
         trim: true,
         maxlength: 45
     },
-    mantenimientoR: {
+    maintenance: {  // Antes: mantenimientoR
         type: String,
         required: true,
         trim: true,
         maxlength: 45
+    },
+    resourceTypeId: {  // Nueva propiedad: referencia a ResourceType
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'ResourceType',  // Relación con el modelo ResourceType
+        required: true  // Obligatorio para crear un recurso
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Resource', recursoSchema);
+module.exports = mongoose.model('Resource', resourceSchema);

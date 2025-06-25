@@ -1,34 +1,87 @@
-const ResourceType = require('../../models/types/ResourceType');
-const Resource = require('../../models/core/Resource');
+const ResourceType = require('./../../models/types/ResourceType');
+const Resource = require('./../../models/core/Resource'); // ¡Importación faltante!
 
-// Obtener todos los tipos de recursos
-exports.getAllResourceTypes = async (req, res) => {
-    console.log('[RESOURCETYPE CONTROLLER] Ejecutando getAllResourceTypes');
+// Helper para logs (en español)
+const log = (accion, mensaje) => console.log(`[CONTROLADOR DE TIPOS DE RECURSO] ${accion}: ${mensaje}`);
+
+// 1. Crear un tipo de recurso
+exports.createResourceType = async (req, res) => {
+    log('Crear tipo de recurso', `Datos recibidos: ${JSON.stringify(req.body)}`);
     try {
-        const resourceTypes = await ResourceType.find().sort({ tipo_recursos: 1 });
-        console.log(`[RESOURCETYPE CONTROLLER] ${resourceTypes.length} tipos de recursos encontrados`);
-        res.status(200).json({
+        const { resourceTypeId, typeName } = req.body;
+
+        // Validar campos obligatorios
+        if (!resourceTypeId || !typeName) {
+            return res.status(400).json({
+                success: false,
+                message: 'Todos los campos son obligatorios (resourceTypeId y typeName)'
+            });
+        }
+
+        // Validar ID único
+        const existingType = await ResourceType.findOne({ resourceTypeId });
+        if (existingType) {
+            return res.status(400).json({
+                success: false,
+                message: 'El ID del tipo de recurso ya está en uso'
+            });
+        }
+
+        // Validar longitud máxima
+        if (typeName.length > 45) {
+            return res.status(400).json({
+                success: false,
+                message: 'El nombre del tipo no puede exceder los 45 caracteres'
+            });
+        }
+
+        const newResourceType = await ResourceType.create({
+            resourceTypeId,
+            typeName
+        });
+
+        res.status(201).json({
             success: true,
-            count: resourceTypes.length,
-            data: resourceTypes
+            message: 'Tipo de recurso creado exitosamente',
+            data: newResourceType
         });
     } catch (error) {
-        console.error('[RESOURCETYPE CONTROLLER] Error en getAllResourceTypes:', error.message);
+        log('Error al crear tipo de recurso', error.message);
         res.status(500).json({
             success: false,
-            message: 'Error al obtener los tipos de recursos'
+            message: 'Error interno al crear el tipo de recurso',
+            error: error.message
         });
     }
 };
 
-// Obtener tipo de recurso específico
+// 2. Obtener todos los tipos de recurso
+exports.getAllResourceTypes = async (req, res) => {
+    log('Obtener todos los tipos de recurso', 'Iniciando');
+    try {
+        const resourceTypes = await ResourceType.find().sort({ typeName: 1 });
+
+        res.status(200).json({
+            success: true,
+            total: resourceTypes.length,
+            data: resourceTypes
+        });
+    } catch (error) {
+        log('Error al obtener tipos de recurso', error.message);
+        res.status(500).json({
+            success: false,
+            message: 'Error interno al listar los tipos de recurso'
+        });
+    }
+};
+
+// 3. Obtener un tipo de recurso por ID
 exports.getResourceTypeById = async (req, res) => {
-    console.log('[RESOURCETYPE CONTROLLER] Ejecutando getResourceTypeById para ID:', req.params.id);
+    log('Obtener tipo de recurso por ID', `ID: ${req.params.id}`);
     try {
         const resourceType = await ResourceType.findById(req.params.id);
 
         if (!resourceType) {
-            console.log('[RESOURCETYPE CONTROLLER] Tipo de recurso no encontrado');
             return res.status(404).json({
                 success: false,
                 message: 'Tipo de recurso no encontrado'
@@ -40,179 +93,87 @@ exports.getResourceTypeById = async (req, res) => {
             data: resourceType
         });
     } catch (error) {
-        console.error('[RESOURCETYPE CONTROLLER] Error en getResourceTypeById:', error.message);
+        log('Error al obtener tipo de recurso', error.message);
         res.status(500).json({
             success: false,
-            message: 'Error al obtener el tipo de recurso',
-            error: error.message
+            message: 'Error interno al buscar el tipo de recurso'
         });
     }
 };
 
-// Crear nuevo tipo de recurso (Solo Admin)
-exports.createResourceType = async (req, res) => {
-    console.log('[RESOURCETYPE CONTROLLER] Ejecutando createResourceType');
+// 4. Actualizar un tipo de recurso
+exports.updateResourceType = async (req, res) => {
+    log('Actualizar tipo de recurso', `ID: ${req.params.id}`);
     try {
-        const { totipo_recursos, tipo_recursos } = req.body;
+        const { typeName } = req.body;
 
-        // Validar que no exista ya un tipo con el mismo totipo_recursos
-        const existingType = await ResourceType.findOne({ totipo_recursos });
-        if (existingType) {
-            console.log('[RESOURCETYPE CONTROLLER] Tipo de recurso ya existe');
+        // Validar longitud máxima
+        if (typeName && typeName.length > 45) {
             return res.status(400).json({
                 success: false,
-                message: 'Ya existe un tipo de recurso con este identificador'
+                message: 'El nombre del tipo no puede exceder los 45 caracteres'
             });
-        }
-
-        const newResourceType = new ResourceType({
-            totipo_recursos,
-            tipo_recursos
-        });
-
-        const savedResourceType = await newResourceType.save();
-        console.log('[RESOURCETYPE CONTROLLER] Tipo de recurso creado:', savedResourceType._id);
-
-        res.status(201).json({
-            success: true,
-            message: 'Tipo de recurso creado exitosamente',
-            data: savedResourceType
-        });
-    } catch (error) {
-        console.error('[RESOURCETYPE CONTROLLER] Error en createResourceType:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al crear el tipo de recurso',
-            error: error.message
-        });
-    }
-};
-
-// Actualizar tipo de recurso (Solo Admin)
-exports.updateResourceType = async (req, res) => {
-    console.log('[RESOURCETYPE CONTROLLER] Ejecutando updateResourceType para ID:', req.params.id);
-    try {
-        // Verificar que el tipo existe
-        const existingType = await ResourceType.findById(req.params.id);
-        if (!existingType) {
-            console.log('[RESOURCETYPE CONTROLLER] Tipo de recurso no encontrado');
-            return res.status(404).json({
-                success: false,
-                message: 'Tipo de recurso no encontrado'
-            });
-        }
-
-        // Validar que el nuevo totipo_recursos no colisione con otro tipo
-        if (req.body.totipo_recursos && req.body.totipo_recursos !== existingType.totipo_recursos) {
-            const idExists = await ResourceType.findOne({ 
-                totipo_recursos: req.body.totipo_recursos,
-                _id: { $ne: req.params.id }
-            });
-            if (idExists) {
-                console.log('[RESOURCETYPE CONTROLLER] Identificador de tipo ya existe');
-                return res.status(400).json({
-                    success: false,
-                    message: 'Ya existe otro tipo de recurso con este identificador'
-                });
-            }
         }
 
         const updatedResourceType = await ResourceType.findByIdAndUpdate(
             req.params.id,
-            { $set: req.body },
+            { typeName },
             { new: true, runValidators: true }
         );
 
-        console.log('[RESOURCETYPE CONTROLLER] Tipo de recurso actualizado:', updatedResourceType._id);
-        res.status(200).json({
-            success: true,
-            message: 'Tipo de recurso actualizado exitosamente',
-            data: updatedResourceType
-        });
-    } catch (error) {
-        console.error('[RESOURCETYPE CONTROLLER] Error en updateResourceType:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al actualizar el tipo de recurso',
-            error: error.message
-        });
-    }
-};
-
-// Eliminar tipo de recurso (Solo Admin, con validaciones)
-exports.deleteResourceType = async (req, res) => {
-    console.log('[RESOURCETYPE CONTROLLER] Ejecutando deleteResourceType para ID:', req.params.id);
-    try {
-        // Verificar que el tipo existe
-        const resourceType = await ResourceType.findById(req.params.id);
-        if (!resourceType) {
-            console.log('[RESOURCETYPE CONTROLLER] Tipo de recurso no encontrado');
+        if (!updatedResourceType) {
             return res.status(404).json({
                 success: false,
                 message: 'Tipo de recurso no encontrado'
             });
         }
 
-        // Verificar que no hay recursos asignados a este tipo
-        const resourcesWithThisType = await Resource.findOne({ type: req.params.id });
-        if (resourcesWithThisType) {
-            console.log('[RESOURCETYPE CONTROLLER] Intento de eliminar tipo en uso');
+        res.status(200).json({
+            success: true,
+            message: 'Tipo de recurso actualizado correctamente',
+            data: updatedResourceType
+        });
+    } catch (error) {
+        log('Error al actualizar tipo de recurso', error.message);
+        res.status(500).json({
+            success: false,
+            message: 'Error interno al actualizar el tipo de recurso'
+        });
+    }
+};
+
+// ... (resto de imports y configuraciones)
+
+exports.deleteResourceType = async (req, res) => {
+    log('Eliminar tipo de recurso', `ID: ${req.params.id}`);
+    try {
+        // Validar que no esté en uso por algún recurso
+        const isUsed = await Resource.exists({ resourceTypeId: req.params.id }); // Antes: Resource no estaba definido
+        if (isUsed) {
             return res.status(400).json({
                 success: false,
-                message: 'No se puede eliminar el tipo de recurso porque está asignado a uno o más recursos'
+                message: 'No se puede eliminar: hay recursos asociados a este tipo'
             });
         }
 
         const deletedResourceType = await ResourceType.findByIdAndDelete(req.params.id);
-        console.log('[RESOURCETYPE CONTROLLER] Tipo de recurso eliminado:', deletedResourceType._id);
-
-        res.status(200).json({
-            success: true,
-            message: 'Tipo de recurso eliminado exitosamente'
-        });
-    } catch (error) {
-        console.error('[RESOURCETYPE CONTROLLER] Error en deleteResourceType:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error al eliminar el tipo de recurso'
-        });
-    }
-};
-
-// Obtener recursos por tipo
-exports.getResourcesByType = async (req, res) => {
-    console.log('[RESOURCETYPE CONTROLLER] Ejecutando getResourcesByType para tipo:', req.params.id);
-    try {
-        // Verificar que el tipo existe
-        const resourceType = await ResourceType.findById(req.params.id);
-        if (!resourceType) {
-            console.log('[RESOURCETYPE CONTROLLER] Tipo de recurso no encontrado');
+        if (!deletedResourceType) {
             return res.status(404).json({
                 success: false,
                 message: 'Tipo de recurso no encontrado'
             });
         }
 
-        const resources = await Resource.find({ type: req.params.id })
-            .populate('type', 'tipo_recursos -_id');
-
         res.status(200).json({
             success: true,
-            data: {
-                type: {
-                    id: resourceType._id,
-                    totipo_recursos: resourceType.totipo_recursos,
-                    tipo_recursos: resourceType.tipo_recursos
-                },
-                resources: resources,
-                count: resources.length
-            }
+            message: 'Tipo de recurso eliminado correctamente'
         });
     } catch (error) {
-        console.error('[RESOURCETYPE CONTROLLER] Error en getResourcesByType:', error.message);
+        log('Error al eliminar tipo de recurso', error.message);
         res.status(500).json({
             success: false,
-            message: 'Error al obtener los recursos por tipo'
+            message: 'Error interno al eliminar el tipo de recurso',
+            error: error.message // Detalle técnico para depuración
         });
     }
 };
