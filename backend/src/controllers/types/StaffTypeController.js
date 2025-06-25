@@ -16,7 +16,7 @@ exports.createStaffType = async (req, res) => {
                 success: false,
                 message: 'Requiere rol de administrador'
             });
-        }
+        } 
 
         const { name, description } = req.body;
 

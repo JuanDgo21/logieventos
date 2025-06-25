@@ -26,8 +26,8 @@ const staffTypeSchema = new mongoose.Schema({
     },
     isActive: {
         type: Boolean,
-        default: true
-    },
+        default: true 
+    },  
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

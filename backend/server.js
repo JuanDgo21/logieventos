@@ -32,7 +32,7 @@ const app = express();
         console.error('❌ Error en conexión directa a MongoDB:', err);
     }
 })();
-
+ 
 // Middlewares
 app.use(cors());
 app.use(morgan('dev'));

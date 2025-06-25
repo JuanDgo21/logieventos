@@ -1,5 +1,6 @@
 const Staff = require('../../models/core/Staff');
 const User = require('../../models/core/User');
+const Evento = require('../../models/core/Event');
 const StaffType = require('../../models/types/StaffType');
 const mongoose = require('mongoose');
 
@@ -139,20 +140,20 @@ exports.getAllStaff = async (req, res) => {
         // Construir query según el rol del usuario
         let query = {};
         
-        // Para líderes, solo mostrar personal asignado a sus eventos
+        // Para líderes, mostrar todo el personal (modificación)
         if (req.user.role === 'lider') {
-            // Aquí se implementaría la lógica para filtrar por eventos del líder
-            // Por ahora devolvemos un error ya que no tenemos el modelo Evento
-            console.warn('Líder intentando acceder a todo el personal');
-            return res.status(403).json({
-                success: false,
-                message: 'Los líderes solo pueden ver personal asignado a sus eventos'
-            });
+            console.log('Líder consultando listado completo de personal (solo lectura)');
+            
+            // Opcional: puedes agregar lógica adicional aquí si necesitas
+            // que el líder vea solo ciertos tipos de personal
+            // Ejemplo: solo staff activo o de ciertas categorías
+            
+            // Por ahora permitimos ver todo el personal en modo solo lectura
+            query = {};
         }
 
         // Para coordinadores, solo mostrar tipos de personal activos
         if (req.user.role === 'coordinador') {
-            // Subconsulta para obtener solo staffTypes activos
             const activeStaffTypes = await StaffType.find({ isActive: true }, '_id');
             query.staffTypeId = { $in: activeStaffTypes.map(st => st._id) };
         }
@@ -194,12 +195,11 @@ exports.getAllStaff = async (req, res) => {
                 sortOptions[fieldName] = sortOrder;
             });
         } else {
-            sortOptions.createdAt = -1; // Orden por defecto: más reciente primero
+            sortOptions.name = 1; // Ordenar por nombre por defecto
         }
 
         // Consulta a la base de datos
         const staff = await Staff.find(query)
-            .populate('userId', '-password') // Excluir contraseña
             .populate('staffType')
             .sort(sortOptions)
             .skip(skip)
@@ -210,11 +210,6 @@ exports.getAllStaff = async (req, res) => {
         const total = await Staff.countDocuments(query);
 
         console.log(`Staff encontrados: ${staff.length} de ${total}`);
-
-        // Para admin, agregar información adicional si es necesario
-        if (req.user.role === 'admin') {
-            // Podríamos agregar conteo de eventos asignados aquí
-        }
 
         res.status(200).json({
             success: true,
@@ -230,7 +225,7 @@ exports.getAllStaff = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error al obtener el personal',
-            error: error.message
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 };
@@ -257,8 +252,6 @@ exports.getStaffById = async (req, res) => {
         
         // Para líderes, verificar que el staff esté asignado a sus eventos
         if (req.user.role === 'lider') {
-            // Aquí se implementaría la lógica para verificar asignación a eventos
-            // Por ahora devolvemos un error ya que no tenemos el modelo Evento
             console.warn('Líder intentando acceder a personal no asignado');
             return res.status(403).json({
                 success: false,
@@ -283,7 +276,6 @@ exports.getStaffById = async (req, res) => {
 
         // Consultar el staff con populate de relaciones
         const staff = await Staff.findOne(query)
-            .populate('userId', '-password') // Excluir contraseña
             .populate('staffType');
 
         if (!staff) {
@@ -294,15 +286,9 @@ exports.getStaffById = async (req, res) => {
             });
         }
 
-        // Para admin, agregar información adicional si es necesario
-        let responseData = staff.toObject();
-        if (req.user.role === 'admin') {
-            // Podríamos agregar conteo de eventos asignados aquí
-        }
-
         res.status(200).json({
             success: true,
-            data: responseData
+            data: staff.toObject()
         });
 
     } catch (error) {
@@ -344,7 +330,7 @@ exports.updateStaff = async (req, res) => {
             });
         }
 
-        const { staffTypeId, name, phone, role, emergencyContact } = req.body;
+        const { staffTypeId, name, phone, role, emergencyContact, asistencia } = req.body;
 
         // Validar ID
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -394,16 +380,21 @@ exports.updateStaff = async (req, res) => {
         if (emergencyContact !== undefined) {
             existingStaff.emergencyContact = emergencyContact?.trim();
         }
+        
+        // Actualizar asistencia si viene en el body
+        if (typeof asistencia === 'boolean') {
+            existingStaff.asistencia = asistencia;
+            console.log(`Actualizando asistencia a: ${asistencia}`);
+        }
 
         // Guardar los cambios
         const updatedStaff = await existingStaff.save();
         
         // Hacer populate de las relaciones para la respuesta
         const populatedStaff = await Staff.findById(updatedStaff._id)
-            .populate('userId', '-password')
             .populate('staffType');
 
-        console.log('Staff actualizado exitosamente:', populatedStaff._id);
+        console.log('Staff actualizado exitosamente:', populatedStaff);
 
         res.status(200).json({
             success: true,
@@ -414,7 +405,6 @@ exports.updateStaff = async (req, res) => {
     } catch (error) {
         console.error('Error en updateStaff:', error);
         
-        // Manejo específico de errores de validación de Mongoose
         if (error.name === 'ValidationError') {
             return res.status(400).json({
                 success: false,
@@ -423,7 +413,6 @@ exports.updateStaff = async (req, res) => {
             });
         }
 
-        // Manejo de errores de casteo de ObjectId
         if (error.name === 'CastError') {
             return res.status(400).json({
                 success: false,
@@ -434,7 +423,7 @@ exports.updateStaff = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error al actualizar miembro del personal',
-            error: error.message
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 };
@@ -485,8 +474,7 @@ exports.updateAttendance = async (req, res) => {
             req.params.id,
             { asistencia },
             { new: true, runValidators: true }
-        ).populate('userId', '-password')
-         .populate('staffType');
+        ).populate('staffType');
 
         if (!updatedStaff) {
             console.warn('Staff no encontrado para actualizar asistencia');
@@ -552,7 +540,7 @@ exports.deleteStaff = async (req, res) => {
             });
         }
 
-        // Buscar el staff
+        // Verificar si el staff existe
         const staff = await Staff.findById(req.params.id);
         if (!staff) {
             console.warn('Staff no encontrado para eliminar');
@@ -563,9 +551,8 @@ exports.deleteStaff = async (req, res) => {
         }
 
         // Verificar si el staff está asignado a algún evento
-        // NOTA: Aquí deberíamos verificar en la colección de Eventos
-        // Como no tenemos el modelo, simulamos la verificación
-        const hasEventAssignments = false; // Cambiar a true para probar el bloqueo
+        // NOTA: Implementar esta verificación cuando exista el modelo de Eventos
+        const hasEventAssignments = false;
         
         if (hasEventAssignments) {
             console.warn('Intento de eliminar staff con asignaciones a eventos');
@@ -575,14 +562,23 @@ exports.deleteStaff = async (req, res) => {
             });
         }
 
-        // Eliminar el staff
-        await staff.remove();
-        console.log('Staff eliminado exitosamente:', staff._id);
+        // Eliminar el staff usando deleteOne (solución al error)
+        const deletedStaff = await Staff.deleteOne({ _id: req.params.id });
+
+        if (deletedStaff.deletedCount === 0) {
+            console.warn('No se eliminó ningún registro');
+            return res.status(404).json({
+                success: false,
+                message: 'No se encontró el miembro del personal para eliminar'
+            });
+        }
+
+        console.log('Staff eliminado exitosamente:', req.params.id);
 
         res.status(200).json({
             success: true,
             message: 'Miembro del personal eliminado exitosamente',
-            data: { _id: staff._id, name: staff.name }
+            data: { _id: req.params.id, name: staff.name }
         });
 
     } catch (error) {
@@ -598,7 +594,7 @@ exports.deleteStaff = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error al eliminar miembro del personal',
-            error: error.message
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 };
@@ -649,7 +645,6 @@ exports.getStaffByType = async (req, res) => {
 
         // Consultar personal asociado
         const staff = await Staff.find({ staffTypeId: staffType._id })
-            .populate('userId', '-password')
             .populate('staffType')
             .lean();
 
@@ -708,8 +703,6 @@ exports.searchStaff = async (req, res) => {
 
         // Para líderes, solo mostrar personal asignado a sus eventos
         if (req.user.role === 'lider') {
-            // Aquí se implementaría la lógica para filtrar por eventos del líder
-            // Por ahora devolvemos un error ya que no tenemos el modelo Evento
             console.warn('Líder intentando buscar en todo el personal');
             return res.status(403).json({
                 success: false,
@@ -728,7 +721,6 @@ exports.searchStaff = async (req, res) => {
 
         // Consultar personal
         const staff = await Staff.find(query)
-            .populate('userId', '-password')
             .populate('staffType')
             .limit(limit)
             .lean();

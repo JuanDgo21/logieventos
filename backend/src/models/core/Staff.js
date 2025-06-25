@@ -9,6 +9,8 @@ console.log('Iniciando definición del modelo Staff...');
  */
 const StaffSchema = new mongoose.Schema({
 
+    //preguntar osbre el user id o manualmente nose 
+    
     // --- Información Básica ---
     identification: {
         type: String,
