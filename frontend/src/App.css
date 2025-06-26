@@ -1,27 +1,42 @@
-/* Importar Bootstrap */
-@import '~bootstrap/dist/css/bootstrap.min.css';
-
-/* Estilos personalizados */
-:root {
-  --primary-color: #2c3e50;
-  --secondary-color: #3498db;
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
 }
 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
-.hero-section {
-  background-color: var(--primary-color);
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.btn-primary {
-  background-color: var(--secondary-color);
-  border-color: var(--secondary-color);
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
 }
 
-.btn-primary:hover {
-  background-color: #2980b9;
-  border-color: #2980b9;
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
 }
