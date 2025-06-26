@@ -4,7 +4,7 @@ const { verifyToken, checkRole } = require('../../middlewares/authJwt');
 // Crear nuevo contrato
 exports.createContract = async (req, res) => {
     try {
-        const { clientname, clientemail, clientphone } = req.body;
+        const { name, description, clientname, clientphone, clientemail, date, sign } = req.body;
         
         // Validacion basica
         if (!clientname || !clientemail || !clientphone) {
@@ -15,24 +15,24 @@ exports.createContract = async (req, res) => {
         }
 
         // Verificar unicidad de nombre y email
-        const existingContract = await Contract.findOne({
-            $or: [
-                { clientname: clientname },
-                { clientemail: clientemail }
-            ]
-        });
-
+        const existingContract = await Contract.findOne({ name });
         if (existingContract) {
-            const conflictField = existingContract.clientname === clientname ? 'clientname' : 'clientemail';
             return res.status(409).json({
                 success: false,
-                message: `Ya existe un contrato con ese ${conflictField}`
+                message: "Ya existe un contrato con ese nombre",
+                conflictField: "name",
+                existingContractId: existingContract._id
             });
         }
 
         const newContract = new Contract({
-            ...req.body,
-            createdBy: req.userId
+            name,
+            description,
+            clientname,
+            clientphone,
+            clientemail,
+            date,
+            sign
         });
 
         const savedContract = await newContract.save();

@@ -30,7 +30,6 @@ const contractSchema = new mongoose.Schema({
     clientemail : {
         type: String,
         required: true,
-        unique: true,
         trim: true,
         lowercase: true,
         match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Email no valido']
@@ -53,14 +52,6 @@ const contractSchema = new mongoose.Schema({
     versionKey:false
 });
 
-// Manejo de errores de duplicados
-contractSchema.post('save', function(error,doc, next){
-    if (error.name === 'MongoServerError' && error.code === 11000){
-        next(new Error ('Ya existe el producto con ese nombre'));
-    } else {
-        next(error)
-    }
-});
 
 module.exports = mongoose.model('Contract', contractSchema)
 
