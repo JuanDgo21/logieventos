@@ -27,6 +27,13 @@ router.put('/:id',
   eventTypeController.updateEventType
 );
 
+// Ruta para activar
+router.patch('/:id/activate',
+  verifyToken,
+  checkRole(['admin']),
+  eventTypeController.activateEventType
+);
+
 // Ruta para desactivar (soft delete)
 router.patch('/:id/deactivate', 
   verifyToken, 

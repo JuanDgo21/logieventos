@@ -7,10 +7,10 @@ exports.createEventType = async (req, res) => {
         const { name, category } = req.body;
 
         // Validacion basica
-        if (!name || !category) {
+        if (!name?.trim() || !category) {
             return res.status(400).json({
                 success: false,
-                message: 'Nombre y categoria son obligatorios' 
+                message: 'Nombre (no vacío) y categoría son obligatorios'
             });
         }
 
@@ -101,7 +101,7 @@ exports.updateEventType = async (req, res) => {
     try {
         const updates = {
             ...req.body,
-            updateAt: Date.now(),
+            updatedAt: Date.now(),
         };
 
         const updatedType = await EventType.findByIdAndUpdate(
@@ -131,6 +131,37 @@ exports.updateEventType = async (req, res) => {
         });
     }
 };
+
+// Activar un tipo de evento
+exports.activateEventType = async (req, res) => {
+    try{
+        const activatedType = await EventType.findByIdAndUpdate(
+            req.params.id,
+            { active: true, updatedAt: Date.now() },
+            { new: true }
+        );
+
+        if (!activatedType) {
+            return res.status(404).json({
+                success: false,
+                message: 'Tipo de evento no encontrado'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Tipo de evento activado exitosamente',
+            data: activatedType
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error al activar el tipo de evento',
+            error: error.message
+        });
+    }
+}
 
 // Desactivar un tipo de evento
 exports.deactivateEventType = async (req, res) => {

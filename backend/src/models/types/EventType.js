@@ -41,8 +41,13 @@ const EventTypeSchema = new Schema({
   }],
   estimatedDuration: { // duración estimada en horas
     type: Number,
-    min: 1
-    },
+    min: 1,
+    max: 24, // Ejemplo: máximo 24 horas
+    validate: {
+      validator: Number.isInteger,
+      message: 'La duración debe ser un número entero'
+    }
+  },
   category: {
     type: String,
     enum: ['corporativo', 'social', 'cultural', 'deportivo', 'academico', 'otros']
