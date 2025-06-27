@@ -1,11 +1,6 @@
 const mongoose = require('mongoose');
 
-/**
- * Esquema para tipos/categorías de proveedores
- * Combina categorías principales y subcategorías en una sola estructura
- */
 const supplierTypeSchema = new mongoose.Schema({
-  // Nivel 1: Categoría principal (ej. "Equipamiento Técnico")
   mainCategory: {
     type: String,
     required: true,
@@ -24,7 +19,6 @@ const supplierTypeSchema = new mongoose.Schema({
     index: true
   },
   
-  // Nivel 2: Subcategoría específica (ej. "Sonido profesional")
   subCategory: {
     type: String,
     required: true,
@@ -32,18 +26,23 @@ const supplierTypeSchema = new mongoose.Schema({
     maxlength: 50
   },
   
-  // Estado
   status: {
     type: String,
     enum: ['active', 'inactive'],
     default: 'active'
   },
   
-  // Fechas de creación y actualización
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  
   createdAt: {
     type: Date,
     default: Date.now
   },
+  
   updatedAt: {
     type: Date
   }
@@ -51,47 +50,40 @@ const supplierTypeSchema = new mongoose.Schema({
   versionKey: false
 });
 
-// Índice compuesto para evitar duplicados
+// Índice compuesto único
 supplierTypeSchema.index(
   { mainCategory: 1, subCategory: 1 }, 
   { unique: true, name: 'category_unique' }
 );
 
-// Middleware para actualizar fecha de modificación
+// Actualizar fecha de modificación
 supplierTypeSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
 });
 
-/**
- * Métodos estáticos para gestión de categorías
- */
+// Métodos estáticos
 supplierTypeSchema.statics = {
-  // Obtener todas las categorías principales únicas
   async getMainCategories() {
-    return this.aggregate([
-      { $group: { _id: '$mainCategory' } },
-      { $sort: { _id: 1 } }
-    ]);
+    return this.distinct('mainCategory').sort();
   },
   
-  // Obtener subcategorías de una categoría principal
   async getSubcategories(mainCategory) {
     return this.find({ mainCategory, status: 'active' })
       .select('subCategory')
       .sort('subCategory');
   },
   
-  // Añadir nueva subcategoría
-  async addSubcategory(mainCategory, subCategory) {
+  async addSubcategory(mainCategory, subCategory, userId) {
     const existing = await this.findOne({ mainCategory, subCategory });
     if (existing) {
-      throw new Error('Subcategoría ya existe para esta categoría principal');
+      throw new Error('Esta subcategoría ya existe para la categoría principal');
     }
     
     return this.create({
       mainCategory,
-      subCategory
+      subCategory,
+      createdBy: userId
     });
   }
 };

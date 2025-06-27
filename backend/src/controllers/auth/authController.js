@@ -27,6 +27,15 @@ exports.register = async (req, res) => {
       });
     }
 
+    // Validación de tipos de datos
+    if (typeof req.body.document !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: "El documento debe ser una cadena de texto",
+        field: "document"
+      });
+    }
+
     // Validación de formato de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(req.body.email)) {
@@ -37,11 +46,11 @@ exports.register = async (req, res) => {
       });
     }
 
-    // Crear instancia de usuario
+    // Crear instancia de usuario con conversión segura a string
     const user = new User({
-      document: req.body.document.trim(),
-      name: req.body.name.trim(),
-      email: req.body.email.toLowerCase().trim(),
+      document: (req.body.document || '').toString().trim(),
+      name: (req.body.name || '').toString().trim(),
+      email: (req.body.email || '').toString().toLowerCase().trim(),
       password: req.body.password,
       role: req.body.role || ROLES.LIDER
     });
@@ -129,7 +138,7 @@ exports.login = async (req, res) => {
     }
 
     // Buscar usuario incluyendo el password (que normalmente está oculto)
-    const user = await User.findOne({ email: req.body.email.toLowerCase().trim() })
+    const user = await User.findOne({ email: (req.body.email || '').toString().toLowerCase().trim() })
       .select('+password');
 
     if (!user) {

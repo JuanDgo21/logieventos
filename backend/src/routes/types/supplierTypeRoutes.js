@@ -4,60 +4,70 @@ const SupplierTypeController = require('../../controllers/types/SupplierTypeCont
 const { verifyToken } = require('../../middlewares/authJwt');
 const { checkRole } = require('../../middlewares/role');
 
-// GET / - Get all supplier types (filtered by role)
+// Middleware de permisos
+router.use(verifyToken, SupplierTypeController.checkPermissions);
+
+// Obtener categorías principales
+router.get(
+  '/main-categories',
+  checkRole('admin', 'coordinador', 'lider'),
+  SupplierTypeController.getMainCategories
+);
+
+// Obtener subcategorías
+router.get(
+  '/:mainCategory/subcategories',
+  checkRole('admin', 'coordinador', 'lider'),
+  SupplierTypeController.getSubcategories
+);
+
+// Obtener todos los tipos
 router.get(
   '/',
-  verifyToken,
   checkRole('admin', 'coordinador', 'lider'),
   SupplierTypeController.getAll
 );
 
-// POST / - Create new supplier type (admin only)
+// Crear nuevo tipo
 router.post(
   '/',
-  verifyToken,
-  checkRole('admin'),
+  checkRole('admin', 'coordinador'),
   SupplierTypeController.create
 );
 
-// GET /:id - Get specific supplier type
+// Obtener tipo por ID
 router.get(
   '/:id',
-  verifyToken,
   checkRole('admin', 'coordinador', 'lider'),
   SupplierTypeController.getById
 );
 
-// GET /:id/suppliers - Get suppliers by type
-router.get(
-  '/:id/suppliers',
-  verifyToken,
-  checkRole('admin', 'coordinador', 'lider'),
-  SupplierTypeController.getSuppliersByType
-);
-
-// PUT /:id - Update supplier type (admin only)
+// Actualizar tipo
 router.put(
   '/:id',
-  verifyToken,
-  checkRole('admin'),
+  checkRole('admin', 'coordinador'),
   SupplierTypeController.update
 );
 
-// PATCH /:id/deactivate - Deactivate supplier type (admin only)
+// Desactivar tipo
 router.patch(
   '/:id/deactivate',
-  verifyToken,
-  checkRole('admin'),
+  checkRole('admin', 'coordinador'),
   SupplierTypeController.deactivate
 );
 
-// DELETE /:id - Delete supplier type permanently (admin only)
+// Eliminar tipo (Solo admin)
 router.delete(
   '/:id',
-  verifyToken,
   checkRole('admin'),
   SupplierTypeController.delete
+);
+
+// Obtener proveedores por tipo
+router.get(
+  '/:id/suppliers',
+  checkRole('admin', 'coordinador', 'lider'),
+  SupplierTypeController.getSuppliersByType
 );
 
 module.exports = router;
