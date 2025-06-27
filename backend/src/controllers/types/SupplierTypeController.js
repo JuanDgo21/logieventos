@@ -370,3 +370,5 @@ class SupplierTypeController {
 }
 
 module.exports = SupplierTypeController;
+
+// :3

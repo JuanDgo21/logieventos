@@ -177,3 +177,5 @@ exports.deleteResourceType = async (req, res) => {
         });
     }
 };
+
+// :3

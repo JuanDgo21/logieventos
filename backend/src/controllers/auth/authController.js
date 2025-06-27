@@ -207,7 +207,7 @@ exports.verifyToken = async (req, res) => {
         success: false,
         message: "Token no válido"
       });
-    }
+    }  
 
     // Buscar usuario en la base de datos
     const user = await User.findById(req.user.id).select('-password');
@@ -241,3 +241,5 @@ exports.verifyToken = async (req, res) => {
     });
   }
 };
+
+// :3

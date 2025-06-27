@@ -399,3 +399,5 @@ function isWithinTimeWindow(date) {
 }
 
 module.exports = ReportController;
+
+// :3
