@@ -163,7 +163,7 @@ exports.getEventById = [
 // Actualizar un evento
 exports.updateEvent = [
     verifyToken,
-    checkRole(['admin', 'coordinador', 'lider']),
+    checkRole(['admin', 'coordinador']),
     async (req, res) => {
         try {
             const { id } = req.params;

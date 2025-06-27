@@ -7,7 +7,7 @@ const { checkRole } = require('../../middlewares/role'); // Importación del mid
 // Rutas principales
 router.post('/', 
   verifyToken, 
-  checkRole(['admin', 'lider']), 
+  checkRole(['admin', 'coordinador']), 
   eventTypeController.createEventType
 );
 
@@ -23,7 +23,7 @@ router.get('/:id',
 
 router.put('/:id', 
   verifyToken, 
-  checkRole(['admin', 'lider']), 
+  checkRole(['admin', 'coordinador']), 
   eventTypeController.updateEventType
 );
 
