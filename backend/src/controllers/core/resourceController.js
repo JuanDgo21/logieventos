@@ -16,7 +16,7 @@ exports.getAllResources = async (req, res) => {
         if (maintenance) query.maintenance = maintenance;
 
         const resources = await Resource.find(query)
-            .populate('resourceTypeId') // Incluye el tipo de recurso
+            .populate('resourceType') // Actualizado para usar resourceType
             .sort({ name: 1 });
 
         res.status(200).json({
@@ -33,13 +33,14 @@ exports.getAllResources = async (req, res) => {
     }
 };
 
-// Obtener recurso específico por ID
+// 2. Obtener recurso por ID
 exports.getResourceById = async (req, res) => {
-    console.log('[RECURSO CONTROLLER] Ejecutando getRecursoById para ID:', req.params.id);
+    log('Obtener recurso por ID', `ID: ${req.params.id}`);
     try {
-        const recurso = await Recurso.findById(req.params.id);
+        const resource = await Resource.findById(req.params.id)
+            .populate('resourceType'); // Añadido populate
 
-        if (!recurso) {
+        if (!resource) {
             return res.status(404).json({
                 success: false,
                 message: 'Recurso no encontrado'
@@ -48,10 +49,10 @@ exports.getResourceById = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            data: recurso
+            data: resource
         });
     } catch (error) {
-        console.error('[RECURSO CONTROLLER] Error en getRecursoById:', error.message);
+        log('Error al obtener recurso', error.message);
         res.status(500).json({
             success: false,
             message: 'Error al obtener el recurso'
@@ -59,22 +60,22 @@ exports.getResourceById = async (req, res) => {
     }
 };
 
-// 2. Crear recurso (con validación de ResourceType)
+// 3. Crear recurso
 exports.createResource = async (req, res) => {
     log('Crear recurso', `Datos recibidos: ${JSON.stringify(req.body)}`);
     try {
-        const { resourceId, name, quantity, availability, maintenance, resourceTypeId } = req.body;
+        const { name, quantity, availability, maintenance, resourceType } = req.body;
 
         // Validar campos obligatorios
-        if (!resourceId || !name || !quantity || !availability || !maintenance || !resourceTypeId) {
+        if (!name || !quantity || !availability || !maintenance || !resourceType) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'Todos los campos son obligatorios, incluyendo el ID del tipo de recurso' 
+                message: 'Todos los campos son obligatorios, incluyendo el tipo de recurso' 
             });
         }
 
         // Validar que el ResourceType exista
-        const typeExists = await ResourceType.findById(resourceTypeId);
+        const typeExists = await ResourceType.findById(resourceType);
         if (!typeExists) {
             return res.status(404).json({ 
                 success: false, 
@@ -82,28 +83,18 @@ exports.createResource = async (req, res) => {
             });
         }
 
-        // Validar ID único
-        const existingResource = await Resource.findOne({ resourceId });
-        if (existingResource) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'El ID del recurso ya está en uso' 
-            });
-        }
-
         const newResource = await Resource.create({
-            resourceId,
             name,
             quantity,
             availability,
             maintenance,
-            resourceTypeId
+            resourceType
         });
 
         res.status(201).json({
             success: true,
             message: 'Recurso creado exitosamente',
-            data: newResource
+            data: await newResource.populate('resourceType') // Devuelve el recurso con el tipo poblado
         });
     } catch (error) {
         log('Error al crear recurso', error.message);
@@ -115,30 +106,30 @@ exports.createResource = async (req, res) => {
     }
 };
 
-// 3. Actualizar recurso
+// 4. Actualizar recurso
 exports.updateResource = async (req, res) => {
     log('Actualizar recurso', `ID: ${req.params.id}`);
     try {
-        const { name, quantity, availability, maintenance, resourceTypeId } = req.body;
+        const { name, quantity, availability, maintenance, resourceType } = req.body;
         const updateData = { name, quantity, availability, maintenance };
 
         // Validar ResourceType si se envía
-        if (resourceTypeId) {
-            const typeExists = await ResourceType.findById(resourceTypeId);
+        if (resourceType) {
+            const typeExists = await ResourceType.findById(resourceType);
             if (!typeExists) {
                 return res.status(404).json({ 
                     success: false, 
                     message: 'El tipo de recurso especificado no existe' 
                 });
             }
-            updateData.resourceTypeId = resourceTypeId;
+            updateData.resourceType = resourceType;
         }
 
         const updatedResource = await Resource.findByIdAndUpdate(
             req.params.id,
             updateData,
             { new: true, runValidators: true }
-        ).populate('resourceTypeId');
+        ).populate('resourceType');
 
         if (!updatedResource) {
             return res.status(404).json({ 
@@ -161,7 +152,7 @@ exports.updateResource = async (req, res) => {
     }
 };
 
-// 4. Eliminar recurso
+// 5. Eliminar recurso
 exports.deleteResource = async (req, res) => {
     log('Eliminar recurso', `ID: ${req.params.id}`);
     try {
@@ -195,13 +186,13 @@ exports.deleteResource = async (req, res) => {
     }
 };
 
-// 5. Obtener recursos disponibles (adicional)
+// 6. Obtener recursos disponibles
 exports.getAvailableResources = async (req, res) => {
     log('Obtener recursos disponibles', 'Iniciando');
     try {
         const resources = await Resource.find({ availability: 'Disponible' })
-            .select('resourceId name quantity')
-            .populate('resourceTypeId');
+            .select('name quantity')
+            .populate('resourceType');
 
         res.status(200).json({
             success: true,
@@ -216,5 +207,3 @@ exports.getAvailableResources = async (req, res) => {
         });
     }
 };
-
-// :3

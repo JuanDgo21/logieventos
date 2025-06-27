@@ -1,5 +1,5 @@
 const ResourceType = require('./../../models/types/ResourceType');
-const Resource = require('./../../models/core/Resource'); // ¡Importación faltante!
+const Resource = require('./../../models/core/Resource');
 
 // Helper para logs (en español)
 const log = (accion, mensaje) => console.log(`[CONTROLADOR DE TIPOS DE RECURSO] ${accion}: ${mensaje}`);
@@ -8,48 +8,45 @@ const log = (accion, mensaje) => console.log(`[CONTROLADOR DE TIPOS DE RECURSO] 
 exports.createResourceType = async (req, res) => {
     log('Crear tipo de recurso', `Datos recibidos: ${JSON.stringify(req.body)}`);
     try {
-        const { resourceTypeId, typeName } = req.body;
+        const { typeName } = req.body;
 
-        // Validar campos obligatorios
-        if (!resourceTypeId || !typeName) {
+        if (!typeName) {
             return res.status(400).json({
                 success: false,
-                message: 'Todos los campos son obligatorios (resourceTypeId y typeName)'
+                message: 'El nombre del tipo es obligatorio'
             });
         }
 
-        // Validar ID único
-        const existingType = await ResourceType.findOne({ resourceTypeId });
-        if (existingType) {
-            return res.status(400).json({
-                success: false,
-                message: 'El ID del tipo de recurso ya está en uso'
-            });
-        }
+        // Limpia el nombre (elimina espacios extras)
+        const cleanTypeName = typeName.trim();
 
-        // Validar longitud máxima
-        if (typeName.length > 45) {
+        if (cleanTypeName.length > 45) {
             return res.status(400).json({
                 success: false,
-                message: 'El nombre del tipo no puede exceder los 45 caracteres'
+                message: 'El nombre no puede exceder 45 caracteres'
             });
         }
 
         const newResourceType = await ResourceType.create({
-            resourceTypeId,
-            typeName
+            typeName: cleanTypeName
         });
 
         res.status(201).json({
             success: true,
-            message: 'Tipo de recurso creado exitosamente',
+            message: 'Tipo creado exitosamente',
             data: newResourceType
         });
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(400).json({
+                success: false,
+                message: 'Ya existe un tipo de recurso con ese nombre exacto'
+            });
+        }
         log('Error al crear tipo de recurso', error.message);
         res.status(500).json({
             success: false,
-            message: 'Error interno al crear el tipo de recurso',
+            message: 'Error al crear el tipo de recurso',
             error: error.message
         });
     }
@@ -134,6 +131,13 @@ exports.updateResourceType = async (req, res) => {
             data: updatedResourceType
         });
     } catch (error) {
+        if (error.code === 11000) {
+            // Error de duplicado (nombre único)
+            return res.status(400).json({
+                success: false,
+                message: 'Ya existe un tipo de recurso con ese nombre'
+            });
+        }
         log('Error al actualizar tipo de recurso', error.message);
         res.status(500).json({
             success: false,
@@ -142,13 +146,12 @@ exports.updateResourceType = async (req, res) => {
     }
 };
 
-// ... (resto de imports y configuraciones)
-
+// 5. Eliminar un tipo de recurso
 exports.deleteResourceType = async (req, res) => {
     log('Eliminar tipo de recurso', `ID: ${req.params.id}`);
     try {
         // Validar que no esté en uso por algún recurso
-        const isUsed = await Resource.exists({ resourceTypeId: req.params.id }); // Antes: Resource no estaba definido
+        const isUsed = await Resource.exists({ resourceTypeId: req.params.id });
         if (isUsed) {
             return res.status(400).json({
                 success: false,
@@ -173,9 +176,7 @@ exports.deleteResourceType = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error interno al eliminar el tipo de recurso',
-            error: error.message // Detalle técnico para depuración
+            error: error.message
         });
     }
 };
-
-// :3
