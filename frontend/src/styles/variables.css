@@ -1,0 +1,85 @@
+:root {
+  /* 🎨 Colores base */
+  --color-primary: #6c63ff;           /* Color principal (violeta) */
+  --color-primary-light: #a29bfe;     /* Versión más clara del color principal */
+  --color-primary-dark: #483dff;      /* Versión más oscura del color principal */
+  --color-secondary: #00cec9;         /* Segundo color importante (turquesa) */
+  --color-accent: #ff7675;            /* Color de acento para resaltar elementos (rosado) */
+
+  /* 🌈 Gradientes */
+  --gradient-primary: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  --gradient-dark: linear-gradient(135deg, var(--color-primary-dark), #2d3436);
+
+  /* 🎨 Fondos */
+  --bg-light: #f9f9ff;                /* Fondo muy claro */
+  --bg-card: rgba(255, 255, 255, 0.85); /* Fondo semitransparente para tarjetas */
+  --bg-footer: linear-gradient(135deg, #1a2a3a, #2c3e50); /* Fondo oscuro degradado para el footer */
+
+  /* ⚪️⚫️ Colores neutros */
+  --color-white: #ffffff;
+  --color-light: #f8f9fa;
+  --color-gray-light: #e9ecef;
+  --color-gray: #a8a8b3;
+  --color-gray-dark: #5a5a6e;
+  --color-black: #2d2d3a;
+  --color-text-dark: #2d2d3a;         /* Color del texto principal */
+
+  /* 🔍 Opacidades comunes */
+  --opacity-10: 0.1;
+  --opacity-20: 0.2;
+  --opacity-60: 0.6;
+  --opacity-70: 0.7;
+
+  /* 🖋 Tipografías */
+  --font-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;  /* Fuente base del contenido */
+  --font-heading: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; /* Fuente para títulos */
+
+  /* 🔠 Tamaños de texto (rem = relativo al tamaño raíz) */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-hero: 4rem; /* Muy grande, ideal para títulos principales */
+
+  /* 📦 Espaciado */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+
+  /* 🌫 Sombras */
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
+  --shadow-card: 0 10px 30px rgba(108, 99, 255, 0.1); /* Sombra suave y colorida para tarjetas */
+  --shadow-nav: 0 4px 6px rgba(0,0,0,0.1); /* Sombra para la barra de navegación */
+
+  /* 🔲 Bordes redondeados */
+  --radius-sm: 0.5rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-full: 9999px; /* Hace los elementos totalmente circulares */
+
+  /* 🔁 Transiciones (animaciones suaves) */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* 💎 Efecto vidrio (glassmorphism) */
+  --glass-bg: rgba(255, 255, 255, 0.15); /* Fondo semitransparente */
+  --glass-border: 1px solid rgba(255, 255, 255, 0.18); /* Borde sutil blanco */
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15); /* Sombra con tono azulado */
+  --glass-blur: blur(12px); /* Desenfoque de fondo */
+
+  /* 🕒 Retrasos de animaciones */
+  --animation-delay-short: 0.2s;
+  --animation-delay-medium: 0.4s;
+}
