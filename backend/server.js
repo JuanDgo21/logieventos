@@ -5,32 +5,32 @@ const cors = require('cors');
 const morgan = require('morgan');
 const { MongoClient } = require('mongodb');
 
-// Importar Rutas
-const authRoutes = require('./src/routes/auth/authRoutes');
-const userRoutes = require('./src/routes/auth/userRoutes');
-const contractRoutes = require('./src/routes/core/contractRoutes');
-const eventRoutes = require('./src/routes/core/eventRoutes');
-const resourceRoutes = require('./src/routes/core/resourceRoutes');
-const staffRoutes = require('./src/routes/core/StaffRoutes');
-const supplierRoutes = require('./src/routes/core/supplierRoutes');
-const reportRoutes = require('./src/routes/support/reportRoutes');
-const eventTypeRoutes = require('./src/routes/types/eventTypeRoutes');
-const resourceTypeRoutes = require('./src/routes/types/resourceTypeRoutes');
-const staffTypeRoutes = require('./src/routes/types/StaffTypeRoutes');
-const supplierTypeRoutes = require('./src/routes/types/supplierTypeRoutes');
+// Importar rutas
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const eventRoutes = require('./routes/eventRoutes');
+const contractRoutes = require('./routes/contractRoutes');
+const resourceRoutes = require('./routes/resourceRoutes');
+const providerRoutes = require('./routes/providerRoutes');
+const personnelRoutes = require('./routes/personnelRoutes');
+const eventTypeRoutes = require('./routes/eventTypeRoutes');
+const providerTypeRoutes = require('./routes/providerTypeRoutes'); // <-- Añadido
+const personnelTypeRoutes = require('./routes/personnelTypeRoutes');
+const resourceTypeRoutes = require('./routes/resourceTypeRoutes');
 
-const mongoClient = new MongoClient(process.env.MONGODB_URI);
+// Configurar aplicación Express
 const app = express();
 
-// Conexión directa a MongoDB (para operaciones que no requieren Mongoose)
+// Conexión directa a MongoDB para operaciones específicas
+const mongoClient = new MongoClient(process.env.MONGODB_URI);
 (async () => {
-    try {
-        await mongoClient.connect();
-        app.set('mongoDb', mongoClient.db());
-        console.log('✅ Conexión directa a MongoDB establecida');
-    } catch (err) {
-        console.error('❌ Error en conexión directa a MongoDB:', err);
-    }
+  try {
+    await mongoClient.connect();
+    app.set('mongoDb', mongoClient.db());
+    console.log('Conexión directa a MongoDB establecida');
+  } catch (error) {
+    console.error('Error al conectar a MongoDB directamente:', error.message);
+  }
 })();
 
 // Middlewares
@@ -41,30 +41,47 @@ app.use(express.urlencoded({ extended: true }));
 
 // Conexión a MongoDB con Mongoose
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('✅ Conectado a MongoDB mediante Mongoose'))
-    .catch(err => console.error('❌ Error de conexión a MongoDB:', err));
+  .then(() => console.log('Conexión a MongoDB exitosa'))
+  .catch(error => console.error('Error de conexión a MongoDB:', error.message));
 
 // Rutas
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/contracts', contractRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/contracts', contractRoutes);
 app.use('/api/resources', resourceRoutes);
-app.use('/api/staff', staffRoutes);
-app.use('/api/suppliers', supplierRoutes);
-app.use('/api/reports', reportRoutes);
+app.use('/api/providers', providerRoutes);
+app.use('/api/personnel', personnelRoutes);
 app.use('/api/event-types', eventTypeRoutes);
+app.use('/api/provider-types', providerTypeRoutes); // <-- Añadido
+app.use('/api/personnel-types', personnelTypeRoutes);
 app.use('/api/resource-types', resourceTypeRoutes);
-app.use('/api/staff-types', staffTypeRoutes);
-app.use('/api/supplier-types', supplierTypeRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {
-    res.send('¡API LogiEventos funcionando!');
+  res.json({ message: 'API de Gestión de Eventos y Logística' });
+});
+
+// Manejo de errores
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    success: false, 
+    message: 'Error interno del servidor',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
 });
 
 // Iniciar servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor en http://localhost:${PORT}`);
+  console.log(`Servidor en ejecución en http://localhost:${PORT}`);
+});
+
+// Manejo de cierre limpio
+process.on('SIGINT', async () => {
+  await mongoose.connection.close();
+  await mongoClient.close();
+  console.log('Conexiones a MongoDB cerradas');
+  process.exit(0);
 });
