@@ -96,3 +96,14 @@ img {
     display: none !important;
   }
 }
+
+$primary-color: #6c63ff;
+$text-color: #2d3748;
+$text-color-light: #718096;
+
+/* Estilos globales */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: $text-color;
+}
