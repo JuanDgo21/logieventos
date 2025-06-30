@@ -1,0 +1,275 @@
+@use "sass:color";
+
+// Variables
+$primary: #3a7bd5;
+$secondary: #00d2ff;
+$dark: #1a1a2e;
+$light: #f8f9fa;
+$white: #ffffff;
+$black: #000000;
+$gray: #6c757d;
+$light-gray: #f8f9fa;
+
+// Mixins
+@mixin gradient-bg {
+  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+}
+
+@mixin gradient-text {
+  background: linear-gradient(90deg, $primary, $secondary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@mixin transition($property: all, $duration: 0.3s, $easing: ease) {
+  transition: $property $duration $easing;
+}
+
+// Footer styles
+.footer {
+  margin-top: auto;
+  color: $white;
+  
+  .footer-main {
+    background: $dark;
+    padding: 4rem 0;
+    
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      
+      .footer-about {
+        .footer-brand {
+          display: flex;
+          align-items: center;
+          margin-bottom: 1.5rem;
+          
+          i {
+            font-size: 2rem;
+            margin-right: 0.75rem;
+            color: $primary;
+          }
+          
+          .brand-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            @include gradient-text;
+          }
+        }
+        
+        .footer-description {
+          opacity: 0.8;
+          margin-bottom: 1.5rem;
+          line-height: 1.6;
+        }
+        
+        .social-links {
+          display: flex;
+          gap: 0.75rem;
+          
+          .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: $white;
+            @include transition;
+            
+            i {
+              font-size: 1rem;
+            }
+            
+            &.facebook {
+              background: #3b5998;
+              
+              &:hover {
+                background: color.adjust(#3b5998, $lightness: -10%);
+                transform: translateY(-3px);
+              }
+            }
+            
+            &.twitter {
+              background: #1da1f2;
+              
+              &:hover {
+                background: color.adjust(#1da1f2, $lightness: -10%);
+                transform: translateY(-3px);
+              }
+            }
+            
+            &.linkedin {
+              background: #0077b5;
+              
+              &:hover {
+                background: color.adjust(#0077b5, $lightness: -10%);
+                transform: translateY(-3px);
+              }
+            }
+            
+            &.instagram {
+              background: linear-gradient(45deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d);
+              
+              &:hover {
+                transform: translateY(-3px);
+              }
+            }
+            
+            &.youtube {
+              background: #ff0000;
+              
+              &:hover {
+                background: color.adjust(#ff0000, $lightness: -10%);
+                transform: translateY(-3px);
+              }
+            }
+          }
+        }
+      }
+      
+      .footer-links, .footer-modules, .footer-contact {
+        h4.footer-title {
+          font-size: 1.2rem;
+          font-weight: 600;
+          margin-bottom: 1.5rem;
+          position: relative;
+          padding-bottom: 0.75rem;
+          
+          &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            @include gradient-bg;
+          }
+        }
+        
+        ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          
+          li {
+            margin-bottom: 0.75rem;
+            
+            a {
+              color: rgba($white, 0.8);
+              text-decoration: none;
+              @include transition;
+              
+              &:hover {
+                color: $primary;
+                padding-left: 5px;
+              }
+            }
+            
+            i {
+              width: 1.25rem;
+              color: $primary;
+              margin-right: 0.75rem;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  .footer-bottom {
+    background: color.adjust($dark, $lightness: -5%);
+    padding: 1.5rem 0;
+    
+    .footer-bottom-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      
+      .copyright {
+        margin-bottom: 1rem;
+        opacity: 0.7;
+        font-size: 0.9rem;
+      }
+      
+      .legal-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+        
+        a {
+          color: rgba($white, 0.7);
+          text-decoration: none;
+          font-size: 0.9rem;
+          @include transition;
+          
+          &:hover {
+            color: $primary;
+          }
+        }
+      }
+    }
+  }
+  
+  .back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    @include gradient-bg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $white;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    @include transition;
+    z-index: 999;
+    
+    i {
+      font-size: 1.2rem;
+    }
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba($primary, 0.4);
+    }
+    
+    &.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+}
+
+// Media Queries
+@media (min-width: 768px) {
+  .footer {
+    .footer-bottom {
+      .footer-bottom-content {
+        flex-direction: row;
+        justify-content: space-between;
+        text-align: left;
+        
+        .copyright {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}
+
+// Mostrar botón de volver arriba cuando se hace scroll
+.show-back-to-top {
+  .back-to-top {
+    opacity: 1;
+    visibility: visible;
+  }
+}

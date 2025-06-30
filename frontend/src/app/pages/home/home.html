@@ -1,0 +1,164 @@
+<div class="page-wrapper">
+  <!-- Navbar -->
+  <app-navbar></app-navbar>
+
+  <!-- Hero Section -->
+  <section class="hero-section" id="home">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1 class="hero-title">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Transforma tu <span class="highlight">gestión de eventos</span></span>
+          </h1>
+          <p class="hero-subtitle">La solución todo en uno para planificar, controlar y optimizar tus eventos</p>
+          
+          <div class="hero-features">
+            <div class="feature-item" *ngFor="let feature of heroFeatures">
+              <i class="fas fa-check-circle"></i>
+              <span>{{feature}}</span>
+            </div>
+          </div>
+          
+          <div class="hero-actions">
+            <button class="btn btn-primary btn-lg">
+              <i class="fas fa-play-circle"></i>
+              <span>Solicita una Demo</span>
+            </button>
+            <button class="btn btn-outline btn-lg">
+              <i class="fas fa-user-plus"></i>
+              <span>Regístrate Gratis</span>
+            </button>
+          </div>
+        </div>
+        
+        <div class="hero-card">
+          <div class="card-content">
+            <h3 class="card-title">
+              <i class="fas fa-rocket"></i>
+              <span>Impulsa tu productividad</span>
+            </h3>
+            
+            <ul class="card-features">
+              <li *ngFor="let item of cardItems">
+                <i class="fas fa-check"></i>
+                <span>{{item}}</span>
+              </li>
+            </ul>
+            
+            <div class="card-stats">
+              <div class="stat-item" *ngFor="let stat of stats">
+                <div class="stat-value">{{stat.value}}+</div>
+                <div class="stat-label">{{stat.label}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="scroll-down" (click)="scrollTo('features')">
+      <i class="fas fa-chevron-down"></i>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section" id="features">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="fas fa-puzzle-piece"></i>
+          <span>Potencia tu gestión de eventos</span>
+        </h2>
+        <p class="section-subtitle">Descubre cómo LogiEventos puede transformar tu manera de trabajar</p>
+      </div>
+      
+      <div class="features-grid">
+        <div class="feature-card" *ngFor="let feature of features" [class.highlight]="feature.highlight">
+          <div class="feature-icon">
+            <i class="fas fa-{{feature.icon}}"></i>
+          </div>
+          <h3 class="feature-title">{{feature.title}}</h3>
+          <ul class="feature-items">
+            <li *ngFor="let item of feature.items">
+              <i class="fas fa-check"></i>
+              <span>{{item}}</span>
+            </li>
+          </ul>
+          <a href="#" class="feature-link">
+            <span>Saber más</span>
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Demo Section -->
+  <section class="demo-section">
+    <div class="container">
+      <div class="demo-content">
+        <div class="demo-text">
+          <h2 class="demo-title">¿Cómo funciona LogiEventos?</h2>
+          <p class="demo-description">Descubre nuestra plataforma en acción con esta demostración interactiva</p>
+          
+          <div class="demo-steps">
+            <div class="step" *ngFor="let step of demoSteps" [class.active]="step.active">
+              <div class="step-number">{{step.number}}</div>
+              <div class="step-info">
+                <h4 class="step-title">{{step.title}}</h4>
+                <p class="step-description">{{step.description}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="demo-visual">
+          <div class="demo-placeholder">
+            <i class="fas fa-laptop-code"></i>
+            <p>Interfaz interactiva de LogiEventos</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-card">
+        <h2 class="cta-title">¿Listo para transformar tu gestión de eventos?</h2>
+        <p class="cta-text">Únete a miles de profesionales que ya optimizan sus eventos con LogiEventos</p>
+        
+        <div class="cta-actions">
+          <button class="btn btn-primary btn-lg">
+            <i class="fas fa-play-circle"></i>
+            <span>Solicita una Demo</span>
+          </button>
+          <button class="btn btn-outline btn-lg">
+            <i class="fas fa-user-plus"></i>
+            <span>Regístrate Gratis</span>
+          </button>
+        </div>
+        
+        <div class="trust-badges">
+          <div class="badge-item">
+            <i class="fas fa-shield-alt"></i>
+            <span>Seguridad garantizada</span>
+          </div>
+          <div class="badge-item">
+            <i class="fas fa-headset"></i>
+            <span>Soporte 24/7</span>
+          </div>
+          <div class="badge-item">
+            <i class="fas fa-thumbs-up"></i>
+            <span>95% Satisfacción</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <app-footer></app-footer>
+</div>
