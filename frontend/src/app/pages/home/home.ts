@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { NavbarComponent } from '../../shared/components/navbar/navbar';
 import { FooterComponent } from '../../shared/components/footer/footer';
 
@@ -35,7 +35,23 @@ interface Stat {
   templateUrl: './home.html',
   styleUrls: ['./home.scss']
 })
-export class Home {
+export class Home implements OnInit {
+
+  constructor(private route: ActivatedRoute) {}
+
+  ngOnInit() {
+    this.route.fragment.subscribe(fragment => {
+      if (fragment) {
+        setTimeout(() => {
+          const element = document.getElementById(fragment);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
+      }
+    });
+  }
+
   heroFeatures = [
     'Reducción de errores en un 90%',
     'Ahorro de tiempo en gestión',
@@ -125,6 +141,7 @@ export class Home {
       highlight: false
     }
   ];
+
 
   demoSteps: DemoStep[] = [
     {
