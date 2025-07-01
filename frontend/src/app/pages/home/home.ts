@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { NavbarComponent } from '../../shared/components/navbar/navbar';
 import { FooterComponent } from '../../shared/components/footer/footer';
+import { SharedModule } from '../../shared/shared-module';
 
 interface Feature {
   icon: string;
@@ -29,8 +30,7 @@ interface Stat {
   imports: [
     CommonModule,
     RouterModule,
-    NavbarComponent,
-    FooterComponent
+    SharedModule
   ],
   templateUrl: './home.html',
   styleUrls: ['./home.scss']

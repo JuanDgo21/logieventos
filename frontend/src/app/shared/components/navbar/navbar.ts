@@ -12,8 +12,8 @@ interface NavItem {
 
 @Component({
   selector: 'app-navbar',
-  standalone: true,
-  imports: [CommonModule, RouterModule],
+  standalone: false,
+  // imports: [CommonModule, RouterModule],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss'
 })

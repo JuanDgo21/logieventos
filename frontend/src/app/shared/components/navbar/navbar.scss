@@ -53,7 +53,7 @@ $black: #000000;
     text-decoration: none;
     @include transition;
     
-    i {
+    fa-icon {
       font-size: 1.8rem;
       margin-right: 0.5rem;
       color: $primary;
@@ -144,7 +144,7 @@ $black: #000000;
         text-decoration: none;
         @include transition;
         
-        i {
+        fa-icon {
           margin-right: 0.75rem;
           font-size: 1rem;
           width: 1.25rem;
@@ -201,7 +201,7 @@ $black: #000000;
       text-decoration: none;
       @include transition;
       
-      i {
+      fa-icon {
         margin-right: 0.5rem;
       }
       
