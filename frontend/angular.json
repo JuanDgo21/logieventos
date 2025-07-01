@@ -76,8 +76,8 @@
               "buildTarget": "frontend:build:production"
             },
             "development": {
-              "buildTarget": "frontend:build:development",
-              "port": 3000
+              "buildTarget": "frontend:build:development"
+             
             }
           },
           "defaultConfiguration": "development"
@@ -113,5 +113,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "579ecaf5-1746-4ddd-a396-7e87e1be3459"
   }
 }
