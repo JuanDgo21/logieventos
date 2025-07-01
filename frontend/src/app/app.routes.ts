@@ -29,5 +29,10 @@ export const routes: Routes = [
         path: 'users', 
         loadChildren: () => import('./modules/user-management/user-management-module').then(m => m.UserManagementModule) 
     },
+    { 
+        path: 'provider', 
+        loadChildren: () => import('./modules/provider/provider-module').then(m => m.ProviderModule) 
+    },
+
     { path: '**', redirectTo: '' } // Ruta comodín para 404
 ];

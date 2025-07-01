@@ -14,6 +14,7 @@ interface DecodedToken {
 
 interface UserData {
   email: string;
+  username?: string; // Nuevo campo para el nombre de usuario
   roles: string[];
 }
 
@@ -22,6 +23,22 @@ interface UserData {
 })
 export class AuthService {
   constructor(private http: HttpClient) { }
+
+  // Método para registro de usuarios
+  register(username: string, email: string, password: string): Observable<any> {
+    return this.http.post(`${environment.API_URL}${apiRouters.AUTH.SIGNUP}`, {
+      username,
+      email,
+      password,
+      role: 'lider' // Rol por defecto como se especifica
+    }).pipe(
+      tap((response: any) => {
+        if (response?.token) {
+          this.saveUserData(response);
+        }
+      })
+    );
+  }
 
   login(email: string, password: string): Observable<any> {
     return this.http.post(`${environment.API_URL}${apiRouters.AUTH.SIGNIN}`, {
@@ -37,25 +54,22 @@ export class AuthService {
   }
 
   private saveUserData(authResult: any): void {
-    // Decodificar el token para obtener los datos del usuario
     const decodedToken: DecodedToken = jwtDecode(authResult.token);
     
-    // Guardar en localStorage
     localStorage.setItem('token', authResult.token);
     localStorage.setItem('user', JSON.stringify({
-      email: authResult.user?.email || decodedToken.id, // Usar email de user o id como fallback
-      roles: [decodedToken.role] // El rol viene en el token decodificado
+      email: authResult.user?.email || decodedToken.id,
+      username: authResult.user?.username, // Guardar el nombre de usuario
+      roles: [decodedToken.role]
     }));
   }
 
   logout(): void {
-    // Limpiar localStorage al cerrar sesión
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   }
 
   isLoggedIn(): boolean {
-    // Verificar si existe token y no está expirado
     const token = localStorage.getItem('token');
     if (!token) return false;
 
@@ -72,6 +86,12 @@ export class AuthService {
     return user?.email || null;
   }
 
+  // Nuevo método para obtener el nombre de usuario
+  getCurrentUsername(): string | null {
+    const user = this.getUserData();
+    return user?.username || null;
+  }
+
   getUserRoles(): string[] {
     const user = this.getUserData();
     return user?.roles || [];
@@ -86,18 +106,15 @@ export class AuthService {
     return user ? JSON.parse(user) : null;
   }
 
-  // Método adicional para obtener el rol primario (útil cuando solo hay un rol)
   getPrimaryRole(): string | null {
     const roles = this.getUserRoles();
     return roles.length > 0 ? roles[0] : null;
   }
 
-  // Método para verificar si el usuario tiene un rol específico
   hasRole(role: string): boolean {
     return this.getUserRoles().includes(role);
   }
 
-  // Método para verificar si el usuario tiene alguno de los roles especificados
   hasAnyRole(roles: string[]): boolean {
     return this.getUserRoles().some(userRole => roles.includes(userRole));
   }

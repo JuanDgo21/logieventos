@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { AuthRoutingModule } from './auth-routing-module';
 import { LoginComponent } from './login/login';
-import { Register } from './register/register';
+import { RegisterComponent } from './register/register';
 import { PasswordRecovery } from './password-recovery/password-recovery';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
@@ -15,12 +15,13 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 @NgModule({
   declarations: [
     LoginComponent,
-    Register,
+    RegisterComponent,
     PasswordRecovery
   ],
   imports: [
     CommonModule,
     AuthRoutingModule,
+    RouterModule,
     ReactiveFormsModule,
     HttpClientModule,
     FontAwesomeModule
@@ -33,7 +34,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
   ],
   exports: [
     LoginComponent,
-    Register,
+    RegisterComponent,
     PasswordRecovery
   ]
 })
