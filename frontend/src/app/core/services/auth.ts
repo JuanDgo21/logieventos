@@ -3,143 +3,100 @@ import { ApiService } from './api';
 import { Router } from '@angular/router';
 import { BehaviorSubject, map, Observable, tap } from 'rxjs';
 import { apiRouters } from '../constants/apiRouters';
+import { JwtHelperService } from '@auth0/angular-jwt';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private currentUserSubject = new BehaviorSubject<any>(null);
-  public currentUser = this.currentUserSubject.asObservable();
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
-  public isAuthenticated = this.isAuthenticatedSubject.asObservable();
+  private currentUserSubject: BehaviorSubject<any>;
+  public currentUser: Observable<any>;
+  private jwtHelper = new JwtHelperService();
 
-  constructor(private apiService: ApiService, private router: Router) {
-    this.initializeAuthState();
+  constructor(
+    private apiService: ApiService,
+    private router: Router
+  ) {
+    // Inicializamos el BehaviorSubject con el usuario del localStorage si existe
+    const storedUser = localStorage.getItem('currentUser');
+    this.currentUserSubject = new BehaviorSubject<any>(storedUser ? JSON.parse(storedUser) : null);
+    this.currentUser = this.currentUserSubject.asObservable();
   }
 
-  /**
-   * Inicializa el estado de autenticación al cargar el servicio
-   */
-  private initializeAuthState(): void {
-    const userData = localStorage.getItem('currentUser');
-    const token = localStorage.getItem('token');
-
-    if (userData && token) {
-      this.currentUserSubject.next(JSON.parse(userData));
-      this.isAuthenticatedSubject.next(true);
-    }
+  // Obtener el valor actual del usuario
+  public get currentUserValue(): any {
+    return this.currentUserSubject.value;
   }
 
-  /**
-   * Realiza el login del usuario
-   * @param email Correo electrónico del usuario
-   * @param password Contraseña del usuario
-   * @returns Observable con la respuesta del servidor
-   */
-  login(email: string, password: string): Observable<any> {
-    return this.apiService.postObservable(apiRouters.AUTH.SIGNIN, { email, password }).pipe(
-      tap((response: any) => {
-        if (response.success && response.token && response.user) {
-          this.handleAuthenticationSuccess(response);
-        }
-      }),
-      map((response: any) => {
-        if (!response.success) {
-          throw new Error(response.message || 'Error en la autenticación');
-        }
-        return response;
-      })
-    );
-  }
-
-  /**
-   * Registra un nuevo usuario con rol Líder
-   * @param username Nombre de usuario
-   * @param email Correo electrónico
-   * @param password Contraseña
-   * @returns Promise con la respuesta del servidor
-   */
-  register(username: string, email: string, password: string): Promise<any> {
-    return this.apiService.postPromise(apiRouters.AUTH.SIGNUP, {
-      username,
-      email,
-      password,
-      role: 'lider' // Rol fijo para registros desde este formulario
-    }).then(response => {
-      if (response.success) {
-        return response;
-      }
-      throw new Error(response.message || 'Error en el registro');
+  // Método para login
+  login(email: string, password: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.apiService.postPromise(apiRouters.AUTH.SIGNIN, { email, password })
+        .then((response: any) => {
+          if (response.success && response.token) {
+            // Almacenar usuario y token en localStorage
+            localStorage.setItem('currentUser', JSON.stringify(response.user));
+            localStorage.setItem('token', response.token);
+            this.currentUserSubject.next(response.user);
+            resolve(response);
+          } else {
+            reject(new Error('Credenciales incorrectas'));
+          }
+        })
+        .catch(error => {
+          reject(error);
+        });
     });
   }
 
-  /**
-   * Cierra la sesión del usuario
-   */
+  // Método para registro
+  register(userData: any): Promise<any> {
+    return this.apiService.postPromise(apiRouters.AUTH.SIGNUP, userData);
+  }
+
+  // Método para logout
   logout(): void {
-    this.clearAuthData();
+    // Remover usuario y token del localStorage
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
+    this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
   }
 
-  /**
-   * Maneja el éxito en la autenticación
-   * @param response Respuesta del servidor
-   */
-  private handleAuthenticationSuccess(response: any): void {
-    const userData = {
-      id: response.user._id,
-      username: response.user.username,
-      email: response.user.email,
-      role: response.user.role
-    };
-
-    localStorage.setItem('token', response.token);
-    localStorage.setItem('currentUser', JSON.stringify(userData));
-    this.currentUserSubject.next(userData);
-    this.isAuthenticatedSubject.next(true);
+  // Verificar si el usuario está autenticado
+  isAuthenticated(): boolean {
+    const token = localStorage.getItem('token');
+    // Verificar que el token exista y no esté expirado
+    return !!token && !this.jwtHelper.isTokenExpired(token);
   }
 
-  /**
-   * Limpia los datos de autenticación
-   */
-  private clearAuthData(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('currentUser');
-    this.currentUserSubject.next(null);
-    this.isAuthenticatedSubject.next(false);
-  }
-
-  /**
-   * Obtiene el token JWT almacenado
-   * @returns Token JWT o null si no existe
-   */
+  // Obtener el token JWT
   getToken(): string | null {
     return localStorage.getItem('token');
   }
 
-  /**
-   * Obtiene el usuario actual
-   * @returns Datos del usuario o null si no está autenticado
-   */
-  getCurrentUser(): any {
-    return this.currentUserSubject.value;
+  // Obtener el rol del usuario actual
+  getCurrentUserRole(): string | null {
+    const user = this.currentUserValue;
+    return user ? user.role : null;
   }
 
-  /**
-   * Verifica si el usuario está autenticado
-   * @returns boolean indicando si el usuario está autenticado
-   */
-  isLoggedIn(): boolean {
-    return this.isAuthenticatedSubject.value;
+  // Obtener el ID del usuario actual
+  getCurrentUserId(): string | null {
+    const user = this.currentUserValue;
+    return user ? user._id : null;
   }
 
-  /**
-   * Verifica si el usuario tiene un rol específico
-   * @param role Rol a verificar
-   * @returns boolean indicando si el usuario tiene el rol
-   */
+  // Verificar si el usuario tiene un rol específico
   hasRole(role: string): boolean {
-    const user = this.currentUserSubject.value;
-    return user && user.role === role;
+    const userRole = this.getCurrentUserRole();
+    return userRole === role;
+  }
+
+  // Verificar si el token está expirado
+  isTokenExpired(): boolean {
+    const token = this.getToken();
+    return token ? this.jwtHelper.isTokenExpired(token) : true;
   }
 }
