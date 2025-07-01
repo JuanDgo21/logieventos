@@ -68,9 +68,9 @@ exports.createContract = async (req, res) => {
   try {
     // Extraer datos del cuerpo de la solicitud
     const {
-      event,
+      name,
       clientName,
-      clientContact,
+      clientPhone,
       clientEmail,
       startDate,
       endDate,
@@ -139,9 +139,9 @@ exports.createContract = async (req, res) => {
 
     // Crear nueva instancia de contrato con los datos recibidos
     const contract = new Contract({
-      event,
+      name,
       clientName,
-      clientContact,
+      clientPhone,
       clientEmail,
       startDate,
       endDate,
@@ -178,7 +178,7 @@ exports.updateContract = async (req, res) => {
     // Extraer datos del cuerpo de la solicitud
     const {
       clientName,
-      clientContact,
+      clientPhone,
       clientEmail,
       startDate,
       endDate,
@@ -195,7 +195,7 @@ exports.updateContract = async (req, res) => {
 
     // Asignar valores solo si vienen en la solicitud
     if (clientName) updateData.clientName = clientName;
-    if (clientContact) updateData.clientContact = clientContact;
+    if (clientPhone) updateData.clientContact = clientContact;
     if (clientEmail) updateData.clientEmail = clientEmail;
     if (startDate) updateData.startDate = startDate;
     if (endDate) updateData.endDate = endDate;
@@ -356,7 +356,7 @@ exports.generateContractReport = async (req, res) => {
     const report = {
       contractDetails: {
         clientName: contract.clientName,
-        clientContact: contract.clientContact,
+        clientPhone: contract.clientPhone,
         clientEmail: contract.clientEmail,
         startDate: contract.startDate,
         endDate: contract.endDate,

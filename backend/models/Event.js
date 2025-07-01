@@ -31,21 +31,21 @@ const eventSchema = new mongoose.Schema({
 
   // ID de tipo de evento (relación con EventType)
   eventType: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'EventType',
         required: [true, 'El tipo de evento es obligatorio']
   },
 
   // ID de contrato para la realizacion del evento (relación con Contract)
   contract: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Contract',
         required: [true, 'El contrato del evento es obligatorio']
   },
 
   // ID de responsable del evento (relación con User)
   responsable: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: [true, 'El responsable del evento es obligatorio']
   },

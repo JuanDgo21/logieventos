@@ -4,6 +4,13 @@ const bcrypt = require('bcryptjs');   // Para el hashing de contraseñas
 
 // Definición del esquema de usuario
 const userSchema = new mongoose.Schema({
+  // Campo 'document': Numero de documento unico y requerido
+  document: {
+    type: Number,
+    required: true,
+    unique: true,
+    trim: true
+  },
   // Campo 'username': Nombre de usuario único y requerido
   username: {
     type: String,       // Tipo de dato: String

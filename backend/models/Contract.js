@@ -3,11 +3,12 @@ const mongoose = require('mongoose');
 
 // Definición del esquema de Contrato
 const contractSchema = new mongoose.Schema({
-  // Referencia al evento asociado al contrato (obligatorio)
-  event: {
-    type: mongoose.Schema.Types.ObjectId,  // Tipo ObjectId para referencia
-    ref: 'Event',                          // Referencia al modelo Event
-    required: [true, 'El evento es obligatorio']  // Validación de requerido
+  // Nombre del contrato
+  name :{
+        type: String,
+        required: [true, 'El nombre es obligatorio'],
+        trim: true,
+        unique: true  
   },
 
   // Nombre del cliente (obligatorio)
@@ -17,17 +18,20 @@ const contractSchema = new mongoose.Schema({
     trim: true  // Elimina espacios en blanco al inicio y final
   },
 
-  // Contacto del cliente
-  clientContact: {
+  // Telefono del cliente
+  clientPhone: {
     type: String,
-    trim: true  // Elimina espacios en blanco
+    trim: true,  // Elimina espacios en blanco
+    match: [/^[+]?[(]?[0-9]{1,4}[)]?[-\s.][0-9]{1,4}[-\s.]?[0-9]{1,6}$/, 'Telefono no valido']
   },
 
   // Email del cliente
   clientEmail: {
     type: String,
+    required: true,
     trim: true,
-    lowercase: true  // Convierte el email a minúsculas automáticamente
+    lowercase: true,
+    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Email no valido']
   },
 
   // Fecha de inicio del contrato (obligatoria)
