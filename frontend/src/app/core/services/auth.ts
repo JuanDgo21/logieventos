@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { apiRouters } from '../../core/constants/apiRouters';
-// import jwt_decode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 interface DecodedToken {
   id: string;
@@ -38,7 +38,7 @@ export class AuthService {
 
   private saveUserData(authResult: any): void {
     // Decodificar el token para obtener los datos del usuario
-    const decodedToken: DecodedToken = jwt_decode(authResult.token);
+    const decodedToken: DecodedToken = jwtDecode(authResult.token);
     
     // Guardar en localStorage
     localStorage.setItem('token', authResult.token);
@@ -60,7 +60,7 @@ export class AuthService {
     if (!token) return false;
 
     try {
-      const decoded: DecodedToken = jwt_decode(token);
+      const decoded: DecodedToken = jwtDecode(token);
       return Date.now() < decoded.exp * 1000;
     } catch {
       return false;
