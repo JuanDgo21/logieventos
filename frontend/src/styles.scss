@@ -1,14 +1,40 @@
 /* Importación de Font Awesome */
 // @import '~@fortawesome/fontawesome-free/css/all.min.css';
 
+// @use 'sass:map';
+// @use 'sass:math';
+
+// // Variables globales
+// @use './assets/scss/variables' as *;
+// @use './assets/scss/mixins' as *;
+
+// Variables globales
 $primary: #3a7bd5;
 $secondary: #00d2ff;
 $white: #ffffff;
 $primary-color: #6c63ff;
 $text-color: #2d3748;
 $text-color-light: #718096;
+$dark: #1a1a2e;
+$gray: #718096;
 
-/* Estilos globales */
+// Mixins básicos
+@mixin transition($properties) {
+  transition: $properties;
+  -webkit-transition: $properties;
+  -moz-transition: $properties;
+  -ms-transition: $properties;
+  -o-transition: $properties;
+}
+
+@mixin gradient-text {
+  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Resto de tu styles.scss permanece igual */
 * {
   margin: 0;
   padding: 0;

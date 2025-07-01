@@ -1,102 +1,52 @@
 import { Injectable } from '@angular/core';
-import { ApiService } from './api';
-import { Router } from '@angular/router';
-import { BehaviorSubject, map, Observable, tap } from 'rxjs';
-import { apiRouters } from '../constants/apiRouters';
-import { JwtHelperService } from '@auth0/angular-jwt';
-
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { apiRouters } from '../../core/constants/apiRouters';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private currentUserSubject: BehaviorSubject<any>;
-  public currentUser: Observable<any>;
-  private jwtHelper = new JwtHelperService();
+  constructor(private http: HttpClient) { }
 
-  constructor(
-    private apiService: ApiService,
-    private router: Router
-  ) {
-    // Inicializamos el BehaviorSubject con el usuario del localStorage si existe
-    const storedUser = localStorage.getItem('currentUser');
-    this.currentUserSubject = new BehaviorSubject<any>(storedUser ? JSON.parse(storedUser) : null);
-    this.currentUser = this.currentUserSubject.asObservable();
+  login(email: string, password: string): Observable<any> {
+    return this.http.post(`${environment.API_URL}${apiRouters.AUTH.SIGNIN}`, {
+      email,
+      password
+    }).pipe(
+      tap((response: any) => {
+        if (response?.token) {
+          this.saveUserData(response);
+        }
+      })
+    );
   }
 
-  // Obtener el valor actual del usuario
-  public get currentUserValue(): any {
-    return this.currentUserSubject.value;
+  private saveUserData(authResult: any): void {
+    localStorage.setItem('token', authResult.token);
+    localStorage.setItem('user', JSON.stringify({
+      email: authResult.email,
+      roles: authResult.roles
+    }));
   }
 
-  // Método para login
-  login(email: string, password: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.apiService.postPromise(apiRouters.AUTH.SIGNIN, { email, password })
-        .then((response: any) => {
-          if (response.success && response.token) {
-            // Almacenar usuario y token en localStorage
-            localStorage.setItem('currentUser', JSON.stringify(response.user));
-            localStorage.setItem('token', response.token);
-            this.currentUserSubject.next(response.user);
-            resolve(response);
-          } else {
-            reject(new Error('Credenciales incorrectas'));
-          }
-        })
-        .catch(error => {
-          reject(error);
-        });
-    });
-  }
-
-  // Método para registro
-  register(userData: any): Promise<any> {
-    return this.apiService.postPromise(apiRouters.AUTH.SIGNUP, userData);
-  }
-
-  // Método para logout
   logout(): void {
-    // Remover usuario y token del localStorage
-    localStorage.removeItem('currentUser');
     localStorage.removeItem('token');
-    this.currentUserSubject.next(null);
-    this.router.navigate(['/login']);
+    localStorage.removeItem('user');
   }
 
-  // Verificar si el usuario está autenticado
-  isAuthenticated(): boolean {
-    const token = localStorage.getItem('token');
-    // Verificar que el token exista y no esté expirado
-    return !!token && !this.jwtHelper.isTokenExpired(token);
+  isLoggedIn(): boolean {
+    return !!localStorage.getItem('token');
   }
 
-  // Obtener el token JWT
-  getToken(): string | null {
-    return localStorage.getItem('token');
+  getCurrentUserEmail(): string | null {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user).email : null;
   }
 
-  // Obtener el rol del usuario actual
-  getCurrentUserRole(): string | null {
-    const user = this.currentUserValue;
-    return user ? user.role : null;
-  }
-
-  // Obtener el ID del usuario actual
-  getCurrentUserId(): string | null {
-    const user = this.currentUserValue;
-    return user ? user._id : null;
-  }
-
-  // Verificar si el usuario tiene un rol específico
-  hasRole(role: string): boolean {
-    const userRole = this.getCurrentUserRole();
-    return userRole === role;
-  }
-
-  // Verificar si el token está expirado
-  isTokenExpired(): boolean {
-    const token = this.getToken();
-    return token ? this.jwtHelper.isTokenExpired(token) : true;
+  getUserRoles(): string[] {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user).roles : [];
   }
 }
