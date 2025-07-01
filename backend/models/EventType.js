@@ -72,7 +72,7 @@ const eventTypeSchema = new mongoose.Schema({
   },
 
   // Requisitos para este tipo de evento
-  Additionalrequirements: {
+  additionalRequirements: {
     type: [String], // Array de strings
     default: [] // Array vacío por defecto
   },
@@ -82,7 +82,7 @@ const eventTypeSchema = new mongoose.Schema({
     type: Boolean, // Tipo Boolean
     default: true // Valor por defecto: true (activo)
   }
-  
+
 }, { 
   // Opciones adicionales del esquema:
   timestamps: true // Añade automáticamente createdAt y updatedAt

@@ -85,7 +85,7 @@ exports.createEventType = async (req, res) => {
     }
 
     // Extraer datos del cuerpo de la solicitud
-    const { name, description, category, requirements } = req.body;
+    const { name, description, defaultResources, requiredPersonnelType, estimatedDuration, category, additionalRequirements, active } = req.body;
 
     // Validar campos obligatorios
     if (!name || !category) {
@@ -109,8 +109,11 @@ exports.createEventType = async (req, res) => {
     const eventType = new EventType({
       name,
       description,
+      defaultResources,
+      requiredPersonnelType,
+      estimatedDuration,
       category,
-      requirements: requirements || [], // Array vacío si no se especifica
+      additionalRequirements: additionalRequirements || [], // Array vacío si no se especifica
       createdBy: req.userId, // Asignar usuario creador
       active: true // Activo por defecto al crear
     });
@@ -158,13 +161,16 @@ exports.updateEventType = async (req, res) => {
     }
 
     // Extraer datos del cuerpo de la solicitud
-    const { name, description, category, requirements, active } = req.body;
+    const { name, description, defaultResources, requiredPersonnelType, estimatedDuration, category, additionalRequirements, active } = req.body;
     const updateData = {}; // Objeto para almacenar los campos a actualizar
     
     // Preparar datos a actualizar
     if (name) updateData.name = name;
     if (description) updateData.description = description;
-    if (requirements) updateData.requirements = requirements;
+    if (defaultResources) updateData.defaultResources = defaultResources;
+    if (requiredPersonnelType) updateData.requiredPersonnelType = requiredPersonnelType;
+    if (estimatedDuration) updateData.estimatedDuration = estimatedDuration;
+    if (additionalRequirements) updateData.additionalRequirements = additionalRequirements;
     
     // Validación especial para coordinadores (no pueden cambiar estado)
     if (typeof active !== 'undefined') {

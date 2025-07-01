@@ -1,5 +1,7 @@
 const Event = require('../models/Event');
 const EventType = require('../models/EventType');
+const Contract = require('../models/Contract');
+const User = require('../models/User');
 
 /**
  * Controlador: Obtener todos los eventos
@@ -88,7 +90,7 @@ exports.createEvent = async (req, res) => {
     }
 
     // Extraer datos del cuerpo de la solicitud
-    const { name, description, startDate, endDate, location, eventType, budget } = req.body;
+    const { name, description, location, eventType, contract, responsable, startDate, endDate, status, createdBy } = req.body;
     
     // Validar campos obligatorios
     if (!name || !startDate || !endDate || !eventType) {
@@ -119,11 +121,12 @@ exports.createEvent = async (req, res) => {
     const event = new Event({
       name,
       description,
-      startDate,
-      endDate,
       location,
       eventType,
-      budget: budget || 0, // Presupuesto opcional (0 por defecto)
+      contract,
+      responsable,
+      startDate,
+      endDate,
       status: 'activo', // Estado por defecto
       createdBy: req.userId // Asignar usuario creador
     });
@@ -170,14 +173,13 @@ exports.updateEvent = async (req, res) => {
     }
 
     // Extraer datos del cuerpo de la solicitud
-    const { name, description, startDate, endDate, location, eventType, budget, status } = req.body;
+    const { name, description, location, eventType, contract, responsable, startDate, endDate, status, createdBy } = req.body;
     const updateData = {}; // Objeto para almacenar los campos a actualizar
     
     // Preparar datos a actualizar
     if (name) updateData.name = name;
     if (description) updateData.description = description;
     if (location) updateData.location = location;
-    if (budget) updateData.budget = budget;
     
     // Validación especial para coordinadores (no pueden cambiar estado)
     if (status) {
@@ -220,6 +222,31 @@ exports.updateEvent = async (req, res) => {
       }
       updateData.eventType = eventType;
     }
+
+    // Validar contrato si se está actualizando
+    if (contract) {
+      const contractExists = await contract.findById(Contract);
+      if (!contractExists) {
+        return res.status(404).json({
+          success: false,
+          message: 'El contrato especificado no existe'
+        });
+      }
+      updateData.contract = contract;
+    }
+
+    // Validar tipo de evento si se está actualizando
+    if (responsable) {
+      const responsableExists = await responsable.findById(User);
+      if (!responsableExists) {
+        return res.status(404).json({
+          success: false,
+          message: 'El usuario especificado no existe'
+        });
+      }
+      updateData.responsable = responsable;
+    }
+
 
     // Buscar y actualizar el evento
     const updatedEvent = await Event.findByIdAndUpdate(

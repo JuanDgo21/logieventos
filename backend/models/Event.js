@@ -22,6 +22,34 @@ const eventSchema = new mongoose.Schema({
     trim: true // Elimina espacios en blanco
   },
 
+  // Ubicación física del evento
+  location: {
+    type: String, // Tipo String
+    required: [true, 'La ubicación es obligatoria'], // Campo obligatorio
+    trim: true // Elimina espacios en blanco
+  },
+
+  // ID de tipo de evento (relación con EventType)
+  eventType: {
+        type: Schema.Types.ObjectId,
+        ref: 'EventType',
+        required: [true, 'El tipo de evento es obligatorio']
+  },
+
+  // ID de contrato para la realizacion del evento (relación con Contract)
+  contract: {
+        type: Schema.Types.ObjectId,
+        ref: 'Contract',
+        required: [true, 'El contrato del evento es obligatorio']
+  },
+
+  // ID de responsable del evento (relación con User)
+  responsable: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: [true, 'El responsable del evento es obligatorio']
+  },
+
   // Fecha y hora de inicio del evento
   startDate: {
     type: Date, // Tipo Date
@@ -34,20 +62,6 @@ const eventSchema = new mongoose.Schema({
     required: [true, 'La fecha de fin es obligatoria'] // Campo obligatorio
   },
 
-  // Ubicación física del evento
-  location: {
-    type: String, // Tipo String
-    required: [true, 'La ubicación es obligatoria'], // Campo obligatorio
-    trim: true // Elimina espacios en blanco
-  },
-
-  // Tipo de evento (relación con EventType)
-  eventType: {
-    type: mongoose.Schema.Types.ObjectId, // Referencia a ID
-    ref: 'EventType', // Modelo relacionado
-    required: [true, 'El tipo de evento es obligatorio'] // Campo obligatorio
-  },
-
   // Estado actual del evento
   status: {
     type: String, // Tipo String
@@ -58,12 +72,6 @@ const eventSchema = new mongoose.Schema({
       'cancelado'      // Evento cancelado
     ],
     default: 'planificado' // Valor por defecto
-  },
-
-  // Presupuesto asignado al evento
-  budget: {
-    type: Number, // Tipo Number
-    min: [0, 'El presupuesto no puede ser negativo'] // Valor mínimo 0
   },
 
   // Usuario que creó el evento

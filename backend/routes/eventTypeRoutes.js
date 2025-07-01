@@ -15,13 +15,13 @@ const { authJwt, role } = require('../middlewares'); // Importa middlewares de a
  * POST / - Crear nuevo tipo de evento
  * Requiere:
  *  - Autenticación JWT válida
- *  - Rol de administrador
+ *  - Rol de administrador o de coordinador
  * Controlador: createEventType
  */
 router.post('/', 
   [
     authJwt.verifyToken, // Verifica token JWT
-    role.isAdmin // Valida que el usuario sea admin
+    role.isAdmin || role.isCoordinador // Valida que el usuario sea admin
   ], 
   eventTypeController.createEventType // Controlador de creación
 );
@@ -54,13 +54,13 @@ router.get('/:id',
  * PUT /:id - Actualizar tipo de evento
  * Requiere:
  *  - Autenticación JWT válida
- *  - Rol de administrador
+ *  - Rol de administrador y coordinador
  * Controlador: updateEventType
  */
 router.put('/:id', 
   [
     authJwt.verifyToken, // Verifica token JWT
-    role.isAdmin // Valida que el usuario sea admin
+    role.isAdmin || role.isCoordinador// Valida que el usuario sea admin
   ], 
   eventTypeController.updateEventType // Controlador de actualización
 );

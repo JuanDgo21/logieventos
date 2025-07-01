@@ -42,10 +42,10 @@ const contractSchema = new mongoose.Schema({
     required: [true, 'La fecha de fin es obligatoria']
   },
 
-  // Monto total del contrato
-  totalAmount: {
-    type: Number,
-    min: [0, 'El monto total no puede ser negativo']  // Validación de valor mínimo
+  // Presupuesto asignado al evento
+  budget: {
+    type: Number, // Tipo Number
+    min: [0, 'El presupuesto no puede ser negativo'] // Valor mínimo 0
   },
 
   // Estado del contrato con valores predefinidos
