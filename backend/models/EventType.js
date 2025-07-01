@@ -22,6 +22,42 @@ const eventTypeSchema = new mongoose.Schema({
     trim: true // Elimina espacios en blanco
   },
 
+  // Recursos necesarios predeterminados para este tipo de evento
+  defaultResources: [{
+    resourceType: {
+      type: String, // Tipo String
+      enum: ['sonido', 'mobiliario', 'catering', 'iluminacion', 'otros'], // Valores permitidos
+      required: true // Campo obligatorio
+    },
+    description: {
+      type: String, // Tipo String
+      required: true // Campo obligatorio
+    },
+    defaultQuantity: {
+      type: Number, // Tipo numero
+      default: 1, // Lo predeterminado es 1
+      min: 1 // El minimo es 1
+    }
+  }],
+
+  // Tipo de Personal Requerido
+  requiredPersonnelType: {
+    type: mongoose.Schema.Types.ObjectId, // ID de referencia
+    ref: 'PersonnelType', // Modelo relacionado
+    required: [true, 'El tipo de personal es obligatorio'] // Campo obligatorio
+  },
+
+  // Duracion estimada del tipo de evento
+  estimatedDuration: { 
+    type: Number, // Tipo numero
+    min: 1, // Duración estimada en horas
+    max: 24, // Ejemplo: máximo 24 horas
+    validate: {
+      validator: Number.isInteger, // Valida si el numero es entero
+      message: 'La duración debe ser un número entero'
+    }
+  },
+
   // Categoría del evento (valores predefinidos)
   category: {
     type: String, // Tipo String
@@ -36,7 +72,7 @@ const eventTypeSchema = new mongoose.Schema({
   },
 
   // Requisitos para este tipo de evento
-  requirements: {
+  Additionalrequirements: {
     type: [String], // Array de strings
     default: [] // Array vacío por defecto
   },
@@ -45,14 +81,8 @@ const eventTypeSchema = new mongoose.Schema({
   active: {
     type: Boolean, // Tipo Boolean
     default: true // Valor por defecto: true (activo)
-  },
-
-  // Usuario que creó el tipo de evento
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId, // Referencia a ID
-    ref: 'User', // Modelo relacionado (User)
-    required: true // Campo obligatorio
   }
+  
 }, { 
   // Opciones adicionales del esquema:
   timestamps: true // Añade automáticamente createdAt y updatedAt
