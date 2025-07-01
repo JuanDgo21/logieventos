@@ -137,7 +137,8 @@ const signin = async (req, res) => {
       success: true,
       message: "Autenticación exitosa",
       token, // Token generado
-      user: userData // Datos del usuario (sin password)
+      user: userData, // Datos del usuario (sin password)
+      role: user.role
     });
 
   } catch (error) {
