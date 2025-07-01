@@ -10,6 +10,11 @@
 /node_modules
 npm-debug.log
 yarn-error.log
+# Ignora archivos ejecutables en node_modules/bin
+node_modules/bin/*
+node_modules/**/*.cmd
+node_modules/**/*.ps1
+node_modules/**/*.sh
 
 # IDEs and editors
 .idea/
