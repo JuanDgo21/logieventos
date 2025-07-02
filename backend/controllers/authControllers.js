@@ -7,7 +7,7 @@ const config = require('../config/auth.config'); // Configuración de autenticac
  * Función para registrar nuevos usuarios
  * Valida los datos, crea el usuario y genera un token JWT
  */
-const register = async (req, res) => {
+const signup = async (req, res) => {
   try {
     // Validación del nombre de usuario
     if (!req.body.username || req.body.username.trim() === '') {
@@ -89,7 +89,7 @@ const register = async (req, res) => {
  * Función para autenticar usuarios existentes
  * Verifica credenciales y genera token JWT si son válidas
  */
-const login = async (req, res) => {
+const signin = async (req, res) => {
   try {
     const { email, password } = req.body;
     

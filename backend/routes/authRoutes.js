@@ -15,12 +15,12 @@ const { verifySignup } = require('../middlewares');
  * 
  * PATH: POST /api/auth/signup
  */
-router.post('/register', 
+router.post('/signup', 
   [
     verifySignup.checkDuplicateUsernameOrEmail, // Middleware: Evita usuarios duplicados
     verifySignup.checkRolesExisted              // Middleware: Valida que el rol exista
   ], 
-  authController.register                         // Controlador que maneja el registro
+  authController.signup                         // Controlador que maneja el registro
 );
 
 /**
@@ -30,11 +30,7 @@ router.post('/register',
  * 
  * No requiere middlewares previos, el controlador valida las credenciales
  */
-router.post('/login', authController.login);  // Controlador de autenticación directo
-
-//nuevos
-router.post('/forgot-password', authController.forgotPassword);
-router.post('/reset-password', authController.resetPassword);
+router.post('/signin', authController.signin);  // Controlador de autenticación directo
 
 // Exportar el router configurado con las rutas
 module.exports = router;
