@@ -79,7 +79,7 @@ exports.getPersonnelTypeById = async (req, res) => {
 exports.createPersonnelType = async (req, res) => {
   try {
     // Validar rol del usuario
-    if (req.userRole !== 'admin' && req.userRole !== 'coordi') {
+    if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
       return res.status(403).json({
         success: false,
         message: 'Solo administradores y coordinadores pueden crear tipos de personal'
@@ -90,7 +90,7 @@ exports.createPersonnelType = async (req, res) => {
     const { name, description, rate } = req.body;
 
     // Validar campos obligatorios
-    if (!name || !rate) {
+    if (!name) {
       return res.status(400).json({
         success: false,
         message: 'Nombre y tarifa son campos obligatorios'
@@ -141,7 +141,7 @@ exports.createPersonnelType = async (req, res) => {
 exports.updatePersonnelType = async (req, res) => {
   try {
     // Validar rol del usuario
-    if (req.userRole !== 'admin' && req.userRole !== 'coordi') {
+    if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
       return res.status(403).json({
         success: false,
         message: 'Solo administradores y coordinadores pueden actualizar tipos de personal'
@@ -161,7 +161,7 @@ exports.updatePersonnelType = async (req, res) => {
     
     // Validación especial para coordinadores (no pueden cambiar estado)
     if (typeof isActive !== 'undefined') {
-      if (req.userRole === 'coordi') {
+      if (req.userRole === 'coordinador') {
         return res.status(403).json({
           success: false,
           message: 'Coordinadores no pueden cambiar el estado de los tipos de personal'

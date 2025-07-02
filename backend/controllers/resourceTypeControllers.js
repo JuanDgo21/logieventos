@@ -78,7 +78,7 @@ exports.getResourceTypeById = async (req, res) => {
 exports.createResourceType = async (req, res) => {
   try {
     // Validación de rol: Verifica si el usuario es admin o coordinador
-    if (req.userRole !== 'admin' && req.userRole !== 'coordi') {
+    if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
       return res.status(403).json({ 
         success: false, 
         message: "Solo administradores y coordinadores pueden crear tipos de recurso" 
@@ -143,7 +143,7 @@ exports.createResourceType = async (req, res) => {
 exports.updateResourceType = async (req, res) => {
   try {
     // Validación: Coordinadores no pueden modificar el campo 'active'
-    if (req.userRole === 'coordi' && typeof req.body.active !== 'undefined') {
+    if (req.userRole === 'coordinador' && typeof req.body.active !== 'undefined') {
       return res.status(403).json({
         success: false,
         message: 'Coordinadores no pueden desactivar tipos de recurso'

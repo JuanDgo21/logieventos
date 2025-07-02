@@ -52,7 +52,8 @@ const personnelSchema = new mongoose.Schema({
       'vacaciones',  // De vacaciones
       'inactivo'     // No disponible (baja, licencia, etc.)
     ],
-    default: 'disponible' // Valor por defecto
+    default: 'disponible', // Valor por defecto
+    lowercase: true // Convierte cualquier valor en miniscula
   },
 
   // Habilidades/habilidades del personal

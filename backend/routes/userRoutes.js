@@ -25,7 +25,7 @@ router.post('/',
 router.get('/', 
   [
     authJwt.verifyToken,           // Verifica token
-    role.isAdmin                   // Middleware: Solo admin puede acceder
+    role.checkRole(['admin', 'coordinador'])                 // Middleware: Solo admin puede acceder
   ], 
   userController.getAllUsers       // Controlador: Obtiene todos los usuarios
 );

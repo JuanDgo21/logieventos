@@ -6,37 +6,38 @@ exports.getAllUsers = async (req, res) => {
   console.log('Iniciando getAllUsers');
   try {
     console.log('Validando rol de usuario');
-    // Verifica si el usuario que hace la solicitud es un administrador
-    if (req.userRole !== 'admin') {
-      console.log('Acceso denegado: El usuario no es admin');
-      return res.status(403).json({
-        success: false, 
-        message: 'Solo administradores pueden ver todos los usuarios'
-      });
+
+    let users; // ✅ Declaración de la variable antes de usarla
+
+    if (req.userRole === 'auxiliar') {
+      // Solo ve su propio usuario
+      users = await User.find({ _id: req.userId }).select('-password');
+    } else if (req.userRole === 'coordinador') {
+      // Ve a todos menos los administradores
+      users = await User.find({ role: { $ne: 'admin' } }).select('-password');
+    } else {
+      // Admin ve todos los usuarios
+      users = await User.find().select('-password');
     }
 
-    console.log('Buscando todos los usuarios en la base de datos');
-    // Busca todos los usuarios excluyendo el campo de contraseña por seguridad
-    const users = await User.find().select('-password');
-    
     console.log('Usuarios encontrados:', users.length);
-    // Devuelve la lista de usuarios
+
     res.status(200).json({
-      success: true, 
-      data: users 
+      success: true,
+      data: users
     });
   } catch (error) {
     console.error('Error en getAllUsers:', error.message);
-    // Manejo de errores generales
     res.status(500).json({
-      success: false, 
+      success: false,
       message: 'Error al obtener usuarios',
-      error: error.message 
+      error: error.message
     });
   } finally {
     console.log('Finalizada ejecución de getAllUsers');
   }
 };
+
 
 // Controlador para obtener un usuario específico por ID
 exports.getUserById = async (req, res) => {

@@ -77,6 +77,13 @@ const eventTypeSchema = new mongoose.Schema({
     default: [] // Array vacío por defecto
   },
 
+    // Campo createdBy: Referencia al usuario que creó el registro
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId, // Tipo ObjectId (referencia)
+      ref: 'User', // Modelo relacionado (User)
+      required: true // Campo obligatorio
+    },
+
   // Estado del tipo de evento (activo/inactivo)
   active: {
     type: Boolean, // Tipo Boolean

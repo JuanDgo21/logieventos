@@ -77,7 +77,7 @@ exports.getEventTypeById = async (req, res) => {
 exports.createEventType = async (req, res) => {
   try {
     // Validar rol del usuario
-    if (req.userRole !== 'admin' && req.userRole !== 'coordi') {
+    if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
       return res.status(403).json({
         success: false,
         message: 'Solo administradores y coordinadores pueden crear tipos de evento'
@@ -153,7 +153,7 @@ exports.createEventType = async (req, res) => {
 exports.updateEventType = async (req, res) => {
   try {
     // Validar rol del usuario
-    if (req.userRole !== 'admin' && req.userRole !== 'coordi') {
+    if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
       return res.status(403).json({
         success: false,
         message: 'Solo administradores y coordinadores pueden actualizar tipos de evento'

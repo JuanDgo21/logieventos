@@ -21,7 +21,7 @@ const { authJwt, role } = require('../middlewares'); // Importa middlewares de a
 router.post('/', 
   [
     authJwt.verifyToken, // Verifica token JWT
-    role.isAdmin // Valida que el usuario sea admin
+    role.checkRole(['admin', 'coordinador'])
   ], 
   providerTypeController.createProviderType // Controlador de creación
 );
@@ -60,7 +60,7 @@ router.get('/:id',
 router.put('/:id', 
   [
     authJwt.verifyToken, // Verifica token JWT
-    role.isAdmin // Valida que el usuario sea admin
+    role.checkRole(['admin', 'coordinador'])
   ], 
   providerTypeController.updateProviderType // Controlador de actualización
 );

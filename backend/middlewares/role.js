@@ -5,6 +5,7 @@
  */
 const checkRole = (allowedRoles) => {
   return (req, res, next) => {
+    console.log('[RoleCheck] userRole recibido:', req.userRole);
     // 1. Verificación de seguridad básica
     if (!req.userRole) {
       console.error('[RoleCheck] Error: userRole no está definido en el request');

@@ -79,7 +79,7 @@ exports.getPersonnelById = async (req, res) => {
 exports.createPersonnel = async (req, res) => {
   try {
     // Validar rol del usuario
-    if (req.userRole !== 'admin' && req.userRole !== 'coordi') {
+    if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
       return res.status(403).json({
         success: false,
         message: 'Solo administradores y coordinadores pueden crear personal'
@@ -114,7 +114,7 @@ exports.createPersonnel = async (req, res) => {
       phone,
       personnelType,
       skills: skills || [], // Habilidades opcionales (array vacío por defecto)
-      status: 'activo' // Estado por defecto
+      status: 'disponible' // Estado por defecto
     });
 
     // Guardar en la base de datos
@@ -152,7 +152,7 @@ exports.createPersonnel = async (req, res) => {
 exports.updatePersonnel = async (req, res) => {
   try {
     // Validar rol del usuario
-    if (req.userRole !== 'admin' && req.userRole !== 'coordi') {
+    if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
       return res.status(403).json({
         success: false,
         message: 'Solo administradores y coordinadores pueden actualizar personal'
@@ -172,7 +172,7 @@ exports.updatePersonnel = async (req, res) => {
     
     // Validación especial para coordinadores (no pueden cambiar estado)
     if (status) {
-      if (req.userRole === 'coordi') {
+      if (req.userRole === 'coordinador') {
         return res.status(403).json({
           success: false,
           message: 'Coordinadores no pueden cambiar el estado del personal'

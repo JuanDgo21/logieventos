@@ -115,7 +115,7 @@ exports.getResourceById = async (req, res) => {
 exports.createResource = async (req, res) => {
   try {
     // Validación de rol
-    if (req.userRole !== 'admin' && req.userRole !== 'coordi') {
+    if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
       return res.status(403).json({
         success: false,
         message: 'Solo administradores y coordinadores pueden crear recursos'
@@ -179,7 +179,7 @@ exports.createResource = async (req, res) => {
 exports.updateResource = async (req, res) => {
   try {
     // Validación de rol
-    if (req.userRole !== 'admin' && req.userRole !== 'coordi') {
+    if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
       return res.status(403).json({
         success: false,
         message: 'Solo administradores y coordinadores pueden actualizar recursos'

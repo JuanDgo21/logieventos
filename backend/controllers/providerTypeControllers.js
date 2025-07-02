@@ -76,7 +76,7 @@ exports.getProviderTypeById = async (req, res) => {
 exports.createProviderType = async (req, res) => {
   try {
     // Validar rol del usuario
-    if (req.userRole !== 'admin' && req.userRole !== 'coordi') {
+    if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
       return res.status(403).json({
         success: false,
         message: 'Solo administradores y coordinadores pueden crear tipos de proveedor'
@@ -136,7 +136,7 @@ exports.createProviderType = async (req, res) => {
 exports.updateProviderType = async (req, res) => {
   try {
     // Validar rol del usuario
-    if (req.userRole !== 'admin' && req.userRole !== 'coordi') {
+    if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
       return res.status(403).json({
         success: false,
         message: 'Solo administradores y coordinadores pueden actualizar tipos de proveedor'
@@ -153,7 +153,7 @@ exports.updateProviderType = async (req, res) => {
     
     // Validación especial para coordinadores (no pueden cambiar estado)
     if (typeof isActive !== 'undefined') {
-      if (req.userRole === 'coordi') {
+      if (req.userRole === 'coordinador') {
         return res.status(403).json({
           success: false,
           message: 'Coordinadores no pueden cambiar el estado de los tipos de proveedor'
