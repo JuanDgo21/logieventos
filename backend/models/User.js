@@ -11,6 +11,12 @@ const userSchema = new mongoose.Schema({
     unique: true,
     trim: true
   },
+  // Campo 'fullName': nombre completo
+  fullname: {
+    type: String,
+    required: true,
+    trim: true
+  },
   // Campo 'username': Nombre de usuario único y requerido
   username: {
     type: String,       // Tipo de dato: String

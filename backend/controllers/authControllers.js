@@ -7,7 +7,7 @@ const config = require('../config/auth.config'); // Configuración de autenticac
  * Función para registrar nuevos usuarios
  * Valida los datos, crea el usuario y genera un token JWT
  */
-const signup = async (req, res) => {
+const register = async (req, res) => {
   try {
     // Validación del nombre de usuario
     if (!req.body.username || req.body.username.trim() === '') {
@@ -20,6 +20,8 @@ const signup = async (req, res) => {
 
     // Creación de nuevo usuario con datos del request
     const user = new User({
+      document: req.body.document,
+      fullname: req.body.fullname,
       username: req.body.username.trim(), // Elimina espacios
       email: req.body.email.toLowerCase().trim(), // Normaliza email
       password: req.body.password, // La encriptación se maneja en el modelo (pre-save hook)
@@ -87,7 +89,7 @@ const signup = async (req, res) => {
  * Función para autenticar usuarios existentes
  * Verifica credenciales y genera token JWT si son válidas
  */
-const signin = async (req, res) => {
+const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     
@@ -153,6 +155,6 @@ const signin = async (req, res) => {
 
 // Exportar funciones del controlador
 module.exports = {
-  signup, // Función de registro
-  signin  // Función de autenticación
+  register, // Función de registro
+  login  // Función de autenticación
 };

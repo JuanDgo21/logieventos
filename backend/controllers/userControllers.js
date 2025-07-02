@@ -101,7 +101,7 @@ exports.createUser = async (req, res) => {
   console.log('Iniciando createUser con datos:', req.body);
   try {
     // Extrae los datos del cuerpo de la solicitud
-    const { username, email, password, role, fullName, phone } = req.body;
+    const { document, fullname, username, email, password, role } = req.body;
 
     console.log('Validando rol del usuario que realiza la acción:', req.userRole);
     // Solo admin y coordinador pueden crear usuarios
@@ -135,12 +135,12 @@ exports.createUser = async (req, res) => {
     console.log('Creando nuevo usuario en la base de datos');
     // Crea el nuevo usuario con la contraseña hasheada
     const user = new User({
+      document,
+      fullname,
       username,
       email,
       password: await bcrypt.hash(password, 10), // Hash de la contraseña
       role: role || 'lider', // Rol por defecto: 'lider'
-      fullName,
-      phone
     });
 
     // Guarda el usuario en la base de datos
@@ -153,11 +153,11 @@ exports.createUser = async (req, res) => {
       message: 'Usuario creado exitosamente',
       data: {
         id: savedUser._id,
+        document: savedUser.document,
+        fullname: savedUser.fullname,
         username: savedUser.username,
         email: savedUser.email,
         role: savedUser.role,
-        fullName: savedUser.fullName,
-        phone: savedUser.phone
       }
     });
   } catch (error) {
@@ -187,7 +187,7 @@ exports.createUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
   console.log(`Iniciando updateUser para ID: ${req.params.id} con datos:`, req.body);
   try {
-    const { username, email, password, role, fullName, phone, status } = req.body;
+    const { document, fullname, username, email, password, role, status } = req.body;
     const updateData = {}; // Objeto para almacenar los campos a actualizar
     
     console.log('Validando permisos para actualización');
@@ -215,10 +215,10 @@ exports.updateUser = async (req, res) => {
     }
 
     // Construye el objeto de actualización con los campos proporcionados
+    if (document) updateData.document = document;
+    if (fullname) updateData.fullname = fullname;
     if (username) updateData.username = username;
     if (email) updateData.email = email;
-    if (fullName) updateData.fullName = fullName;
-    if (phone) updateData.phone = phone;
     if (status) updateData.status = status;
     
     // Manejo especial para el campo 'role' (solo editable por admin)
