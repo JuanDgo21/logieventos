@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { AuthRoutingModule } from './auth-routing-module';
 import { LoginComponent } from './login/login';
 import { RegisterComponent } from './register/register';
-import { PasswordRecovery } from './password-recovery/password-recovery';
+import { PasswordRecoveryComponent } from './password-recovery/password-recovery';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
@@ -16,7 +16,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
   declarations: [
     LoginComponent,
     RegisterComponent,
-    PasswordRecovery
+    PasswordRecoveryComponent
   ],
   imports: [
     CommonModule,
@@ -36,7 +36,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
   exports: [
     LoginComponent,
     RegisterComponent,
-    PasswordRecovery
+    PasswordRecoveryComponent
   ]
 })
 export class AuthModule { }

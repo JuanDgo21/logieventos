@@ -1,90 +1,93 @@
-@use 'sass:color';
+// Variables de colores
+$primary-color: #4e73df;
+$secondary-color: #224abe;
+$dark-color: #2c3e50;
+$gray-color: #7a8288;
+$gray-light-color: #eaecef;
+$success-color: #1cc88a;
+$danger-color: #e74a3b;
+$warning-color: #f6c23e;
 
-// Paleta de colores minimalista
-$primary: #6366f1;
-$secondary: #8b5cf6;
-$success: #10b981;
-$danger: #ef4444;
-$warning: #f59e0b;
-$info: #3b82f6;
-$light: #f8fafc;
-$dark: #1e293b;
-$muted: #64748b;
+// Fuentes
+$font-family-base: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
-// Variables de diseño
-$border-radius: 8px;
-$box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-$transition: all 0.2s ease;
-
-// Mixins esenciales
-@mixin card-style {
-  background: white;
-  border-radius: $border-radius;
-  box-shadow: $box-shadow;
-  padding: 2rem;
-  border: 1px solid rgba($muted, 0.1);
-}
-
-@mixin input-style {
-  height: 46px;
-  border-radius: $border-radius;
-  border: 1px solid rgba($muted, 0.3);
-  padding: 0 1rem;
-  transition: $transition;
-  
-  &:focus {
-    border-color: $primary;
-    box-shadow: 0 0 0 3px rgba($primary, 0.1);
-    outline: none;
+// Mixins
+@mixin box-shadow($level: 1) {
+  @if $level == 1 {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  } @else if $level == 2 {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+  } @else if $level == 3 {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
   }
 }
 
-@mixin button-primary {
-  background: $primary;
-  color: white;
-  border: none;
-  border-radius: $border-radius;
-  height: 46px;
-  font-weight: 600;
-  transition: $transition;
-  
-  &:hover:not(:disabled) {
-    background: darken($primary, 8%);
-    transform: translateY(-1px);
-  }
-  
-  &:disabled {
-    background: lighten($muted, 20%);
-  }
+// Estilos base
+body {
+  font-family: $font-family-base;
+  color: $dark-color;
+  background-color: #f8f9fc;
+  line-height: 1.6;
 }
 
-// Alertas básicas
-.alert {
-  padding: 0.75rem 1rem;
-  border-radius: $border-radius;
-  border-left: 4px solid;
-  margin-bottom: 1rem;
+// Animaciones
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.fa-spin {
+  animation: spin 1s infinite linear;
+}
+
+// Utilidades
+.text-center {
+  text-align: center;
+}
+
+.mt-3 {
+  margin-top: 1rem;
+}
+
+.d-block {
+  display: block;
+}
+
+.d-flex {
   display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  
-  &-success {
-    background: rgba($success, 0.1);
-    border-color: $success;
-    color: darken($success, 20%);
+}
+
+.justify-content-between {
+  justify-content: space-between;
+}
+
+.justify-content-center {
+  justify-content: center;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+.invalid-feedback {
+  color: $danger-color;
+  font-size: 0.8rem;
+}
+
+.alert {
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.35rem;
+  margin-bottom: 1rem;
+
+  &.alert-danger {
+    background-color: rgba($danger-color, 0.1);
+    border: 1px solid rgba($danger-color, 0.2);
+    color: darken($danger-color, 10%);
   }
-  
-  &-danger {
-    background: rgba($danger, 0.1);
-    border-color: $danger;
-    color: darken($danger, 20%);
-  }
-  
-  .btn-close {
-    margin-left: auto;
-    background: none;
-    border: none;
-    opacity: 0.7;
-    cursor: pointer;
+
+  &.alert-success {
+    background-color: rgba($success-color, 0.1);
+    border: 1px solid rgba($success-color, 0.2);
+    color: darken($success-color, 10%);
   }
 }

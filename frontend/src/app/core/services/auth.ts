@@ -168,25 +168,45 @@ export class AuthService {
 
   forgotPassword(email: string): Observable<any> {
     console.log('Solicitando reseteo de contraseña para:', email);
-    return this.apiService.postObservable(apiRouters.AUTH.FORGOT_PASSWORD, {
-      email
-    }).pipe(
+    return this.apiService.postObservable(apiRouters.AUTH.FORGOT_PASSWORD, { email }).pipe(
+      tap((response: any) => {
+        console.log('Respuesta de forgotPassword:', response);
+        if (response?.token) {
+          // Aquí podrías guardar temporalmente el token si es necesario
+        }
+      }),
       catchError(error => {
         console.error('Error en forgotPassword:', error);
-        return throwError(() => error);
+        let errorMessage = 'Error desconocido';
+        
+        if (error.error && error.error.message) {
+          errorMessage = error.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        return throwError(() => new Error(errorMessage));
       })
     );
-  }
+  } 
 
   resetPassword(token: string, newPassword: string): Observable<any> {
-    console.log('Reseteando contraseña con token');
-    return this.apiService.postObservable(apiRouters.AUTH.RESET_PASSWORD, {
-      token,
-      newPassword
+    console.log('Reseteando contraseña con token:', token);
+    return this.apiService.putObservable(apiRouters.AUTH.RESET_PASSWORD, {
+      token: token,
+      newPassword: newPassword
     }).pipe(
       catchError(error => {
         console.error('Error en resetPassword:', error);
-        return throwError(() => error);
+        let errorMessage = 'Error desconocido al resetear la contraseña';
+        
+        if (error.error && error.error.message) {
+          errorMessage = error.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        return throwError(() => new Error(errorMessage));
       })
     );
   }
