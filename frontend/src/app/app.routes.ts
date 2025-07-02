@@ -5,7 +5,14 @@ import { LoginComponent } from './modules/auth/login/login';
 
 export const routes: Routes = [
 
-    { path: '', component: LoginComponent },
+    { 
+        path: '', 
+        component: LoginComponent // Login como página principal
+    },
+    { 
+        path: 'home', // Ahora el home/dashboard tiene su propia ruta
+        component: HomeComponent
+    },
     { 
         path: 'auth', 
         loadChildren: () => import('./modules/auth/auth-module').then(m => m.AuthModule) 

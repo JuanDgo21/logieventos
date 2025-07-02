@@ -5,7 +5,7 @@ import { AuthRoutingModule } from './auth-routing-module';
 import { LoginComponent } from './login/login';
 import { RegisterComponent } from './register/register';
 import { PasswordRecovery } from './password-recovery/password-recovery';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { ToastrModule } from 'ngx-toastr';
@@ -21,6 +21,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
   imports: [
     CommonModule,
     AuthRoutingModule,
+    FormsModule,
     RouterModule,
     ReactiveFormsModule,
     HttpClientModule,

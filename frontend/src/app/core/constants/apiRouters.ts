@@ -3,7 +3,9 @@ export const apiRouters = {
 
     AUTH: {
     SIGNIN: `/${API}/auth/signin`,
-    SIGNUP: `/${API}/auth/signup`
+    SIGNUP: `/${API}/auth/signup`,
+    FORGOT_PASSWORD: `/${API}/auth/forgot-password`, // Nuevo endpoint
+    RESET_PASSWORD: `/${API}/auth/reset-password` // Nuevo endpoint
   },
   USERS: {
     BASE: `/${API}/users`,

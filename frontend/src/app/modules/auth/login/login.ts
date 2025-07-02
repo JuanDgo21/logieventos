@@ -11,11 +11,11 @@ import { AuthService } from '../../../core/services/auth';
 })
 export class LoginComponent {
   loginForm: FormGroup;
-  loading = false;
+  isLoading = false;
   passwordVisible = false;
   showAlert = false;
-  alertMessage = '';
   alertType = 'danger';
+  alertMessage = '';
 
   constructor(
     private fb: FormBuilder,
@@ -28,51 +28,49 @@ export class LoginComponent {
     });
   }
 
-  onSubmit(): void {
-    if (this.loginForm.invalid) {
-      this.markFormAsTouched();
-      return;
-    }
-
-    this.loading = true;
-    this.showAlert = false;
-    const { email, password } = this.loginForm.value;
-
-    console.log('Intentando iniciar sesión con:', email); // Console.log añadido
-
-    this.authService.login(email, password).subscribe({
-      next: (response) => {
-        console.log('Inicio de sesión exitoso', response); // Console.log añadido
-        console.log('Rol del usuario:', this.authService.getUserRoles()); // Console.log añadido para el rol
-        
-        this.showAlertMessage('Bienvenido al sistema', 'success');
-        this.router.navigate(['/dashboard']);
-      },
-      error: (error) => {
-        console.error('Error al iniciar sesión:', error); // Console.log añadido
-        this.loading = false;
-        const errorMessage = error.error?.message || 'Error al iniciar sesión';
-        this.showAlertMessage(errorMessage, 'danger');
-      }
-    });
+  getAlertIcon(): string {
+    return {
+      'success': 'fa-check-circle',
+      'danger': 'fa-exclamation-triangle',
+      'warning': 'fa-exclamation-circle',
+      'info': 'fa-info-circle'
+    }[this.alertType] || 'fa-info-circle';
   }
 
-  private markFormAsTouched(): void {
-    Object.values(this.loginForm.controls).forEach(control => {
-      control.markAsTouched();
-    });
-    this.showAlertMessage('Por favor complete el formulario correctamente', 'danger');
-  }
-
-  private showAlertMessage(message: string, type: 'danger' | 'success'): void {
-    this.alertMessage = message;
-    this.alertType = type;
-    this.showAlert = true;
+  getAlertTitle(): string {
+    return {
+      'success': 'Éxito',
+      'danger': 'Error',
+      'warning': 'Advertencia',
+      'info': 'Información'
+    }[this.alertType] || 'Mensaje';
   }
 
   togglePasswordVisibility(): void {
     this.passwordVisible = !this.passwordVisible;
   }
-}
 
-//subida
+  onSubmit(): void {
+    if (this.loginForm.invalid) return;
+
+    this.isLoading = true;
+    this.showAlert = false;
+
+    const { email, password } = this.loginForm.value;
+
+    this.authService.login(email, password).subscribe({
+      next: () => {
+        this.alertType = 'success';
+        this.alertMessage = 'Inicio de sesión exitoso';
+        this.showAlert = true;
+        setTimeout(() => this.router.navigate(['/home']), 1500);
+      },
+      error: (err) => {
+        this.alertType = 'danger';
+        this.alertMessage = err.error?.message || 'Error al iniciar sesión';
+        this.showAlert = true;
+        this.isLoading = false;
+      }
+    });
+  }
+}

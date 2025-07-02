@@ -12,7 +12,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
   declarations: [
-    ResourcesComponent
+    // ResourcesComponent
   ],
   imports: [
     CommonModule,
@@ -22,7 +22,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     FontAwesomeModule
   ],
     exports: [
-      ResourcesComponent
+      // ResourcesComponent
     ]
 })
 export class InventoryModule { }

@@ -1,278 +1,90 @@
-// =============================================
-// Variables globales
-// =============================================
-$primary: #3a7bd5;
-$secondary: #00d2ff;
-$white: #ffffff;
-$light: #f8f9fa;
-$dark: #1a1a2e;
-$gray: #718096;
-$light-gray: #e2e8f0;
-$success: #48bb78;
-$danger: #e53e3e;
-$warning: #ed8936;
+@use 'sass:color';
 
-$primary-color: #6c63ff;
-$text-color: #2d3748;
-$text-color-light: #718096;
+// Paleta de colores minimalista
+$primary: #6366f1;
+$secondary: #8b5cf6;
+$success: #10b981;
+$danger: #ef4444;
+$warning: #f59e0b;
+$info: #3b82f6;
+$light: #f8fafc;
+$dark: #1e293b;
+$muted: #64748b;
 
-$border-radius: 0.375rem;
+// Variables de diseño
+$border-radius: 8px;
 $box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-$box-shadow-hover: 0 10px 15px rgba(0, 0, 0, 0.1);
+$transition: all 0.2s ease;
 
-// =============================================
-// Mixins y funciones
-// =============================================
-@mixin transition($property: all, $duration: 0.3s, $timing: ease) {
-  transition: $property $duration $timing;
-}
-
-@mixin card-shadow {
+// Mixins esenciales
+@mixin card-style {
+  background: white;
+  border-radius: $border-radius;
   box-shadow: $box-shadow;
+  padding: 2rem;
+  border: 1px solid rgba($muted, 0.1);
 }
 
-@mixin gradient-background {
-  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
-}
-
-@mixin gradient-text {
-  @include gradient-background;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-@mixin focus-style {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba($primary, 0.3);
-}
-
-// =============================================
-// Estilos base
-// =============================================
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-  font-size: 16px;
-}
-
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
-  color: $text-color;
-  background-color: $light;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 1rem;
-  color: $dark;
-}
-
-p {
-  margin-bottom: 1rem;
-}
-
-a {
-  text-decoration: none;
-  color: $primary;
-  @include transition;
-
-  &:hover {
-    color: adjust-color($primary, $lightness: -15%);
-  }
-}
-
-ul, ol {
-  list-style: none;
-  padding-left: 0;
-  margin-bottom: 1rem;
-}
-
-img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
-// =============================================
-// Componentes comunes
-// =============================================
-.card {
-  border: none;
+@mixin input-style {
+  height: 46px;
   border-radius: $border-radius;
-  @include card-shadow;
-  @include transition;
-
-  .card-header {
-    background-color: $white;
-    border-bottom: 1px solid $light-gray;
-    border-radius: $border-radius $border-radius 0 0 !important;
-    padding: 1rem 1.5rem;
-  }
-
-  .card-body {
-    padding: 1.5rem;
-  }
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1rem;
-  border-radius: $border-radius;
-  font-weight: 600;
-  @include transition;
-  border: none;
-  cursor: pointer;
-
-  &:focus {
-    @include focus-style;
-  }
-
-  &-primary {
-    background-color: $primary;
-    color: $white;
-
-    &:hover {
-      background-color: adjust-color($primary, $lightness: -10%);
-    }
-
-    &:disabled {
-      background-color: $gray;
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-  }
-
-  &-block {
-    display: block;
-    width: 100%;
-  }
-}
-
-.form-control {
-  display: block;
-  width: 100%;
-  padding: 0.5rem 1rem;
-  border: 1px solid $light-gray;
-  border-radius: $border-radius;
-  @include transition;
-
+  border: 1px solid rgba($muted, 0.3);
+  padding: 0 1rem;
+  transition: $transition;
+  
   &:focus {
     border-color: $primary;
-    @include focus-style;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    outline: none;
   }
 }
 
-.input-group {
+@mixin button-primary {
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: $border-radius;
+  height: 46px;
+  font-weight: 600;
+  transition: $transition;
+  
+  &:hover:not(:disabled) {
+    background: darken($primary, 8%);
+    transform: translateY(-1px);
+  }
+  
+  &:disabled {
+    background: lighten($muted, 20%);
+  }
+}
+
+// Alertas básicas
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: $border-radius;
+  border-left: 4px solid;
+  margin-bottom: 1rem;
   display: flex;
-
-  .input-group-text {
-    background-color: $white;
-    border: 1px solid $light-gray;
-    padding: 0.5rem 1rem;
-    color: $gray;
+  align-items: flex-start;
+  gap: 0.5rem;
+  
+  &-success {
+    background: rgba($success, 0.1);
+    border-color: $success;
+    color: darken($success, 20%);
   }
-
-  .form-control {
-    border-left: none;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
+  
+  &-danger {
+    background: rgba($danger, 0.1);
+    border-color: $danger;
+    color: darken($danger, 20%);
   }
-}
-
-// =============================================
-// Utilidades
-// =============================================
-.text {
-  &-center {
-    text-align: center;
-  }
-  &-primary {
-    color: $primary;
-  }
-  &-muted {
-    color: $gray;
-  }
-}
-
-.bg {
-  &-dark {
-    background-color: $dark;
-  }
-  &-light {
-    background-color: $light;
-  }
-  &-white {
-    background-color: $white;
-  }
-}
-
-.mt {
-  &-3 { margin-top: 1rem; }
-  &-4 { margin-top: 1.5rem; }
-  &-5 { margin-top: 3rem; }
-}
-
-.mb {
-  &-3 { margin-bottom: 1rem; }
-  &-4 { margin-bottom: 1.5rem; }
-  &-5 { margin-bottom: 3rem; }
-}
-
-.p {
-  &-3 { padding: 1rem; }
-  &-4 { padding: 1.5rem; }
-  &-5 { padding: 3rem; }
-}
-
-.py {
-  &-3 { padding-top: 1rem; padding-bottom: 1rem; }
-  &-4 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
-  &-5 { padding-top: 3rem; padding-bottom: 3rem; }
-}
-
-// =============================================
-// Animaciones
-// =============================================
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.fade-in {
-  animation: fadeIn 0.6s ease-out forwards;
-}
-
-// =============================================
-// Helpers responsive
-// =============================================
-.hidden {
-  &-mobile {
-    @media (max-width: 767px) {
-      display: none !important;
-    }
-  }
-
-  &-desktop {
-    @media (min-width: 768px) {
-      display: none !important;
-    }
+  
+  .btn-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    opacity: 0.7;
+    cursor: pointer;
   }
 }
