@@ -37,11 +37,10 @@ const signup = async (req, res) => {
 
     // Creación de nuevo usuario con datos del request
     const user = new User({
-      document: Number(req.body.document), // Asegurar que es número
-      username: req.body.username.trim(),
-      email: req.body.email.toLowerCase().trim(),
-      password: req.body.password,
-      role: req.body.role || 'lider'
+      username: req.body.username.trim(), // Elimina espacios
+      email: req.body.email.toLowerCase().trim(), // Normaliza email
+      password: req.body.password, // La encriptación se maneja en el modelo (pre-save hook)
+      role: req.body.role || 'lider' // Rol por defecto 'lider' si no se especifica
     });
 
     // Resto del código permanece igual...
