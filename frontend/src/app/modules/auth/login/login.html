@@ -1,90 +1,93 @@
-<div class="login-container">
-  <div class="login-background"></div>
-  
+<div class="login-wrapper">
   <div class="login-card">
     <div class="login-header">
-      <h2 class="text-center mb-4">Iniciar Sesión</h2>
-      <p class="text-center mb-4">Ingresa tus credenciales para acceder</p>
+      <i class="fas fa-calendar-alt"></i>
+      <h2>LogiEventos</h2>
+      <p>Gestión profesional de eventos</p>
     </div>
 
-    <!-- Alertas -->
-    <div *ngIf="showAlert" class="alert alert-{{alertType}} alert-dismissible fade show mb-4" role="alert">
-      {{alertMessage}}
-      <button type="button" class="btn-close" (click)="showAlert = false" aria-label="Close"></button>
-    </div>
-
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-      <!-- Campo Email -->
-      <div class="mb-4">
-        <label for="email" class="form-label fw-bold">Correo Electrónico</label>
-        <div class="input-group">
-          <span class="input-group-text">
-            <i class="fas fa-envelope"></i>
-          </span>
-          <input 
-            type="email" 
-            id="email" 
-            formControlName="email" 
-            class="form-control"
-            placeholder="ejemplo@ejemplo.com"
-            [class.is-invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
-        </div>
-        <div *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.errors" class="invalid-feedback d-block">
-          <div *ngIf="loginForm.get('email')?.errors?.['required']">El email es requerido</div>
-          <div *ngIf="loginForm.get('email')?.errors?.['email']">Ingresa un email válido</div>
-        </div>
-      </div>
-
-      <!-- Campo Contraseña -->
-      <div class="mb-4">
-        <label for="password" class="form-label fw-bold">Contraseña</label>
-        <div class="input-group">
-          <span class="input-group-text">
-            <i class="fas fa-lock"></i>
-          </span>
-          <input 
-            [type]="passwordVisible ? 'text' : 'password'" 
-            id="password" 
-            formControlName="password" 
-            class="form-control"
-            placeholder="*****"
-            [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-          <button 
-            type="button" 
-            class="btn btn-outline-secondary" 
-            (click)="togglePasswordVisibility()">
-            <i class="fas" [class.fa-eye]="!passwordVisible" [class.fa-eye-slash]="passwordVisible"></i>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      @if (showAlert) {
+        <div class="alert alert-{{alertType}}">
+          <i [class]="'fas ' + getAlertIcon()"></i>
+          <div>
+            <strong>{{getAlertTitle()}}</strong>
+            <p>{{alertMessage}}</p>
+          </div>
+          <button type="button" class="btn-close" (click)="showAlert = false">
+            <i class="fas fa-times"></i>
           </button>
         </div>
-        <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.errors" class="invalid-feedback d-block">
-          La contraseña es requerida
+      }
+
+      <div class="form-group">
+        <label for="email">
+          <i class="fas fa-envelope"></i> Correo electrónico
+        </label>
+        <input 
+          type="email" 
+          id="email" 
+          formControlName="email"
+          placeholder="ejemplo@correo.com"
+          [class.invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+        >
+        @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+          <div class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
+            @if (loginForm.get('email')?.errors?.['required']) {
+              <span>Campo requerido</span>
+            }
+            @if (loginForm.get('email')?.errors?.['email']) {
+              <span>Correo inválido</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">
+          <i class="fas fa-lock"></i> Contraseña
+        </label>
+        <div class="password-input">
+          <input 
+            type="{{passwordVisible ? 'text' : 'password'}}" 
+            id="password" 
+            formControlName="password"
+            placeholder="••••••••"
+            [class.invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+          >
+          <button 
+            type="button" 
+            (click)="togglePasswordVisibility()"
+            class="toggle-password"
+          >
+            <i class="fas {{passwordVisible ? 'fa-eye-slash' : 'fa-eye'}}"></i>
+          </button>
         </div>
+        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+          <div class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>Contraseña requerida</span>
+          </div>
+        }
       </div>
 
-      <!-- Enlace olvidé contraseña -->
-      <div class="mb-4 text-end">
-        <a href="/forgot-password" class="text-decoration-none">¿Olvidaste tu contraseña?</a>
+      <div class="forgot-password">
+        <a routerLink="/auth/forgot-password">¿Olvidaste tu contraseña?</a>
       </div>
 
-      <!-- Botón de submit -->
       <button 
         type="submit" 
-        class="btn btn-primary w-100 py-3 mb-3"
-        [disabled]="loading"
-        [class.btn-loading]="loading">
-        <span *ngIf="!loading">Iniciar Sesión</span>
-        <span *ngIf="loading">
-          <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-          Procesando...
-        </span>
+        class="btn-primary"
+        [disabled]="loginForm.invalid || isLoading"
+      >
+        @if (isLoading) {
+          <i class="fas fa-spinner fa-spin"></i>
+        } @else {
+          <i class="fas fa-sign-in-alt"></i>
+        }
+        <span>Iniciar sesión</span>
       </button>
-
-      <!-- Enlace a registro -->
-      <div class="text-center">
-        <p class="mb-0">¿No tienes cuenta? <a href="/register" class="text-decoration-none fw-bold">Regístrate aquí</a></p>
-      </div>
     </form>
   </div>
 </div>
-
-<!-- subida -->

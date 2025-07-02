@@ -153,8 +153,103 @@ const login = async (req, res) => {
   }
 };
 
-// Exportar funciones del controlador
+//nuevos
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    // 1. Buscar usuario por email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Usuario no encontrado"
+      });
+    }
+    
+    // 2. Generar token de reseteo (con expiración de 1 hora)
+    const resetToken = jwt.sign(
+      { id: user._id },
+      config.secret,
+      { expiresIn: '1h' }
+    );
+    
+    // 3. Guardar token en el usuario (opcional)
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
+    await user.save();
+    
+    // 4. Enviar email con el token (implementación ficticia)
+    // En producción usarías un servicio como Nodemailer
+    console.log(`Token de reseteo para ${email}: ${resetToken}`);
+    
+    res.status(200).json({
+      success: true,
+      message: "Se ha enviado un enlace de reseteo a tu email",
+      token: resetToken // En producción no enviarías esto, es solo para demo
+    });
+    
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error al procesar la solicitud",
+      error: error.message
+    });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    
+    // 1. Verificar token
+    const decoded = jwt.verify(token, config.secret);
+    
+    // 2. Buscar usuario
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Usuario no encontrado"
+      });
+    }
+    
+    // 3. Actualizar contraseña
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+    
+    res.status(200).json({
+      success: true,
+      message: "Contraseña actualizada correctamente"
+    });
+    
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(400).json({
+        success: false,
+        message: "El enlace de reseteo ha expirado"
+      });
+    }
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(400).json({
+        success: false,
+        message: "Token inválido"
+      });
+    }
+    res.status(500).json({
+      success: false,
+      message: "Error al resetear la contraseña",
+      error: error.message
+    });
+  }
+};
+
+
 module.exports = {
-  register, // Función de registro
-  login  // Función de autenticación
+  signup,
+  signin,
+  forgotPassword,
+  resetPassword
 };

@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { apiRouters } from '../../core/constants/apiRouters';
 import { jwtDecode } from 'jwt-decode';
+import { ApiService } from './api';
 
 interface DecodedToken {
   id: string;
@@ -14,6 +15,7 @@ interface DecodedToken {
 
 interface UserData {
   email: string;
+  username?: string;
   roles: string[];
 }
 
@@ -21,84 +23,172 @@ interface UserData {
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private http: HttpClient) { }
+  constructor(private apiService: ApiService) { 
+    console.log('AuthService initialized');
+  }
+
+  // Método para registro de usuarios con rol dinámico
+  register(username: string, email: string, password: string, role: string): Observable<any> {
+    console.log('Register method called with:', {username, email, role});
+    
+    // Validar que el rol sea uno de los permitidos
+    const allowedRoles = ['admin', 'coordinador', 'lider'];
+    if (!allowedRoles.includes(role)) {
+      console.error('Invalid role provided:', role);
+      throw new Error('Rol no válido. Los roles permitidos son: admin, coordinador, lider');
+    }
+
+    return this.apiService.postObservable(apiRouters.AUTH.SIGNUP, {
+      username,
+      email,
+      password,
+      role // Usamos el rol proporcionado
+    }).pipe(
+      tap((response: any) => {
+        console.log('Register response:', response);
+        if (response?.token) {
+          console.log('Token received, saving user data');
+          this.saveUserData(response);
+        }
+      }),
+      catchError(error => {
+        console.error('Error in register:', error);
+        return throwError(() => error);
+      })
+    );
+  }
 
   login(email: string, password: string): Observable<any> {
-    return this.http.post(`${environment.API_URL}${apiRouters.AUTH.SIGNIN}`, {
+    console.log('Login method called with:', {email});
+    return this.apiService.postObservable(apiRouters.AUTH.SIGNIN, {
       email,
       password
     }).pipe(
       tap((response: any) => {
+        console.log('Login response:', response);
         if (response?.token) {
+          console.log('Token received, saving user data');
           this.saveUserData(response);
         }
+      }),
+      catchError(error => {
+        console.error('Error in login:', error);
+        return throwError(() => error);
       })
     );
   }
 
   private saveUserData(authResult: any): void {
-    // Decodificar el token para obtener los datos del usuario
+    console.log('Saving user data to localStorage');
     const decodedToken: DecodedToken = jwtDecode(authResult.token);
+    console.log('Decoded token:', decodedToken);
     
-    // Guardar en localStorage
     localStorage.setItem('token', authResult.token);
     localStorage.setItem('user', JSON.stringify({
-      email: authResult.user?.email || decodedToken.id, // Usar email de user o id como fallback
-      roles: [decodedToken.role] // El rol viene en el token decodificado
+      email: authResult.user?.email || decodedToken.id,
+      username: authResult.user?.username,
+      roles: [decodedToken.role]
     }));
+    console.log('User data saved successfully');
   }
 
   logout(): void {
-    // Limpiar localStorage al cerrar sesión
+    console.log('Logout called, clearing localStorage');
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    console.log('User logged out successfully');
   }
 
   isLoggedIn(): boolean {
-    // Verificar si existe token y no está expirado
     const token = localStorage.getItem('token');
+    console.log('Checking if user is logged in. Token exists:', !!token);
+    
     if (!token) return false;
 
     try {
       const decoded: DecodedToken = jwtDecode(token);
-      return Date.now() < decoded.exp * 1000;
-    } catch {
+      const isExpired = Date.now() >= decoded.exp * 1000;
+      console.log('Token expiration status:', isExpired ? 'EXPIRED' : 'VALID');
+      return !isExpired;
+    } catch (error) {
+      console.error('Error decoding token:', error);
       return false;
     }
   }
 
   getCurrentUserEmail(): string | null {
     const user = this.getUserData();
+    console.log('Getting current user email:', user?.email);
     return user?.email || null;
+  }
+
+  getCurrentUsername(): string | null {
+    const user = this.getUserData();
+    console.log('Getting current username:', user?.username);
+    return user?.username || null;
   }
 
   getUserRoles(): string[] {
     const user = this.getUserData();
+    console.log('Getting user roles:', user?.roles);
     return user?.roles || [];
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    console.log('Getting token from storage:', !!token);
+    return token;
   }
 
   private getUserData(): UserData | null {
     const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+    const parsedUser = user ? JSON.parse(user) : null;
+    console.log('Getting user data from storage:', parsedUser);
+    return parsedUser;
   }
 
-  // Método adicional para obtener el rol primario (útil cuando solo hay un rol)
   getPrimaryRole(): string | null {
     const roles = this.getUserRoles();
-    return roles.length > 0 ? roles[0] : null;
+    const primaryRole = roles.length > 0 ? roles[0] : null;
+    console.log('Getting primary role:', primaryRole);
+    return primaryRole;
   }
 
-  // Método para verificar si el usuario tiene un rol específico
   hasRole(role: string): boolean {
-    return this.getUserRoles().includes(role);
+    const hasRole = this.getUserRoles().includes(role);
+    console.log(`Checking if user has role '${role}':`, hasRole);
+    return hasRole;
   }
 
-  // Método para verificar si el usuario tiene alguno de los roles especificados
   hasAnyRole(roles: string[]): boolean {
-    return this.getUserRoles().some(userRole => roles.includes(userRole));
+    const hasAny = this.getUserRoles().some(userRole => roles.includes(userRole));
+    console.log(`Checking if user has any of roles '${roles.join(', ')}':`, hasAny);
+    return hasAny;
   }
+
+  forgotPassword(email: string): Observable<any> {
+    console.log('Solicitando reseteo de contraseña para:', email);
+    return this.apiService.postObservable(apiRouters.AUTH.FORGOT_PASSWORD, {
+      email
+    }).pipe(
+      catchError(error => {
+        console.error('Error en forgotPassword:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    console.log('Reseteando contraseña con token');
+    return this.apiService.postObservable(apiRouters.AUTH.RESET_PASSWORD, {
+      token,
+      newPassword
+    }).pipe(
+      catchError(error => {
+        console.error('Error en resetPassword:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
 }

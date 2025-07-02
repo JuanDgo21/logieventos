@@ -1,10 +1,18 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home';
+import { LoginComponent } from './modules/auth/login/login';
 
 
 export const routes: Routes = [
 
-    { path: '', component: HomeComponent },
+    { 
+        path: '', 
+        component: LoginComponent // Login como página principal
+    },
+    { 
+        path: 'home', // Ahora el home/dashboard tiene su propia ruta
+        component: HomeComponent
+    },
     { 
         path: 'auth', 
         loadChildren: () => import('./modules/auth/auth-module').then(m => m.AuthModule) 
@@ -29,5 +37,10 @@ export const routes: Routes = [
         path: 'users', 
         loadChildren: () => import('./modules/user-management/user-management-module').then(m => m.UserManagementModule) 
     },
+    { 
+        path: 'provider', 
+        loadChildren: () => import('./modules/provider/provider-module').then(m => m.ProviderModule) 
+    },
+
     { path: '**', redirectTo: '' } // Ruta comodín para 404
 ];

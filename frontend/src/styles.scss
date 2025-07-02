@@ -1,142 +1,90 @@
-/* Importación de Font Awesome */
-// @import '~@fortawesome/fontawesome-free/css/all.min.css';
+@use 'sass:color';
 
-// @use 'sass:map';
-// @use 'sass:math';
+// Paleta de colores minimalista
+$primary: #6366f1;
+$secondary: #8b5cf6;
+$success: #10b981;
+$danger: #ef4444;
+$warning: #f59e0b;
+$info: #3b82f6;
+$light: #f8fafc;
+$dark: #1e293b;
+$muted: #64748b;
 
-// // Variables globales
-// @use './assets/scss/variables' as *;
-// @use './assets/scss/mixins' as *;
+// Variables de diseño
+$border-radius: 8px;
+$box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+$transition: all 0.2s ease;
 
-// Variables globales
-$primary: #3a7bd5;
-$secondary: #00d2ff;
-$white: #ffffff;
-$primary-color: #6c63ff;
-$text-color: #2d3748;
-$text-color-light: #718096;
-$dark: #1a1a2e;
-$gray: #718096;
-
-// Mixins básicos
-@mixin transition($properties) {
-  transition: $properties;
-  -webkit-transition: $properties;
-  -moz-transition: $properties;
-  -ms-transition: $properties;
-  -o-transition: $properties;
+// Mixins esenciales
+@mixin card-style {
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $box-shadow;
+  padding: 2rem;
+  border: 1px solid rgba($muted, 0.1);
 }
 
-@mixin gradient-text {
-  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+@mixin input-style {
+  height: 46px;
+  border-radius: $border-radius;
+  border: 1px solid rgba($muted, 0.3);
+  padding: 0 1rem;
+  transition: $transition;
+  
+  &:focus {
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    outline: none;
+  }
 }
 
-/* Resto de tu styles.scss permanece igual */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@mixin button-primary {
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: $border-radius;
+  height: 46px;
+  font-weight: 600;
+  transition: $transition;
+  
+  &:hover:not(:disabled) {
+    background: darken($primary, 8%);
+    transform: translateY(-1px);
+  }
+  
+  &:disabled {
+    background: lighten($muted, 20%);
+  }
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
-  color: #333;
-  background-color: #f8f9fa;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 700;
-  line-height: 1.2;
+// Alertas básicas
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: $border-radius;
+  border-left: 4px solid;
   margin-bottom: 1rem;
-}
-
-a {
-  text-decoration: none;
-}
-
-ul {
-  list-style: none;
-}
-
-img {
-  max-width: 100%;
-  height: auto;
-}
-
-/* Clases de utilidad */
-.text-center {
-  text-align: center;
-}
-
-.text-primary {
-  color: #3a7bd5;
-}
-
-.bg-dark {
-  background-color: #1a1a2e;
-}
-
-.bg-light {
-  background-color: #f8f9fa;
-}
-
-.mt-5 {
-  margin-top: 3rem;
-}
-
-.mb-5 {
-  margin-bottom: 3rem;
-}
-
-.py-5 {
-  padding-top: 3rem;
-  padding-bottom: 3rem;
-}
-
-/* Animaciones */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  
+  &-success {
+    background: rgba($success, 0.1);
+    border-color: $success;
+    color: darken($success, 20%);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  &-danger {
+    background: rgba($danger, 0.1);
+    border-color: $danger;
+    color: darken($danger, 20%);
   }
-}
-
-.fade-in {
-  animation: fadeIn 0.6s ease-out forwards;
-}
-
-/* Responsive helpers */
-.hidden-mobile {
-  @media (max-width: 767px) {
-    display: none !important;
+  
+  .btn-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    opacity: 0.7;
+    cursor: pointer;
   }
-}
-
-.hidden-desktop {
-  @media (min-width: 768px) {
-    display: none !important;
-  }
-}
-
-$primary-color: #6c63ff;
-$text-color: #2d3748;
-$text-color-light: #718096;
-
-/* Estilos globales */
-body {
-  margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: $text-color;
 }

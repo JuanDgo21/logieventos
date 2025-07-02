@@ -1,0 +1,80 @@
+@use '../../../../styles.scss' as *;
+
+// .auth-container {
+//   background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+//   min-height: 100vh;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   padding: 2rem;
+// }
+
+// .auth-card {
+//   box-shadow: $box-shadow;
+//   background: rgba(255, 255, 255, 0.9);
+//   border-radius: 10px;
+//   width: 100%;
+//   max-width: 450px;
+//   padding: 2.5rem;
+//   transition: all 0.3s ease;
+
+//   &:hover {
+//     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+//   }
+// }
+
+// .auth-header {
+//   text-align: center;
+//   margin-bottom: 2rem;
+
+//   h2 {
+//     color: $primary;
+//     font-weight: 700;
+//     margin-bottom: 0.5rem;
+//   }
+
+//   p {
+//     color: $gray;
+//   }
+// }
+
+// .auth-form {
+//   .form-label {
+//     font-weight: 600;
+//     color: $text-color;
+//   }
+
+//   .form-control {
+//     padding: 0.75rem 1rem;
+//     border-radius: 8px;
+//     border: 1px solid $light-gray;
+//     transition: all 0.3s ease;
+
+//     &:focus {
+//       border-color: $primary;
+//       box-shadow: 0 0 0 0.25rem rgba($primary, 0.25);
+//     }
+//   }
+
+//   .btn-primary {
+//     padding: 0.75rem;
+//     border-radius: 8px;
+//     font-weight: 600;
+//     transition: all 0.3s ease;
+//   }
+
+//   .invalid-feedback {
+//     font-size: 0.85rem;
+//   }
+// }
+
+// .text-primary {
+//   color: $primary !important;
+//   text-decoration: none;
+//   font-weight: 600;
+//   transition: all 0.3s ease;
+
+//   &:hover {
+//     color: scale-color($primary, $lightness: -10%) !important;
+//   }
+// }
