@@ -4,6 +4,7 @@ import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { apiRouters } from '../../core/constants/apiRouters';
 import { jwtDecode } from 'jwt-decode';
+import { ApiService } from './api';
 
 interface DecodedToken {
   id: string;
@@ -14,7 +15,7 @@ interface DecodedToken {
 
 interface UserData {
   email: string;
-  username?: string; // Nuevo campo para el nombre de usuario
+  username?: string;
   roles: string[];
 }
 
@@ -22,15 +23,21 @@ interface UserData {
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private http: HttpClient) { }
+  constructor(private apiService: ApiService) { }
 
-  // Método para registro de usuarios
-  register(username: string, email: string, password: string): Observable<any> {
-    return this.http.post(`${environment.API_URL}${apiRouters.AUTH.SIGNUP}`, {
+  // Método para registro de usuarios con rol dinámico
+  register(username: string, email: string, password: string, role: string): Observable<any> {
+    // Validar que el rol sea uno de los permitidos
+    const allowedRoles = ['admin', 'coordinador', 'lider'];
+    if (!allowedRoles.includes(role)) {
+      throw new Error('Rol no válido. Los roles permitidos son: admin, coordinador, lider');
+    }
+
+    return this.apiService.postObservable(apiRouters.AUTH.SIGNUP, {
       username,
       email,
       password,
-      role: 'lider' // Rol por defecto como se especifica
+      role // Usamos el rol proporcionado
     }).pipe(
       tap((response: any) => {
         if (response?.token) {
@@ -41,7 +48,7 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<any> {
-    return this.http.post(`${environment.API_URL}${apiRouters.AUTH.SIGNIN}`, {
+    return this.apiService.postObservable(apiRouters.AUTH.SIGNIN, {
       email,
       password
     }).pipe(
@@ -53,13 +60,14 @@ export class AuthService {
     );
   }
 
+  // Resto de los métodos permanecen igual...
   private saveUserData(authResult: any): void {
     const decodedToken: DecodedToken = jwtDecode(authResult.token);
     
     localStorage.setItem('token', authResult.token);
     localStorage.setItem('user', JSON.stringify({
       email: authResult.user?.email || decodedToken.id,
-      username: authResult.user?.username, // Guardar el nombre de usuario
+      username: authResult.user?.username,
       roles: [decodedToken.role]
     }));
   }
@@ -86,7 +94,6 @@ export class AuthService {
     return user?.email || null;
   }
 
-  // Nuevo método para obtener el nombre de usuario
   getCurrentUsername(): string | null {
     const user = this.getUserData();
     return user?.username || null;
