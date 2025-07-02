@@ -1,0 +1,121 @@
+<div class="container mt-4">
+  <!-- Encabezado -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-truck me-2"></i>Proveedores</h2>
+    <button class="btn btn-primary" routerLink="new" *ngIf="canCreateProvider">
+      <i class="fas fa-plus me-2"></i>Nuevo
+    </button>
+  </div>
+
+  <!-- Mensajes de error -->
+  <div class="alert alert-danger" *ngIf="errorMessage">
+    <i class="fas fa-exclamation-circle me-2"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Cargando -->
+  <div class="text-center py-5" *ngIf="isLoading">
+    <div class="spinner-border text-primary"></div>
+    <p class="mt-2">Cargando...</p>
+  </div>
+
+  <!-- Filtros -->
+  <div class="row mb-3" *ngIf="!isLoading">
+    <div class="col-md-6">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Buscar..." 
+               [(ngModel)]="searchTerm" (input)="applyFilters()">
+        <button class="btn btn-outline-secondary" (click)="clearSearch()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <select class="form-select" [(ngModel)]="selectedFilter" (change)="applyFilters()">
+        <option value="">Todos los estados</option>
+        <option value="active">Activos</option>
+        <option value="inactive">Inactivos</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="table-responsive" *ngIf="!isLoading">
+    <table class="table table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Nombre</th>
+          <th>Tipo de Servicio</th>
+          <th>Contacto</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let provider of visibleProviders">
+          <td>{{ provider.name || 'N/A' }}</td>
+          <td>{{ provider.serviceType || 'N/A' }}</td>
+          <td>
+            <div>{{ provider.contact?.phone || 'N/A' }}</div>
+            <div>{{ provider.contact?.email || 'N/A' }}</div>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="{
+              'bg-success': provider.status === 'active',
+              'bg-secondary': provider.status === 'inactive'
+            }">
+              {{ provider.status === 'active' ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary me-2" [routerLink]="['detail', provider.id]">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-secondary me-2" [routerLink]="['edit', provider.id]">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete(provider, deleteModal)">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredProviders.length === 0">
+          <td colspan="5" class="text-center py-4">No se encontraron proveedores</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginación -->
+  <nav *ngIf="!isLoading && filteredProviders.length > itemsPerPage">
+    <ul class="pagination justify-content-center mt-3">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <a class="page-link" (click)="prevPage()">Anterior</a>
+      </li>
+      <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index" 
+          [class.active]="currentPage === i + 1">
+        <a class="page-link" (click)="currentPage = i + 1">{{ i + 1 }}</a>
+      </li>
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <a class="page-link" (click)="nextPage()">Siguiente</a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Modal de confirmación -->
+  <ng-template #deleteModal let-modal>
+    <div class="modal-header bg-danger text-white">
+      <h5 class="modal-title">Confirmar eliminación</h5>
+      <button type="button" class="btn-close btn-close-white" (click)="modal.dismiss()"></button>
+    </div>
+    <div class="modal-body">
+      ¿Estás seguro de eliminar a {{ selectedProvider?.name }}?
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancelar</button>
+      <button type="button" class="btn btn-danger" (click)="deleteProvider(); modal.close()">
+        Eliminar
+      </button>
+    </div>
+  </ng-template>
+</div>

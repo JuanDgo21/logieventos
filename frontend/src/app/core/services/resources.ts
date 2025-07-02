@@ -2,12 +2,19 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { apiRouters } from '../../core/constants/apiRouters';
+
+interface Resource {
+  id?: number;
+  name: string;
+  description: string;
+  quantity: number;
+  status: boolean;
+}
 
 @Injectable({
   providedIn: 'root'
 })
-export class ResourceService {
+export class ResourcesServices {
   private apiUrl = `${environment.API_URL}`;
 
   constructor(private http: HttpClient) { }
@@ -20,29 +27,29 @@ export class ResourceService {
     });
   }
 
-  getResources(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/api/resources`, { headers: this.getHeaders() })
+  getResources(): Observable<Resource[]> {
+    return this.http.get<Resource[]>(`${this.apiUrl}/api/resources`, { headers: this.getHeaders() })
       .pipe(
         catchError(this.handleError)
       );
   }
 
-  getResource(id: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/api/resources/${id}`, { headers: this.getHeaders() })
+  getResource(id: string): Observable<Resource> {
+    return this.http.get<Resource>(`${this.apiUrl}/api/resources/${id}`, { headers: this.getHeaders() })
       .pipe(
         catchError(this.handleError)
       );
   }
 
-  createResource(resource: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/api/resources`, resource, { headers: this.getHeaders() })
+  createResource(resource: Resource): Observable<Resource> {
+    return this.http.post<Resource>(`${this.apiUrl}/api/resources`, resource, { headers: this.getHeaders() })
       .pipe(
         catchError(this.handleError)
       );
   }
 
-  updateResource(id: string, resource: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/api/resources/${id}`, resource, { headers: this.getHeaders() })
+  updateResource(id: string, resource: Resource): Observable<Resource> {
+    return this.http.put<Resource>(`${this.apiUrl}/api/resources/${id}`, resource, { headers: this.getHeaders() })
       .pipe(
         catchError(this.handleError)
       );
