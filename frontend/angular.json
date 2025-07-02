@@ -57,15 +57,7 @@
               "outputHashing": "all"
             },
             "development": {
-              "optimization": false,
-              "extractLicenses": false,
-              "sourceMap": true,
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.development.ts"
-                }
-              ]
+              "buildTarget": "frontend:build:development"
             }
           },
           "defaultConfiguration": "production"
@@ -114,8 +106,5 @@
         }
       }
     }
-  },
-  "cli": {
-    "analytics": "f0002b3b-8ca5-4def-b3b9-5a80015d2f23"
   }
 }
