@@ -1,7 +1,8 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
+import { AuthService } from '../../../core/services/auth';
 
 interface NavItem {
   text: string;
@@ -17,32 +18,21 @@ interface NavItem {
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss'
 })
-export class NavbarComponent  implements OnInit {
-  isMenuCollapsed = true;
-  isScrolled = false;
+export class NavbarComponent {
+  @Input() userData: any;
+  isMenuOpen = false;
   
-  navItems: NavItem[] = [
-    { text: 'Inicio', link: '/', icon: 'fas fa-home', exact: true },
-    { text: 'Características', link: '/features', icon: 'fas fa-star' },
-    { text: 'Módulos', link: '/modules', icon: 'fas fa-cubes' },
-    { text: 'Precios', link: '/pricing', icon: 'fas fa-tag' },
-    { text: 'Contacto', link: '/contact', icon: 'fas fa-envelope' }
-  ];
-
-  @HostListener('window:scroll', [])
-  onWindowScroll() {
-    this.isScrolled = window.scrollY > 50;
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
+  
+  toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
   }
-
-  ngOnInit() {
-    this.onWindowScroll();
-  }
-
-  toggleMenu() {
-    this.isMenuCollapsed = !this.isMenuCollapsed;
-  }
-
-  closeMenu() {
-    this.isMenuCollapsed = true;
+  
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/auth/login']);
   }
 }

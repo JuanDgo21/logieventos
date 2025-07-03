@@ -98,7 +98,7 @@ export class LoginComponent {
       next: () => {
         this.showAlertMessage('success', 'Inicio de sesión exitoso! Redirigiendo...');
         setTimeout(() => {
-          this.router.navigate(['/home']);
+          this.router.navigate(['/pages/principal']);
         }, 1500);
       },
       error: (err) => {

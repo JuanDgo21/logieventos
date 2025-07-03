@@ -1,33 +1,35 @@
-<nav class="navbar navbar-expand-lg" [class.scrolled]="isScrolled" [class.menu-open]="!isMenuCollapsed">
-  <div class="container">
-    <a class="navbar-brand" routerLink="/">
-      <i class="fas fa-calendar-alt"></i>
-      <span class="brand-text">LogiEventos</span>
-    </a>
+<nav class="navbar">
+  <div class="navbar-brand">
+    <fa-icon [icon]="['fas', 'calendar-alt']"></fa-icon>
+    <span>LogiEventos</span>
+  </div>
+  
+  <div class="navbar-actions">
+    <div class="notification-icon">
+      <fa-icon [icon]="['fas', 'bell']"></fa-icon>
+      <span class="notification-badge">3</span>
+    </div>
     
-    <button class="navbar-toggler" type="button" (click)="toggleMenu()" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    
-    <div class="navbar-collapse" [class.show]="!isMenuCollapsed">
-      <ul class="navbar-nav">
-        <li class="nav-item" *ngFor="let item of navItems">
-         <a class="nav-link" 
-            [routerLink]="item.link" 
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{exact: item.exact || false}">  <!-- Añade || false -->
-            </a>
-        </li>
-      </ul>
+    <div class="user-menu" [class.open]="isMenuOpen">
+      <div class="user-info" (click)="toggleMenu()">
+        <span class="user-name">{{ userData?.name }}</span>
+        <span class="user-role">{{ userData?.role | titlecase }}</span>
+        <fa-icon [icon]="['fas', 'chevron-down']" class="menu-arrow"></fa-icon>
+      </div>
       
-      <div class="navbar-actions">
-        <a class="btn btn-outline" routerLink="/auth/login"> 
-          <i class="fas fa-sign-in-alt"></i>
-          <span>Iniciar Sesión</span>
+      <div class="dropdown-menu" *ngIf="isMenuOpen">
+        <a class="dropdown-item" routerLink="/profile">
+          <fa-icon [icon]="['fas', 'user']"></fa-icon>
+          Mi Perfil
         </a>
-        <a class="btn btn-primary" routerLink="/register">
-          <i class="fas fa-user-plus"></i>
-          <span>Registrarse</span>
+        <a class="dropdown-item" routerLink="/settings">
+          <fa-icon [icon]="['fas', 'cog']"></fa-icon>
+          Configuración
+        </a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" (click)="logout()">
+          <fa-icon [icon]="['fas', 'sign-out-alt']"></fa-icon>
+          Cerrar Sesión
         </a>
       </div>
     </div>

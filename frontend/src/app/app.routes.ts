@@ -1,25 +1,13 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './pages/home/home';
-import { LoginComponent } from './modules/auth/login/login';
-import { ProvidersPage } from './pages/providers/providers';
 
 
 export const routes: Routes = [
 
-    { 
-        path: '', 
-        component: LoginComponent // Login como página principal
-    },
-    { 
-        path: 'home', // Ahora el home/dashboard tiene su propia ruta
-        component: HomeComponent
-    },
-
     {
-        path: 'home-providers',
-        component:ProvidersPage
-
+        path: 'pages',
+        loadChildren: () => import('./pages/pages-module').then(m => m.PagesModule)
     },
+
     { 
         path: 'auth', 
         loadChildren: () => import('./modules/auth/auth-module').then(m => m.AuthModule) 

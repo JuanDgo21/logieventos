@@ -1,20 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ProviderService } from '../../core/services/provider';
-import { AuthService } from '../../core/services/auth';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule, NgModel, ReactiveFormsModule } from '@angular/forms';
+import { ProviderService } from '../../../core/services/provider';
+import { AuthService } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-providers',
-  imports: [
-    CommonModule,
-    RouterModule,
-    FormsModule,
-    RouterModule,
-    ReactiveFormsModule
-  ],
+  standalone: false,
+  // imports: [
+  //   CommonModule,
+  //   RouterModule,
+  //   FormsModule,
+  //   RouterModule,
+  //   ReactiveFormsModule
+  // ],
   templateUrl: './providers.html',
   styleUrls: ['./providers.scss']
 })
