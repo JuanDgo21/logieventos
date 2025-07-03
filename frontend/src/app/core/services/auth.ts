@@ -6,18 +6,8 @@ import { apiRouters } from '../../core/constants/apiRouters';
 import { jwtDecode } from 'jwt-decode';
 import { ApiService } from './api';
 
-interface DecodedToken {
-  id: string;
-  role: string;
-  iat: number;
-  exp: number;
-}
+import { DecodedToken, UserData } from '../../shared/interfaces/auth';
 
-interface UserData {
-  email: string;
-  username?: string;
-  roles: string[];
-}
 
 @Injectable({
   providedIn: 'root'

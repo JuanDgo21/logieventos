@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FooterComponent } from './components/footer/footer';
 import { NavbarComponent } from './components/navbar/navbar';
 import { RouterModule } from '@angular/router';
-import { Sidebar } from './components/sidebar/sidebar';
+import { SidebarComponent } from './components/sidebar/sidebar';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 
 
@@ -11,15 +12,17 @@ import { Sidebar } from './components/sidebar/sidebar';
   declarations: [
     FooterComponent,
     NavbarComponent,
-    Sidebar
+    SidebarComponent
   ],
   imports: [
     CommonModule,
-    RouterModule
+    RouterModule,
+    FontAwesomeModule
   ],
   exports: [
     FooterComponent,
-    NavbarComponent
+    NavbarComponent,
+    SidebarComponent
   ]
 })
 export class SharedModule { }
