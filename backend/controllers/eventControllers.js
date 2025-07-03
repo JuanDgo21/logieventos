@@ -9,8 +9,8 @@ const User = require('../models/User');
  */
 exports.getAllEvents = async (req, res) => {
   try {
-    // Filtro especial para líderes (solo eventos activos)
-    const filter = req.userRole === 'lider' ? { status: 'activo' } : {};
+    // // Filtro especial para líderes (solo eventos planificados)
+   const filter = req.userRole === 'lider' ? { status: { $ne: 'cancelado' } } : {};
     
     // Buscar todos los eventos con sus relaciones
     const events = await Event.find(filter)
@@ -53,12 +53,12 @@ exports.getEventById = async (req, res) => {
     }
     
     // Validación especial para líderes (solo pueden ver eventos activos)
-    if (req.userRole === 'lider' && event.status !== 'activo') {
-      return res.status(403).json({
-        success: false,
-        message: 'No tienes permiso para ver este evento'
-      });
-    }
+    // if (req.userRole === 'lider' && event.status !== 'activo') {
+    //   return res.status(403).json({
+    //     success: false,
+    //     message: 'No tienes permiso para ver este evento'
+    //   });
+    // }
     
     // Respuesta exitosa con los datos encontrados
     res.status(200).json({
@@ -82,7 +82,7 @@ exports.getEventById = async (req, res) => {
 exports.createEvent = async (req, res) => {
   try {
     // Validar rol del usuario
-    if (req.userRole !== 'admin' && req.userRole !== 'coordi') {
+    if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
       return res.status(403).json({
         success: false,
         message: 'Solo administradores y coordinadores pueden crear eventos'
@@ -127,7 +127,7 @@ exports.createEvent = async (req, res) => {
       responsable,
       startDate,
       endDate,
-      status: 'activo', // Estado por defecto
+      status: 'planificado', // Estado por defecto
       createdBy: req.userId // Asignar usuario creador
     });
 
@@ -165,7 +165,7 @@ exports.createEvent = async (req, res) => {
 exports.updateEvent = async (req, res) => {
   try {
     // Validar rol del usuario
-    if (req.userRole !== 'admin' && req.userRole !== 'coordi') {
+    if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
       return res.status(403).json({
         success: false,
         message: 'Solo administradores y coordinadores pueden actualizar eventos'

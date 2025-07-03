@@ -77,7 +77,7 @@ exports.getProviderById = async (req, res) => {
 exports.createProvider = async (req, res) => {
   try {
     // Validar rol del usuario
-    if (req.userRole !== 'admin' && req.userRole !== 'coordi') {
+    if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
       return res.status(403).json({
         success: false,
         message: 'Solo administradores y coordinadores pueden crear proveedores'
@@ -150,7 +150,7 @@ exports.createProvider = async (req, res) => {
 exports.updateProvider = async (req, res) => {
   try {
     // Validar rol del usuario
-    if (req.userRole !== 'admin' && req.userRole !== 'coordi') {
+    if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
       return res.status(403).json({
         success: false,
         message: 'Solo administradores y coordinadores pueden actualizar proveedores'
@@ -170,7 +170,7 @@ exports.updateProvider = async (req, res) => {
     
     // Validación especial para coordinadores (no pueden cambiar estado)
     if (status) {
-      if (req.userRole === 'coordi') {
+      if (req.userRole === 'coordinador') {
         return res.status(403).json({
           success: false,
           message: 'Coordinadores no pueden cambiar el estado de los proveedores'

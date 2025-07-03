@@ -8,8 +8,8 @@ const Contract = require('../models/Contract');
  */
 exports.getAllPersonnel = async (req, res) => {
   try {
-    // Filtro especial para líderes (solo personal activo)
-    const filter = req.userRole === 'lider' ? { status: 'activo' } : {};
+    // Filtro especial para líderes (solo personal disponible)
+    const filter = req.userRole === 'lider' ? { status: 'disponible' } : {};
     
     // Buscar todo el personal con su tipo de personal asociado
     const personnel = await Personnel.find(filter)
@@ -50,7 +50,7 @@ exports.getPersonnelById = async (req, res) => {
     }
     
     // Validación especial para líderes (solo pueden ver personal activo)
-    if (req.userRole === 'lider' && person.status !== 'activo') {
+    if (req.userRole === 'lider' && person.status !== 'disponible') {
       return res.status(403).json({
         success: false,
         message: 'No tienes permiso para ver este personal'

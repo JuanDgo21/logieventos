@@ -10,7 +10,7 @@ exports.getAllContracts = async (req, res) => {
   try {
     // Buscar todos los contratos y poblar las relaciones con datos específicos
     const contracts = await Contract.find()
-      .populate('event', 'name startDate endDate')  // Datos básicos del evento
+      // .populate('event', 'name startDate endDate')  // Datos básicos del evento
       .populate('resources.resource', 'name description')  // Datos de recursos
       .populate('providers.provider', 'name contactPerson')  // Datos de proveedores
       .populate('personnel.person', 'firstName lastName');  // Datos del personal
@@ -35,7 +35,7 @@ exports.getContractById = async (req, res) => {
   try {
     // Buscar contrato por ID y poblar relaciones con más datos que en getAll
     const contract = await Contract.findById(req.params.id)
-      .populate('event', 'name description startDate endDate location')
+      // .populate('event', 'name description startDate endDate location')
       .populate('resources.resource', 'name description quantity cost')
       .populate('providers.provider', 'name contactPerson email phone')
       .populate('personnel.person', 'firstName lastName email phone');
@@ -90,13 +90,13 @@ exports.createContract = async (req, res) => {
     }
 
     // Verificar que el evento exista
-    const eventExists = await Event.findById(event);
-    if (!eventExists) {
-      return res.status(404).json({
-        success: false,
-        message: 'El evento especificado no existe'
-      });
-    }
+    // const eventExists = await Event.findById(event);
+    // if (!eventExists) {
+    //   return res.status(404).json({
+    //     success: false,
+    //     message: 'El evento especificado no existe'
+    //   });
+    // }
 
     // Validar que los recursos referenciados existan
     if (resources && resources.length > 0) {
@@ -251,7 +251,7 @@ exports.updateContract = async (req, res) => {
       updateData,
       { new: true, runValidators: true }  // Opciones: devolver el documento actualizado y correr validadores
     )
-      .populate('event', 'name')
+      // .populate('event', 'name')
       .populate('resources.resource', 'name')
       .populate('providers.provider', 'name')
       .populate('personnel.person', 'firstName lastName');
@@ -314,7 +314,7 @@ exports.generateContractReport = async (req, res) => {
   try {
     // Buscar contrato por ID y poblar todas las relaciones con datos completos
     const contract = await Contract.findById(req.params.id)
-      .populate('event', 'name description startDate endDate location')
+      // .populate('event', 'name description startDate endDate location')
       .populate('resources.resource', 'name description quantity cost')
       .populate('providers.provider', 'name contactPerson email phone serviceDescription cost')
       .populate('personnel.person', 'firstName lastName email phone role hours')
