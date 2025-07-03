@@ -1,59 +1,8 @@
-<<<<<<< HEAD
 <!-- navbar.component.html -->
 <nav class="navbar">
   <div class="navbar-left">
     <button class="sidebar-toggle" (click)="layoutService.toggleSidebar()">
       <i class="fas fa-bars"></i>
-=======
-<!-- <nav class="navbar navbar-expand navbar-dark bg-primary">
-  <div class="container-fluid">
-    <a class="navbar-brand" routerLink="/dashboard">
-      <i class="fas fa-calendar-alt me-2"></i>LogiEventos
-    </a>
-    
-    <div class="navbar-collapse">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-          <span class="nav-link">
-            <i class="fas fa-user-circle me-1"></i>
-            {{currentUser?.username || 'Usuario'}}
-            <span class="badge bg-light text-dark ms-2">
-              {{authService.getPrimaryRole() | titlecase}}
-            </span>
-          </span>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-            <i class="fas fa-cog"></i>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" routerLink="/profile"><i class="fas fa-user me-1"></i> Perfil</a></li>
-            <li><a class="dropdown-item" routerLink="/profile/edit"><i class="fas fa-edit me-1"></i> Editar</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" (click)="logout()"><i class="fas fa-sign-out-alt me-1"></i> Cerrar sesión</a></li>
-          </ul>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" (click)="toggleNotifications()">
-            <i class="fas fa-bell"></i>
-            <span *ngIf="(notificationService.unreadCount$ | async) > 0" 
-                  class="badge bg-danger rounded-pill">
-              {{notificationService.unreadCount$ | async}}
-            </span>
-          </a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
-
- Panel de notificaciones -->
-<!-- <div class="notification-panel" *ngIf="notificationService.showPanel$ | async">
-  <div class="notification-header">
-    <h3>Notificaciones</h3>
-    <button (click)="notificationService.markAllAsRead()">
-      Marcar todas como leídas
->>>>>>> 91a29e4d26c0a1f12197cd7c7beaa14ee1e1941c
     </button>
     <span class="welcome-message">Bienvenido, {{user.name}}</span>
     <span class="user-role">{{user.role | titlecase}}</span>
@@ -85,7 +34,7 @@
           <strong>{{user.name}}</strong>
           <small>{{user.role | titlecase}}</small>
         </div>
-        <a class="dropdown-item" href="#">
+        <a class="dropdown-item" [routerLink]="">
           <i class="fas fa-user"></i> Mi Perfil
         </a>
         <a class="dropdown-item" href="#">
@@ -98,8 +47,4 @@
       </div>
     </div>
   </div>
-<<<<<<< HEAD
 </nav>
-=======
-</div> --> -->
->>>>>>> 91a29e4d26c0a1f12197cd7c7beaa14ee1e1941c
