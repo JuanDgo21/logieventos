@@ -12,7 +12,6 @@ const resourceTypeSchema = new mongoose.Schema({
   name: {
     type: String, // Tipo de dato String
     required: [true, 'El nombre es obligatorio'], // Obligatorio con mensaje personalizado
-    unique: true, // Valor único en la colección
     trim: true // Elimina espacios en blanco al inicio y final
   },
   

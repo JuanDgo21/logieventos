@@ -5,7 +5,7 @@ import { PagesRoutingModule } from './pages-routing-module';
 import { ProvidersPage } from './components/providers/providers';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { InventoryPage } from './components/inventory-page/inventory-page';
+import { InventoryPageComponent } from './components/inventory-page/inventory-page';
 import { Dashboard } from './components/dashboard/dashboard';
 import { SharedModule } from '../shared/shared-module';
 
@@ -13,7 +13,7 @@ import { SharedModule } from '../shared/shared-module';
 @NgModule({
   declarations: [
     ProvidersPage,
-    InventoryPage,
+    InventoryPageComponent,
     Dashboard
   ],
   imports: [
@@ -27,7 +27,7 @@ import { SharedModule } from '../shared/shared-module';
   ],
   exports: [
     ProvidersPage,
-    InventoryPage
+    InventoryPageComponent
   ]
 })
 export class PagesModule { }

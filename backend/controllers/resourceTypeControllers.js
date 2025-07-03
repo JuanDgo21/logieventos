@@ -30,6 +30,35 @@ exports.getAllResourceTypes = async (req, res) => {
 };
 
 /**
+ * ==============================================
+ * Controlador: Obtener tipos de recurso activos
+ * ==============================================
+ * Acceso: Todos los roles pueden acceder
+ * Método: GET
+ * Ruta: /api/resource-types/active
+ */
+exports.getActiveResourceTypes = async (req, res) => {
+  try {
+    // Busca solo tipos de recurso activos (active: true)
+    // y popula el campo 'createdBy' con 'username' y 'role'
+    const activeResourceTypes = await ResourceType.find({ active: true })
+      .populate('createdBy', 'username role')
+      .select('_id name description active'); // Solo devuelve estos campos
+
+    res.status(200).json({ 
+      success: true, 
+      data: activeResourceTypes 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: "Error al obtener tipos de recurso activos",
+      error: error.message 
+    });
+  }
+};
+
+/**
  * =================================================
  * Controlador: Obtener tipo de recurso por ID
  * =================================================

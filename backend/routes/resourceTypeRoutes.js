@@ -36,6 +36,18 @@ router.get('/',
 );
 
 /**
+ * GET /active - Obtener tipos de recurso activos
+ * Requiere:
+ *  - Autenticación (JWT válido)
+ * Acceso: Todos los roles
+ * Controlador: getActiveResourceTypes
+ */
+router.get('/active', 
+  authJwt.verifyToken, 
+  resourceTypeController.getActiveResourceTypes
+);
+
+/**
  * GET /:id - Obtener un tipo de recurso específico
  * Requiere:
  *  - Autenticación (JWT válido)

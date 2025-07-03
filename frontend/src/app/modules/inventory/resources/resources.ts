@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // <-- Añade esta importación
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -6,12 +6,28 @@ import { AuthService } from '../../../core/services/auth';
 import { Router } from '@angular/router';
 
 interface Resource {
-  id?: number;
+  _id?: string;
   name: string;
   description: string;
   quantity: number;
-  status: boolean;
-  cost?: number; // Añadido para coincidir con tu template
+  cost: number;
+  resourceType: {
+    _id: string;
+    name: string;
+    description?: string;
+  } | string; // Puede ser el objeto completo o solo el ID
+  status: string;
+}
+
+interface ResourceType {
+  _id: string;
+  name: string;
+  description?: string;
+  active: boolean;
+  createdBy?: {
+    username: string;
+    role: string;
+  };
 }
 
 @Component({
@@ -22,20 +38,40 @@ interface Resource {
   styleUrls: ['./resources.scss']
 })
 
-export class ResourcesComponent {
+export class ResourcesComponent implements OnInit {
   resources: Resource[] = [];
-  newResource: Resource = { name: '', description: '', quantity: 0, cost: 0 ,status: true };
+  resourceTypes: ResourceType[] = [];
+  newResource: Resource = { 
+    name: '', 
+    description: '', 
+    quantity: 0,
+    cost: 0,
+    resourceType: '',
+    status: 'disponible'
+  };
   editingResource: Resource | null = null;
   apiUrl = 'http://localhost:3000/api/resources';
+  apiResourceTypesUrl = 'http://localhost:3000/api/resource-types/active';
   isLoading = false;
   errorMessage = '';
+  successMessage = '';
+
+  statusOptions = [
+    { value: 'disponible', label: 'Disponible' },
+    { value: 'en_uso', label: 'En Uso' },
+    { value: 'mantenimiento', label: 'Mantenimiento' },
+    { value: 'descartado', label: 'Descartado' }
+  ];
 
   constructor(
     private http: HttpClient,
     private authService: AuthService,
     private router: Router
-  ) {
+  ) {}
+
+  ngOnInit(): void {
     this.loadResources();
+    this.loadActiveResourceTypes();
   }
 
   private getAuthHeaders(): HttpHeaders {
@@ -88,21 +124,31 @@ export class ResourcesComponent {
     return [];
   }
 
+  loadActiveResourceTypes(): void {
+    this.http.get<{data: ResourceType[]}>(`http://localhost:3000/api/resource-types/active`, { 
+      headers: this.getAuthHeaders() 
+    }).subscribe({
+      next: (response) => {
+        this.resourceTypes = response.data || [];
+      },
+      error: (err) => {
+        console.error('Error loading active resource types:', err);
+        this.errorMessage = 'Error al cargar tipos de recursos activos';
+      }
+    });
+  }
+
   createResource(): void {
     this.isLoading = true;
     this.errorMessage = '';
-    
-    this.http.post<Resource>(this.apiUrl, this.newResource, { headers: this.getAuthHeaders() }).subscribe({
+    this.http.post(this.apiUrl, this.newResource, { headers: this.getAuthHeaders() }).subscribe({
       next: () => {
         this.loadResources();
-        this.newResource = { name: '', description: '', quantity: 0, cost: 0 ,status: true };
-        this.isLoading = false;
       },
       error: (err) => {
         this.errorMessage = 'Error al crear el recurso';
         console.error('Error creating resource:', err);
-        this.isLoading = false;
-      }
+        this.isLoading = false;      }
     });
   }
 
@@ -113,7 +159,7 @@ export class ResourcesComponent {
     this.errorMessage = '';
     
     this.http.put<Resource>(
-      `${this.apiUrl}/${this.editingResource.id}`,
+      `${this.apiUrl}/${this.editingResource._id}`,
       this.editingResource,
       { headers: this.getAuthHeaders() }
     ).subscribe({
@@ -130,7 +176,7 @@ export class ResourcesComponent {
     });
   }
 
-  deleteResource(id: number): void {
+  deleteResource(id: string): void {
     if (!confirm('¿Estás seguro de eliminar este recurso?')) return;
     
     this.isLoading = true;
@@ -181,6 +227,43 @@ export class ResourcesComponent {
     } else {
       this.newResource.cost = numValue;
     }
+  }
+
+  onFieldChange(field: string, value: any): void {
+    if (this.editingResource) {
+      (this.editingResource as any)[field] = value;
+    } else {
+      (this.newResource as any)[field] = value;
+    }
+  }
+
+  getResourceTypeName(resource: Resource): string {
+    if (!resource.resourceType) return 'Sin tipo';
+    
+    // Si es string (solo el ID)
+    if (typeof resource.resourceType === 'string') {
+      const type = this.resourceTypes.find(t => t._id === resource.resourceType);
+      return type ? type.name : 'Desconocido';
+    }
+    
+    // Si es objeto completo
+    return resource.resourceType.name || 'Desconocido';
+  }
+
+  // getResourceDescription(resource: Resource): string | null {
+  //   if (!resource.resourceType) return null;
+    
+  //   if (typeof resource.resourceType === 'string') {
+  //     const type = this.resourceTypes.find(t => t._id === resource.resourceType);
+  //     return type?.description || null;
+  //   }
+    
+  //   return resource.resourceType.description || null;
+  // }
+
+  getStatusLabel(status: string): string {
+    const option = this.statusOptions.find(opt => opt.value === status);
+    return option ? option.label : status;
   }
 
   editResource(resource: Resource): void {
