@@ -72,6 +72,7 @@
             },
             "development": {
               "buildTarget": "frontend:build:development"
+             
             }
           },
           "defaultConfiguration": "development"
@@ -110,6 +111,6 @@
     }
   },
   "cli": {
-    "analytics": "5728beba-5cd3-4adb-aecf-4b68383c3aa3"
+    "analytics": "579ecaf5-1746-4ddd-a396-7e87e1be3459"
   }
 }

@@ -42,6 +42,10 @@ export const routes: Routes = [
         path: 'provider', 
         loadChildren: () => import('./modules/provider/provider-module').then(m => m.ProviderModule) 
     },
+    { 
+        path: 'contracts', 
+        loadChildren: () => import('./modules/contracts/contracts-module').then(m => m.ContractsModule) 
+    },
 
     { path: '**', redirectTo: 'auth/login' } // Ruta comodín para 404
 ];
