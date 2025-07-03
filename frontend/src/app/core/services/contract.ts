@@ -68,6 +68,7 @@ export class ContractService {
 
   // ---- Métodos CRUD ----
   getContracts(): Observable<Contract[]> {
+    console.log('Llamando a:', `${this.apiUrl}/contracts`); // Agrega esto
     return this.http.get<Contract[]>(this.apiUrl, { headers: this.getHeaders() })
       .pipe(
         catchError(this.handleError)
