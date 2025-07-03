@@ -3,24 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { AuthService } from '../../../core/services/auth';
-import { NotificationService } from '../../../core/services/notification';
-
-interface NavItem {
-  text: string;
-  link: string;
-  icon: string;
-  exact?: boolean;
-}
-
-interface Notification {
-  id: number;
-  message: string;
-  icon: string;
-  time: Date;
-  read: boolean;
-}
-
-
+import { User } from '../../interfaces/user';
+import { LayoutService } from '../../../core/services/layout';
 
 @Component({
   selector: 'app-navbar',
@@ -29,38 +13,30 @@ interface Notification {
   styleUrl: './navbar.scss'
 })
 export class NavbarComponent implements OnInit {
-  currentUser: any = {};
-  showNotifications = false;
+  user: any;
+  isMenuOpen = false;
+  notifications = [
+    { icon: 'calendar-check', message: 'Evento confirmado', time: '10 min' },
+    { icon: 'exclamation-circle', message: 'Alerta de recurso', time: '1 h' }
+  ];
 
   constructor(
     public authService: AuthService,
-    private router: Router,
-    public notificationService: NotificationService
+    public layoutService: LayoutService
   ) {}
 
   ngOnInit(): void {
-    this.loadUserData();
+    this.user = {
+      name: this.authService.getCurrentUsername() || 'Usuario',
+      role: this.authService.getPrimaryRole() || 'guest'
+    };
   }
 
-  private loadUserData(): void {
-    const userData = localStorage.getItem('user');
-    this.currentUser = userData ? JSON.parse(userData) : {};
-  }
-
-  toggleNotifications(): void {
-    this.notificationService.togglePanel();
+  toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
   }
 
   logout(): void {
     this.authService.logout();
-    this.router.navigate(['/auth/login']);
-  }
-
-  @HostListener('document:click', ['$event'])
-  onClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.notification-panel') && !target.closest('.notification-icon')) {
-      this.notificationService.closePanel();
-    }
   }
 }
