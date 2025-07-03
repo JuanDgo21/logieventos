@@ -3,7 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // <-- Añade esta importación
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth';
+import { AlertService } from '../../../core/services/alert';
 import { Router } from '@angular/router';
+import { MatDialogModule } from '@angular/material/dialog';
+import { AlertModalComponent } from '../../../shared/components/alert-modal/alert-modal';
 
 interface Resource {
   _id?: string;
@@ -66,7 +69,8 @@ export class ResourcesComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private alertService: AlertService,
   ) {}
 
   ngOnInit(): void {
@@ -146,9 +150,22 @@ export class ResourcesComponent implements OnInit {
         this.loadResources();
       },
       error: (err) => {
-        this.errorMessage = 'Error al crear el recurso';
-        console.error('Error creating resource:', err);
-        this.isLoading = false;      }
+      this.isLoading = false;
+      
+      if (err.status === 401 || err.status === 403) {
+        this.alertService.showError({
+          type: 'auth',
+          message: err.status === 401 
+            ? 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.'
+            : 'No tienes permisos suficientes para esta acción.'
+        });
+      } else {
+        this.alertService.showError({
+          type: 'create',
+          message: 'Error al crear el recurso: ' + (err.error?.message || '')
+        });
+      }
+    }
     });
   }
 
@@ -169,9 +186,11 @@ export class ResourcesComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        this.errorMessage = 'Error al actualizar el recurso';
-        console.error('Error updating resource:', err);
         this.isLoading = false;
+        this.alertService.showError({
+          type: 'update',
+          message: 'Error al actualizar: ' + (err.error?.message || '')
+        });
       }
     });
   }
@@ -188,9 +207,11 @@ export class ResourcesComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        this.errorMessage = 'Error al eliminar el recurso';
-        console.error('Error deleting resource:', err);
         this.isLoading = false;
+        this.alertService.showError({
+          type: 'delete',
+          message: 'Error al eliminar: ' + (err.error?.message || '')
+        });
       }
     });
   }

@@ -5,7 +5,6 @@ import { environment } from '../../../environments/environment';
 import { apiRouters } from '../../core/constants/apiRouters';
 import { jwtDecode } from 'jwt-decode';
 import { ApiService } from './api';
-
 import { DecodedToken, UserData } from '../../shared/interfaces/auth';
 
 
@@ -154,6 +153,20 @@ export class AuthService {
     const hasAny = this.getUserRoles().some(userRole => roles.includes(userRole));
     console.log(`Checking if user has any of roles '${roles.join(', ')}':`, hasAny);
     return hasAny;
+  }
+
+  isTokenExpired(): boolean {
+    const token = this.getToken();
+    if (!token) return true;
+
+    try {
+      const decoded: any = jwtDecode(token);
+      const isExpired = Date.now() >= decoded.exp * 1000;
+      return isExpired;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return true;
+    }
   }
 
   forgotPassword(email: string): Observable<any> {
