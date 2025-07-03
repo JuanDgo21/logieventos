@@ -45,7 +45,7 @@ mongoose.connect(process.env.MONGODB_URI)
     .catch(err => console.error('❌ Error de conexión a MongoDB:', err));
 
 // Rutas
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authRoutes); //prueba
 app.use('/api/users', userRoutes);
 app.use('/api/contracts', contractRoutes);
 app.use('/api/events', eventRoutes);
