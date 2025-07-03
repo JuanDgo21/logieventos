@@ -31,5 +31,6 @@ interface LegalLink {
   styleUrls: ['./footer.scss']
 })
 export class FooterComponent {
-  currentYear = new Date().getFullYear();
+  currentYear: number = new Date().getFullYear();
+  appVersion: string = '1.0.0';
 }

@@ -1,73 +1,83 @@
+@use '../../../../styles.scss' as *;
+
+// sidebar.component.scss
 .sidebar {
-  width: 250px;
-  background-color: white;
-  height: 100%;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  
-  .sidebar-header {
-    padding: 20px;
-    border-bottom: 1px solid #eee;
-    
-    h3 {
+  width: 280px;
+  background: linear-gradient(180deg, darken($dark-color, 5%), $dark-color);
+  padding: 2rem 1rem;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  position: relative;
+  z-index: 10;
+  @include particle-effect;
+
+  .logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-left: 1rem;
+
+    img {
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    h2 {
+      background: $gradient-primary;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 700;
       margin: 0;
-      color: #2c3e50;
-      font-size: 1.1rem;
     }
   }
-  
-  .sidebar-menu {
-    flex: 1;
-    padding: 10px 0;
-    overflow-y: auto;
-    
-    .menu-item {
+
+  .nav {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    &-link {
       display: flex;
       align-items: center;
-      padding: 12px 20px;
-      color: #7f8c8d;
+      padding: 15px 20px;
+      border-radius: 12px;
+      color: rgba(255,255,255,0.7);
       text-decoration: none;
-      transition: all 0.2s ease;
-      
-      fa-icon {
-        margin-right: 10px;
-        width: 20px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+
+      i {
+        margin-right: 12px;
+        font-size: 1.1rem;
+        width: 24px;
         text-align: center;
       }
-      
-      &:hover {
-        background-color: #f8f9fa;
-        color: #3498db;
-      }
-      
-      &.active {
-        background-color: #e3f2fd;
-        color: #3498db;
-        border-left: 3px solid #3498db;
-      }
-    }
-  }
-}
 
-@media (max-width: 768px) {
-  .sidebar {
-    width: 70px;
-    
-    .sidebar-header {
-      display: none;
-    }
-    
-    .menu-item {
-      justify-content: center;
-      
-      span {
-        display: none;
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 3px;
+        background: $gradient-primary;
+        transform: scaleY(0);
+        transition: transform 0.3s ease;
       }
-      
-      fa-icon {
-        margin-right: 0;
-        font-size: 1.2rem;
+
+      &:hover {
+        background: rgba(255,255,255,0.05);
+        color: white;
+      }
+
+      &.active {
+        background: rgba($primary-color, 0.1);
+        color: white;
+
+        &::before {
+          transform: scaleY(1);
+        }
       }
     }
   }

@@ -3,6 +3,12 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
 
+    { 
+        path: '', 
+        redirectTo: 'auth/login', 
+        pathMatch: 'full' 
+    },
+
     {
         path: 'pages',
         loadChildren: () => import('./pages/pages-module').then(m => m.PagesModule)
@@ -37,5 +43,5 @@ export const routes: Routes = [
         loadChildren: () => import('./modules/provider/provider-module').then(m => m.ProviderModule) 
     },
 
-    { path: '**', redirectTo: '' } // Ruta comodín para 404
+    { path: '**', redirectTo: 'auth/login' } // Ruta comodín para 404
 ];

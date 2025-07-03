@@ -1,34 +1,43 @@
-.app-footer {
-  background-color: #2c3e50;
-  color: white;
-  padding: 15px 20px;
-  text-align: center;
-  
-  .footer-content {
+@use '../../../../styles.scss' as *;
+
+// footer.component.scss
+.footer {
+  background: rgba($dark-color, 0.8);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: rgba(255,255,255,0.6);
+  font-size: 0.9rem;
+
+  .footer-links {
     display: flex;
-    justify-content: center;
-    align-items: center;
     gap: 20px;
-    font-size: 0.9rem;
-    
-    .help-link {
-      color: white;
+
+    a {
+      color: rgba(255,255,255,0.6);
       text-decoration: none;
+      transition: color 0.3s ease;
       display: flex;
       align-items: center;
       gap: 5px;
-      transition: color 0.2s ease;
-      
+
       &:hover {
-        color: #3498db;
+        color: $primary-color;
+      }
+
+      i {
+        font-size: 0.9rem;
       }
     }
   }
-}
 
-@media (max-width: 576px) {
-  .app-footer .footer-content {
-    flex-direction: column;
-    gap: 5px;
+  .version {
+    background: rgba(255,255,255,0.1);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
   }
 }

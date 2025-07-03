@@ -6,7 +6,7 @@ import { ProvidersPage } from './components/providers/providers';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InventoryPageComponent } from './components/inventory-page/inventory-page';
-import { Dashboard } from './components/dashboard/dashboard';
+import { DashboardComponent } from './components/dashboard/dashboard';
 import { SharedModule } from '../shared/shared-module';
 
 
@@ -14,7 +14,7 @@ import { SharedModule } from '../shared/shared-module';
   declarations: [
     ProvidersPage,
     InventoryPageComponent,
-    Dashboard
+    DashboardComponent
   ],
   imports: [
     CommonModule,
@@ -27,7 +27,8 @@ import { SharedModule } from '../shared/shared-module';
   ],
   exports: [
     ProvidersPage,
-    InventoryPageComponent
+    InventoryPageComponent,
+    DashboardComponent
   ]
 })
 export class PagesModule { }

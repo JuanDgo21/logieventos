@@ -1,15 +1,24 @@
-<!-- <div class="sidebar">
-  <div class="sidebar-header">
-    <h3>Menú</h3>
+<div class="notification-panel" [class.show]="showNotifications">
+  <div class="notification-header">
+    <h3>Notificaciones <span class="badge">{{notifications.length}}</span></h3>
+    <button class="btn btn-icon" (click)="closeNotifications()">
+      <i class="fas fa-times"></i>
+    </button>
   </div>
   
-  <div class="sidebar-menu">
-    <a *ngFor="let item of filteredMenuItems" 
-       [routerLink]="item.route"
-       [class.active]="isActive(item.route)"
-       class="menu-item">
-      <fa-icon [icon]="['fas', item.icon]"></fa-icon>
-      <span>{{ item.label }}</span>
-    </a>
+  <div class="notification-list">
+    <div *ngFor="let notification of notifications" class="notification-item">
+      <div class="notification-icon">
+        <i class="fas fa-{{notification.icon}}"></i>
+      </div>
+      <div class="notification-content">
+        <p>{{notification.message}}</p>
+        <small>{{notification.time | date:'short'}}</small>
+      </div>
+    </div>
   </div>
-</div> -->
+  
+  <div class="notification-footer">
+    <button class="btn btn-text">Marcar todas como leídas</button>
+  </div>
+</div>

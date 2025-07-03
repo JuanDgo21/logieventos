@@ -1,37 +1,72 @@
-<nav class="navbar">
-  <div class="navbar-brand">
-    <!-- <fa-icon [icon]="['fas', 'calendar-alt']"></fa-icon> -->
-    <span>LogiEventos</span>
-  </div>
-  
-  <div class="navbar-actions">
-    <div class="notification-icon">
-      <!-- <fa-icon [icon]="['fas', 'bell']"></fa-icon> -->
-      <span class="notification-badge">3</span>
-    </div>
+<nav class="navbar navbar-expand navbar-dark bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" routerLink="/dashboard">
+      <i class="fas fa-calendar-alt me-2"></i>LogiEventos
+    </a>
     
-    <div class="user-menu" [class.open]="isMenuOpen">
-      <div class="user-info" (click)="toggleMenu()">
-        <span class="user-name">{{ userData?.name }}</span>
-        <span class="user-role">{{ userData?.role | titlecase }}</span>
-        <!-- <fa-icon [icon]="['fas', 'chevron-down']" class="menu-arrow"></fa-icon> -->
-      </div>
-      
-      <div class="dropdown-menu" *ngIf="isMenuOpen">
-        <a class="dropdown-item" routerLink="/profile">
-          <!-- <fa-icon [icon]="['fas', 'user']"></fa-icon> -->
-          Mi Perfil
-        </a>
-        <a class="dropdown-item" routerLink="/settings">
-          <!-- <fa-icon [icon]="['fas', 'cog']"></fa-icon> -->
-          Configuración
-        </a>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item" (click)="logout()">
-          <!-- <fa-icon [icon]="['fas', 'sign-out-alt']"></fa-icon> -->
-          Cerrar Sesión
-        </a>
-      </div>
+    <div class="navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <span class="nav-link">
+            <i class="fas fa-user-circle me-1"></i>
+            {{currentUser?.username || 'Usuario'}}
+            <span class="badge bg-light text-dark ms-2">
+              {{authService.getPrimaryRole() | titlecase}}
+            </span>
+          </span>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+            <i class="fas fa-cog"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" routerLink="/profile"><i class="fas fa-user me-1"></i> Perfil</a></li>
+            <li><a class="dropdown-item" routerLink="/profile/edit"><i class="fas fa-edit me-1"></i> Editar</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" (click)="logout()"><i class="fas fa-sign-out-alt me-1"></i> Cerrar sesión</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" (click)="toggleNotifications()">
+            <i class="fas fa-bell"></i>
+            <span *ngIf="(notificationService.unreadCount$ | async) > 0" 
+                  class="badge bg-danger rounded-pill">
+              {{notificationService.unreadCount$ | async}}
+            </span>
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
 </nav>
+
+<!-- Panel de notificaciones -->
+<div class="notification-panel" *ngIf="notificationService.showPanel$ | async">
+  <div class="notification-header">
+    <h3>Notificaciones</h3>
+    <button (click)="notificationService.markAllAsRead()">
+      Marcar todas como leídas
+    </button>
+  </div>
+  
+  <div class="notification-list">
+    <div *ngFor="let notif of notificationService.notifications$ | async" 
+         class="notification-item" 
+         [class.unread]="!notif.read"
+         (click)="notificationService.markAsRead(notif.id)">
+      <div class="notification-icon">
+        <i [class]="'fa fa-' + (notif.icon || 'bell')"></i>
+      </div>
+      <div class="notification-content">
+        <h4>{{ notif.title || 'Notificación' }}</h4>
+        <p>{{ notif.message || 'Sin mensaje' }}</p>
+        <small>{{ notif.createdAt | date:'short' }}</small>
+      </div>
+    </div>
+    
+    <div *ngIf="(notificationService.notifications$ | async)?.length === 0" 
+         class="empty-notifications">
+      No hay notificaciones
+    </div>
+  </div>
+</div>
