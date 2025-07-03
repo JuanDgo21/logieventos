@@ -6,8 +6,8 @@ import { ProvidersPage } from './components/providers/providers';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InventoryPageComponent } from './components/inventory-page/inventory-page';
-import { DashboardComponent } from './components/dashboard/dashboard';
 import { SharedModule } from '../shared/shared-module';
+import { DashboardComponent } from './components/dashboard/dashboard';
 import { ContractsPage } from './components/contracts-page/contracts-page';
 
 
@@ -23,9 +23,9 @@ import { ContractsPage } from './components/contracts-page/contracts-page';
     PagesRoutingModule,
     RouterModule,
     FormsModule,
-    RouterModule,
     ReactiveFormsModule,
-    SharedModule
+    SharedModule,
+    // AuthService
   ],
   exports: [
     ProvidersPage,

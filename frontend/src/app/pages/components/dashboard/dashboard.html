@@ -1,73 +1,61 @@
-<div class="dashboard-container">
-  <!-- Navbar Superior -->
+<!-- dashboard-page.component.html -->
+<div class="dashboard-layout">
   <app-navbar></app-navbar>
+  <app-sidebar></app-sidebar>
 
-  <!-- Contenido Principal -->
-  <div class="main-content">
-    <!-- Sidebar Vertical -->
-    <app-sidebar></app-sidebar>
-
-    <!-- Área de Contenido -->
-    <div class="content-area">
-      <!-- Encabezado -->
-      <div class="content-header">
-        <h1>Bienvenido, <span class="gradient-text">{{currentUser?.username || 'Usuario'}}</span></h1>
-        <div class="header-actions">
-        <button class="btn btn-icon pulse-effect" (click)="toggleNotifications()">
-            <i class="fas fa-bell"></i>
-            <span *ngIf="unreadNotificationsCount > 0" class="badge">{{unreadNotificationsCount}}</span>
+  <main class="dashboard-content">
+    <!-- Header del Dashboard -->
+    <div class="dashboard-header">
+      <h1>Panel Principal</h1>
+      <div class="dashboard-actions">
+        <button class="btn btn-primary">
+          <i class="fas fa-sync-alt"></i> Actualizar
         </button>
+      </div>
+    </div>
+    
+    <!-- Tarjetas de Resumen -->
+    <div class="summary-cards">
+      <div *ngFor="let item of summaryData" class="summary-card">
+        <div class="card-icon" [style.background]="getGradient(item.key)">
+          <i class="fas fa-{{item.icon}}"></i>
+        </div>
+        <div class="card-content">
+          <h3>{{item.value}}</h3>
+          <p>{{item.label}}</p>
         </div>
       </div>
+    </div>
 
-      <!-- Tarjetas Informativas -->
-      <div class="info-grid">
-        <div class="info-card" *ngFor="let card of infoCards" [ngClass]="'card-' + card.type">
-          <div class="card-icon">
-            <i class="fas fa-{{card.icon}}"></i>
-          </div>
-          <div class="card-content">
-            <h3>{{card.title}}</h3>
-            <p class="card-value">{{card.value}}</p>
-          </div>
-        </div>
+    <!-- Acciones Rápidas -->
+    <div class="quick-actions-section">
+      <h2><i class="fas fa-bolt"></i> Acciones Rápidas</h2>
+      <div class="actions-grid">
+        <button *ngFor="let action of filteredQuickActions()" 
+                class="action-btn" 
+                [style.background]="getGradient(action.key || 'activeEvents')">
+          <i class="fas fa-{{action.icon}}"></i>
+          <span>{{action.label}}</span>
+        </button>
       </div>
+    </div>
 
-      <!-- Acciones Rápidas y Actividad -->
-      <div class="action-grid">
-        <!-- Acciones Rápidas -->
-        <div class="action-panel glass-card">
-          <h2 class="panel-title">Acciones rápidas</h2>
-          <div class="action-buttons">
-            <button *ngFor="let action of quickActions" 
-                    class="btn btn-action"
-                    [ngClass]="'action-' + action.type"
-                    [routerLink]="action.route">
-              <i class="fas fa-{{action.icon}}"></i>
-              {{action.label}}
-            </button>
+    <!-- Actividad Reciente -->
+    <div class="recent-activity">
+      <h2><i class="fas fa-history"></i> Actividad Reciente</h2>
+      <div class="activity-list">
+        <div *ngFor="let activity of recentActivities" class="activity-item">
+          <div class="activity-icon">
+            <i class="fas fa-{{activity.icon}}"></i>
           </div>
-        </div>
-
-        <!-- Actividad Reciente -->
-        <div class="activity-panel glass-card">
-          <h2 class="panel-title">Actividad reciente</h2>
-          <div class="activity-list">
-            <div *ngFor="let activity of recentActivities" class="activity-item">
-              <div class="activity-icon" [ngClass]="'icon-' + activity.type">
-                <i class="fas fa-{{activity.icon}}"></i>
-              </div>
-              <div class="activity-content">
-                <p>{{activity.message}}</p>
-                <small>{{activity.time | date:'short'}}</small>
-              </div>
-            </div>
+          <div class="activity-content">
+            <p>{{activity.message}}</p>
+            <small>{{activity.time}}</small>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </main>
 
-  <!-- Footer -->
   <app-footer></app-footer>
 </div>

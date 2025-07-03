@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../../core/services/auth';
-import { Router } from '@angular/router';
-import { NavbarComponent } from '../../../shared/components/navbar/navbar';
-import { NotificationService } from '../../../core/services/notification';
+import { LayoutService } from '../../../core/services/layout';
 
 @Component({
   selector: 'app-dashboard',
@@ -11,91 +9,51 @@ import { NotificationService } from '../../../core/services/notification';
   styleUrl: './dashboard.scss'
 })
 export class DashboardComponent implements OnInit {
-  infoCards: any[] = [];
-  quickActions: any[] = [];
-  recentActivities: any[] = [];
-  currentUser: any = {};
-  
-  // Propiedades para notificaciones
-  unreadNotificationsCount: number = 0;
+  summaryData = [
+    { icon: 'calendar', value: 12, label: 'Eventos Activos', key: 'activeEvents' },
+    { icon: 'file-contract', value: 5, label: 'Contratos', key: 'contracts' },
+    { icon: 'box-open', value: 24, label: 'Recursos', key: 'resources' },
+    { icon: 'users', value: 8, label: 'Personal', key: 'staff' }
+  ];
+
+  quickActions = [
+    { icon: 'plus-circle', label: 'Nuevo Evento', action: 'newEvent', roles: ['admin', 'coordinador'] },
+    { icon: 'calendar-day', label: 'Agenda Diaria', action: 'dailyAgenda' },
+    { icon: 'exclamation-triangle', label: 'Reportar Incidente', action: 'reportIssue' },
+    { icon: 'file-contract', label: 'Contratos', action: 'viewContracts' },
+    { icon: 'users', label: 'Personal', action: 'viewStaff' },
+    { icon: 'truck', label: 'Proveedores', action: 'viewProviders' },
+    { icon: 'file-export', label: 'Reportes', action: 'generateReports', roles: ['admin', 'coordinador'] }
+  ];
+
+  recentActivities = [
+    { icon: 'calendar-check', message: 'Nuevo evento "Conferencia Tech" creado', time: '5 min' },
+    { icon: 'user-plus', message: 'Juan Pérez ha sido añadido al equipo', time: '30 min' },
+    { icon: 'exclamation-triangle', message: 'Problema reportado en el Auditorio', time: '2 h' }
+  ];
 
   constructor(
     public authService: AuthService,
-    private router: Router,
-    private notificationService: NotificationService 
+    private layoutService: LayoutService
   ) {}
 
   ngOnInit(): void {
-    // Ejemplo: Añadir notificación de bienvenida
-    if (this.authService.isLoggedIn()) {
-      this.notificationService.addNotification({
-        title: 'Bienvenido',
-        message: `Has iniciado sesión como ${this.authService.getCurrentUsername()}`,
-        type: 'info',
-        icon: 'user'
-      });
-    }
+    this.layoutService.setActiveModule('dashboard');
   }
 
-  private loadUserData(): void {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      this.currentUser = JSON.parse(userData);
-    }
+  getGradient(type: string): string {
+    const gradients = {
+      activeEvents: 'linear-gradient(135deg, #6a11cb, #2575fc)',
+      contracts: 'linear-gradient(135deg, #8E2DE2, #4A00E0)',
+      resources: 'linear-gradient(135deg, #11998E, #38EF7D)',
+      staff: 'linear-gradient(135deg, #FDC830, #F37335)'
+    };
+    return gradients[type as keyof typeof gradients] || gradients.activeEvents;
   }
 
-  private generateDashboardContent(): void {
-    const role = this.authService.getPrimaryRole();
-    
-    // Tarjetas informativas
-    this.infoCards = [
-      { title: 'Eventos asignados', icon: 'calendar', value: '12', type: 'primary' },
-      { title: 'Recursos disponibles', icon: 'box-open', value: '24', type: 'success' },
-      { title: 'Alertas activas', icon: 'bell', value: '3', type: 'warning' }
-    ];
-
-    // Acciones rápidas
-    this.quickActions = [
-      { label: 'Ver agenda', icon: 'calendar-day', route: '/agenda', type: 'primary' }
-    ];
-
-    if (role === 'admin' || role === 'coordinador') {
-      this.quickActions.push(
-        { label: 'Crear evento', icon: 'plus-circle', route: '/events/new', type: 'success' }
-      );
-    }
-
-    if (role === 'admin') {
-      this.quickActions.push(
-        { label: 'Generar reporte', icon: 'file-export', route: '/reports', type: 'primary' }
-      );
-    }
-
-    // Actividad reciente
-    this.recentActivities = [
-      { message: 'Evento X programado para el 5 de julio', icon: 'calendar-plus', type: 'info', time: new Date() },
-      { message: '3 asistentes faltaron al evento Z', icon: 'user-times', type: 'warning', time: new Date(Date.now() - 3600000) }
-    ];
+  filteredQuickActions(): any[] {
+    return this.quickActions.filter(action => 
+      !action.roles || this.authService.hasAnyRole(action.roles)
+    );
   }
-
-  toggleNotifications(): void {
-    this.notificationService.togglePanel();
-  
-
-  // Ejemplo de añadir notificación
-  // this.notificationService.addNotification({
-  //   title: 'Evento creado',
-  //   message: 'El evento se ha creado correctamente',
-  //   type: 'success',
-  //   icon: 'check-circle'
-  // });
-
-  // // Ejemplo de marcar como leída
-  // this.notificationService.markAsRead(notificationId);
-
-  // // Suscribirse a cambios
-  // this.notificationService.unreadCount$.subscribe(count => {
-  //   console.log('Notificaciones no leídas:', count);
-  // });
-}
 }

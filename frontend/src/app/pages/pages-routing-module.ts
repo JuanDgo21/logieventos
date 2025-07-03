@@ -5,7 +5,7 @@ import { InventoryPageComponent } from './components/inventory-page/inventory-pa
 import { DashboardComponent } from './components/dashboard/dashboard';
 import { ContractsPage } from './components/contracts-page/contracts-page';
 const routes: Routes = [
-  
+
   { path: 'principal', component: DashboardComponent },
   { path: 'home-providers', component: ProvidersPage },
   { path: 'inventory-page', component: InventoryPageComponent },

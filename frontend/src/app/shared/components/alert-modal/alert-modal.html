@@ -1,0 +1,30 @@
+<div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+    <!-- Header -->
+    <div [class]="bgColor" class="px-6 py-4 text-white">
+      <h2 class="text-xl font-bold">{{ data.title }}</h2>
+    </div>
+    
+    <!-- Body -->
+    <div class="p-6">
+      <p class="mb-4">{{ data.message }}</p>
+      
+      <div *ngIf="data.userRole" class="mb-4 p-3 bg-gray-100 rounded">
+        <p class="text-sm">Tu rol actual: <span class="font-bold">{{ data.userRole }}</span></p>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
+      <button *ngIf="data.showReload" 
+              (click)="redirectToLogin()"
+              class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        Ir a Iniciar Sesión
+      </button>
+      <button (click)="close()"
+              class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>

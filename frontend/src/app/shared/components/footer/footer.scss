@@ -1,43 +1,50 @@
 @use '../../../../styles.scss' as *;
 
-// footer.component.scss
-.footer {
-  background: rgba($dark-color, 0.8);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(255,255,255,0.05);
-  padding: 1rem 2rem;
+.app-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: rgba(255,255,255,0.6);
+  padding: 1rem 2rem;
+  background: rgba($dark-color, 0.9);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.7);
   font-size: 0.9rem;
 
-  .footer-links {
+  .footer-left {
     display: flex;
-    gap: 20px;
+    align-items: center;
+    gap: 1rem;
 
-    a {
-      color: rgba(255,255,255,0.6);
+    .version {
+      background: rgba($primary-color, 0.2);
+      color: $primary-color;
+      padding: 0.2rem 0.5rem;
+      border-radius: 10px;
+      font-size: 0.8rem;
+    }
+  }
+
+  .footer-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    .footer-link {
+      color: rgba(255,255,255,0.7);
       text-decoration: none;
       transition: color 0.3s ease;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 0.5rem;
 
       &:hover {
         color: $primary-color;
       }
 
       i {
-        font-size: 0.9rem;
+        font-size: 1rem;
       }
     }
-  }
-
-  .version {
-    background: rgba(255,255,255,0.1);
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 0.8rem;
   }
 }
