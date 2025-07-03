@@ -1,4 +1,4 @@
-<!-- <nav class="navbar navbar-expand navbar-dark bg-primary">
+<nav class="navbar navbar-expand navbar-dark bg-primary">
   <div class="container-fluid">
     <a class="navbar-brand" routerLink="/dashboard">
       <i class="fas fa-calendar-alt me-2"></i>LogiEventos
@@ -38,35 +38,56 @@
       </ul>
     </div>
   </div>
-</nav> -->
+</nav>
 
 <!-- Panel de notificaciones -->
-<!-- <div class="notification-panel" *ngIf="notificationService.showPanel$ | async">
+<div class="notification-panel" *ngIf="notificationService.showPanel$ | async">
   <div class="notification-header">
     <h3>Notificaciones</h3>
     <button (click)="notificationService.markAllAsRead()">
       Marcar todas como leídas
     </button>
+    <span class="welcome-message">Bienvenido, {{user.name}}</span>
+    <span class="user-role">{{user.role | titlecase}}</span>
   </div>
-  
-  <div class="notification-list">
-    <div *ngFor="let notif of notificationService.notifications$ | async" 
-         class="notification-item" 
-         [class.unread]="!notif.read"
-         (click)="notificationService.markAsRead(notif.id)">
-      <div class="notification-icon">
-        <i [class]="'fa fa-' + (notif.icon || 'bell')"></i>
-      </div>
-      <div class="notification-content">
-        <h4>{{ notif.title || 'Notificación' }}</h4>
-        <p>{{ notif.message || 'Sin mensaje' }}</p>
-        <small>{{ notif.createdAt | date:'short' }}</small>
+
+  <div class="navbar-right">
+    <div class="notification-icon">
+      <i class="fas fa-bell"></i>
+      <span class="notification-badge">{{notifications.length}}</span>
+      
+      <div class="notification-dropdown">
+        <div *ngFor="let notif of notifications" class="notification-item">
+          <i class="fas fa-{{notif.icon}}"></i>
+          <div>
+            <p>{{notif.message}}</p>
+            <small>{{notif.time}}</small>
+          </div>
+        </div>
       </div>
     </div>
     
-    <div *ngIf="(notificationService.notifications$ | async)?.length === 0" 
-         class="empty-notifications">
-      No hay notificaciones
+    <div class="user-menu" (click)="toggleMenu()">
+      <div class="user-avatar">
+        <i class="fas fa-user"></i>
+      </div>
+      
+      <div class="dropdown-menu" [class.show]="isMenuOpen">
+        <div class="dropdown-header">
+          <strong>{{user.name}}</strong>
+          <small>{{user.role | titlecase}}</small>
+        </div>
+        <a class="dropdown-item" [routerLink]="">
+          <i class="fas fa-user"></i> Mi Perfil
+        </a>
+        <a class="dropdown-item" href="#">
+          <i class="fas fa-cog"></i> Configuración
+        </a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" (click)="logout()">
+          <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        </a>
+      </div>
     </div>
   </div>
-</div> -->
+</div>

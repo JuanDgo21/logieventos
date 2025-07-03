@@ -1,258 +1,211 @@
 @use '../../../../styles.scss' as *;
 
-// dashboard.component.scss
-.dashboard-container {
+.dashboard-layout {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: $dark-color;
-  color: white;
 }
 
-.main-content {
-  display: flex;
+.dashboard-content {
   flex: 1;
+  margin-left: 250px;
+  padding-top: 60px;
+  padding-bottom: 50px;
+  transition: margin-left 0.3s ease;
+  
+  .sidebar-collapsed & {
+    margin-left: 70px;
+  }
 }
 
-.content-area {
-  flex: 1;
-  padding: 2rem;
-  background-image: 
-    radial-gradient(circle at 75% 50%, rgba($primary-color, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 25% 80%, rgba($secondary-color, 0.03) 0%, transparent 50%);
-}
-
-.content-header {
+.dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
-
+  padding: 1.5rem 2rem 0;
+  margin-bottom: 1.5rem;
+  
   h1 {
-    font-weight: 600;
-    font-size: 1.8rem;
     margin: 0;
-
-    .gradient-text {
-      background: $gradient-primary;
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
+    font-size: 1.8rem;
+    color: white;
+    font-weight: 600;
+  }
+  
+  .btn {
+    i {
+      margin-right: 0.5rem;
     }
   }
 }
 
-.info-grid {
+.summary-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
+  gap: 1.5rem;
+  padding: 0 2rem;
   margin-bottom: 2rem;
-}
-
-.info-card {
-  padding: 1.5rem;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  transition: transform 0.3s ease;
-  @include floating-effect;
-
-  .card-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
+  
+  .summary-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 1.5rem;
     display: flex;
     align-items: center;
-    justify-content: center;
-    margin-right: 1rem;
-    font-size: 1.5rem;
-    background: rgba(255,255,255,0.1);
-  }
-
-  .card-content {
-    h3 {
-      margin: 0 0 5px;
-      font-size: 1rem;
-      font-weight: 500;
-      color: rgba(255,255,255,0.8);
-    }
-
-    .card-value {
-      margin: 0;
-      font-size: 1.8rem;
-      font-weight: 700;
-    }
-  }
-
-  &.card-primary {
-    background: linear-gradient(135deg, rgba($primary-color, 0.2), rgba($secondary-color, 0.2));
-    border: 1px solid rgba($primary-color, 0.3);
-
-    .card-icon {
-      background: $gradient-primary;
-      color: white;
-    }
-  }
-
-  &.card-success {
-    background: linear-gradient(135deg, rgba($success-color, 0.2), rgba(darken($success-color, 15%), 0.2));
-    border: 1px solid rgba($success-color, 0.3);
-
-    .card-icon {
-      background: $gradient-success;
-      color: white;
-    }
-  }
-
-  &.card-warning {
-    background: linear-gradient(135deg, rgba($warning-color, 0.2), rgba(darken($warning-color, 15%), 0.2));
-    border: 1px solid rgba($warning-color, 0.3);
-
-    .card-icon {
-      background: linear-gradient(135deg, $warning-color, darken($warning-color, 15%));
-      color: white;
-    }
-  }
-}
-
-.action-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-
-  @media (max-width: 1200px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.glass-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-}
-
-.panel-title {
-  font-size: 1.2rem;
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  color: rgba(255,255,255,0.9);
-  display: flex;
-  align-items: center;
-
-  i {
-    margin-right: 10px;
-    color: $primary-color;
-  }
-}
-
-.action-buttons {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 15px;
-}
-
-.btn-action {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem 1rem;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.8);
-  transition: all 0.3s ease;
-
-  i {
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-  }
-
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-  }
-
-  &.action-primary {
-    background: rgba($primary-color, 0.1);
-    border-color: rgba($primary-color, 0.2);
-    color: white;
-
+    gap: 1rem;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.1);
+    
     &:hover {
-      background: rgba($primary-color, 0.2);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    
+    .card-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: white;
+    }
+    
+    .card-content {
+      h3 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+        background: linear-gradient(to right, white, #e0e0e0);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      
+      p {
+        margin: 0.2rem 0 0;
+        font-size: 0.9rem;
+        opacity: 0.8;
+        color: rgba(255,255,255,0.8);
+      }
     }
   }
+}
 
-  &.action-success {
-    background: rgba($success-color, 0.1);
-    border-color: rgba($success-color, 0.2);
+.quick-actions-section {
+  padding: 0 2rem;
+  margin-bottom: 2rem;
+  
+  h2 {
     color: white;
-
-    &:hover {
-      background: rgba($success-color, 0.2);
-    }
-  }
-}
-
-.activity-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.activity-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 15px;
-  padding: 15px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.03);
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(255,255,255,0.07);
-  }
-
-  .activity-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 1rem;
-
-    &.icon-info {
-      background: rgba($primary-color, 0.1);
+    gap: 0.8rem;
+    font-size: 1.4rem;
+    
+    i {
       color: $primary-color;
     }
-
-    &.icon-warning {
-      background: rgba($warning-color, 0.1);
-      color: $warning-color;
-    }
-
-    &.icon-danger {
-      background: rgba($danger-color, 0.1);
-      color: $danger-color;
+  }
+  
+  .actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    
+    .action-btn {
+      border: none;
+      padding: 1.2rem 1rem;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255,255,255,0.1);
+      
+      i {
+        font-size: 1.5rem;
+      }
+      
+      span {
+        font-size: 0.95rem;
+        font-weight: 500;
+      }
+      
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      }
     }
   }
+}
 
-  .activity-content {
-    flex: 1;
-
-    p {
-      margin: 0 0 5px;
-      color: rgba(255,255,255,0.9);
+.recent-activity {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin: 0 2rem;
+  border: 1px solid rgba(255,255,255,0.1);
+  
+  h2 {
+    color: white;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 1.4rem;
+    
+    i {
+      color: $primary-color;
     }
-
-    small {
-      color: rgba(255,255,255,0.5);
-      font-size: 0.8rem;
+  }
+  
+  .activity-list {
+    .activity-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba($primary-color, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $primary-color;
+        font-size: 1.1rem;
+      }
+      
+      .activity-content {
+        flex: 1;
+        
+        p {
+          margin: 0;
+          color: rgba(255,255,255,0.9);
+          font-size: 0.95rem;
+        }
+        
+        small {
+          color: rgba(255,255,255,0.6);
+          font-size: 0.8rem;
+        }
+      }
     }
   }
 }

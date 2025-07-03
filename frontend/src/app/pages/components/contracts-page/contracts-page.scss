@@ -1,0 +1,63 @@
+@use '../../../../styles.scss' as *;
+
+/* Colores para los nuevos estados */
+.bg-borrador {
+  background-color: #6c757d;
+}
+.bg-completado {
+  background-color: #0d6efd;
+}
+
+/* Botón "Ver Todos" */
+.btn-link {
+  color: #0d6efd;
+  text-decoration: none;
+  transition: all 0.3s;
+
+  &:hover {
+    color: #0a58ca;
+    transform: translateY(2px);
+  }
+}
+
+/* Ajuste para tarjetas de estado */
+
+.card {
+    .card-body {
+    padding: 1.5rem;
+  }
+  .card-title, .display-6 {
+      color: #f8f9ff;
+    }
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.table-lg {
+  td, th {
+    padding: 1rem;
+    vertical-align: middle;
+  }
+}
+
+.bg-opacity-10 {
+  opacity: 0.1;
+}
+
+/* Responsividad */
+@media (max-width: 992px) {
+  .main-content {
+    margin-left: 0;
+  }
+  
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}

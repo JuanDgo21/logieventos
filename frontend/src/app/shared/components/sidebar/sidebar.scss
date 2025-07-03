@@ -1,82 +1,126 @@
 @use '../../../../styles.scss' as *;
 
-// sidebar.component.scss
 .sidebar {
-  width: 280px;
-  background: linear-gradient(180deg, darken($dark-color, 5%), $dark-color);
-  padding: 2rem 1rem;
-  border-right: 1px solid rgba(255,255,255,0.05);
-  position: relative;
-  z-index: 10;
-  @include particle-effect;
+  background: rgba($dark-color, 0.95);
+  backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(255,255,255,0.1);
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 900;
+  transition: width 0.3s ease;
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  color: white;
 
-  .logo {
-    display: flex;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding-left: 1rem;
+  &.collapsed {
+    width: 70px;
 
-    img {
-      height: 40px;
-      margin-right: 10px;
+    .app-name,
+    .menu-item span,
+    .sidebar-footer span {
+      display: none;
     }
 
-    h2 {
-      background: $gradient-primary;
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      font-weight: 700;
-      margin: 0;
+    .collapse-btn i {
+      transform: rotate(180deg);
     }
   }
 
-  .nav {
+  .sidebar-header {
+    padding: 1.5rem 1rem;
     display: flex;
-    flex-direction: column;
-    gap: 5px;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
 
-    &-link {
+    .sidebar-logo {
+      width: 30px;
+      height: 30px;
+    }
+
+    .app-name {
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-left: 0.5rem;
+    }
+
+    .collapse-btn {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        color: white;
+      }
+
+      i {
+        transition: transform 0.3s ease;
+      }
+    }
+  }
+
+  .sidebar-menu {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 0;
+
+    .menu-item {
       display: flex;
       align-items: center;
-      padding: 15px 20px;
-      border-radius: 12px;
+      padding: 0.8rem 1.5rem;
       color: rgba(255,255,255,0.7);
       text-decoration: none;
       transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
+      margin: 0.2rem 0;
 
       i {
-        margin-right: 12px;
-        font-size: 1.1rem;
         width: 24px;
         text-align: center;
+        font-size: 1.1rem;
       }
 
-      &::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0;
-        height: 100%;
-        width: 3px;
-        background: $gradient-primary;
-        transform: scaleY(0);
-        transition: transform 0.3s ease;
+      span {
+        margin-left: 1rem;
+        font-size: 0.9rem;
       }
 
       &:hover {
-        background: rgba(255,255,255,0.05);
+        background: rgba($primary-color, 0.1);
         color: white;
       }
 
       &.active {
-        background: rgba($primary-color, 0.1);
+        background: rgba($primary-color, 0.2);
         color: white;
+        border-left: 3px solid $primary-color;
+      }
+    }
+  }
 
-        &::before {
-          transform: scaleY(1);
+  .sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.8rem;
+    opacity: 0.7;
+
+    .system-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .status-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+
+        &.online {
+          background: $success-color;
+          box-shadow: 0 0 10px $success-color;
         }
       }
     }

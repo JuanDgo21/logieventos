@@ -1,24 +1,29 @@
-<div class="notification-panel" [class.show]="showNotifications">
-  <div class="notification-header">
-    <h3>Notificaciones <span class="badge">{{notifications.length}}</span></h3>
-    <button class="btn btn-icon" (click)="closeNotifications()">
-      <i class="fas fa-times"></i>
+<div class="sidebar" [class.collapsed]="collapsed">
+  <div class="sidebar-header">
+    <i class="fas fa-calendar-alt sidebar-icon"></i>
+    <span class="app-name" *ngIf="!collapsed">LogiEventos</span>
+    <button class="collapse-btn" (click)="layoutService.toggleSidebar()">
+      <i class="fas fa-chevron-left"></i>
     </button>
   </div>
-  
-  <div class="notification-list">
-    <div *ngFor="let notification of notifications" class="notification-item">
-      <div class="notification-icon">
-        <i class="fas fa-{{notification.icon}}"></i>
-      </div>
-      <div class="notification-content">
-        <p>{{notification.message}}</p>
-        <small>{{notification.time | date:'short'}}</small>
-      </div>
-    </div>
+
+  <div class="sidebar-menu">
+    <ng-container *ngFor="let module of modules">
+      <a class="menu-item" 
+         [routerLink]="module.path"
+         routerLinkActive="active"
+         [class.active]="(layoutService.activeModule$ | async) === module.path"
+         (click)="setActiveModule(module.path)">
+        <i class="fas fa-{{module.icon}}"></i>
+        <span *ngIf="!collapsed">{{module.name}}</span>
+      </a>
+    </ng-container>
   </div>
-  
-  <div class="notification-footer">
-    <button class="btn btn-text">Marcar todas como leídas</button>
+
+  <div class="sidebar-footer" *ngIf="!collapsed">
+    <div class="system-status">
+      <div class="status-indicator online"></div>
+      <span>Sistema Operativo</span>
+    </div>
   </div>
 </div>
