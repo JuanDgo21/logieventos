@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth';
+import { AlertService } from '../../../core/services/alert';
 import { Router } from '@angular/router';
 
 interface ResourceType {
@@ -32,7 +33,8 @@ export class ResourceTypesComponent {
   constructor(
     private http: HttpClient,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private alertService: AlertService,
   ) {
     this.loadResourceTypes();
   }
@@ -82,10 +84,22 @@ export class ResourceTypesComponent {
         this.isLoading = false;
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Error al crear el tipo de recurso';
-        console.error('Error creating resource type:', err);
-        this.isLoading = false;
+      this.isLoading = false;
+      
+      if (err.status === 401 || err.status === 403) {
+        this.alertService.showError({
+          type: 'auth',
+          message: err.status === 401 
+            ? 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.'
+            : 'No tienes permisos suficientes para esta acción.'
+        });
+      } else {
+        this.alertService.showError({
+          type: 'create',
+          message: 'Error al crear el tipo recurso: ' + (err.error?.message || '')
+        });
       }
+    }
     });
   }
 
@@ -104,9 +118,11 @@ export class ResourceTypesComponent {
         this.isLoading = false;
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Error al actualizar el tipo de recurso';
-        console.error('Error updating resource type:', err);
         this.isLoading = false;
+        this.alertService.showError({
+          type: 'update',
+          message: 'Error al actualizar: ' + (err.error?.message || '')
+        });
       }
     });
   }
@@ -125,9 +141,11 @@ export class ResourceTypesComponent {
         this.isLoading = false;
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Error al eliminar el tipo de recurso';
-        console.error('Error deleting resource type:', err);
         this.isLoading = false;
+        this.alertService.showError({
+          type: 'delete',
+          message: 'Error al eliminar: ' + (err.error?.message || '')
+        });
       }
     });
   }

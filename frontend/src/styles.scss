@@ -204,7 +204,19 @@ body {
   }
 }
 
+.error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+  font-weight: 500;
+
+  .mat-simple-snackbar-action {
+    color: white;
+  }
+} 
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
