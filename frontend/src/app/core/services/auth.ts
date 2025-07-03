@@ -167,48 +167,50 @@ export class AuthService {
   }
 
   forgotPassword(email: string): Observable<any> {
-    console.log('Solicitando reseteo de contraseña para:', email);
+    console.log('[AuthService] Solicitud de recuperación para:', email);
     return this.apiService.postObservable(apiRouters.AUTH.FORGOT_PASSWORD, { email }).pipe(
-      tap((response: any) => {
-        console.log('Respuesta de forgotPassword:', response);
-        if (response?.token) {
-          // Aquí podrías guardar temporalmente el token si es necesario
-        }
+      tap((response) => {
+        console.log('[AuthService] Respuesta de recuperación:', response);
       }),
       catchError(error => {
-        console.error('Error en forgotPassword:', error);
-        let errorMessage = 'Error desconocido';
-        
-        if (error.error && error.error.message) {
+        console.error('[AuthService] Error en recuperación:', error);
+        // Mejor manejo de errores para el usuario
+        let errorMessage = 'Error al procesar la solicitud';
+        if (error.error?.message) {
           errorMessage = error.error.message;
-        } else if (error.message) {
-          errorMessage = error.message;
+        } else if (error.status === 404) {
+          errorMessage = 'No se encontró el usuario';
         }
-        
-        return throwError(() => new Error(errorMessage));
-      })
-    );
-  } 
-
-  resetPassword(token: string, newPassword: string): Observable<any> {
-    console.log('Reseteando contraseña con token:', token);
-    return this.apiService.putObservable(apiRouters.AUTH.RESET_PASSWORD, {
-      token: token,
-      newPassword: newPassword
-    }).pipe(
-      catchError(error => {
-        console.error('Error en resetPassword:', error);
-        let errorMessage = 'Error desconocido al resetear la contraseña';
-        
-        if (error.error && error.error.message) {
-          errorMessage = error.error.message;
-        } else if (error.message) {
-          errorMessage = error.message;
-        }
-        
         return throwError(() => new Error(errorMessage));
       })
     );
   }
+
+
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    console.log('[AuthService] Actualizando contraseña con token');
+    return this.apiService.postObservable(apiRouters.AUTH.RESET_PASSWORD, { 
+      token, 
+      newPassword 
+    }).pipe(
+      tap((response) => {
+        console.log('[AuthService] Contraseña actualizada:', response);
+      }),
+      catchError(error => {
+        console.error('[AuthService] Error al actualizar:', error);
+        // Mensajes más específicos para el usuario
+        let errorMessage = 'Error al actualizar la contraseña';
+        if (error.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error.status === 400) {
+          errorMessage = 'Token inválido o expirado';
+        } else if (error.status === 404) {
+          errorMessage = 'Usuario no encontrado';
+        }
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
+
 
 }

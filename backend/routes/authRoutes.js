@@ -32,5 +32,9 @@ router.post('/signup',
  */
 router.post('/signin', authController.signin);  // Controlador de autenticación directo
 
+// Nuevas rutas para recuperación de contraseña
+router.post('/forgot-password', authController.forgotPassword);
+router.post('/reset-password', authController.resetPassword);
+
 // Exportar el router configurado con las rutas
 module.exports = router;

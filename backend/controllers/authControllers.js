@@ -1,7 +1,8 @@
 // Importación de modelos y dependencias necesarias
-const User = require('../models/User'); // Modelo de usuario
-const jwt = require('jsonwebtoken'); // Para generar tokens JWT
-const config = require('../config/auth.config'); // Configuración de autenticación
+const bcrypt = require('bcryptjs'); 
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+const config = require('../config/auth.config');
 
 /**
  * Función para registrar nuevos usuarios
@@ -164,79 +165,94 @@ const signin = async (req, res) => {
 };
 
 //nuevos
+/**
+ * Función para iniciar el proceso de recuperación (solo verifica email)
+ */
 const forgotPassword = async (req, res) => {
+  console.log('[forgotPassword] Iniciando proceso...');
   try {
     const { email } = req.body;
-    
-    // 1. Buscar usuario por email
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({
+    console.log(`Email recibido: ${email}`);
+
+    if (!email) {
+      return res.status(400).json({
         success: false,
-        message: "Usuario no encontrado"
+        message: "El email es requerido"
       });
     }
+
+    // Solo verificamos que el usuario existe
+    const user = await User.findOne({ email });
     
-    // 2. Generar token de reseteo
-    const resetToken = jwt.sign(
-      { id: user._id },
-      config.secret,
-      { expiresIn: '1h' }
-    );
-    
-    // 3. Guardar token en el usuario (asegurando que todos los campos requeridos estén presentes)
-    user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
-    
-    // Si document es requerido, asegúrate de que tenga un valor
-    if (user.isModified('document') && !user.document) {
-      user.document = 'default-value-or-empty'; // Proporciona un valor por defecto
+    if (!user) {
+      // Por seguridad, no revelamos si el email existe o no
+      return res.status(200).json({
+        success: true,
+        message: "Si el email existe, podrás cambiar tu contraseña"
+      });
     }
-    
-    await user.save();
-    
-    // 4. Log (en producción enviarías un email)
-    console.log(`Token de reseteo para ${email}: ${resetToken}`);
-    
+
+    // Generamos un token simple sin almacenarlo en la BD
+    const resetToken = jwt.sign(
+      { 
+        id: user._id,
+        email: user.email,
+        action: 'password_reset' // Para identificar el propósito
+      },
+      config.secret,
+      { expiresIn: '1h' } // Token válido por 1 hora
+    );
+
+    console.log(`Token generado para ${email}: ${resetToken}`);
+
     res.status(200).json({
       success: true,
-      message: "Se ha enviado un enlace de reseteo a tu email",
-      token: resetToken
+      message: "Proceso de recuperación iniciado",
+      token: resetToken // Enviamos el token al frontend
     });
-    
+
   } catch (error) {
     console.error('Error en forgotPassword:', error);
     res.status(500).json({
       success: false,
-      message: "Error al procesar la solicitud",
-      error: error.message
+      message: "Error al procesar la solicitud"
     });
   }
 };
 
+/**
+ * Función para actualizar la contraseña
+ */
 const resetPassword = async (req, res) => {
+  console.log('[resetPassword] Procesando solicitud...');
   try {
     const { token, newPassword } = req.body;
-    
+
     if (!token || !newPassword) {
       return res.status(400).json({
         success: false,
         message: "Token y nueva contraseña son requeridos"
       });
     }
-    
-    // 1. Verificar token
+
+    // Verificamos el token
     let decoded;
     try {
       decoded = jwt.verify(token, config.secret);
+      
+      // Verificamos que el token es para reseteo de contraseña
+      if (decoded.action !== 'password_reset') {
+        throw new Error('Token inválido para esta acción');
+      }
     } catch (error) {
+      console.error('Token inválido:', error);
       return res.status(400).json({
         success: false,
         message: "Token inválido o expirado"
       });
     }
-    
-    // 2. Buscar usuario
+
+    // Buscamos al usuario por ID (del token)
     const user = await User.findById(decoded.id);
     if (!user) {
       return res.status(404).json({
@@ -244,44 +260,36 @@ const resetPassword = async (req, res) => {
         message: "Usuario no encontrado"
       });
     }
-    
-    // 3. Verificar que el token coincida con el guardado
-    if (user.resetPasswordToken !== token) {
+
+    // Verificamos que el email coincida
+    if (user.email !== decoded.email) {
       return res.status(400).json({
         success: false,
-        message: "Token no coincide con el registrado"
+        message: "Token no coincide con el usuario"
       });
     }
-    
-    // 4. Verificar que el token no haya expirado
-    if (Date.now() > user.resetPasswordExpires) {
-      return res.status(400).json({
-        success: false,
-        message: "El token ha expirado"
-      });
-    }
-    
-    // 5. Actualizar contraseña
-    user.password = await bcrypt.hash(newPassword, 10);
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
+
+    console.log(`Actualizando contraseña para usuario: ${user.email}`);
+
+    // Actualizamos la contraseña (el pre-save hook hará el hash)
+    user.password = newPassword;
     await user.save();
-    
+
+    console.log('Contraseña actualizada exitosamente');
+
     res.status(200).json({
       success: true,
       message: "Contraseña actualizada correctamente"
     });
-    
+
   } catch (error) {
     console.error('Error en resetPassword:', error);
     res.status(500).json({
       success: false,
-      message: "Error al resetear la contraseña",
-      error: error.message
+      message: "Error al actualizar la contraseña"
     });
   }
 };
-
 
 module.exports = {
   signup,

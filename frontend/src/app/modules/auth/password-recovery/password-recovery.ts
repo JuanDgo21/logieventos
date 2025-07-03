@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -12,11 +12,12 @@ import { AuthService } from '../../../core/services/auth';
 })
 export class PasswordRecoveryComponent {
   recoveryForm: FormGroup;
-  isLoading = false;
   emailVerified = false;
   resetSuccess = false;
+  isLoading = false;
   errorMessage = '';
-  resetToken = '';
+  successMessage = '';
+  recoveryToken = '';
 
   constructor(
     private fb: FormBuilder,
@@ -27,79 +28,72 @@ export class PasswordRecoveryComponent {
       email: ['', [Validators.required, Validators.email]],
       newPassword: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', Validators.required]
-    }, { validator: this.passwordMatchValidator });
+    }, { validators: this.passwordMatchValidator });
   }
 
+  // Validador personalizado para coincidencia de contraseñas
   passwordMatchValidator(form: FormGroup) {
-    return form.get('newPassword')?.value === form.get('confirmPassword')?.value 
-      ? null : { mismatch: true };
+    const password = form.get('newPassword')?.value;
+    const confirmPassword = form.get('confirmPassword')?.value;
+    return password === confirmPassword ? null : { mismatch: true };
   }
 
+  // Paso 1: Verificar email y generar token
   verifyEmail(): void {
     if (this.recoveryForm.get('email')?.invalid) {
-      this.errorMessage = 'Por favor ingresa un correo electrónico válido';
+      this.recoveryForm.get('email')?.markAsTouched();
       return;
     }
 
     this.isLoading = true;
     this.errorMessage = '';
+    const email = this.recoveryForm.get('email')?.value;
 
-    this.authService.forgotPassword(this.recoveryForm.value.email).subscribe({
-      next: (response: any) => {
-        if (response.success) {
-          // Guarda el token exactamente como viene del backend
-          this.resetToken = response.token;
-          this.emailVerified = true;
-          console.log('Token recibido del backend:', this.resetToken);
-        } else {
-          this.errorMessage = response.message || 'Error al verificar el email';
-        }
+    this.authService.forgotPassword(email).subscribe({
+      next: (response) => {
+        this.recoveryToken = response.token;
+        this.emailVerified = true;
+        this.isLoading = false;
+        this.successMessage = 'Se ha enviado un token de verificación. Por favor ingresa tu nueva contraseña.';
       },
       error: (error) => {
-        this.errorMessage = error.error?.message || 'Error al procesar la solicitud';
-        console.error('Error en verifyEmail:', error);
-      },
-      complete: () => {
+        this.errorMessage = error.message || 'Error al verificar el email';
         this.isLoading = false;
-      }
-    });
-  } 
-
-  resetPassword(): void {
-    if (this.recoveryForm.invalid) {
-      this.errorMessage = 'Por favor completa todos los campos correctamente';
-      return;
-    }
-
-    const newPassword = this.recoveryForm.value.newPassword;
-    const confirmPassword = this.recoveryForm.value.confirmPassword;
-
-    if (newPassword !== confirmPassword) {
-      this.errorMessage = 'Las contraseñas no coinciden';
-      return;
-    }
-
-    this.isLoading = true;
-    this.errorMessage = '';
-
-    this.authService.resetPassword(this.resetToken, newPassword).subscribe({
-      next: (response: any) => {
-        this.isLoading = false;
-        if (response?.success) {
-          this.resetSuccess = true;
-          setTimeout(() => {
-            this.router.navigate(['/auth/login']);
-          }, 2000);
-        } else {
-          this.errorMessage = response?.message || 'Error al actualizar la contraseña';
-        }
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.errorMessage = error.message || 'Error al resetear la contraseña';
-        console.error('Error completo:', error);
       }
     });
   }
 
+  // Paso 2: Resetear contraseña
+  resetPassword(): void {
+    if (this.recoveryForm.invalid) {
+      this.recoveryForm.markAllAsTouched();
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+    const newPassword = this.recoveryForm.get('newPassword')?.value;
+
+    this.authService.resetPassword(this.recoveryToken, newPassword).subscribe({
+      next: () => {
+        this.resetSuccess = true;
+        this.isLoading = false;
+        this.successMessage = '¡Contraseña actualizada correctamente!';
+        
+        // Redirigir después de 3 segundos
+        setTimeout(() => {
+          this.router.navigate(['/auth/login']);
+        }, 3000);
+      },
+      error: (error) => {
+        this.errorMessage = error.message;
+        this.isLoading = false;
+        
+        // Si el token es inválido, volver al paso 1
+        if (error.message.includes('inválido') || error.message.includes('expirado')) {
+          this.emailVerified = false;
+        }
+      }
+    });
+  }
 }
