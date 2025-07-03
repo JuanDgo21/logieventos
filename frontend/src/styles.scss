@@ -1,93 +1,210 @@
-// Variables de colores
-$primary-color: #4e73df;
-$secondary-color: #224abe;
-$dark-color: #2c3e50;
-$gray-color: #7a8288;
-$gray-light-color: #eaecef;
-$success-color: #1cc88a;
-$danger-color: #e74a3b;
-$warning-color: #f6c23e;
+// Configuración inicial
+@use 'sass:color';
 
-// Fuentes
-$font-family-base: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+// Variables de colores temáticos
+$primary-color: #6a11cb;
+$secondary-color: #2575fc;
+$accent-color: #f46b45;
+$success-color: #38ef7d;
+$warning-color: #f9d423;
+$danger-color: #ff416c;
+$dark-color: #1a1a2e;
+$light-color: #f8f9ff;
 
-// Mixins
-@mixin box-shadow($level: 1) {
-  @if $level == 1 {
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-  } @else if $level == 2 {
-    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-  } @else if $level == 3 {
-    box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+// Mixins reutilizables
+@mixin glass-effect {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@mixin floating-effect {
+  transition: transform 0.3s ease;
+  &:hover {
+    transform: translateY(-5px);
   }
+}
+
+
+// Degradados profesionales
+$gradient-primary: linear-gradient(135deg, $primary-color, $secondary-color);
+$gradient-accent: linear-gradient(135deg, $accent-color, darken($accent-color, 15%));
+$gradient-success: linear-gradient(135deg, $success-color, darken($success-color, 15%));
+
+// Efectos especiales
+@mixin floating-effect {
+  transform: translateY(0);
+  transition: all 0.3s ease;
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  }
+}
+
+@mixin particle-effect {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    transform: rotate(0deg);
+    animation: particle-rotate 15s linear infinite;
+  }
+}
+
+// Animaciones
+@keyframes particle-rotate {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; box-shadow: 0 0 15px currentColor; }
 }
 
 // Estilos base
 body {
-  font-family: $font-family-base;
-  color: $dark-color;
-  background-color: #f8f9fc;
-  line-height: 1.6;
-}
-
-// Animaciones
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.fa-spin {
-  animation: spin 1s infinite linear;
+  font-family: 'Poppins', sans-serif;
+  background: $dark-color;
+  color: white;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba($primary-color, 0.1) 0%, transparent 20%),
+    radial-gradient(circle at 90% 80%, rgba($secondary-color, 0.1) 0%, transparent 20%);
 }
 
 // Utilidades
-.text-center {
-  text-align: center;
+.pulse-effect {
+  animation: pulse-glow 2s infinite alternate;
 }
 
-.mt-3 {
-  margin-top: 1rem;
+.card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  @include particle-effect;
 }
 
-.d-block {
-  display: block;
+.input-field {
+  position: relative;
+  margin-bottom: 1.5rem;
+  
+  i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255,255,255,0.7);
+    transition: all 0.3s ease;
+  }
+  
+  input {
+    width: 100%;
+    padding: 15px 15px 15px 45px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      background: rgba(255,255,255,0.15);
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.3);
+      
+      + i {
+        color: $primary-color;
+      }
+    }
+    
+    &::placeholder {
+      color: rgba(255,255,255,0.5);
+    }
+  }
 }
 
-.d-flex {
-  display: flex;
-}
-
-.justify-content-between {
-  justify-content: space-between;
-}
-
-.justify-content-center {
-  justify-content: center;
-}
-
-.align-items-center {
+.btn {
+  display: inline-flex;
   align-items: center;
-}
-
-.invalid-feedback {
-  color: $danger-color;
-  font-size: 0.8rem;
+  justify-content: center;
+  gap: 10px;
+  padding: 15px 25px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  @include floating-effect;
+  
+  &-primary {
+    background: $gradient-primary;
+    color: white;
+    
+    &:hover {
+      background: linear-gradient(135deg, darken($primary-color, 5%), darken($secondary-color, 5%));
+    }
+  }
+  
+  &-text {
+    background: transparent;
+    color: rgba(255,255,255,0.7);
+    padding: 10px;
+    
+    &:hover {
+      color: $accent-color;
+    }
+  }
 }
 
 .alert {
-  padding: 0.75rem 1.25rem;
-  border-radius: 0.35rem;
-  margin-bottom: 1rem;
-
-  &.alert-danger {
-    background-color: rgba($danger-color, 0.1);
-    border: 1px solid rgba($danger-color, 0.2);
-    color: darken($danger-color, 10%);
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: fadeIn 0.3s ease;
+  
+  i {
+    font-size: 1.2rem;
   }
-
-  &.alert-success {
-    background-color: rgba($success-color, 0.1);
-    border: 1px solid rgba($success-color, 0.2);
-    color: darken($success-color, 10%);
+  
+  &-success {
+    background: rgba($success-color, 0.1);
+    border-left: 4px solid $success-color;
+    color: $success-color;
   }
+  
+  &-danger {
+    background: rgba($danger-color, 0.1);
+    border-left: 4px solid $danger-color;
+    color: $danger-color;
+  }
+  
+  &-warning {
+    background: rgba($warning-color, 0.1);
+    border-left: 4px solid $warning-color;
+    color: $warning-color;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

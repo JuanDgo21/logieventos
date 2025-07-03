@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
 
@@ -16,6 +16,7 @@ export class LoginComponent {
   showAlert = false;
   alertType = 'danger';
   alertMessage = '';
+  alertTimeout: any;
 
   constructor(
     private fb: FormBuilder,
@@ -24,7 +25,18 @@ export class LoginComponent {
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+      password: ['', [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
+      ]]
+    });
+
+    // Validación en tiempo real
+    this.loginForm.valueChanges.subscribe(() => {
+      if (this.showAlert) {
+        this.dismissAlert();
+      }
     });
   }
 
@@ -32,44 +44,67 @@ export class LoginComponent {
     return {
       'success': 'fa-check-circle',
       'danger': 'fa-exclamation-triangle',
-      'warning': 'fa-exclamation-circle',
-      'info': 'fa-info-circle'
+      'warning': 'fa-exclamation-circle'
     }[this.alertType] || 'fa-info-circle';
   }
 
   getAlertTitle(): string {
     return {
-      'success': 'Éxito',
-      'danger': 'Error',
-      'warning': 'Advertencia',
-      'info': 'Información'
-    }[this.alertType] || 'Mensaje';
+      'success': 'Éxito!',
+      'danger': 'Error!',
+      'warning': 'Advertencia!'
+    }[this.alertType] || 'Información';
   }
 
   togglePasswordVisibility(): void {
     this.passwordVisible = !this.passwordVisible;
   }
 
+  showAlertMessage(type: string, message: string, duration: number = 5000): void {
+    this.alertType = type;
+    this.alertMessage = message;
+    this.showAlert = true;
+    
+    if (this.alertTimeout) {
+      clearTimeout(this.alertTimeout);
+    }
+    
+    this.alertTimeout = setTimeout(() => {
+      this.dismissAlert();
+    }, duration);
+  }
+
+  dismissAlert(): void {
+    this.showAlert = false;
+    if (this.alertTimeout) {
+      clearTimeout(this.alertTimeout);
+    }
+  }
+
+  navigateToForgotPassword(): void {
+    this.router.navigate(['/auth/forgot-password']);
+  }
+
   onSubmit(): void {
-    if (this.loginForm.invalid) return;
+    if (this.loginForm.invalid) {
+      this.showAlertMessage('warning', 'Por favor completa todos los campos correctamente');
+      return;
+    }
 
     this.isLoading = true;
-    this.showAlert = false;
-
     const { email, password } = this.loginForm.value;
 
     this.authService.login(email, password).subscribe({
       next: () => {
-        this.alertType = 'success';
-        this.alertMessage = 'Inicio de sesión exitoso';
-        this.showAlert = true;
-        setTimeout(() => this.router.navigate(['/home']), 1500);
+        this.showAlertMessage('success', 'Inicio de sesión exitoso! Redirigiendo...');
+        setTimeout(() => {
+          this.router.navigate(['/home']);
+        }, 1500);
       },
       error: (err) => {
-        this.alertType = 'danger';
-        this.alertMessage = err.error?.message || 'Error al iniciar sesión';
-        this.showAlert = true;
         this.isLoading = false;
+        const message = err.error?.message || 'Error al iniciar sesión. Verifica tus credenciales.';
+        this.showAlertMessage('danger', message);
       }
     });
   }
