@@ -8,13 +8,15 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InventoryPageComponent } from './components/inventory-page/inventory-page';
 import { DashboardComponent } from './components/dashboard/dashboard';
 import { SharedModule } from '../shared/shared-module';
+import { ContractsPage } from './components/contracts-page/contracts-page';
 
 
 @NgModule({
   declarations: [
     ProvidersPage,
     InventoryPageComponent,
-    DashboardComponent
+    DashboardComponent,
+    ContractsPage
   ],
   imports: [
     CommonModule,
@@ -28,7 +30,8 @@ import { SharedModule } from '../shared/shared-module';
   exports: [
     ProvidersPage,
     InventoryPageComponent,
-    DashboardComponent
+    DashboardComponent,
+    ContractsPage
   ]
 })
 export class PagesModule { }
