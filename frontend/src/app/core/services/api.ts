@@ -72,4 +72,18 @@ export class ApiService  {
   deleteObservable(endpoint: string): Observable<any> {
     return this.http.delete(this.baseUrl + endpoint);
   }
+
+  private getHeaders(): HttpHeaders {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    const token = localStorage.getItem('token');
+    if (token) {
+      return headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    return headers;
+  }
+
 }

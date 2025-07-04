@@ -6,4 +6,6 @@ export interface User {
   email: string;
   password?: string;
   role: 'admin' | 'coordinador' | 'lider';
+  createdAt?: Date;
+  updatedAt?: Date;
 }

@@ -37,7 +37,6 @@ export class LayoutService {
     }
   }
 
-  // Módulos por rol (rutas actualizadas)
   getModulesForRole(role: string): any[] {
     const modules = {
       admin: [

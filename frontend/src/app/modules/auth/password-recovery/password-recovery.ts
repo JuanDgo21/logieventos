@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../../core/services/auth';
 
 @Component({
@@ -18,6 +17,9 @@ export class PasswordRecoveryComponent {
   errorMessage = '';
   successMessage = '';
   recoveryToken = '';
+  showNewPassword = false;
+  showConfirmPassword = false;
+  showAlert = false;
 
   constructor(
     private fb: FormBuilder,
@@ -26,9 +28,22 @@ export class PasswordRecoveryComponent {
   ) {
     this.recoveryForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      newPassword: ['', [Validators.required, Validators.minLength(8)]],
+      newPassword: ['', [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
+      ]],
       confirmPassword: ['', Validators.required]
-    }, { validators: this.passwordMatchValidator });
+    }, {
+      validators: this.passwordMatchValidator
+    });
+
+    // Ocultar alertas cuando el usuario modifica el formulario
+    this.recoveryForm.valueChanges.subscribe(() => {
+      if (this.showAlert) {
+        this.dismissAlert();
+      }
+    });
   }
 
   // Validador personalizado para coincidencia de contraseñas
@@ -96,4 +111,37 @@ export class PasswordRecoveryComponent {
       }
     });
   }
+
+  // Añade estos métodos
+  getPasswordStrengthClass(): string {
+    const password = this.recoveryForm.get('newPassword')?.value;
+    if (!password) return '';
+    
+    const hasLetters = /[a-zA-Z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    const length = password.length;
+    
+    if (length < 6) return 'weak';
+    if (length < 8 || !(hasLetters && hasNumbers)) return 'medium';
+    if (hasLetters && hasNumbers && hasSpecial && length >= 8) return 'strong';
+    
+    return 'medium';
+  }
+
+  getPasswordStrengthText(): string {
+    const strength = this.getPasswordStrengthClass();
+    switch(strength) {
+      case 'weak': return 'Débil';
+      case 'medium': return 'Moderada';
+      case 'strong': return 'Fuerte';
+      default: return '';
+    }
+  }
+
+  dismissAlert(): void {
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
 }

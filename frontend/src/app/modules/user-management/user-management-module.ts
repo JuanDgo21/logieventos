@@ -3,14 +3,14 @@ import { CommonModule } from '@angular/common';
 
 import { UserManagementRoutingModule } from './user-management-routing-module';
 import { UserList } from './user-list/user-list';
-import { UserProfile } from './user-profile/user-profile';
+import { UserProfileComponent } from './user-profile/user-profile';
 import { RoleManagement } from './role-management/role-management';
 
 
 @NgModule({
   declarations: [
     UserList,
-    UserProfile,
+    UserProfileComponent,
     RoleManagement
   ],
   imports: [
@@ -19,7 +19,7 @@ import { RoleManagement } from './role-management/role-management';
   ],
   exports: [
     UserList,
-    UserProfile,
+    UserProfileComponent,
     RoleManagement
   ]
 })
