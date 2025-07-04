@@ -3,6 +3,9 @@ import { ContractService, Contract } from '../../../core/services/contract';
 
 type ContractStatus = 'borrador' | 'activo' | 'completado' | 'cancelado';
 
+// Esto permite usar Bootstrap Modals con TypeScript
+declare const bootstrap: any;
+
 @Component({
   selector: 'app-contracts-page',
   standalone: false,
@@ -11,6 +14,9 @@ type ContractStatus = 'borrador' | 'activo' | 'completado' | 'cancelado';
 })
 export class ContractsPage {
   contracts: Contract[] = [];
+
+  selectedContract: Contract | null = null;
+  showEditModal = false;
 
   statusCounts: Record<ContractStatus, number> = {
     borrador: 0,
@@ -92,4 +98,63 @@ export class ContractsPage {
       });
     }
   }
+
+  showDetails(contract: Contract): void {
+    this.selectedContract = contract;
+    const modalElement = document.getElementById('contractDetailsModal');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+    }
+  }
+
+  openEditModal(contract: Contract): void {
+    this.selectedContract = JSON.parse(JSON.stringify(contract)); // Copia para edición segura
+    this.showEditModal = true;
+  }
+
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.selectedContract = null;
+  }
+
+  saveChanges(): void {
+  if (!this.selectedContract || !this.selectedContract._id) {
+    console.warn('No hay contrato seleccionado para guardar.');
+    return;
+  }
+
+  const cleanedContract: Contract = {
+  _id: this.selectedContract._id!,
+  name: this.selectedContract.name!,
+  clientName: this.selectedContract.clientName!,
+  clientPhone: this.selectedContract.clientPhone!,
+  clientEmail: this.selectedContract.clientEmail!,
+  startDate: this.selectedContract.startDate!,
+  endDate: this.selectedContract.endDate!,
+  budget: this.selectedContract.budget!,
+  status: this.selectedContract.status!,
+  terms: this.selectedContract.terms!,
+  createdAt: this.selectedContract.createdAt!, // o Date.now() si no está
+  // Si no vas a usar recursos/proveedores/personal por ahora:
+  resources: [],
+  providers: [],
+  personnel: []
+};
+
+
+  this.contractService.updateContract(this.selectedContract._id, cleanedContract).subscribe({
+    next: (updatedContract) => {
+      const index = this.contracts.findIndex(c => c._id === updatedContract._id);
+      if (index !== -1) {
+        this.contracts[index] = updatedContract;
+      }
+      this.closeEditModal();
+    },
+    error: (err) => {
+      console.error('Error al guardar los cambios:', err);
+    }
+  });
+}
+
 }

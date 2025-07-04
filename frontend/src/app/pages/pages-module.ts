@@ -11,6 +11,7 @@ import { DashboardComponent } from './components/dashboard/dashboard';
 import { ContractsPage } from './components/contracts-page/contracts-page';
 
 
+
 @NgModule({
   declarations: [
     ProvidersPage,

@@ -75,7 +75,7 @@ exports.createContract = async (req, res) => {
       clientEmail,
       startDate,
       endDate,
-      totalAmount,
+      budget,
       terms,
       resources,
       providers,
@@ -83,7 +83,7 @@ exports.createContract = async (req, res) => {
     } = req.body;
 
     // Validación especial para coordinadores (no pueden crear contratos > $10,000)
-    if (req.userRole === 'coordinador' && totalAmount > 10000) {
+    if (req.userRole === 'coordinador' && budget > 10000) {
       return res.status(403).json({
         success: false,
         message: 'Coordinadores no pueden crear contratos > $10,000'
@@ -146,7 +146,7 @@ exports.createContract = async (req, res) => {
       clientEmail,
       startDate,
       endDate,
-      totalAmount,
+      budget,
       terms,
       resources,
       providers,
@@ -183,7 +183,7 @@ exports.updateContract = async (req, res) => {
       clientEmail,
       startDate,
       endDate,
-      totalAmount,
+      budget,
       status,
       terms,
       resources,
@@ -196,16 +196,23 @@ exports.updateContract = async (req, res) => {
 
     // Asignar valores solo si vienen en la solicitud
     if (clientName) updateData.clientName = clientName;
-    if (clientPhone) updateData.clientContact = clientContact;
+    if (clientPhone) updateData.clientPhone = clientPhone;
     if (clientEmail) updateData.clientEmail = clientEmail;
     if (startDate) updateData.startDate = startDate;
     if (endDate) updateData.endDate = endDate;
-    if (totalAmount) updateData.totalAmount = totalAmount;
+    if (budget) updateData.budget = budget;
     if (status) updateData.status = status;
     if (terms) updateData.terms = terms;
-    if (resources) updateData.resources = resources;
-    if (providers) updateData.providers = providers;
-    if (personnel) updateData.personnel = personnel;
+    if (resources && resources.length > 0) {
+      updateData.resources = resources;
+    }
+    if (providers && providers.length > 0) {
+      updateData.providers = providers;
+    }
+    if (personnel && personnel.length > 0) {
+      updateData.personnel = personnel;
+    }
+
 
     // Validar recursos referenciados (si se están actualizando)
     if (resources && resources.length > 0) {
@@ -248,6 +255,7 @@ exports.updateContract = async (req, res) => {
 
     // Buscar y actualizar el contrato
     const updatedContract = await Contract.findByIdAndUpdate(
+      
       req.params.id,
       updateData,
       { new: true, runValidators: true }  // Opciones: devolver el documento actualizado y correr validadores
@@ -256,6 +264,14 @@ exports.updateContract = async (req, res) => {
       .populate('resources.resource', 'name')
       .populate('providers.provider', 'name')
       .populate('personnel.person', 'firstName lastName');
+
+    if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
+      return res.status(400).json({
+        success: false,
+        message: 'La fecha de fin no puede ser anterior a la fecha de inicio'
+      });
+    }
+
 
     // Si no se encuentra el contrato
     if (!updatedContract) {

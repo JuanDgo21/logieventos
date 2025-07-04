@@ -1,9 +1,9 @@
 <app-navbar></app-navbar>
-<app-sidebar></app-sidebar>
+  <app-sidebar></app-sidebar>
 
 <main class="main-content">
   <div class="container-fluid px-4">
-    <!-- Header y botones -->
+    <!-- Encabezado -->
     <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
       <h1 class="h2 mb-0">Contratos</h1>
       <div>
@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <!-- Tarjetas de estado -->
+    <!-- Tarjetas por estado -->
     <div class="row mt-4">
       <div *ngFor="let status of statusList" class="col-md-3 mb-4">
         <div class="card border-start border-{{ statusMeta[status].color }} border-4 h-100">
@@ -28,45 +28,80 @@
       </div>
     </div>
 
-    <!-- Último contrato -->
-    <div class="card shadow-sm mt-2" *ngIf="lastContract">
+    <!-- Tabla de contratos -->
+    <div class="card shadow-sm mt-2" *ngIf="contracts.length">
       <div class="card-header bg-light">
-        <h5 class="mb-0">Último Contrato Registrado</h5>
+        <h5 class="mb-0">Contratos Registrados</h5>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-lg table-hover mb-0">
+          <table class="table table-lg table-hover mb-0 align-middle">
             <thead class="bg-light">
               <tr>
-                <th width="10%">ID</th>
-                <th width="25%">Cliente</th>
-                <th width="20%">Fecha</th>
-                <th width="15%">Monto</th>
-                <th width="15%">Estado</th>
-                <th width="15%">Acciones</th>
+                <th>Contrato</th>
+                <th>Cliente</th>
+                <th>Fechas</th>
+                <th>Estado</th>
+                <th>Presupuesto</th>
+                <!-- <th>Recursos</th>
+                <th>Proveedores</th>
+                <th>Personal</th> -->
+                <th colspan="3" class="text-center">Acciones</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td class="fw-bold">{{ lastContract._id }}</td>
+            <tbody class="text-center">
+              <tr *ngFor="let contract of contracts">
+                <td>{{ contract.name }}</td>
                 <td>
-                  <div class="d-flex align-items-center">
-                    <div>
-                      <p class="mb-0">{{ lastContract.clientName }}</p>
-                      <small class="text-muted">{{ lastContract.clientEmail }}</small>
-                    </div>
-                  </div>
+                  {{ contract.clientName }}<br>
+                  <small class="text-muted">{{ contract.clientEmail }}</small><br>
+                  <small class="text-muted">{{ contract.clientPhone }}</small>
                 </td>
-                <td>{{ lastContract.startDate | date: 'dd/MM/yyyy' }}</td>
-                <td>${{ lastContract.budget | number: '1.2-2' }}</td>
-                <td><span class="badge bg-success bg-opacity-10 text-success">{{ lastContract.status | titlecase }}</span></td>
+                <td>
+                  {{ contract.startDate | date: 'dd/MM/yyyy' }}<br>
+                  <small class="text-muted">hasta {{ contract.endDate | date: 'dd/MM/yyyy' }}</small>
+                </td>
+                <td>
+                  <span class="badge bg-{{ statusMeta[contract.status].color }} bg-opacity-10 text-{{ statusMeta[contract.status].color }}">
+                    {{ statusMeta[contract.status].label }}
+                  </span>
+                </td>
+                <td>
+                  ${{ contract.budget || 0 | number: '1.0-0' }}
+                </td>
+                <!-- <td>
+                  <ul class="mb-0 ps-3">
+                    <li *ngFor="let item of contract.resources">
+                      {{ item['resource']?.name || 'Recurso' }} x{{ item.quantity }}
+                    </li>
+                  </ul>
+                </td> -->
+                <!-- <td>
+                  <ul class="mb-0 ps-3">
+                    <li *ngFor="let p of contract.providers">
+                      {{ p['provider']?.name || 'Proveedor' }}<br>
+                      <small class="text-muted">{{ p.serviceDescription }}</small>
+                    </li>
+                  </ul>
+                </td> -->
+                <!-- <td>
+                  <ul class="mb-0 ps-3">
+                    <li *ngFor="let per of contract.personnel">
+                      {{ per['person']?.firstName }} {{ per['person']?.lastName }}<br>
+                      <small class="text-muted">{{ per.role }}</small>
+                    </li>
+                  </ul>
+                </td> -->
                 <td>
                   <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-outline-primary">
+                    <button class="btn btn-sm btn-outline-primary" *ngIf="lastContract" (click)="showDetails(lastContract)">
                       <i class="fas fa-eye"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-secondary">
+                    <button class="btn btn-sm btn-outline-secondary" (click)="openEditModal(lastContract!)">
                       <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="deleteContract(contract._id!)">
+                      <i class="fas fa-trash"></i>
                     </button>
                   </div>
                 </td>
@@ -77,13 +112,148 @@
       </div>
     </div>
 
-    <!-- Botón "Ver Todos" -->
-    <div class="d-flex justify-content-center mt-4">
-      <button class="btn btn-link">
-        <i class="fas fa-chevron-down me-2"></i>Ver todos los contratos
-      </button>
-    </div>
+    <!-- Último contrato (opcional) -->
+    <!-- <div class="text-center mt-4" *ngIf="lastContract">
+      <p class="text-muted">Último contrato creado: <strong>{{ lastContract.name }}</strong> el 
+        {{ lastContract.createdAt | date: 'dd/MM/yyyy' }}</p>
+    </div> -->
+
   </div>
 </main>
+<!-- Modal de Detalles -->
+<div class="modal fade" id="contractDetailsModal" tabindex="-1" aria-labelledby="contractDetailsLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="contractDetailsLabel">Detalles del Contrato</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body" *ngIf="selectedContract">
+        <p><strong>Cliente:</strong> {{ selectedContract.clientName }} ({{ selectedContract.clientEmail }} - {{ selectedContract.clientPhone }})</p>
+        <p><strong>Fechas:</strong> {{ selectedContract.startDate | date }} a {{ selectedContract.endDate | date }}</p>
+        <p><strong>Presupuesto:</strong> ${{ selectedContract.budget | number: '1.2-2' }}</p>
+
+        <hr>
+
+        <h6>Recursos</h6>
+        <table class="table table-sm" *ngIf="selectedContract.resources.length > 0">
+          <thead>
+            <tr>
+              <th>Recurso</th>
+              <th>Cantidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of selectedContract.resources">
+              <td>{{ r.resource.name }}</td>
+              <td>{{ r.quantity }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h6>Proveedores</h6>
+        <table class="table table-sm" *ngIf="selectedContract.providers.length > 0">
+          <thead>
+            <tr>
+              <th>Proveedor</th>
+              <th>Servicio</th>
+              <th>Costo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of selectedContract.providers">
+              <td>{{ p.provider.name }}</td>
+              <td>{{ p.serviceDescription }}</td>
+              <td>${{ p.cost }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h6>Personal</h6>
+        <table class="table table-sm" *ngIf="selectedContract.personnel.length > 0">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Rol</th>
+              <th>Horas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let per of selectedContract.personnel">
+              <td>{{ per.person.firstName }} {{ per.person.lastName }}</td>
+              <td>{{ per.role }}</td>
+              <td>{{ per.hours }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para editar contrato -->
+<div class="modal fade show d-block" tabindex="-1" *ngIf="showEditModal" style="background: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Contrato</h5>
+        <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+      </div>
+      <div class="modal-body" *ngIf="selectedContract">
+        <form>
+          <div class="mb-3">
+            <label class="form-label">Nombre del contrato</label>
+            <input type="text" class="form-control" [(ngModel)]="selectedContract.name" name="name">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Cliente</label>
+            <input type="text" class="form-control" [(ngModel)]="selectedContract.clientName" name="clientName">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Teléfono</label>
+            <input type="text" class="form-control" [(ngModel)]="selectedContract.clientPhone" name="clientPhone">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" [(ngModel)]="selectedContract.clientEmail" name="clientEmail">
+          </div>
+          <div class="row">
+            <div class="mb-3 col">
+              <label class="form-label">Fecha inicio</label>
+              <input type="date" class="form-control" [(ngModel)]="selectedContract.startDate" name="startDate">
+            </div>
+            <div class="mb-3 col">
+              <label class="form-label">Fecha fin</label>
+              <input type="date" class="form-control" [(ngModel)]="selectedContract.endDate" name="endDate">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Presupuesto</label>
+            <input type="number" class="form-control" [(ngModel)]="selectedContract.budget" name="budget">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Estado</label>
+            <select class="form-select" [(ngModel)]="selectedContract.status" name="status">
+              <option value="borrador">Borrador</option>
+              <option value="activo">Activo</option>
+              <option value="completado">Completado</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Términos</label>
+            <textarea class="form-control" [(ngModel)]="selectedContract.terms" name="terms" rows="3"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeEditModal()">Cancelar</button>
+        <button class="btn btn-primary" (click)="saveChanges()">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <app-footer></app-footer>
