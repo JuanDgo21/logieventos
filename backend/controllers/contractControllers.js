@@ -8,10 +8,20 @@ const Personnel = require('../models/Personnel');
 // Controlador para obtener todos los contratos
 exports.getAllContracts = async (req, res) => {
   try {
+    // Obtener parámetros de paginación (page y limit), con valores por defecto
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
+
+    // Obtener total de contratos (para saber cuántas páginas hay)
+    const total = await Contract.countDocuments();
+
     // Buscar todos los contratos y poblar las relaciones con datos específicos
     const contracts = await Contract.find()
       .sort({ createdAt: -1 })  // Ordenar por fecha de creación descendente
       // .populate('event', 'name startDate endDate')  // Datos básicos del evento
+      .skip(skip)
+      .limit(limit)
       .populate('resources.resource', 'name description')  // Datos de recursos
       .populate('providers.provider', 'name contactPerson')  // Datos de proveedores
       .populate('personnel.person', 'firstName lastName');  // Datos del personal
@@ -19,7 +29,10 @@ exports.getAllContracts = async (req, res) => {
     // Respuesta exitosa con los contratos encontrados
     res.status(200).json({
       success: true,
-      data: contracts
+      data: contracts,
+      total,         // Total de contratos
+      page,          // Página actual
+      pages: Math.ceil(total / limit) // Total de páginas
     });
   } catch (error) {
     // Manejo de errores
@@ -64,6 +77,53 @@ exports.getContractById = async (req, res) => {
   }
 };
 
+// Obtener el conteo de contratos por estado
+exports.getCountByStatus = async (req, res) => {
+  try {
+    let counts;
+
+    try {
+      counts = await Contract.aggregate([
+        {
+          $group: {
+            _id: "$status",
+            count: { $sum: 1 }
+          }
+        }
+      ]);
+    } catch (aggError) {
+      console.error("❌ Error durante el aggregate:", aggError);
+      return res.status(500).json({
+        success: false,
+        message: "Fallo en la etapa de agrupamiento (aggregate)",
+        error: aggError.message
+      });
+    }
+
+    console.log('✅ Conteo por estado:', counts);
+
+    const result = counts.reduce((acc, item) => {
+      acc[item._id || 'desconocido'] = item.count;
+      return acc;
+    }, {});
+
+    res.status(200).json({
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    console.error("❌ Error general:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error general al contar contratos por estado",
+      error: error.message
+    });
+  }
+};
+
+
+
 // Controlador para crear un nuevo contrato (solo Admin y Coordinador)
 exports.createContract = async (req, res) => {
   try {
@@ -76,6 +136,7 @@ exports.createContract = async (req, res) => {
       startDate,
       endDate,
       budget,
+      status,
       terms,
       resources,
       providers,
@@ -147,6 +208,7 @@ exports.createContract = async (req, res) => {
       startDate,
       endDate,
       budget,
+      status,
       terms,
       resources,
       providers,

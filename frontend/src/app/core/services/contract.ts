@@ -137,17 +137,30 @@ export class ContractService {
     completado: number,
     cancelado: number
   }> {
-    return this.http.get<{
-      borrador: number,
-      activo: number,
-      completado: number,
-      cancelado: number
-    }>(`${this.apiUrl}/count-by-status`, {
+    return this.http.get<{ success: boolean, data: any }>(`${this.apiUrl}/count-by-status`, {
       headers: this.getHeaders()
-    }).pipe(
-      catchError(this.handleError)
+  }).pipe(
+    map(res => ({
+      borrador: res.data.borrador || 0,
+      activo: res.data.activo || 0,
+      completado: res.data.completado || 0,
+      cancelado: res.data.cancelado || 0
+    })),
+    catchError(this.handleError)
+  );
+}
+
+
+  getStatusCounts(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/count-by-status`);
+  }
+
+  getContractsPaginated(page: number = 1, limit: number = 10) {
+    return this.http.get<{ data: Contract[], total: number, page: number, pages: number }>(
+      `/api/contracts?page=${page}&limit=${limit}`
     );
   }
+
 
   generateReport(id: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/${id}/report`, {

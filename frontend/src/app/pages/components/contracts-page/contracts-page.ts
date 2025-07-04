@@ -14,9 +14,14 @@ declare const bootstrap: any;
 })
 export class ContractsPage {
   contracts: Contract[] = [];
-
   selectedContract: Contract | null = null;
   showEditModal = false;
+
+  // Paginación
+  totalContracts = 0;
+  currentPage = 1;
+  totalPages = 1;
+  limit = 5;
 
   statusCounts: Record<ContractStatus, number> = {
     borrador: 0,
@@ -39,13 +44,18 @@ export class ContractsPage {
   constructor(private contractService: ContractService) {}
 
   ngOnInit(): void {
-    this.loadData();
+    this.loadData(1);
   }
 
-  loadData(): void {
-    this.contractService.getContracts().subscribe({
-      next: (contracts: Contract[]) => {
-        this.contracts = contracts;
+  loadData(page: number = 1): void {
+    this.isLoading = true;
+
+    this.contractService.getContractsPaginated(page, this.limit).subscribe({
+      next: (res) => {
+        this.contracts = res.data;
+        this.totalContracts = res.total;
+        this.currentPage = res.page;
+        this.totalPages = res.pages;
         this.loadStatusCounts();
       },
       error: (err) => {
@@ -53,6 +63,12 @@ export class ContractsPage {
         this.isLoading = false;
       }
     });
+  }
+
+  changePage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.loadData(page);
+    }
   }
 
   loadStatusCounts(): void {
@@ -93,6 +109,7 @@ export class ContractsPage {
         next: () => {
           this.contracts = this.contracts.filter(c => c._id !== id);
           this.loadStatusCounts();
+          this.loadData(this.currentPage); // Recargar la página actual
         },
         error: (err) => console.error('Error deleting contract:', err)
       });
@@ -119,42 +136,39 @@ export class ContractsPage {
   }
 
   saveChanges(): void {
-  if (!this.selectedContract || !this.selectedContract._id) {
-    console.warn('No hay contrato seleccionado para guardar.');
-    return;
-  }
-
-  const cleanedContract: Contract = {
-  _id: this.selectedContract._id!,
-  name: this.selectedContract.name!,
-  clientName: this.selectedContract.clientName!,
-  clientPhone: this.selectedContract.clientPhone!,
-  clientEmail: this.selectedContract.clientEmail!,
-  startDate: this.selectedContract.startDate!,
-  endDate: this.selectedContract.endDate!,
-  budget: this.selectedContract.budget!,
-  status: this.selectedContract.status!,
-  terms: this.selectedContract.terms!,
-  createdAt: this.selectedContract.createdAt!, // o Date.now() si no está
-  // Si no vas a usar recursos/proveedores/personal por ahora:
-  resources: [],
-  providers: [],
-  personnel: []
-};
-
-
-  this.contractService.updateContract(this.selectedContract._id, cleanedContract).subscribe({
-    next: (updatedContract) => {
-      const index = this.contracts.findIndex(c => c._id === updatedContract._id);
-      if (index !== -1) {
-        this.contracts[index] = updatedContract;
-      }
-      this.closeEditModal();
-    },
-    error: (err) => {
-      console.error('Error al guardar los cambios:', err);
+    if (!this.selectedContract || !this.selectedContract._id) {
+      console.warn('No hay contrato seleccionado para guardar.');
+      return;
     }
-  });
-}
 
+    const cleanedContract: Contract = {
+      _id: this.selectedContract._id!,
+      name: this.selectedContract.name!,
+      clientName: this.selectedContract.clientName!,
+      clientPhone: this.selectedContract.clientPhone!,
+      clientEmail: this.selectedContract.clientEmail!,
+      startDate: this.selectedContract.startDate!,
+      endDate: this.selectedContract.endDate!,
+      budget: this.selectedContract.budget!,
+      status: this.selectedContract.status!,
+      terms: this.selectedContract.terms!,
+      createdAt: this.selectedContract.createdAt!,
+      resources: [],
+      providers: [],
+      personnel: []
+    };
+
+    this.contractService.updateContract(this.selectedContract._id, cleanedContract).subscribe({
+      next: (updatedContract) => {
+        const index = this.contracts.findIndex(c => c._id === updatedContract._id);
+        if (index !== -1) {
+          this.contracts[index] = updatedContract;
+        }
+        this.closeEditModal();
+      },
+      error: (err) => {
+        console.error('Error al guardar los cambios:', err);
+      }
+    });
+  }
 }
