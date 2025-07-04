@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 // Interfaces para tipos anidados (ajustadas a tu modelo)
@@ -69,8 +70,9 @@ export class ContractService {
   // ---- Métodos CRUD ----
   getContracts(): Observable<Contract[]> {
     console.log('Llamando a:', `${this.apiUrl}/contracts`); // Agrega esto
-    return this.http.get<Contract[]>(this.apiUrl, { headers: this.getHeaders() })
+    return this.http.get<{ success: boolean, data: Contract[] }>(this.apiUrl, { headers: this.getHeaders() })
       .pipe(
+        map((res: { success: boolean; data: Contract[] }) => res.data),
         catchError(this.handleError)
       );
   }

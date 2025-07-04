@@ -10,6 +10,7 @@ exports.getAllContracts = async (req, res) => {
   try {
     // Buscar todos los contratos y poblar las relaciones con datos específicos
     const contracts = await Contract.find()
+      .sort({ createdAt: -1 })  // Ordenar por fecha de creación descendente
       // .populate('event', 'name startDate endDate')  // Datos básicos del evento
       .populate('resources.resource', 'name description')  // Datos de recursos
       .populate('providers.provider', 'name contactPerson')  // Datos de proveedores
