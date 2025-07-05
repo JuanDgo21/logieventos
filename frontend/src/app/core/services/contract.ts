@@ -155,7 +155,7 @@ export class ContractService {
     return this.http.get(`${this.apiUrl}/count-by-status`);
   }
 
-  getContractsPaginated(page: number = 1, limit: number = 5) {
+  getContractsPaginated(page: number = 1, limit: number = 2) {
     return this.http.get<{ data: Contract[], total: number, page: number, pages: number }>(
       `${this.apiUrl}?page=${page}&limit=${limit}`,
       {

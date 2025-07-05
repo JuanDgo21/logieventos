@@ -3,7 +3,6 @@ import { ContractService, Contract } from '../../../core/services/contract';
 
 type ContractStatus = 'borrador' | 'activo' | 'completado' | 'cancelado';
 
-// Esto permite usar Bootstrap Modals con TypeScript
 declare const bootstrap: any;
 
 @Component({
@@ -21,7 +20,16 @@ export class ContractsPage {
   totalContracts = 0;
   currentPage = 1;
   totalPages = 1;
-  limit = 5;
+  limit = 2;
+
+  get showingFrom(): number {
+    return (this.currentPage - 1) * this.limit + 1;
+  }
+
+  get showingTo(): number {
+    const max = this.currentPage * this.limit;
+    return max > this.totalContracts ? this.totalContracts : max;
+  }
 
   statusCounts: Record<ContractStatus, number> = {
     borrador: 0,
@@ -40,6 +48,9 @@ export class ContractsPage {
   };
 
   isLoading = true;
+
+  // Para eliminar con modal
+  deleteId: string | null = null;
 
   constructor(private contractService: ContractService) {}
 
@@ -104,16 +115,39 @@ export class ContractsPage {
   }
 
   deleteContract(id: string): void {
-    if (confirm('¿Estás seguro de eliminar este contrato?')) {
-      this.contractService.deleteContract(id).subscribe({
-        next: () => {
-          this.contracts = this.contracts.filter(c => c._id !== id);
-          this.loadStatusCounts();
-          this.loadData(this.currentPage); // Recargar la página actual
-        },
-        error: (err) => console.error('Error deleting contract:', err)
-      });
+    this.openConfirmModal(id);
+  }
+
+  openConfirmModal(id: string): void {
+    this.deleteId = id;
+    const modalElement = document.getElementById('confirmDeleteModal');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
     }
+  }
+
+  confirmDelete(): void {
+    if (!this.deleteId) return;
+
+    this.contractService.deleteContract(this.deleteId!).subscribe({
+      next: () => {
+        this.contracts = this.contracts.filter(c => c._id !== this.deleteId);
+        this.loadStatusCounts();
+        this.loadData(this.currentPage);
+        this.closeConfirmModal();
+      },
+      error: (err) => console.error('Error eliminando contrato:', err)
+    });
+  }
+
+  closeConfirmModal(): void {
+    const modalElement = document.getElementById('confirmDeleteModal');
+    if (modalElement) {
+      const modal = bootstrap.Modal.getInstance(modalElement);
+      modal?.hide();
+    }
+    this.deleteId = null;
   }
 
   showDetails(contract: Contract): void {
