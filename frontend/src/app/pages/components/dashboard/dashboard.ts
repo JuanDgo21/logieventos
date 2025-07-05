@@ -17,19 +17,19 @@ export class DashboardComponent implements OnInit {
   ];
 
   quickActions = [
-    { icon: 'plus-circle', label: 'Nuevo Evento', action: 'newEvent', roles: ['admin', 'coordinador'] },
-    { icon: 'calendar-day', label: 'Agenda Diaria', action: 'dailyAgenda' },
-    { icon: 'exclamation-triangle', label: 'Reportar Incidente', action: 'reportIssue' },
-    { icon: 'file-contract', label: 'Contratos', action: 'viewContracts' },
-    { icon: 'users', label: 'Personal', action: 'viewStaff' },
-    { icon: 'truck', label: 'Proveedores', action: 'viewProviders' },
-    { icon: 'file-export', label: 'Reportes', action: 'generateReports', roles: ['admin', 'coordinador'] }
+    { icon: 'plus-circle', label: 'Nuevo Evento', action: 'newEvent', roles: ['admin', 'coordinador'], key: 'activeEvents' },
+    { icon: 'calendar-day', label: 'Agenda Diaria', action: 'dailyAgenda', key: 'activeEvents' },
+    { icon: 'exclamation-triangle', label: 'Reportar Incidente', action: 'reportIssue', key: 'resources' },
+    { icon: 'file-contract', label: 'Contratos', action: 'viewContracts', key: 'contracts' },
+    { icon: 'users', label: 'Personal', action: 'viewStaff', key: 'staff' },
+    { icon: 'truck', label: 'Proveedores', action: 'viewProviders', key: 'resources' },
+    { icon: 'file-export', label: 'Reportes', action: 'generateReports', roles: ['admin', 'coordinador'], key: 'contracts' }
   ];
 
   recentActivities = [
-    { icon: 'calendar-check', message: 'Nuevo evento "Conferencia Tech" creado', time: '5 min' },
-    { icon: 'user-plus', message: 'Juan Pérez ha sido añadido al equipo', time: '30 min' },
-    { icon: 'exclamation-triangle', message: 'Problema reportado en el Auditorio', time: '2 h' }
+    { icon: 'calendar-check', message: 'Nuevo evento "Conferencia Tech" creado', time: 'hace 5 min' },
+    { icon: 'user-plus', message: 'Juan Pérez ha sido añadido al equipo', time: 'hace 30 min' },
+    { icon: 'exclamation-triangle', message: 'Problema reportado en el Auditorio', time: 'hace 2 h' }
   ];
 
   constructor(
@@ -52,8 +52,18 @@ export class DashboardComponent implements OnInit {
   }
 
   filteredQuickActions(): any[] {
-    return this.quickActions.filter(action => 
+    return this.quickActions.filter(action =>
       !action.roles || this.authService.hasAnyRole(action.roles)
     );
+  }
+
+  getCurrentUsername(): string {
+    const decodedToken = this.authService.decodeToken();
+    return decodedToken?.username || 'Usuario';
+  }
+
+  getPrimaryRole(): string {
+    const decodedToken = this.authService.decodeToken();
+    return decodedToken?.role || 'guest';
   }
 }

@@ -8,82 +8,85 @@ import { Observable } from 'rxjs';
 })
 export class ApiService  {
 
-  private baseUrl: string;
+  public urlBase = environment.API_URL;  // Solo usamos API_URL
 
-  constructor(private http: HttpClient) {
-    this.baseUrl = environment.API_URL;
-  }
-
-  // Métodos GET
-  getPromise(endpoint: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const headers = new HttpHeaders({
-        'Content-Type': 'application/json',
-      });
-      this.http.get(this.baseUrl + endpoint, { headers }).subscribe({
-        next: (resp) => resolve(resp),
-        error: (err) => reject(err)
-      });
-    });
-  }
-
-  getObservable(endpoint: string): Observable<any> {
-    return this.http.get(this.baseUrl + endpoint);
-  }
-
-  // Métodos POST
-  postPromise(endpoint: string, data: any): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.http.post(this.baseUrl + endpoint, data).subscribe({
-        next: (resp) => resolve(resp),
-        error: (err) => reject(err)
-      });
-    });
-  }
-
-  postObservable(endpoint: string, data: any): Observable<any> {
-    return this.http.post(this.baseUrl + endpoint, data);
-  }
-
-  // Métodos PUT
-  putPromise(endpoint: string, data: any): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.http.put(this.baseUrl + endpoint, data).subscribe({
-        next: (resp) => resolve(resp),
-        error: (err) => reject(err)
-      });
-    });
-  }
-
-  putObservable(endpoint: string, data: any): Observable<any> {
-    return this.http.put(this.baseUrl + endpoint, data);
-  }
-
-  // Métodos DELETE
-  deletePromise(endpoint: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.http.delete(this.baseUrl + endpoint).subscribe({
-        next: (resp) => resolve(resp),
-        error: (err) => reject(err)
-      });
-    });
-  }
-
-  deleteObservable(endpoint: string): Observable<any> {
-    return this.http.delete(this.baseUrl + endpoint);
-  }
+  constructor(public http: HttpClient) { }
 
   private getHeaders(): HttpHeaders {
-    const headers = new HttpHeaders({
+    const token = localStorage.getItem('token'); // Token JWT desde localStorage
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
-
-    const token = localStorage.getItem('token');
-    if (token) {
-      return headers.set('Authorization', `Bearer ${token}`);
-    }
-
-    return headers;
   }
 
+  // ============ GET ============ 
+  getPr(rute: string): Promise<any> { 
+    return new Promise((resolve, reject) => {
+      this.http.get(this.urlBase + rute, { headers: this.getHeaders() }).subscribe({
+        next: (resp) => resolve(resp),
+        error: (err) => reject(err)
+      });
+    });
+  }
+
+  getOb(rute: string): Observable<any> {
+    return this.http.get(this.urlBase + rute, { headers: this.getHeaders() });
+  }
+
+  // ============ POST ============
+  postPr(rute: string, data: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.http.post(this.urlBase + rute, data, { headers: this.getHeaders() }).subscribe({
+        next: (resp) => resolve(resp),
+        error: (err) => reject(err)
+      });
+    });
+  }
+
+  postOb(rute: string, data: any): Observable<any> {
+    return this.http.post(this.urlBase + rute, data, { headers: this.getHeaders() });
+  }
+
+  // ============ PUT ============
+  putPr(rute: string, data: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.http.put(this.urlBase + rute, data, { headers: this.getHeaders() }).subscribe({
+        next: (resp) => resolve(resp),
+        error: (err) => reject(err)
+      });
+    });
+  }
+
+  putOb(rute: string, data: any): Observable<any> {
+    return this.http.put(this.urlBase + rute, data, { headers: this.getHeaders() });
+  }
+
+  // ============ DELETE ============
+  deletePr(rute: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.http.delete(this.urlBase + rute, { headers: this.getHeaders() }).subscribe({
+        next: (resp) => resolve(resp),
+        error: (err) => reject(err)
+      });
+    });
+  }
+
+  deleteOb(rute: string): Observable<any> {
+    return this.http.delete(this.urlBase + rute, { headers: this.getHeaders() });
+  }
+
+  // ============ PATCH ============
+  patchPr(rute: string, data: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.http.patch(this.urlBase + rute, data, { headers: this.getHeaders() }).subscribe({
+        next: (resp) => resolve(resp),
+        error: (err) => reject(err)
+      });
+    });
+  }
+
+  patchOb(rute: string, data: any): Observable<any> {
+    return this.http.patch(this.urlBase + rute, data, { headers: this.getHeaders() });
+  }
 }

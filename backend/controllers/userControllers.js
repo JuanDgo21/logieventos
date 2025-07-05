@@ -42,20 +42,16 @@ exports.getAllUsers = async (req, res) => {
 // Controlador para obtener un usuario específico por ID
 exports.getUserById = async (req, res) => {
   console.log(`Iniciando getUserById para ID: ${req.params.id}`);
+  console.log(`Usuario autenticado ID: ${req.userId}, Rol: ${req.userRole}`); // Agregar este log
+  
   try {
-    console.log('Buscando usuario en la base de datos');
-    // Busca el usuario por ID excluyendo la contraseña
-    const user = await User.findById(req.params.id).select('-password');      
+    const user = await User.findById(req.params.id).select('-password');
     
     if (!user) {
-      console.log('Usuario no encontrado');
-      return res.status(404).json({
-        success: false,
-        message: 'Usuario no encontrado'
-      });
+      return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
     }
     
-    console.log('Validaciones de acceso para el usuario:', user.role);
+    console.log(`Usuario encontrado - ID: ${user._id}, Rol: ${user.role}`); // Agregar este log
     // Validaciones de acceso según el rol del solicitante:
     
     // Si es líder, solo puede ver su propio perfil

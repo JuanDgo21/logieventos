@@ -1,0 +1,356 @@
+@use '../../../../styles.scss' as *;
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.app-layout {
+  display: flex;
+  flex: 1;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  background-color: white;
+  overflow-y: auto;
+}
+
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.profile-header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid $gray-200;
+
+  .avatar-container {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    .avatar-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: $gradient-primary;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba($primary-color, 0.2);
+
+      i {
+        font-size: 3rem;
+        color: white;
+      }
+    }
+
+    .user-info {
+      h1 {
+        font-size: 1.75rem;
+        margin: 0;
+        color: $dark-color;
+      }
+
+      .user-role {
+        color: $primary-color;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+      }
+    }
+  }
+}
+
+.custom-alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation: fadeIn 0.3s ease;
+
+  .alert-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    i {
+      font-size: 1.2rem;
+    }
+  }
+
+  .alert-close {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0.25rem;
+  }
+
+  &.alert-success {
+    background-color: rgba($success-color, 0.1);
+    border-left: 4px solid $success-color;
+    color: darken($success-color, 15%);
+  }
+
+  &.alert-danger {
+    background-color: rgba($danger-color, 0.1);
+    border-left: 4px solid $danger-color;
+    color: darken($danger-color, 15%);
+  }
+
+  &.alert-warning {
+    background-color: rgba($warning-color, 0.1);
+    border-left: 4px solid $warning-color;
+    color: darken($warning-color, 15%);
+  }
+}
+
+.profile-form {
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .form-section {
+    margin-bottom: 1.5rem;
+
+    .section-title {
+      font-size: 1.1rem;
+      color: $dark-color;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid $gray-200;
+
+      i {
+        color: $primary-color;
+      }
+    }
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: $gray-700;
+      font-size: 0.9rem;
+    }
+
+    .input-container {
+      position: relative;
+
+      .prefix-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: $gray-500;
+      }
+
+      input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 40px;
+        border: 1px solid $gray-300;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+
+        &:focus {
+          outline: none;
+          border-color: $primary-color;
+          box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+        }
+
+        &.invalid {
+          border-color: $danger-color;
+        }
+      }
+
+      .visibility-toggle {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: $gray-500;
+        cursor: pointer;
+
+        &:hover {
+          color: $primary-color;
+        }
+      }
+    }
+
+    .error-message {
+      color: $danger-color;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+}
+
+.password-section {
+  border: 1px solid $gray-200;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  transition: all 0.3s ease;
+
+  &.expanded {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 1px $primary-color;
+  }
+
+  .section-header {
+    padding: 1rem 1.5rem;
+    background-color: $gray-50;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: darken($gray-50, 2%);
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: $dark-color;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      i {
+        color: $primary-color;
+      }
+    }
+
+    i {
+      color: $gray-500;
+      transition: transform 0.3s ease;
+    }
+  }
+
+  .password-fields {
+    padding: 1.5rem;
+    background-color: white;
+    border-radius: 0 0 8px 8px;
+
+    .form-grid {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+
+  .save-button {
+    padding: 0.75rem 1.5rem;
+    background: $gradient-primary;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba($primary-color, 0.2);
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba($primary-color, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .main-content {
+    padding: 1.5rem;
+  }
+
+  .profile-container {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-header {
+    .avatar-container {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+
+      .user-info {
+        h1 {
+          font-size: 1.5rem;
+        }
+      }
+    }
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .main-content {
+    padding: 1rem;
+  }
+
+  .profile-container {
+    padding: 1rem;
+  }
+
+  .password-section {
+    .password-fields {
+      padding: 1rem;
+    }
+  }
+
+  .form-actions {
+    justify-content: center;
+  }
+}

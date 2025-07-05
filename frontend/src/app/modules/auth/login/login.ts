@@ -95,15 +95,26 @@ export class LoginComponent {
     const { email, password } = this.loginForm.value;
 
     this.authService.login(email, password).subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('Respuesta completa del login:', response);
+        this.isLoading = false;
         this.showAlertMessage('success', 'Inicio de sesión exitoso! Redirigiendo...');
-        setTimeout(() => {
-          this.router.navigate(['/pages/principal']);
-        }, 1500);
+        
+        // Verificar si el usuario tiene token antes de redirigir
+        if (this.authService.isLoggedIn()) {
+          console.log('Usuario autenticado correctamente, redirigiendo...');
+          setTimeout(() => {
+            this.router.navigate(['/pages/principal']);
+          }, 1500);
+        } else {
+          console.error('Error: No se pudo verificar la autenticación después del login');
+          this.showAlertMessage('danger', 'Error en la autenticación. Intenta nuevamente.');
+        }
       },
       error: (err) => {
+        console.error('Error en el login:', err);
         this.isLoading = false;
-        const message = err.error?.message || 'Error al iniciar sesión. Verifica tus credenciales.';
+        const message = err.error?.message || err.message || 'Error al iniciar sesión. Verifica tus credenciales.';
         this.showAlertMessage('danger', message);
       }
     });

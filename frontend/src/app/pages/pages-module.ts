@@ -9,6 +9,7 @@ import { InventoryPageComponent } from './components/inventory-page/inventory-pa
 import { SharedModule } from '../shared/shared-module';
 import { DashboardComponent } from './components/dashboard/dashboard';
 import { ContractsPage } from './components/contracts-page/contracts-page';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 
 
@@ -26,6 +27,7 @@ import { ContractsPage } from './components/contracts-page/contracts-page';
     FormsModule,
     ReactiveFormsModule,
     SharedModule,
+    FontAwesomeModule
     // AuthService
   ],
   exports: [

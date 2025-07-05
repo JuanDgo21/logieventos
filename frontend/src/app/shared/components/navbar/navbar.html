@@ -1,52 +1,72 @@
-<!-- navbar.component.html -->
-<nav class="navbar">
-  <div class="navbar-left">
-    <button class="sidebar-toggle" (click)="layoutService.toggleSidebar()">
-      <i class="fas fa-bars"></i>
-    </button>
-    <span class="welcome-message">Bienvenido, {{user.name}}</span>
-    <span class="user-role">{{user.role | titlecase}}</span>
-  </div>
-
-  <div class="navbar-right">
-    <div class="notification-icon">
-      <i class="fas fa-bell"></i>
-      <span class="notification-badge">{{notifications.length}}</span>
-      
-      <div class="notification-dropdown">
-        <div *ngFor="let notif of notifications" class="notification-item">
-          <i class="fas fa-{{notif.icon}}"></i>
-          <div>
-            <p>{{notif.message}}</p>
-            <small>{{notif.time}}</small>
-          </div>
-        </div>
-      </div>
+<nav class="navbar navbar-expand navbar-light bg-white shadow-sm">
+  <div class="container-fluid">
+    <div class="d-flex align-items-center">
+      <button class="btn btn-link me-2" (click)="layoutService.toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+      <span class="welcome-message me-2">Bienvenido, {{ displayName }}</span>
+      <span class="badge bg-primary">{{ userRole | titlecase }}</span>
     </div>
-    
-    <div class="user-menu" (click)="toggleMenu()">
-      <div class="user-avatar">
-        <i class="fas fa-user"></i>
-      </div>
-      
-      <div class="dropdown-menu" [class.show]="isMenuOpen">
-        <div class="dropdown-header">
-          <strong>{{user.name}}</strong>
-          <small>{{user.role | titlecase}}</small>
+
+    <div class="d-flex align-items-center">
+      <!-- Notificaciones -->
+      <div class="dropdown me-3">
+        <button class="btn btn-link position-relative" data-bs-toggle="dropdown">
+          <i class="fas fa-bell"></i>
+          @if (notifications.length > 0) {
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              {{ notifications.length }}
+            </span>
+          }
+        </button>
+        <div class="dropdown-menu dropdown-menu-end">
+          @for (notif of notifications; track $index) {
+            <div class="dropdown-item">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-{{ notif.icon }} me-2"></i>
+                <div>
+                  <p class="mb-0">{{ notif.message }}</p>
+                  <small class="text-muted">{{ notif.time }}</small>
+                </div>
+              </div>
+            </div>
+          }
         </div>
-        <a class="dropdown-item" [routerLink]="">
-          <i class="fas fa-user"></i> Mi Perfil
-        </a>
-        <a class="dropdown-item" href="#">
-          <i class="fas fa-cog"></i> Configuración
-        </a>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item" (click)="logout()">
-          <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-        </a>
+      </div>
+
+      <!-- Menú de usuario -->
+      <div class="dropdown">
+        <button class="btn btn-link dropdown-toggle"
+                (click)="toggleMenu()"
+                aria-expanded="false">
+          <i class="fas fa-user-circle me-1"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" [class.show]="isMenuOpen">
+          <li>
+            <div class="dropdown-header">
+              <strong>{{ displayName }}</strong>
+              <small class="d-block">{{ userRole | titlecase }}</small>
+            </div>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item" routerLink="/users/profile">
+              <i class="fas fa-user me-2"></i> Mi Perfil
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" routerLink="/configuracion">
+              <i class="fas fa-cog me-2"></i> Configuración
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item" (click)="logout()">
+              <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+            </a>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
 </nav>
-
-<!-- subido -->

@@ -1,3 +1,4 @@
+<!-- frontend\src\app\modules\auth\login\login.html -->
 <div class="login-container">
   <div class="login-background">
     <div class="particle particle-1"></div>
@@ -92,7 +93,7 @@
       <button 
         type="submit" 
         class="btn btn-primary" 
-        [disabled]="isLoading">
+        [disabled]="isLoading || loginForm.invalid">
         @if (!isLoading) {
           <span>Iniciar sesión</span>
         }
@@ -103,6 +104,5 @@
         }
       </button>
     </form>
-    
   </div>
 </div>

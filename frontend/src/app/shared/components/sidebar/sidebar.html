@@ -1,28 +1,30 @@
 <div class="sidebar" [class.collapsed]="collapsed">
-  <div class="sidebar-header">
-    <i class="fas fa-calendar-alt sidebar-icon"></i>
-    <span class="app-name" *ngIf="!collapsed">LogiEventos</span>
-    <button class="collapse-btn" (click)="layoutService.toggleSidebar()">
+  <div class="sidebar-header d-flex align-items-center justify-content-between p-3">
+    <div class="d-flex align-items-center">
+      <i class="fas fa-calendar-alt me-2"></i>
+      <span *ngIf="!collapsed" class="app-name">LogiEventos</span>
+    </div>
+    <button class="btn btn-link p-0" (click)="layoutService.toggleSidebar()">
       <i class="fas fa-chevron-left"></i>
     </button>
   </div>
 
   <div class="sidebar-menu">
     <ng-container *ngFor="let module of modules">
-      <a class="menu-item" 
-         [routerLink]="module.path"
+      <a class="menu-item d-flex align-items-center p-3" 
+         [routerLink]="[module.path]"
          routerLinkActive="active"
-         [class.active]="(layoutService.activeModule$ | async) === module.path"
-         (click)="setActiveModule(module.path)">
-        <i class="fas fa-{{module.icon}}"></i>
+         [routerLinkActiveOptions]="{exact: true}"
+         (click)="setActiveModule(module.name)">
+        <i class="fas fa-{{module.icon}} me-3"></i>
         <span *ngIf="!collapsed">{{module.name}}</span>
       </a>
     </ng-container>
   </div>
 
-  <div class="sidebar-footer" *ngIf="!collapsed">
-    <div class="system-status">
-      <div class="status-indicator online"></div>
+  <div class="sidebar-footer p-3" *ngIf="!collapsed">
+    <div class="system-status d-flex align-items-center">
+      <div class="status-indicator online me-2"></div>
       <span>Sistema Operativo</span>
     </div>
   </div>

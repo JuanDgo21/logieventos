@@ -24,18 +24,17 @@ export class SidebarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const role = this.authService.getPrimaryRole();
+    const decodedToken = this.authService.decodeToken();
+    const role = decodedToken?.role;
+    
     if (role) {
       this.modules = this.layoutService.getModulesForRole(role);
     } else {
-      // Redirigir a login si no hay rol
       this.router.navigate(['/auth/login']);
     }
   }
 
-  setActiveModule(module: string | null): void {
-    if (module) {
-      this.layoutService.setActiveModule(module);
-    }
+  setActiveModule(module: string): void {
+    this.layoutService.setActiveModule(module);
   }
 }

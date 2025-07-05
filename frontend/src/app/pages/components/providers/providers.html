@@ -1,6 +1,6 @@
-<div class="container mt-4">
+<!-- <div class="container mt-4">
   <!-- Encabezado -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <!-- <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="fas fa-truck me-2"></i>Proveedores</h2>
     <button class="btn btn-primary" routerLink="new" *ngIf="canCreateProvider">
       <i class="fas fa-plus me-2"></i>Nuevo
@@ -8,19 +8,19 @@
   </div>
 
   <!-- Mensajes de error -->
-  <div class="alert alert-danger" *ngIf="errorMessage">
+  <!-- <div class="alert alert-danger" *ngIf="errorMessage">
     <i class="fas fa-exclamation-circle me-2"></i>
     {{ errorMessage }}
   </div>
 
   <!-- Cargando -->
-  <div class="text-center py-5" *ngIf="isLoading">
+  <!-- <div class="text-center py-5" *ngIf="isLoading">
     <div class="spinner-border text-primary"></div>
     <p class="mt-2">Cargando...</p>
   </div>
 
   <!-- Filtros -->
-  <div class="row mb-3" *ngIf="!isLoading">
+  <!-- <div class="row mb-3" *ngIf="!isLoading">
     <div class="col-md-6">
       <div class="input-group">
         <input type="text" class="form-control" placeholder="Buscar..." 
@@ -40,7 +40,7 @@
   </div>
 
   <!-- Tabla -->
-  <div class="table-responsive" *ngIf="!isLoading">
+  <!-- <div class="table-responsive" *ngIf="!isLoading">
     <table class="table table-hover">
       <thead class="table-light">
         <tr>
@@ -87,7 +87,7 @@
   </div>
 
   <!-- Paginación -->
-  <nav *ngIf="!isLoading && filteredProviders.length > itemsPerPage">
+  <!-- <nav *ngIf="!isLoading && filteredProviders.length > itemsPerPage">
     <ul class="pagination justify-content-center mt-3">
       <li class="page-item" [class.disabled]="currentPage === 1">
         <a class="page-link" (click)="prevPage()">Anterior</a>
@@ -103,7 +103,7 @@
   </nav>
 
   <!-- Modal de confirmación -->
-  <ng-template #deleteModal let-modal>
+  <!-- <ng-template #deleteModal let-modal>
     <div class="modal-header bg-danger text-white">
       <h5 class="modal-title">Confirmar eliminación</h5>
       <button type="button" class="btn-close btn-close-white" (click)="modal.dismiss()"></button>
@@ -118,4 +118,4 @@
       </button>
     </div>
   </ng-template>
-</div>
+</div> --> 
