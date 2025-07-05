@@ -1,34 +1,29 @@
 @use '../../../../styles.scss' as *;
 
-/* Colores para los nuevos estados */
+/* =======================
+   ESTADOS DE CONTRATOS
+========================== */
 .bg-borrador {
   background-color: #6c757d;
 }
+
 .bg-completado {
   background-color: #0d6efd;
 }
 
-/* Botón "Ver Todos" */
+/* =======================
+   BOTÓN "VER TODOS"
+========================== */
 .btn-link {
   color: #0d6efd;
   text-decoration: none;
   transition: all 0.3s;
-
-  &:hover {
-    color: #0a58ca;
-    transform: translateY(2px);
-  }
 }
 
-/* Ajuste para tarjetas de estado */
-
+/* =======================
+   TARJETAS DE ESTADO
+========================== */
 .card {
-    .card-body {
-    padding: 1.5rem;
-  }
-  .card-title, .display-6 {
-      color: #f8f9ff;
-    }
   border: none;
   border-radius: 10px;
   overflow: hidden;
@@ -37,25 +32,56 @@
   &:hover {
     transform: translateY(-2px);
   }
-}
 
-.table-lg {
-  td, th {
-    padding: 1rem;
-    vertical-align: middle;
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  .card-title,
+  .display-6 {
+    color: #f8f9ff;
   }
 }
 
+/* =======================
+   TABLA DE CONTRATOS
+========================== */
+.table-lg {
+  td,
+  th {
+    padding: 1rem;
+    vertical-align: middle;
+    user-select: text; // Permite seleccionar texto
+  }
+}
+
+/* Forzar que el usuario pueda seleccionar texto */
+.card-body,
+.table-responsive,
+.table,
+td,
+th {
+  user-select: text;
+  pointer-events: auto;
+  z-index: 10;
+  position: relative;
+}
+
+/* =======================
+   CLASE AUXILIAR DE OPACIDAD
+========================== */
 .bg-opacity-10 {
   opacity: 0.1;
 }
 
-/* Responsividad */
+/* =======================
+   RESPONSIVIDAD
+========================== */
 @media (max-width: 992px) {
   .main-content {
     margin-left: 0;
   }
-  
+
   .table-responsive {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;

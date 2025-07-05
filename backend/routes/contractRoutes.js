@@ -17,6 +17,11 @@ router.get('/',
   contractController.getAllContracts  // Controlador que maneja la lógica
 );
 
+router.get('/count-by-status', 
+  [authJwt.verifyToken, role.checkRole(['admin', 'coordinador', 'lider'])], 
+  contractController.getCountByStatus
+);
+
 // Obtener un contrato específico por ID (accesible para admin, coordinador y líder)
 router.get('/:id', 
   [authJwt.verifyToken, role.checkRole(['admin', 'coordinador', 'lider'])], 
@@ -28,6 +33,7 @@ router.get('/:id/report',
   [authJwt.verifyToken, role.checkRole(['admin', 'coordinador', 'lider'])], 
   contractController.generateContractReport
 );
+
 
 /*
  * RUTAS CON MAYOR RESTRICCIÓN
