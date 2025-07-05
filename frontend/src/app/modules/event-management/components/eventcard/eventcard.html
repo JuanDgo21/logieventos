@@ -1,0 +1,38 @@
+<div class="card shadow-sm h-100">
+  <img [src]="event.image || 'assets/default-event.jpg'" class="card-img-top" alt="{{event.name}}">
+  <div class="card-body">
+    <h5 class="card-title">{{event.name}}</h5>
+    <div class="d-flex justify-content-between">
+      <span class="badge" [ngClass]="'bg-' + getStatusColor(event.status)">
+        {{event.status | uppercase}}
+      </span>
+      <span>{{event.date | date}}</span>
+      <p
+        class="card-text text-muted"
+        [ngClass]="{'truncate-description': !isExpanded}"
+        >
+      {{event.description}}
+    </p>
+    <button
+        class="btn btn-link px-0 text-primary"
+        (click)="toggleDescription()"
+        ngIf="event.description?.length > 100">
+    >
+      {{isExpanded ? 'Ver menos' : 'Ver más'}}
+    </button>
+    </div>
+  </div>
+  <div class="card-footer bg-white">
+    <div class="d-flex gap-2">
+      <button class="btn btn-sm btn-outline-primary" (click)="onView()">
+        <i class="far fa-eye"></i>
+      </button>
+      <button class="btn btn-sm btn-outline-warning" (click)="onEdit()">
+        <i class="far fa-edit"></i>
+      </button>
+      <button class="btn btn-sm btn-outline-danger" (click)="onDelete()">
+        <i class="far fa-trash-alt"></i>
+      </button>
+    </div>
+  </div>
+</div>
