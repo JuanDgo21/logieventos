@@ -8,7 +8,7 @@
     <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
       <h1 class="h2 mb-0">Contratos</h1>
       <div>
-        <button class="btn btn-primary btn-lg me-2">
+        <button class="btn btn-primary btn-lg me-2" data-bs-toggle="modal" data-bs-target="#createContractModal">
           <i class="fas fa-plus me-2"></i>Nuevo Contrato
         </button>
         <button class="btn btn-outline-secondary btn-lg">
@@ -181,6 +181,151 @@
     </div>
   </div>
 </div>
+
+<!-- Modal Crear Contrato -->
+<div class="modal fade" id="createContractModal" tabindex="-1" aria-labelledby="createContractLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form (ngSubmit)="createContract()" #contractForm="ngForm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createContractLabel">Nuevo Contrato</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Nombre del contrato</label>
+            <input type="text" class="form-control" [(ngModel)]="newContract.name" name="name" required>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Cliente</label>
+            <input type="text" class="form-control" [(ngModel)]="newContract.clientName" name="clientName" required>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Teléfono</label>
+            <input type="text" class="form-control" [(ngModel)]="newContract.clientPhone" name="clientPhone">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Correo</label>
+            <input type="email" class="form-control" [(ngModel)]="newContract.clientEmail" name="clientEmail" required>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Fecha Inicio</label>
+            <input type="date" class="form-control" [(ngModel)]="newContract.startDate" name="startDate" required>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Fecha Fin</label>
+            <input type="date" class="form-control" [(ngModel)]="newContract.endDate" name="endDate" required>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Presupuesto</label>
+            <input type="number" class="form-control" [(ngModel)]="newContract.budget" name="budget">
+          </div>
+
+          <div class="col-md-12">
+            <label class="form-label">Términos</label>
+            <textarea class="form-control" rows="2" [(ngModel)]="newContract.terms" name="terms"></textarea>
+          </div>
+
+          <!-- Recursos -->
+          <div class="col-md-12 border p-3 rounded">
+            <h6>Recursos</h6>
+            <div *ngFor="let r of availableResources" class="mb-2">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" 
+                       (change)="toggleResource(r)" 
+                       [checked]="isSelected(r, 'resource')"
+                       id="resource-{{r._id}}">
+                <label class="form-check-label" for="resource-{{r._id}}">
+                  {{ r.name }} ({{ r.description }})
+                </label>
+              </div>
+              <div *ngIf="isSelected(r, 'resource')" class="ms-4 mt-1">
+                <label>Cantidad:</label>
+                <input type="number" class="form-control form-control-sm w-25" 
+                       [(ngModel)]="r.selectedQuantity" 
+                       [name]="'qty-' + r._id" 
+                       min="1" value="1">
+              </div>
+            </div>
+          </div>
+
+          <!-- Proveedores -->
+          <div class="col-md-12 border p-3 rounded mt-2">
+            <h6>Proveedores</h6>
+            <div *ngFor="let p of activeProviders" class="mb-2">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" 
+                       (change)="toggleProvider(p)" 
+                       [checked]="isSelected(p, 'provider')"
+                       id="provider-{{p._id}}">
+                <label class="form-check-label" for="provider-{{p._id}}">
+                  {{ p.name }} ({{ p.contactPerson }})
+                </label>
+              </div>
+              <div *ngIf="isSelected(p, 'provider')" class="ms-4 mt-1 row g-2">
+                <div class="col-md-6">
+                  <label>Servicio:</label>
+                  <input type="text" class="form-control form-control-sm" 
+                         [(ngModel)]="p.serviceDescription" 
+                         [name]="'desc-' + p._id">
+                </div>
+                <div class="col-md-6">
+                  <label>Costo:</label>
+                  <input type="number" class="form-control form-control-sm" 
+                         [(ngModel)]="p.cost" 
+                         [name]="'cost-' + p._id" min="0">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Personal -->
+          <div class="col-md-12 border p-3 rounded mt-2">
+            <h6>Personal</h6>
+            <div *ngFor="let person of availablePersonnel" class="mb-2">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" 
+                       (change)="togglePerson(person)" 
+                       [checked]="isSelected(person, 'person')"
+                       id="person-{{person._id}}">
+                <label class="form-check-label" for="person-{{person._id}}">
+                  {{ person.firstName }} {{ person.lastName }} ({{ person.email }})
+                </label>
+              </div>
+              <div *ngIf="isSelected(person, 'person')" class="ms-4 mt-1 row g-2">
+                <div class="col-md-6">
+                  <label>Rol:</label>
+                  <input type="text" class="form-control form-control-sm" 
+                         [(ngModel)]="person.role" 
+                         [name]="'role-' + person._id">
+                </div>
+                <div class="col-md-6">
+                  <label>Horas:</label>
+                  <input type="number" class="form-control form-control-sm" 
+                         [(ngModel)]="person.hours" 
+                         [name]="'hours-' + person._id" min="0">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Crear Contrato</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 
 <!-- Modal para editar contrato -->
 <div class="modal fade show d-block" tabindex="-1" *ngIf="showEditModal" style="background: rgba(0, 0, 0, 0.5);">

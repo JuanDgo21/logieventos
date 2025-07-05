@@ -127,6 +127,9 @@ exports.getCountByStatus = async (req, res) => {
 // Controlador para crear un nuevo contrato (solo Admin y Coordinador)
 exports.createContract = async (req, res) => {
   try {
+    console.log('[createContract] Request body:', req.body);
+    console.log('[createContract] User ID:', req.userId);
+    console.log('[createContract] User Role:', req.userRole);
     // Extraer datos del cuerpo de la solicitud
     const {
       name,
@@ -144,12 +147,12 @@ exports.createContract = async (req, res) => {
     } = req.body;
 
     // Validación especial para coordinadores (no pueden crear contratos > $10,000)
-    if (req.userRole === 'coordinador' && budget > 10000) {
-      return res.status(403).json({
-        success: false,
-        message: 'Coordinadores no pueden crear contratos > $10,000'
-      });
-    }
+    // if (req.userRole === 'coordinador' && budget > 10000) {
+    //   return res.status(403).json({
+    //     success: false,
+    //     message: 'Coordinadores no pueden crear contratos > $10,000'
+    //   });
+    // }
 
     // Verificar que el evento exista
     // const eventExists = await Event.findById(event);

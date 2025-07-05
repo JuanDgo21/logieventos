@@ -22,7 +22,7 @@ const contractSchema = new mongoose.Schema({
   clientPhone: {
     type: String,
     trim: true,  // Elimina espacios en blanco
-    match: [/^[+]?[(]?[0-9]{1,4}[)]?[-\s.][0-9]{1,4}[-\s.]?[0-9]{1,6}$/, 'Telefono no valido']
+    match: [/^(\+?\d{1,4}?[-.\s]?)?(\(\d{1,4}\)[-.\s]?)?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/, 'Teléfono no válido']
   },
 
   // Email del cliente
