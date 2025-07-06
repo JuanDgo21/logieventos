@@ -46,7 +46,7 @@ export class LayoutService {
         { name: 'Proveedores', icon: 'truck', path: 'pages/providers' },
         { name: 'Recursos', icon: 'box-open', path: 'pages/resources' },
         { name: 'Contratos', icon: 'file-contract', path: 'pages/contracts' },
-        { name: 'Usuarios', icon: 'user-cog', path: 'pages/users' }
+        { name: 'Usuarios', icon: 'user-cog', path: '/users/list' }
       ],
       coordinador: [
         { name: 'Dashboard', icon: 'tachometer-alt', path: 'pages/dashboard' },

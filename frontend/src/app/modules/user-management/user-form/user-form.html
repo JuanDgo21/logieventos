@@ -1,0 +1,118 @@
+<div class="modal-header bg-primary text-white">
+  <h5 class="modal-title">
+    <i class="fas fa-user-edit me-2"></i>
+    {{ user ? 'Editar Usuario' : 'Crear Nuevo Usuario' }}
+  </h5>
+  <button type="button" class="btn-close btn-close-white" aria-label="Close" (click)="activeModal.dismiss()"></button>
+</div>
+
+<div class="modal-body">
+  <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      <i class="fas fa-exclamation-circle me-2"></i>{{ errorMessage }}
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label for="document" class="form-label">Documento</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+          <input type="text" class="form-control" id="document" formControlName="document" 
+                 [ngClass]="{ 'is-invalid': f['document'].touched && f['document'].errors }">
+        </div>
+        <div *ngIf="f['document'].touched && f['document'].errors" class="invalid-feedback d-block">
+          <div *ngIf="f['document'].errors['required']">El documento es requerido</div>
+          <div *ngIf="f['document'].errors['pattern']">Solo se permiten números</div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <label for="fullname" class="form-label">Nombre Completo</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-user"></i></span>
+          <input type="text" class="form-control" id="fullname" formControlName="fullname" 
+                 [ngClass]="{ 'is-invalid': f['fullname'].touched && f['fullname'].errors }">
+        </div>
+        <div *ngIf="f['fullname'].touched && f['fullname'].errors" class="invalid-feedback d-block">
+          <div *ngIf="f['fullname'].errors['required']">El nombre completo es requerido</div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <label for="username" class="form-label">Nombre de Usuario</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-at"></i></span>
+          <input type="text" class="form-control" id="username" formControlName="username" 
+                 [ngClass]="{ 'is-invalid': f['username'].touched && f['username'].errors }">
+        </div>
+        <div *ngIf="f['username'].touched && f['username'].errors" class="invalid-feedback d-block">
+          <div *ngIf="f['username'].errors['required']">El nombre de usuario es requerido</div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <label for="email" class="form-label">Email</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+          <input type="email" class="form-control" id="email" formControlName="email" 
+                 [ngClass]="{ 'is-invalid': f['email'].touched && f['email'].errors }">
+        </div>
+        <div *ngIf="f['email'].touched && f['email'].errors" class="invalid-feedback d-block">
+          <div *ngIf="f['email'].errors['required']">El email es requerido</div>
+          <div *ngIf="f['email'].errors['email']">Ingrese un email válido</div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <label for="role" class="form-label">Rol</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
+          <select class="form-select" id="role" formControlName="role" 
+                  [ngClass]="{ 'is-invalid': f['role'].touched && f['role'].errors }">
+            <option *ngFor="let role of roles" [value]="role">{{ role | titlecase }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="col-md-6" *ngIf="!user">
+        <label for="password" class="form-label">Contraseña</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-lock"></i></span>
+          <input type="password" class="form-control" id="password" formControlName="password" 
+                 [ngClass]="{ 'is-invalid': f['password'].touched && f['password'].errors }">
+        </div>
+        <div *ngIf="f['password'].touched && f['password'].errors" class="invalid-feedback d-block">
+          <div *ngIf="f['password'].errors['required']">La contraseña es requerida</div>
+        </div>
+      </div>
+
+      <div class="col-md-6" *ngIf="!user">
+        <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-lock"></i></span>
+          <input type="password" class="form-control" id="confirmPassword" formControlName="confirmPassword" 
+                 [ngClass]="{ 'is-invalid': f['confirmPassword'].touched && f['confirmPassword'].errors }">
+        </div>
+        <div *ngIf="f['confirmPassword'].touched && f['confirmPassword'].errors" class="invalid-feedback d-block">
+          <div *ngIf="f['confirmPassword'].errors['required']">Confirme la contraseña</div>
+          <div *ngIf="f['confirmPassword'].errors['mismatch']">Las contraseñas no coinciden</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer mt-4">
+      <button type="button" class="btn btn-outline-secondary" (click)="activeModal.dismiss()">
+        <i class="fas fa-times me-1"></i>Cancelar
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="loading">
+        <span *ngIf="!loading">
+          <i class="fas fa-save me-1"></i>{{ user ? 'Actualizar' : 'Guardar' }}
+        </span>
+        <span *ngIf="loading">
+          <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+          Guardando...
+        </span>
+      </button>
+    </div>
+  </form>
+</div>

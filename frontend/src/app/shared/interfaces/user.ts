@@ -6,8 +6,10 @@ export interface User {
   email: string;
   password?: string;
   role: 'admin' | 'coordinador' | 'lider';
+  active: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  deletedAt?: Date | null;
 }
 
 export interface ApiResponse<T> {

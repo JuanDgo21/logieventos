@@ -5,7 +5,13 @@ import { InventoryPageComponent } from './components/inventory-page/inventory-pa
 import { DashboardComponent } from './components/dashboard/dashboard';
 import { ContractsPage } from './components/contracts-page/contracts-page';
 import { EventsPage } from './components/events-page/events-page';
+import { DashboardUsersComponent } from './components/dashboard-users/dashboard-users';
 const routes: Routes = [
+
+  { path: '', // Ruta relativa a '/pages'
+    redirectTo: 'principal', pathMatch: 'full' },
+  { path: 'principal', component: DashboardComponent },
+  { path: 'usuarios', component: DashboardUsersComponent },
 
   { path: 'principal', component: DashboardComponent },
   { path: 'home-providers', component: ProvidersPage },

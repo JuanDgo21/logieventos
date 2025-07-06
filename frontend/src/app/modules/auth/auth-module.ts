@@ -10,6 +10,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { ToastrModule } from 'ngx-toastr';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { SharedModule } from "../../shared/shared-module";
 
 
 @NgModule({
@@ -26,13 +27,15 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     ReactiveFormsModule,
     HttpClientModule,
     FontAwesomeModule
-        // ToastrModule.forRoot({
+    // ToastrModule.forRoot({
     //   positionClass: 'toast-top-right',
     //   preventDuplicates: true,
     //   progressBar: true,
     //   closeButton: true
     // })
-  ],
+    ,
+    SharedModule
+],
   exports: [
     LoginComponent,
     RegisterComponent,
