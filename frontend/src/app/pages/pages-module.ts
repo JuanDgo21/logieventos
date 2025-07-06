@@ -13,12 +13,15 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 
 
+
+
 @NgModule({
   declarations: [
     ProvidersPage,
     InventoryPageComponent,
     DashboardComponent,
-    ContractsPage
+    ContractsPage,
+    
   ],
   imports: [
     CommonModule,
@@ -34,7 +37,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     ProvidersPage,
     InventoryPageComponent,
     DashboardComponent,
-    ContractsPage
+    ContractsPage,
+    
   ]
 })
 export class PagesModule { }
