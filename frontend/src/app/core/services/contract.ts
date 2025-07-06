@@ -106,6 +106,15 @@ export class ContractService {
     }).pipe(catchError(this.handleError));
   }
 
+  searchContractsByName(name: string): Observable<Contract[]> {
+    return this.http.get<{ success: boolean, data: Contract[] }>(
+      `${this.apiUrl}/search?name=${encodeURIComponent(name)}`,
+      { headers: this.getHeaders() }
+    ).pipe(
+      map(res => res.data),
+      catchError(this.handleError)
+    );
+  }
 
   createContract(contract: Contract): Observable<Contract> {
     console.log('Token:', localStorage.getItem('token'));
@@ -198,3 +207,4 @@ export class ContractService {
     );
   }
 }
+

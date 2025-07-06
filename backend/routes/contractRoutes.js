@@ -22,6 +22,11 @@ router.get('/count-by-status',
   contractController.getCountByStatus
 );
 
+router.get('/search', 
+  [authJwt.verifyToken, role.checkRole(['admin', 'coordinador', 'lider'])], 
+  contractController.searchContractsByName
+);
+
 // Obtener un contrato específico por ID (accesible para admin, coordinador y líder)
 router.get('/:id', 
   [authJwt.verifyToken, role.checkRole(['admin', 'coordinador', 'lider'])], 
@@ -33,6 +38,7 @@ router.get('/:id/report',
   [authJwt.verifyToken, role.checkRole(['admin', 'coordinador', 'lider'])], 
   contractController.generateContractReport
 );
+
 
 
 /*

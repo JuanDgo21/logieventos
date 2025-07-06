@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { ContractService, Contract } from '../../../core/services/contract';
+import { AuthService } from '../../../core/services/auth';
 
 
 type ContractStatus = 'borrador' | 'activo' | 'completado' | 'cancelado';
@@ -13,6 +14,55 @@ declare const bootstrap: any;
   styleUrl: './contracts-page.scss'
 })
 export class ContractsPage {
+
+  @ViewChild('searchInput', { static: false }) searchInput!: ElementRef<HTMLInputElement>;
+   // Propiedades de búsqueda
+  searchTerm = '';
+  isSearching = false;
+  searchResults: Contract[] = [];
+  showSearch = false;
+
+  // Método para buscar
+  searchContracts(): void {
+    if (!this.searchTerm.trim()) {
+      this.loadData(1); // Recargar todos si la búsqueda está vacía
+      return;
+    }
+
+    this.isSearching = true;
+    this.contractService.searchContractsByName(this.searchTerm).subscribe({
+      next: (results) => {
+        this.searchResults = results;
+        this.isSearching = false;
+      },
+      error: (err) => {
+        console.error('Error en búsqueda:', err);
+        this.isSearching = false;
+      }
+    });
+  }
+
+// Método para limpiar búsqueda
+clearSearch(): void {
+  this.searchTerm = '';
+  this.searchResults = [];
+  this.loadData(1);
+}
+
+// Método para alternar la búsqueda
+toggleSearch(): void {
+    this.showSearch = !this.showSearch;
+    if (this.showSearch) {
+      setTimeout(() => {
+        if (this.searchInput && this.searchInput.nativeElement) {
+          this.searchInput.nativeElement.focus();
+        }
+      }, 100);
+    } else if (!this.searchTerm) {
+      this.clearSearch();
+    }
+}
+
   contracts: Contract[] = [];
   selectedContract: Contract | null = null;
   showEditModal = false;
@@ -75,7 +125,30 @@ export class ContractsPage {
   selectedPersonnel = new Set<string>();
   selectedProviders = new Set<string>();
 
-  constructor(private contractService: ContractService) {}
+  constructor(private contractService: ContractService, private authService: AuthService) {}
+
+  // Cierra la búsqueda al hacer clic fuera
+@HostListener('document:click', ['$event'])
+onClickOutside(event: Event) {
+  const target = event.target as HTMLElement;
+  const clickedInsideSearch = target.closest('.search-container-left');
+  const clickedOnToggle = target.closest('.search-toggle');
+
+
+  if (!clickedInsideSearch && !clickedOnToggle && this.showSearch) {
+    this.showSearch = false;
+    if (!this.searchTerm) {
+      this.clearSearch();
+    }
+  }
+}
+
+
+
+  isAdminOrCoordinator(): boolean {
+  const userRole = this.authService.getUserRole();
+  return userRole ? ['admin', 'coordinador'].includes(userRole) : false;
+}
 
   ngOnInit(): void {
     this.loadData(1);
@@ -294,6 +367,12 @@ export class ContractsPage {
       return;
     }
 
+    if (!this.isAdminOrCoordinator() && this.newContract.status !== 'borrador') {
+    alert('Solo administradores/coordinadores pueden crear contratos en otros estados');
+    this.newContract.status = 'borrador'; // Forzar estado borrador
+    return;
+  }
+
     // Mapear recursos seleccionados
   this.newContract.resources = this.availableResources
     .filter(r => this.selectedResources.has(r._id))
@@ -329,7 +408,7 @@ export class ContractsPage {
       alert(`Faltan campos obligatorios: ${missingFields.join(', ')}`);
       return;
     }
-
+    
     // Asegurar que el estado sea 'borrador' si no está definido
     if (!this.newContract.status) {
       this.newContract.status = 'borrador';

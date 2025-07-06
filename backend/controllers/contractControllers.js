@@ -77,6 +77,36 @@ exports.getContractById = async (req, res) => {
   }
 };
 
+exports.searchContractsByName = async (req, res) => {
+  try {
+    const { name } = req.query;
+    
+    if (!name || name.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: 'El parámetro de búsqueda "name" es requerido'
+      });
+    }
+
+    const contracts = await Contract.find({
+      name: { $regex: name, $options: 'i' }
+    })
+    .sort({ createdAt: -1 })
+    .limit(10); // Limitar resultados para no sobrecargar
+
+    res.status(200).json({
+      success: true,
+      data: contracts
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error al buscar contratos',
+      error: error.message
+    });
+  }
+};
+
 // Obtener el conteo de contratos por estado
 exports.getCountByStatus = async (req, res) => {
   try {
