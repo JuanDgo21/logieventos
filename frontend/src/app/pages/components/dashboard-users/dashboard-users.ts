@@ -1,9 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { User } from '../../../shared/interfaces/user';
 import { UserService } from '../../../core/services/user';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal';
 import { UserFormComponent } from '../../../modules/user-management/user-form/user-form';
+import { AuthService } from '../../../core/services/auth';
+import { Router } from '@angular/router';
+import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import { BaseChartDirective } from 'ng2-charts';
 
 @Component({
   selector: 'app-dashboard-users',
@@ -12,106 +16,90 @@ import { UserFormComponent } from '../../../modules/user-management/user-form/us
   styleUrl: './dashboard-users.scss'
 })
 export class DashboardUsersComponent implements OnInit {
-  users: User[] = [];
-  filteredUsers: User[] = [];
-  searchTerm: string = '';
-  statusFilter: string = 'all';
-  loading = true;
+  userRole: string = '';
+  currentSubtitle: number = 0;
+  stats = {
+    activeUsers: 0,
+    activePercentage: 0,
+    totalUsers: 0
+  };
+
+  // Datos para la distribución de roles
+  roleDistribution = {
+    labels: ['Administradores', 'Coordinadores', 'Líderes'],
+    data: [3, 7, 15],
+    colors: ['bg-primary', 'bg-success', 'bg-info'],
+    total: 25
+  };
+
+  // Definición de las acciones rápidas
+  quickActions = [
+    {
+      title: 'Agregar Usuario',
+      icon: 'fas fa-user-plus',
+      color: 'bg-primary',
+      action: () => this.openUserForm()
+    },
+    {
+      title: 'Administrar Roles',
+      icon: 'fas fa-user-shield',
+      color: 'bg-success',
+      action: () => this.openRoleManager()
+    },
+    {
+      title: 'Ver Reportes',
+      icon: 'fas fa-chart-bar',
+      color: 'bg-info',
+      action: () => this.viewReports()
+    }
+  ];
 
   constructor(
-    private userService: UserService,
-    private modalService: NgbModal
+    private authService: AuthService,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
-    this.loadUsers();
+    this.userRole = this.authService.getUserRole() || '';
+    this.loadStats();
+    this.startSubtitleRotation();
   }
 
-  loadUsers(): void {
-    this.loading = true;
+  loadStats(): void {
     this.userService.getAllUsers().subscribe({
-      next: (users) => {
-        this.users = users;
-        this.filteredUsers = users;
-        this.loading = false;
+      next: (users: User[]) => {
+        this.stats.totalUsers = users.length;
+        this.stats.activeUsers = users.filter(u => u.active).length;
+        this.stats.activePercentage = this.stats.totalUsers > 0 
+          ? Math.round((this.stats.activeUsers / this.stats.totalUsers) * 100)
+          : 0;
       },
-      error: (err) => {
-        console.error('Error loading users:', err);
-        this.loading = false;
-      }
+      error: (err) => console.error('Error al cargar estadísticas:', err)
     });
   }
 
-  applyFilters(): void {
-    this.filteredUsers = this.users.filter(user => {
-      const matchesSearch = 
-        user.fullname.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        user.username.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        user.document.toString().includes(this.searchTerm);
-      
-      const matchesStatus = 
-        this.statusFilter === 'all' || 
-        (this.statusFilter === 'active' && user.active) || 
-        (this.statusFilter === 'inactive' && !user.active);
-      
-      return matchesSearch && matchesStatus;
-    });
+  startSubtitleRotation(): void {
+    setInterval(() => {
+      this.currentSubtitle = (this.currentSubtitle + 1) % 3;
+    }, 4000);
   }
 
-  openUserForm(user?: User): void {
-    const modalRef = this.modalService.open(UserFormComponent, {
-      centered: true,
-      size: 'lg'
-    });
-    modalRef.componentInstance.user = user || null;
-    
-    modalRef.result.then((result) => {
-      if (result === 'saved') {
-        this.loadUsers(); // Recargar la lista después de guardar
-      }
-    }).catch(() => {});
+  calculatePercentage(value: number): number {
+    return (value / this.roleDistribution.total) * 100;
   }
 
-  confirmDelete(user: User): void {
-    const modalRef = this.modalService.open(ConfirmModalComponent, {
-      centered: true
-    });
-    modalRef.componentInstance.title = 'Confirmar eliminación';
-    modalRef.componentInstance.message = `¿Estás seguro de eliminar a ${user.fullname}?`;
-    modalRef.componentInstance.confirmText = 'Eliminar';
-    modalRef.componentInstance.confirmClass = 'btn-danger';
-    
-    modalRef.result.then(() => {
-      this.deleteUser(user._id!);
-    }).catch(() => {});
+  openUserForm(): void {
+    console.log('Abrir formulario de usuario');
+    // Implementación real aquí
   }
 
-  deleteUser(id: string): void {
-    this.userService.deleteUser(id).subscribe({
-      next: () => {
-        this.loadUsers(); // Recargar la lista después de eliminar
-      },
-      error: (err) => {
-        console.error('Error deleting user:', err);
-      }
-    });
+  openRoleManager(): void {
+    console.log('Abrir administrador de roles');
+    // Implementación real aquí
   }
 
-  toggleUserStatus(user: User): void {
-    const newStatus = !user.active;
-    this.userService.updateUser(user._id!, { active: newStatus }).subscribe({
-      next: () => {
-        // Actualizar el estado localmente sin recargar
-        const index = this.users.findIndex(u => u._id === user._id);
-        if (index !== -1) {
-          this.users[index].active = newStatus;
-          this.applyFilters(); // Reaplicar filtros
-        }
-      },
-      error: (err) => {
-        console.error('Error updating user status:', err);
-      }
-    });
+  viewReports(): void {
+    console.log('Ver reportes de usuarios');
+    // Implementación real aquí
   }
 }

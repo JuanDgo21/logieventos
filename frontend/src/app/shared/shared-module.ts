@@ -15,7 +15,7 @@ import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal'
     FooterComponent,
     NavbarComponent,
     SidebarComponent,
-    ConfirmModalComponent,
+    ConfirmModalComponent
   ],
   imports: [
     CommonModule,
