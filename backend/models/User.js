@@ -44,6 +44,10 @@ const userSchema = new mongoose.Schema({
     enum: ['admin', 'coordinador', 'lider'], // Solo permite estos roles
     default: 'lider'    // Valor por defecto si no se especifica
   },
+  active: {
+    type: Boolean,
+    default: true
+  },
   // resetPasswordToken: String,       // No es required
   // resetPasswordExpires: Date 
 }, { timestamps: true }); // Añade campos 'createdAt' y 'updatedAt' automáticamente

@@ -1,0 +1,68 @@
+@use '../../../../styles.scss' as *;
+
+/* Estructura principal */
+.user-management-container {
+  min-height: calc(100vh - 120px);
+  padding: 2rem;
+  position: relative; /* Asegura el contexto de posicionamiento */
+  z-index: 1; /* Establece una capa base */
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+/* Tabla y filas */
+.table-responsive {
+  position: relative;
+  z-index: 2; /* Coloca la tabla por encima del fondo */
+  
+  table {
+    background-color: white; /* Fondo sólido para evitar transparencias */
+  }
+}
+
+/* Botones de acción */
+.action-buttons {
+  position: relative; /* Asegura el contexto para los tooltips */
+  z-index: 3; /* Coloca los botones por encima de todo */
+  
+  .btn {
+    transition: all 0.2s ease;
+    position: relative; /* Necesario para z-index */
+    
+    &:hover {
+      transform: scale(1.1);
+      z-index: 4; /* Asegura que el hover esté por encima */
+    }
+    
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
+
+/* Efectos de hover en filas */
+.user-row {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  td {
+    position: relative; /* Para elementos hijos posicionados */
+  }
+}
+
+/* Tooltips mejorados */
+.tooltip {
+  z-index: 1000; /* Asegura que los tooltips estén encima de todo */
+}
+
+/* Corrección para modales */
+.modal {
+  z-index: 1050 !important; /* Asegura que los modales estén por encima */
+}

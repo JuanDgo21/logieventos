@@ -9,6 +9,13 @@
     </div>
 
     <div class="d-flex align-items-center">
+      <!-- Opción de Registrar Usuario (solo para admin) -->
+      @if (authService.hasRole('admin')) {
+        <button class="btn btn-outline-primary me-3" [routerLink]="['/auth/register']">
+          <i class="fas fa-user-plus me-1"></i> Registrar Usuario
+        </button>
+      }
+
       <!-- Notificaciones -->
       <div class="dropdown me-3">
         <button class="btn btn-link position-relative" data-bs-toggle="dropdown">
@@ -50,7 +57,7 @@
           </li>
           <li><hr class="dropdown-divider"></li>
           <li>
-            <a class="dropdown-item" routerLink="/users/profile">
+            <a class="dropdown-item" [routerLink]="['/users/profile']">
               <i class="fas fa-user me-2"></i> Mi Perfil
             </a>
           </li>

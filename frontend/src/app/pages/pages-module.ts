@@ -10,6 +10,7 @@ import { SharedModule } from '../shared/shared-module';
 import { DashboardComponent } from './components/dashboard/dashboard';
 import { ContractsPage } from './components/contracts-page/contracts-page';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { DashboardUsersComponent } from './components/dashboard-users/dashboard-users';
 
 
 
@@ -18,7 +19,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     ProvidersPage,
     InventoryPageComponent,
     DashboardComponent,
-    ContractsPage
+    ContractsPage,
+    DashboardUsersComponent
   ],
   imports: [
     CommonModule,
@@ -27,14 +29,16 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     FormsModule,
     ReactiveFormsModule,
     SharedModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    // NgModule
     // AuthService
   ],
   exports: [
     ProvidersPage,
     InventoryPageComponent,
     DashboardComponent,
-    ContractsPage
+    ContractsPage,
+    DashboardUsersComponent
   ]
 })
 export class PagesModule { }
