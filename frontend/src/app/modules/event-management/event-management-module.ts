@@ -1,14 +1,19 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import { EventManagementRoutingModule } from './event-management-routing-module';
-
-
+import { Eventcard  } from './components/eventcard/eventcard';
+import { SharedModule } from "../../shared/shared-module"; // Asegúrate de que la ruta sea correcta
 @NgModule({
-  declarations: [],
+  declarations: [
+    Eventcard,
+  ],
   imports: [
     CommonModule,
-    EventManagementRoutingModule
-  ]
+    EventManagementRoutingModule,
+    SharedModule
+],
+  exports: [
+    Eventcard,
+  ],
 })
 export class EventManagementModule { }
