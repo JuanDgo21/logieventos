@@ -50,7 +50,7 @@ export class LayoutService {
         },
         { name: 'Proveedores', icon: 'truck', path: 'pages/providers' },
         { name: 'Recursos', icon: 'box-open', path: 'pages/resources' },
-        { name: 'Contratos', icon: 'file-contract', path: 'pages/contracts' },
+        { name: 'Contratos', icon: 'file-contract', path: 'contracts-page' },
         { name: 'Usuarios', icon: 'user-cog', path: '/pages/usuarios',
           children: [
             { name: 'Listado', icon: 'list', path: '/users/list' }
@@ -66,7 +66,7 @@ export class LayoutService {
           ]
         },
         { name: 'Recursos', icon: 'box-open', path: 'pages/resources' },
-        { name: 'Contratos', icon: 'file-contract', path: 'pages/contracts' }
+        { name: 'Contratos', icon: 'file-contract', path: 'contracts-page' }
       ],
       lider: [
         { name: 'Mis Eventos', icon: 'calendar-check', path: 'pages/my-events' },
