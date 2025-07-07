@@ -7,12 +7,14 @@ import { ProvidersPage } from './components/providers/providers';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InventoryPageComponent } from './components/inventory-page/inventory-page';
-import { SharedModule } from '../shared/shared-module';
 import { DashboardComponent } from './components/dashboard/dashboard';
 import { ContractsPage } from './components/contracts-page/contracts-page';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DashboardUsersComponent } from './components/dashboard-users/dashboard-users';
-
+import { SharedModule } from '../shared/shared-module';
+import { NgbProgressbarModule } from '@ng-bootstrap/ng-bootstrap';
+import { DashboardStaffComponent } from './components/dashboard-staff/dashboard-staff';
+import { StaffModule } from '../modules/staff/staff-module';
 
 
 @NgModule({
@@ -21,17 +23,21 @@ import { DashboardUsersComponent } from './components/dashboard-users/dashboard-
     InventoryPageComponent,
     DashboardComponent,
     ContractsPage,
-    DashboardUsersComponent
+    DashboardUsersComponent,
+    DashboardStaffComponent
   ],
   imports: [
     CommonModule,
     PagesRoutingModule,
     RouterModule,
-    FormsModule,
-    ReactiveFormsModule,
     SharedModule,
     FontAwesomeModule,
-    MatSnackBarModule
+    RouterModule,
+    FormsModule,
+    NgbProgressbarModule,
+    StaffModule
+    // UserManagementModule,
+    // BrowserAnimationsModule
     // NgModule
     // AuthService
   ],
@@ -40,7 +46,8 @@ import { DashboardUsersComponent } from './components/dashboard-users/dashboard-
     InventoryPageComponent,
     DashboardComponent,
     ContractsPage,
-    DashboardUsersComponent
+    DashboardUsersComponent,
+    DashboardStaffComponent
   ]
 })
 export class PagesModule { }

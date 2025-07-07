@@ -26,16 +26,16 @@ $dark: #1a1a2e;
 $white: #ffffff;
 $primary: #4f46e5;
 
-$primary-color: #4f46e5;
-$secondary-color: #7c3aed;
-$success-color: #10b981;
-$danger-color: #ef4444;
-$warning-color: #f59e0b;
-$dark-color: #1e293b;
-$light-color: #f8fafc;
-$gray-200: #e2e8f0;
-$gray-400: #94a3b8;
-$gray-600: #475569;
+// $primary-color: #4f46e5;
+// $secondary-color: #7c3aed;
+// $success-color: #10b981;
+// $danger-color: #ef4444;
+// $warning-color: #f59e0b;
+// $dark-color: #1e293b;
+// $light-color: #f8fafc;
+// $gray-200: #e2e8f0;
+// $gray-400: #94a3b8;
+// $gray-600: #475569;
 
 
 // Mixins reutilizables
@@ -68,21 +68,21 @@ $gradient-success: linear-gradient(135deg, $success-color, darken($success-color
   }
 }
 
-@mixin particle-effect {
-  position: relative;
-  overflow: hidden;
-  &::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-    transform: rotate(0deg);
-    animation: particle-rotate 15s linear infinite;
-  }
-}
+// @mixin particle-effect {
+//   position: relative;
+//   overflow: hidden;
+//   &::after {
+//     content: '';
+//     position: absolute;
+//     top: -50%;
+//     left: -50%;
+//     width: 200%;
+//     height: 200%;
+//     background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+//     transform: rotate(0deg);
+//     animation: particle-rotate 15s linear infinite;
+//   }
+// }
 
 // Animaciones
 @keyframes particle-rotate {
@@ -120,7 +120,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   overflow: hidden;
-  @include particle-effect;
+  // @include particle-effect;
 }
 
 .input-field {
