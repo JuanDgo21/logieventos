@@ -15,6 +15,7 @@ import { SharedModule } from '../shared/shared-module';
 import { NgbProgressbarModule } from '@ng-bootstrap/ng-bootstrap';
 import { DashboardStaffComponent } from './components/dashboard-staff/dashboard-staff';
 import { StaffModule } from '../modules/staff/staff-module';
+import { UserManagementModule } from '../modules/user-management/user-management-module';
 
 
 @NgModule({
@@ -35,7 +36,8 @@ import { StaffModule } from '../modules/staff/staff-module';
     RouterModule,
     FormsModule,
     NgbProgressbarModule,
-    StaffModule
+    StaffModule,
+    UserManagementModule
     // UserManagementModule,
     // BrowserAnimationsModule
     // NgModule
