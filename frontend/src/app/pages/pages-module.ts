@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { PagesRoutingModule } from './pages-routing-module';
 import { ProvidersPage } from './components/providers/providers';
 import { RouterModule } from '@angular/router';
@@ -30,6 +31,7 @@ import { DashboardUsersComponent } from './components/dashboard-users/dashboard-
     ReactiveFormsModule,
     SharedModule,
     FontAwesomeModule,
+    MatSnackBarModule
     // NgModule
     // AuthService
   ],
