@@ -1,11 +1,13 @@
-<!-- <div class="resource-types-container">
+<div class="resource-types-container">
+  <app-sidebar-inventory></app-sidebar-inventory>
+  <div class="content" [class.sidebar-collapsed]="!sidebarState.isOpen">  
   <h2>
     <i class="fas fa-tags"></i>
     Gestión de Tipos de Recursos
   </h2>
   
   <!-- Mensajes -->
-  <!-- <div *ngIf="errorMessage" class="alert alert-danger">
+  <div *ngIf="errorMessage" class="alert alert-danger">
     {{ errorMessage }}
   </div>
   
@@ -14,12 +16,12 @@
   </div>
 
   <!-- Spinner de carga -->
-  <!-- <div *ngIf="isLoading" class="loading-spinner">
+  <div *ngIf="isLoading" class="loading-spinner">
     <i class="fas fa-spinner fa-spin"></i> Cargando...
   </div>
   
   <!-- Formulario -->
-  <!-- <div class="resource-type-form">
+  <div class="resource-type-form">
     <h3>{{ editingResourceType ? 'Editar Tipo' : 'Nuevo Tipo de Recurso' }}</h3>
     
     <div class="form-group">
@@ -69,7 +71,7 @@
   </div>
   
   <!-- Tabla -->
-  <!-- <div class="resource-type-table">
+  <div class="resource-type-table">
     <table>
       <thead>
         <tr>
@@ -106,4 +108,4 @@
       </tbody>
     </table>
   </div>
-</div> --> 
+</div>
