@@ -15,32 +15,36 @@
     
     <!-- Tarjetas de Resumen -->
     <div class="summary-cards row">
-      <div *ngFor="let item of summaryData" class="col-md-3 p-2">
-        <div class="summary-card p-3 rounded text-white" [style.background]="getGradient(item.key)">
-          <div class="d-flex align-items-center">
-            <div class="me-3">
-              <i class="fas fa-2x fa-{{item.icon}}"></i>
-            </div>
-            <div>
-              <h3>{{item.value}}</h3>
-              <p class="mb-0">{{item.label}}</p>
+      @for (item of summaryData; track item.key) {
+        <div class="col-md-3 p-2">
+          <div class="summary-card p-3 rounded text-white" [style.background]="getGradient(item.key)">
+            <div class="d-flex align-items-center">
+              <div class="me-3">
+                <i class="fas fa-2x fa-{{item.icon}}"></i>
+              </div>
+              <div>
+                <h3>{{item.value}}</h3>
+                <p class="mb-0">{{item.label}}</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      }
     </div>
 
     <!-- Acciones Rápidas -->
     <div class="quick-actions-section mt-5">
       <h2><i class="fas fa-bolt"></i> Acciones Rápidas</h2>
       <div class="row">
-        <div *ngFor="let action of filteredQuickActions()" class="col-md-3 p-2">
-          <button class="btn w-100 text-white py-3 rounded" 
-                  [style.background]="getGradient(action.key)">
-            <i class="fas fa-{{action.icon}} fa-lg me-2"></i>
-            {{action.label}}
-          </button>
-        </div>
+        @for (action of filteredQuickActions(); track action.key) {
+          <div class="col-md-3 p-2">
+            <button class="btn w-100 text-white py-3 rounded" 
+                    [style.background]="getGradient(action.key)">
+              <i class="fas fa-{{action.icon}} fa-lg me-2"></i>
+              {{action.label}}
+            </button>
+          </div>
+        }
       </div>
     </div>
 
@@ -48,13 +52,15 @@
     <div class="recent-activity mt-5">
       <h2><i class="fas fa-history"></i> Actividad Reciente</h2>
       <ul class="list-group">
-        <li *ngFor="let activity of recentActivities" class="list-group-item d-flex align-items-center">
-          <i class="fas fa-{{activity.icon}} fa-lg text-primary me-3"></i>
-          <div>
-            <p class="mb-1">{{activity.message}}</p>
-            <small class="text-muted">{{activity.time}}</small>
-          </div>
-        </li>
+        @for (activity of recentActivities; track activity) {
+          <li class="list-group-item d-flex align-items-center">
+            <i class="fas fa-{{activity.icon}} fa-lg text-primary me-3"></i>
+            <div>
+              <p class="mb-1">{{activity.message}}</p>
+              <small class="text-muted">{{activity.time}}</small>
+            </div>
+          </li>
+        }
       </ul>
     </div>
   </main>

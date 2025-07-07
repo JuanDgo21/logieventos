@@ -62,8 +62,6 @@ export class PersonnelFormComponent implements OnInit {
     }
   }
 
-
-
   updateCurrentTypeName(): void {
     if (this.personnel?.personnelType) {
       const id = typeof this.personnel.personnelType === 'string'

@@ -15,15 +15,16 @@
         <input type="text" class="form-control" id="name" formControlName="name" 
                placeholder="Nombre de la categoría">
       </div>
-      <div *ngIf="typeForm.get('name')?.invalid && typeForm.get('name')?.touched" 
-           class="text-danger mt-1">
-        <small *ngIf="typeForm.get('name')?.errors?.['required']">
-          El nombre es requerido
-        </small>
-        <small *ngIf="typeForm.get('name')?.errors?.['maxlength']">
-          Máximo 50 caracteres
-        </small>
-      </div>
+      @if (typeForm.get('name')?.invalid && typeForm.get('name')?.touched) {
+        <div class="text-danger mt-1">
+          @if (typeForm.get('name')?.errors?.['required']) {
+            <small>El nombre es requerido</small>
+          }
+          @if (typeForm.get('name')?.errors?.['maxlength']) {
+            <small>Máximo 50 caracteres</small>
+          }
+        </div>
+      }
     </div>
 
     <div class="mb-3">
@@ -33,12 +34,13 @@
         <textarea class="form-control" id="description" formControlName="description"
                   rows="3" placeholder="Descripción opcional (máx. 200 caracteres)"></textarea>
       </div>
-      <div *ngIf="typeForm.get('description')?.invalid && typeForm.get('description')?.touched" 
-           class="text-danger mt-1">
-        <small *ngIf="typeForm.get('description')?.errors?.['maxlength']">
-          Máximo 200 caracteres
-        </small>
-      </div>
+      @if (typeForm.get('description')?.invalid && typeForm.get('description')?.touched) {
+        <div class="text-danger mt-1">
+          @if (typeForm.get('description')?.errors?.['maxlength']) {
+            <small>Máximo 200 caracteres</small>
+          }
+        </div>
+      }
     </div>
 
     <div class="form-check form-switch mb-3">
@@ -56,12 +58,12 @@
     <i class="fas fa-times me-2"></i>Cancelar
   </button>
   <button type="button" class="btn btn-primary" (click)="saveType()" [disabled]="typeForm.invalid || isSaving">
-    <span *ngIf="!isSaving">
+    @if (!isSaving) {
       <i class="fas fa-save me-2"></i>{{ type ? 'Actualizar' : 'Guardar' }}
-    </span>
-    <span *ngIf="isSaving">
+    }
+    @if (isSaving) {
       <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
       Guardando...
-    </span>
+    }
   </button>
 </div>

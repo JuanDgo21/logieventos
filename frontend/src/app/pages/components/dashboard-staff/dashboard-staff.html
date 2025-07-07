@@ -8,22 +8,32 @@
     </div>
     
     <div class="rotating-subtitle mt-2">
-      <p [class.visible]="currentSubtitle === 0" class="text-muted">Panel de control de Recursos Humanos</p>
-      <p [class.visible]="currentSubtitle === 1" class="text-muted">Administra el personal de la empresa</p>
-      <p [class.visible]="currentSubtitle === 2" class="text-muted">Visualiza estadísticas clave de empleados</p>
+      @for (subtitle of [0, 1, 2]; track $index) {
+        <p [class.visible]="currentSubtitle === $index" class="text-muted">
+          @if ($index === 0) {
+            Panel de control de Recursos Humanos
+          } @else if ($index === 1) {
+            Administra el personal de la empresa
+          } @else if ($index === 2) {
+            Visualiza estadísticas clave de empleados
+          }
+        </p>
+      }
     </div>
   </div>
 
   <!-- Loading indicator -->
-  <div *ngIf="isLoading" class="text-center p-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Cargando...</span>
+  @if (isLoading) {
+    <div class="text-center p-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-2">Cargando datos del personal...</p>
     </div>
-    <p class="mt-2">Cargando datos del personal...</p>
-  </div>
+  }
 
   <!-- Contenido principal -->
-  <div *ngIf="!isLoading">
+  @if (!isLoading) {
     <!-- Tarjetas de estadísticas -->
     <div class="stats-section p-4">
       <div class="row g-4">
@@ -92,49 +102,55 @@
       </h4>
       
       <div class="row g-4">
-        <div class="col-md-4" *ngFor="let action of quickActions">
-          <div class="card h-100 shadow-sm" (click)="action.action()" style="cursor: pointer;">
-            <div class="card-body text-center">
-              <div class="rounded-circle p-3 mb-3 d-inline-block" [ngClass]="action.color">
-                <i [class]="action.icon" class="text-white fa-lg"></i>
+        @for (action of quickActions; track action.title) {
+          <div class="col-md-4">
+            <div class="card h-100 shadow-sm" (click)="action.action()" style="cursor: pointer;">
+              <div class="card-body text-center">
+                <div class="rounded-circle p-3 mb-3 d-inline-block" [ngClass]="action.color">
+                  <i [class]="action.icon" class="text-white fa-lg"></i>
+                </div>
+                <h5 class="card-title">{{ action.title }}</h5>
+                <p class="card-text text-muted">Haz clic para realizar esta acción</p>
               </div>
-              <h5 class="card-title">{{ action.title }}</h5>
-              <p class="card-text text-muted">Haz clic para realizar esta acción</p>
             </div>
           </div>
-        </div>
+        }
       </div>
     </div>
 
     <!-- Distribución por departamento -->
-    <div class="department-section p-4" *ngIf="departmentDistribution.labels.length > 0">
-      <div class="card shadow-sm">
-        <div class="card-header bg-white">
-          <h5 class="m-0">
-            <i class="fas fa-building me-2 text-primary"></i>Distribución por Departamento
-          </h5>
-        </div>
-        <div class="card-body">
-          <div *ngFor="let dept of departmentDistribution.labels; let i = index" class="mb-3">
-            <div class="d-flex justify-content-between mb-1">
-              <span>
-                <i class="fas fa-circle me-2" [ngClass]="'text-' + departmentDistribution.colors[i].split('-')[1]"></i>
-                {{ dept }}
-              </span>
-              <span class="fw-bold">
-                {{ departmentDistribution.data[i] }} ({{ calculatePercentage(departmentDistribution.data[i]) | number:'1.0-0' }}%)
-              </span>
-            </div>
-            <div class="progress">
-              <div class="progress-bar" 
-                  [ngClass]="departmentDistribution.colors[i]"
-                  [style.width]="calculatePercentage(departmentDistribution.data[i]) + '%'">
+    @if (departmentDistribution.labels.length > 0) {
+      <div class="department-section p-4">
+        <div class="card shadow-sm">
+          <div class="card-header bg-white">
+            <h5 class="m-0">
+              <i class="fas fa-building me-2 text-primary"></i>Distribución por Departamento
+            </h5>
+          </div>
+          <div class="card-body">
+            @for (dept of departmentDistribution.labels; track dept; let i = $index) {
+              <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                  <span>
+                    <i class="fas fa-circle me-2" [ngClass]="'text-' + departmentDistribution.colors[i].split('-')[1]"></i>
+                    {{ dept }}
+                  </span>
+                  <span class="fw-bold">
+                    {{ departmentDistribution.data[i] }} ({{ calculatePercentage(departmentDistribution.data[i]) | number:'1.0-0' }}%)
+                  </span>
+                </div>
+                <div class="progress">
+                  <div class="progress-bar" 
+                      [ngClass]="departmentDistribution.colors[i]"
+                      [style.width]="calculatePercentage(departmentDistribution.data[i]) + '%'">
+                  </div>
+                </div>
               </div>
-            </div>
+            }
           </div>
         </div>
       </div>
-    </div>
+    }
 
     <!-- Últimos empleados agregados -->
     <div class="recent-personnel-section p-4">
@@ -160,31 +176,34 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let person of personnelList.slice(0, 5)">
-                  <td>{{ person.firstName }} {{ person.lastName }}</td>
-                  <td>{{ getTypeName(person.personnelType) }}</td>
-                  <td>
-                    <span class="badge" [ngClass]="{
-                      'bg-success': person.status === 'disponible',
-                      'bg-primary': person.status === 'asignado',
-                      'bg-warning': person.status === 'vacaciones',
-                      'bg-secondary': person.status === 'inactivo'
-                    }">
-                      {{ 
-                        person.status === 'disponible' ? 'Disponible' :
-                        person.status === 'asignado' ? 'Asignado' :
-                        person.status === 'vacaciones' ? 'Vacaciones' : 'Inactivo'
-                      }}
-                    </span>
-                  </td>
-                  <td>{{ person.email }}</td>
-                  <td>{{ person.phone || 'N/A' }}</td>
-                </tr>
+                @for (person of personnelList.slice(0, 5); track person) {
+                  <tr>
+                    <td>{{ person.firstName }} {{ person.lastName }}</td>
+                    <td>{{ getTypeName(person.personnelType) }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="{
+                        'bg-success': person.status === 'disponible',
+                        'bg-primary': person.status === 'asignado',
+                        'bg-warning': person.status === 'vacaciones',
+                        'bg-secondary': person.status === 'inactivo'
+                      }">
+                        @switch (person.status) {
+                          @case ('disponible') { Disponible }
+                          @case ('asignado') { Asignado }
+                          @case ('vacaciones') { Vacaciones }
+                          @default { Inactivo }
+                        }
+                      </span>
+                    </td>
+                    <td>{{ person.email }}</td>
+                    <td>{{ person.phone || 'N/A' }}</td>
+                  </tr>
+                }
               </tbody>
             </table>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  }
 </div>

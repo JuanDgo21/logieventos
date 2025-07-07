@@ -15,8 +15,12 @@
         <input type="text" class="form-control" id="firstName" formControlName="firstName"
                [ngClass]="{ 'is-invalid': personnelForm.get('firstName')?.invalid && personnelForm.get('firstName')?.touched }">
         <div class="invalid-feedback">
-          <span *ngIf="personnelForm.get('firstName')?.errors?.['required']">Nombre es requerido</span>
-          <span *ngIf="personnelForm.get('firstName')?.errors?.['maxlength']">Máximo 50 caracteres</span>
+          @if (personnelForm.get('firstName')?.errors?.['required']) {
+            <span>Nombre es requerido</span>
+          }
+          @if (personnelForm.get('firstName')?.errors?.['maxlength']) {
+            <span>Máximo 50 caracteres</span>
+          }
         </div>
       </div>
 
@@ -26,8 +30,12 @@
         <input type="text" class="form-control" id="lastName" formControlName="lastName"
                [ngClass]="{ 'is-invalid': personnelForm.get('lastName')?.invalid && personnelForm.get('lastName')?.touched }">
         <div class="invalid-feedback">
-          <span *ngIf="personnelForm.get('lastName')?.errors?.['required']">Apellido es requerido</span>
-          <span *ngIf="personnelForm.get('lastName')?.errors?.['maxlength']">Máximo 50 caracteres</span>
+          @if (personnelForm.get('lastName')?.errors?.['required']) {
+            <span>Apellido es requerido</span>
+          }
+          @if (personnelForm.get('lastName')?.errors?.['maxlength']) {
+            <span>Máximo 50 caracteres</span>
+          }
         </div>
       </div>
 
@@ -40,8 +48,12 @@
                  [ngClass]="{ 'is-invalid': personnelForm.get('email')?.invalid && personnelForm.get('email')?.touched }">
         </div>
         <div class="invalid-feedback">
-          <span *ngIf="personnelForm.get('email')?.errors?.['required']">Email es requerido</span>
-          <span *ngIf="personnelForm.get('email')?.errors?.['email']">Formato de email inválido</span>
+          @if (personnelForm.get('email')?.errors?.['required']) {
+            <span>Email es requerido</span>
+          }
+          @if (personnelForm.get('email')?.errors?.['email']) {
+            <span>Formato de email inválido</span>
+          }
         </div>
       </div>
 
@@ -54,7 +66,9 @@
                  [ngClass]="{ 'is-invalid': personnelForm.get('phone')?.invalid && personnelForm.get('phone')?.touched }">
         </div>
         <div class="invalid-feedback">
-          <span *ngIf="personnelForm.get('phone')?.errors?.['pattern']">Formato inválido (10-15 dígitos)</span>
+          @if (personnelForm.get('phone')?.errors?.['pattern']) {
+            <span>Formato inválido (10-15 dígitos)</span>
+          }
         </div>
       </div>
 
@@ -63,17 +77,21 @@
         <label for="personnelType" class="form-label">Categoría*</label>
         
         <!-- Muestra la categoría actual cuando está en modo edición -->
-        <div *ngIf="personnel" class="alert alert-info py-2 mb-2">
-          <strong>Categoría actual:</strong> {{ currentTypeName }}
-        </div>
+        @if (personnel) {
+          <div class="alert alert-info py-2 mb-2">
+            <strong>Categoría actual:</strong> {{ currentTypeName }}
+          </div>
+        }
         
         <select class="form-select" id="personnelType" formControlName="personnelType"
                 (change)="onTypeChange($event)"
                 [ngClass]="{ 'is-invalid': personnelForm.get('personnelType')?.invalid && personnelForm.get('personnelType')?.touched }">
           <option value="">Seleccione una categoría</option>
-          <option *ngFor="let type of personnelTypes" [value]="type._id">
-            {{ type.name }}
-          </option>
+          @for (type of personnelTypes; track type._id) {
+            <option [value]="type._id">
+              {{ type.name }}
+            </option>
+          }
         </select>
         <div class="invalid-feedback">
           Por favor seleccione una categoría
@@ -84,9 +102,11 @@
       <div class="col-md-6">
         <label for="status" class="form-label">Estado*</label>
         <select class="form-select" id="status" formControlName="status">
-          <option *ngFor="let status of statusOptions" [value]="status.value" [selected]="personnel?.status === status.value">
-            {{ status.label }}
-          </option>
+          @for (status of statusOptions; track status.value) {
+            <option [value]="status.value" [selected]="personnel?.status === status.value">
+              {{ status.label }}
+            </option>
+          }
         </select>
       </div>
 
@@ -103,11 +123,13 @@
         </div>
         
         <div class="d-flex flex-wrap gap-2">
-          <div *ngFor="let skill of personnelForm.get('skills')?.value" class="badge bg-light text-dark p-2">
-            {{ skill }}
-            <button type="button" class="btn-close ms-2" style="font-size: 0.6rem;" 
-                    (click)="removeSkill(skill)"></button>
-          </div>
+          @for (skill of personnelForm.get('skills')?.value; track skill) {
+            <div class="badge bg-light text-dark p-2">
+              {{ skill }}
+              <button type="button" class="btn-close ms-2" style="font-size: 0.6rem;" 
+                      (click)="removeSkill(skill)"></button>
+            </div>
+          }
         </div>
       </div>
     </div>
@@ -119,12 +141,12 @@
     <i class="fas fa-times me-2"></i> Cancelar
   </button>
   <button type="button" class="btn btn-primary" (click)="savePersonnel()" [disabled]="personnelForm.invalid || isSaving">
-    <span *ngIf="!isSaving">
+    @if (!isSaving) {
       <i class="fas fa-save me-2"></i> {{ personnel ? 'Actualizar' : 'Guardar' }}
-    </span>
-    <span *ngIf="isSaving">
+    }
+    @if (isSaving) {
       <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
       Procesando...
-    </span>
+    }
   </button>
 </div>
