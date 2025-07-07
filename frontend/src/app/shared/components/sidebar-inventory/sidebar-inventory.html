@@ -1,0 +1,29 @@
+<nav class="sidebar" [class.collapsed]="!sidebarState.isOpen">
+  <div class="sidebar-header">
+    <button class="toggle-btn" (click)="sidebarState.toggle()">
+      <i class="fas fa-{{ sidebarState.isOpen ? 'times' : 'bars' }}"></i>
+    </button>
+    <h4 *ngIf="sidebarState.isOpen">Inventario</h4>
+  </div>
+
+  <ul class="sidebar-menu">
+    <li>
+      <button class="menu-item" (click)="navigateTo('pages/inventory-page')">
+        <i class="fas fa-home"></i>
+        <span *ngIf="sidebarState.isOpen">Home</span>
+      </button>
+    </li>
+    <li>
+      <button class="menu-item" (click)="navigateTo('inventory/resources')">
+        <i class="fas fa-box-open"></i>
+        <span *ngIf="sidebarState.isOpen">Recursos</span>
+      </button>
+    </li>
+    <li>
+      <button class="menu-item" (click)="navigateTo('inventory/resource-types')">
+        <i class="fas fa-tags"></i>
+        <span *ngIf="sidebarState.isOpen">Tipos de Recursos</span>
+      </button>
+    </li>
+  </ul>
+</nav>

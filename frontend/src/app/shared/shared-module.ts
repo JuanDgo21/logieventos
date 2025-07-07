@@ -7,7 +7,7 @@ import { SidebarComponent } from './components/sidebar/sidebar';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal';
-
+import { SidebarInventoryComponent } from './components/sidebar-inventory/sidebar-inventory';
 
 
 @NgModule({
@@ -15,7 +15,8 @@ import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal'
     FooterComponent,
     NavbarComponent,
     SidebarComponent,
-    ConfirmModalComponent
+    ConfirmModalComponent,
+    SidebarInventoryComponent
   ],
   imports: [
     CommonModule,
@@ -28,7 +29,8 @@ import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal'
     FooterComponent,
     NavbarComponent,
     SidebarComponent,
-    ConfirmModalComponent
+    ConfirmModalComponent,
+    SidebarInventoryComponent
   ]
 })
 export class SharedModule { }
