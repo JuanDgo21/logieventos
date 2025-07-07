@@ -48,8 +48,8 @@
       <div *ngFor="let status of statusList" class="col-md-3 mb-4">
         <div class="card border-start border-{{ statusMeta[status].color }} border-4 h-100">
           <div class="card-body text-center">
-            <h5 class="card-title">{{ statusMeta[status].label }}</h5>
-            <p class="display-6">{{ getStatusCount(status) }}</p>
+            <h5 class="card-title" style="color: black;">{{ statusMeta[status].label }}</h5>
+            <p class="display-6" style="color: black;">{{ getStatusCount(status) }}</p>
           </div>
         </div>
       </div>

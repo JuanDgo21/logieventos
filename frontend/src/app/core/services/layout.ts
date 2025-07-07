@@ -40,7 +40,7 @@ export class LayoutService {
   getModulesForRole(role: string): any[] {
     const modules = {
       admin: [
-        { name: 'Dashboard', icon: 'tachometer-alt', path: '/pages/principal' },
+        { name: 'Dashboard', icon: 'tachometer-alt', path: 'principal' },
         { name: 'Eventos', icon: 'calendar', path: 'pages/events' },
         { name: 'Personal', icon: 'users-cog', 
           path: '/pages/personal', // Ruta padre
@@ -51,7 +51,7 @@ export class LayoutService {
           ]
         },
         { name: 'Proveedores', icon: 'truck', path: 'pages/providers' },
-        { name: 'Recursos', icon: 'box-open', path: 'pages/inventory-page' },
+        { name: 'Recursos', icon: 'box-open', path: 'inventory-page' },
         { name: 'Contratos', icon: 'file-contract', path: 'contracts-page' },
         
         { 
@@ -75,13 +75,13 @@ export class LayoutService {
             { name: 'Listado de Personal', icon: 'id-badge', path: '/staff/personnel' }
           ]
         },
-        { name: 'Recursos', icon: 'box-open', path: 'pages/inventory-page' },
+        { name: 'Recursos', icon: 'box-open', path: 'inventory-page' },
         { name: 'Contratos', icon: 'file-contract', path: 'contracts-page' }
       ],
       lider: [
         { name: 'Mis Eventos', icon: 'calendar-check', path: 'pages/my-events' },
         { name: 'Asistencia', icon: 'clipboard-list', path: 'pages/attendance' },
-        { name: 'Recursos', icon: 'box-open', path: 'pages/inventory-page' }
+        { name: 'Recursos', icon: 'box-open', path: '/inventory-page' }
       ]
     };
     return modules[role as keyof typeof modules] || [];

@@ -14,7 +14,7 @@ export interface Personnel {
 }
 
 // Tipo para crear nuevo personal (sin campos autogenerados)
-export type NewPersonnel = Omit<Personnel, '_id' | 'createdAt' | 'updatedAt'>;
+export type NewPersonnel = Omit<Personnel, '_id' | 'createdAt' | ''>;
 
 // Tipo para actualizar personal (todos los campos opcionales excepto _id)
 export type UpdatePersonnel = Partial<Omit<Personnel, '_id'>> & { _id: string };
