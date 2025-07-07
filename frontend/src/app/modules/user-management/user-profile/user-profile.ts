@@ -167,6 +167,12 @@ import { Router } from '@angular/router';
           this.currentUser = updatedUser;
           this.showBootstrapAlert('success', '¡Tus datos se han actualizado correctamente!');
           
+          // Redirección después de 3 segundos
+        setTimeout(() => {
+          this.router.navigate(['/pages/principal']); // Ajusta la ruta según tu configuración
+        }, 3000);
+
+
           // Resetear campos de contraseña si es necesario
           if (this.showPasswordFields) {
             this.showPasswordFields = false;

@@ -20,6 +20,7 @@ export class PersonnelFormComponent implements OnInit {
   isSaving: boolean = false;
   currentTypeName: string = 'Sin categoría';
   newSkill: string = '';
+  errorMessage: string = '';
 
   statusOptions = [
     { value: 'disponible', label: 'Disponible' },
@@ -72,8 +73,6 @@ export class PersonnelFormComponent implements OnInit {
       this.currentTypeName = type ? type.name : 'Sin categoría';
     }
   }
-
-
 
   onTypeChange(event: any): void {
     const typeId = event.target.value;

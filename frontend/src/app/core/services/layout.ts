@@ -40,7 +40,7 @@ export class LayoutService {
   getModulesForRole(role: string): any[] {
     const modules = {
       admin: [
-        { name: 'Dashboard', icon: 'tachometer-alt', path: 'pages/dashboard' },
+        { name: 'Dashboard', icon: 'tachometer-alt', path: '/pages/principal' },
         { name: 'Eventos', icon: 'calendar', path: 'pages/events' },
         { name: 'Personal', icon: 'users-cog', 
           path: '/pages/personal', // Ruta padre
@@ -66,7 +66,7 @@ export class LayoutService {
 
       ],
       coordinador: [
-        { name: 'Dashboard', icon: 'tachometer-alt', path: 'pages/dashboard' },
+        { name: 'Dashboard', icon: 'tachometer-alt', path: '/pages/principal' },
         { name: 'Eventos', icon: 'calendar', path: 'pages/events' },
         { name: 'Personal', icon: 'users-cog', 
           path: '/pages/personal', // Ruta padre

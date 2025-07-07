@@ -110,4 +110,10 @@ export class PersonnelTypeListComponent implements OnInit {
     this.alertType = type;
     setTimeout(() => this.alertMessage = '', 5000);
   }
+
+  resetFilters(): void {
+    this.searchTerm = '';
+    this.statusFilter = 'all';
+    this.filterData();
+  }
 }

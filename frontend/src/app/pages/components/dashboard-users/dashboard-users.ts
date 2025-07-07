@@ -16,9 +16,7 @@ import { BaseChartDirective } from 'ng2-charts';
   styleUrl: './dashboard-users.scss'
 })
 export class DashboardUsersComponent implements OnInit {
-  
   userRole: string = '';
-  currentSubtitle: number = 0;
   stats = {
     activeUsers: 0,
     activePercentage: 0,
@@ -27,55 +25,30 @@ export class DashboardUsersComponent implements OnInit {
 
   roleDistribution = {
     labels: ['Administradores', 'Coordinadores', 'Líderes'],
-    data: [0, 0, 0], // Inicializar en 0
+    data: [0, 0, 0],
     colors: ['bg-primary', 'bg-success', 'bg-info'],
     total: 0
   };
 
-  quickActions = [
-    {
-      title: 'Agregar Usuario',
-      icon: 'fas fa-user-plus',
-      color: 'bg-primary',
-      action: () => this.openUserForm()
-    },
-    {
-      title: 'Administrar Roles',
-      icon: 'fas fa-user-shield',
-      color: 'bg-success',
-      action: () => this.openRoleManager()
-    },
-    {
-      title: 'Ver Reportes',
-      icon: 'fas fa-chart-bar',
-      color: 'bg-info',
-      action: () => this.viewReports()
-    }
-  ];
-
   recentUsers: User[] = [];
   loading = true;
-  // Añade esto en la clase DashboardUsersComponent
-  public math = Math;
+  math = Math;
 
   constructor(
     private authService: AuthService,
     private userService: UserService,
-    private modalService: NgbModal,
-    private router: Router
+    private modalService: NgbModal
   ) {}
 
   ngOnInit(): void {
     this.userRole = this.authService.getUserRole() || '';
     this.loadData();
-    this.startSubtitleRotation();
   }
 
   loadData(): void {
     this.loading = true;
     this.userService.getAllUsers().subscribe({
       next: (response: any) => {
-        // Asegúrate de trabajar con un array
         const users = Array.isArray(response) ? response : response.data || [];
         this.processUserData(users);
         this.loading = false;
@@ -93,14 +66,12 @@ export class DashboardUsersComponent implements OnInit {
       users = [];
     }
 
-    // Estadísticas básicas
     this.stats.totalUsers = users.length;
     this.stats.activeUsers = users.filter(u => u.active).length;
     this.stats.activePercentage = this.stats.totalUsers > 0 
       ? Math.round((this.stats.activeUsers / this.stats.totalUsers) * 100)
       : 0;
 
-    // Distribución de roles
     this.roleDistribution.data = [
       users.filter(u => u.role === 'admin').length,
       users.filter(u => u.role === 'coordinador').length,
@@ -108,7 +79,6 @@ export class DashboardUsersComponent implements OnInit {
     ];
     this.roleDistribution.total = users.length;
 
-    // Usuarios recientes (últimos 5)
     this.recentUsers = users
       .sort((a, b) => {
         const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -116,12 +86,6 @@ export class DashboardUsersComponent implements OnInit {
         return dateB - dateA;
       })
       .slice(0, 5);
-  }
-
-  startSubtitleRotation(): void {
-    setInterval(() => {
-      this.currentSubtitle = (this.currentSubtitle + 1) % 3;
-    }, 4000);
   }
 
   calculatePercentage(value: number): number {
@@ -139,24 +103,19 @@ export class DashboardUsersComponent implements OnInit {
     
     modalRef.result.then((result) => {
       if (result === 'saved') {
-        this.loadData(); // Recargar datos después de guardar
+        this.loadData();
       }
     }).catch(() => {});
   }
 
   openRoleManager(): void {
-    // Implementación para administrar roles
     console.log('Abrir administrador de roles');
-    // this.router.navigate(['/admin/roles']);
   }
 
   viewReports(): void {
-    // Implementación para ver reportes
     console.log('Ver reportes de usuarios');
-    // this.router.navigate(['/admin/reports/users']);
   }
 
-  // Método para formatear fechas
   formatDate(dateString: string | Date | undefined): string {
     if (!dateString) return 'N/A';
     
@@ -169,6 +128,77 @@ export class DashboardUsersComponent implements OnInit {
       });
     } catch (e) {
       return 'N/A';
+    }
+  }
+
+  getGradient(type: string): string {
+    switch(type) {
+      case 'activeUsers':
+        return 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)';
+      case 'activePercentage':
+        return 'linear-gradient(135deg, #38ef7d 0%, #11998e 100%)';
+      case 'totalUsers':
+        return 'linear-gradient(135deg, #f46b45 0%, #eea849 100%)';
+      case 'addUser':
+        return 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)';
+      case 'manageRoles':
+        return 'linear-gradient(135deg, #38ef7d 0%, #11998e 100%)';
+      case 'viewReports':
+        return 'linear-gradient(135deg, #f46b45 0%, #eea849 100%)';
+      default:
+        return 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)';
+    }
+  }
+
+  getUserRoleColor(role: string): string {
+    switch(role) {
+      case 'admin':
+        return 'rgba(106, 17, 203, 0.2)';
+      case 'coordinador':
+        return 'rgba(56, 239, 125, 0.2)';
+      case 'lider':
+        return 'rgba(37, 117, 252, 0.2)';
+      default:
+        return 'rgba(255, 255, 255, 0.1)';
+    }
+  }
+
+  getUserRoleIcon(role: string): string {
+    switch(role) {
+      case 'admin':
+        return 'fas fa-user-shield';
+      case 'coordinador':
+        return 'fas fa-user-tie';
+      case 'lider':
+        return 'fas fa-user-check';
+      default:
+        return 'fas fa-user';
+    }
+  }
+
+  getUserRoleBadge(role: string): string {
+    switch(role) {
+      case 'admin':
+        return 'badge-primary';
+      case 'coordinador':
+        return 'badge-success';
+      case 'lider':
+        return 'badge-info';
+      default:
+        return 'badge-secondary';
+    }
+  }
+
+  getRoleColor(roleName: string): string {
+    switch(roleName) {
+      case 'Administradores':
+        return '#6a11cb';
+      case 'Coordinadores':
+        return '#38ef7d';
+      case 'Líderes':
+        return '#2575fc';
+      default:
+        return '#6a11cb';
     }
   }
 }

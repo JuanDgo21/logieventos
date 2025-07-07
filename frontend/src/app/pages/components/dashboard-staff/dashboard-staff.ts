@@ -13,8 +13,6 @@ import { PersonnelFormComponent } from '../../../modules/staff/personnel-form/pe
   styleUrl: './dashboard-staff.scss'
 })
 export class DashboardStaffComponent  implements OnInit {
-  currentSubtitle: number = 0;
-  
   // Datos reales del dashboard
   stats = {
     totalEmployees: 0,
@@ -56,20 +54,18 @@ export class DashboardStaffComponent  implements OnInit {
   isLoading: boolean = true;
 
   constructor(
-    private authService: AuthService,
+    public authService: AuthService,
     private personnelService: PersonnelService,
     private modalService: NgbModal
   ) {}
 
   ngOnInit(): void {
-    this.startSubtitleRotation();
     this.loadData();
   }
 
   loadData(): void {
     this.isLoading = true;
     
-    // Suscribirse a los observables del servicio
     this.personnelService.personnelList$.subscribe(personnel => {
       this.personnelList = personnel;
       this.calculateStats();
@@ -82,7 +78,6 @@ export class DashboardStaffComponent  implements OnInit {
       this.calculateDepartmentDistribution();
     });
 
-    // Disparar la carga inicial
     this.personnelService.getAllPersonnel().subscribe();
     this.personnelService.getAllPersonnelTypes().subscribe();
   }
@@ -96,7 +91,6 @@ export class DashboardStaffComponent  implements OnInit {
     this.stats.activeEmployees = this.personnelList.filter(p => p.status === 'disponible' || p.status === 'asignado').length;
     this.stats.onVacation = this.personnelList.filter(p => p.status === 'vacaciones').length;
     
-    // Asumiendo que tienes un campo createdAt en tu interfaz Personnel
     this.stats.newHires = this.personnelList.filter(p => {
       const hireDate = new Date(p.createdAt || '');
       return hireDate > lastMonth;
@@ -106,12 +100,10 @@ export class DashboardStaffComponent  implements OnInit {
   calculateDepartmentDistribution(): void {
     if (!this.personnelTypes.length || !this.personnelList.length) return;
 
-    // Limpiar datos anteriores
     this.departmentDistribution.labels = [];
     this.departmentDistribution.data = [];
     this.departmentDistribution.total = this.personnelList.length;
 
-    // Agrupar por tipo de personal (departamento)
     const typeCounts: {[key: string]: number} = {};
 
     this.personnelList.forEach(person => {
@@ -122,19 +114,12 @@ export class DashboardStaffComponent  implements OnInit {
       typeCounts[typeId] = (typeCounts[typeId] || 0) + 1;
     });
 
-    // Mapear a arrays para la visualización
     this.personnelTypes.forEach((type, index) => {
       if (typeCounts[type._id]) {
         this.departmentDistribution.labels.push(type.name);
         this.departmentDistribution.data.push(typeCounts[type._id]);
       }
     });
-  }
-
-  startSubtitleRotation(): void {
-    setInterval(() => {
-      this.currentSubtitle = (this.currentSubtitle + 1) % 3;
-    }, 4000);
   }
 
   calculatePercentage(value: number): number {
@@ -152,7 +137,7 @@ export class DashboardStaffComponent  implements OnInit {
     
     modalRef.result.then((result) => {
       if (result === 'saved') {
-        this.loadData(); // Recargar datos después de agregar
+        this.loadData();
       }
     }).catch(() => {});
   }
@@ -160,5 +145,36 @@ export class DashboardStaffComponent  implements OnInit {
   getTypeName(typeId: string): string {
     const type = this.personnelTypes.find(t => t._id === typeId);
     return type ? type.name : 'Sin categoría';
+  }
+
+  getGradient(key: string): string {
+    const gradients: {[key: string]: string} = {
+      'totalEmployees': 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
+      'activeEmployees': 'linear-gradient(135deg, #38ef7d 0%, #11998e 100%)',
+      'onVacation': 'linear-gradient(135deg, #f46b45 0%, #eea849 100%)',
+      'newHires': 'linear-gradient(135deg, #f9d423 0%, #ff4e50 100%)',
+      'Agregar Empleado': 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
+      'Gestionar Vacaciones': 'linear-gradient(135deg, #38ef7d 0%, #11998e 100%)',
+      'Generar Reporte': 'linear-gradient(135deg, #f46b45 0%, #eea849 100%)',
+      'disponible': 'linear-gradient(135deg, #38ef7d 0%, #11998e 100%)',
+      'asignado': 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
+      'vacaciones': 'linear-gradient(135deg, #f46b45 0%, #eea849 100%)',
+      'inactivo': 'linear-gradient(135deg, #6c757d 0%, #495057 100%)'
+    };
+
+    return gradients[key] || 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)';
+  }
+
+  getColor(colorClass: string): string {
+    const colors: {[key: string]: string} = {
+      'bg-primary': '#6a11cb',
+      'bg-success': '#38ef7d',
+      'bg-info': '#17a2b8',
+      'bg-warning': '#f9d423',
+      'bg-danger': '#ff416c',
+      'bg-secondary': '#6c757d'
+    };
+
+    return colors[colorClass] || '#6a11cb';
   }
 }
