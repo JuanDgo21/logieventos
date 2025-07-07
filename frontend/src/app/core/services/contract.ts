@@ -190,30 +190,31 @@ export class ContractService {
 
   getResourcesByStatus(status: string = 'disponible'): Observable<any[]> {
     return this.http.get<{ success: boolean; data: any[] }>(
-      `${this.resourceUrl}?status=${status}`,
+      `${this.resourceUrl}`,
       { headers: this.getHeaders() }
     ).pipe(
-      map(res => res.data),
+      map(res => res.data.filter(resource => resource.status === status)),
       catchError(this.handleError)
     );
   }
 
   getProvidersByStatus(status: string = 'activo'): Observable<any[]> {
     return this.http.get<{ success: boolean; data: any[] }>(
-      `${this.providerUrl}?status=${status}`,
+      `${this.providerUrl}`,
       { headers: this.getHeaders() }
     ).pipe(
-      map(res => res.data),
+      map(res => res.data.filter(provider => provider.status === status)),
       catchError(this.handleError)
     );
   }
 
+
   getPersonnelByStatus(status: string = 'disponible'): Observable<any[]> {
     return this.http.get<{ success: boolean; data: any[] }>(
-      `${this.personnelUrl}?status=${status}`,
+      `${this.personnelUrl}`,
       { headers: this.getHeaders() }
     ).pipe(
-      map(res => res.data),
+      map(res => res.data.filter(person => person.status === status)),
       catchError(this.handleError)
     );
   }
