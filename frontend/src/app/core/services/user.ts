@@ -12,6 +12,12 @@ import { HttpHeaders } from '@angular/common/http';
   providedIn: 'root'
 })
 export class UserService {
+  getUsers() {
+    throw new Error('Method not implemented.');
+  }
+  updateUserStatus(arg0: string, newStatus: boolean) {
+    throw new Error('Method not implemented.');
+  }
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -20,7 +26,7 @@ export class UserService {
     console.log('[UserService] Inicializado');
     this.loadInitialUser();
   }
-
+ 
   // ============ MÉTODOS PRIVADOS UTILITARIOS ============
   private loadInitialUser(): void {
     console.log('[UserService] Cargando usuario inicial');

@@ -1,178 +1,141 @@
-<div class="dashboard-container">
-  <!-- Navbar en la parte superior -->
+<!-- frontend\src\app\modules\user-management\user-list\user-list.html -->
   <app-navbar></app-navbar>
-
+  
   <div class="main-content-wrapper">
-    <!-- Sidebar a la izquierda -->
-    <app-sidebar class="sidebar"></app-sidebar>
+    <app-sidebar></app-sidebar>
+    
+    <main class="dashboard-content">
+      <!-- Header del Dashboard -->
+      <div class="dashboard-header">
+        <div class="header-content">
+          <h1><i class="fas fa-users me-2"></i> Gestión de Usuarios</h1>
+          <div class="header-actions">
+            <button class="btn btn-primary" (click)="openUserForm()">
+              <i class="fas fa-plus me-2"></i> Nuevo Usuario
+            </button>
+          </div>
+        </div>
+      </div>
 
-    <!-- Contenido principal con la lista de usuarios -->
-    <main class="content-area">
-
-<div class="container-fluid p-4 user-management-container">
-  <!-- Header y botón nuevo usuario -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0">
-      <i class="fas fa-users me-2"></i>Gestión de Usuarios
-    </h2>
-    <button class="btn btn-primary" (click)="openUserForm()">
-      <i class="fas fa-plus me-2"></i>NUEVO USUARIO
-    </button>
-  </div>
-
-  <!-- Barra de búsqueda -->
-  <div class="card mb-4">
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-8 mb-3 mb-md-0">
-          <div class="input-group">
-            <span class="input-group-text bg-light">
-              <i class="fas fa-search"></i>
-            </span>
-            <input type="text" class="form-control form-control-lg" 
+      <!-- Barra de búsqueda y filtros -->
+      <div class="search-filter-section">
+        <div class="search-card">
+          <div class="input-field">
+            <i class="fas fa-search"></i>
+            <input type="text" 
                    placeholder="Buscar usuarios..." 
                    [(ngModel)]="searchTerm" 
                    (input)="applyFilters()">
           </div>
-        </div>
-        <div class="col-md-4">
-          <button class="btn btn-outline-secondary w-100 h-100" (click)="resetFilters()">
-            <i class="fas fa-undo me-2"></i>Limpiar filtros
+          <button class="btn btn-text" (click)="resetFilters()">
+            <i class="fas fa-undo me-1"></i> Limpiar
           </button>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Filtros -->
-  <div class="row mb-4 g-3">
-    <div class="col-md-6 col-lg-3">
-      <div class="card h-100">
-        <div class="card-body">
-          <label class="form-label">Estado</label>
-          <select class="form-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
-            <option value="all">Todos los estados</option>
-            <option value="active">Activos</option>
-            <option value="inactive">Inactivos</option>
-          </select>
+        <div class="filter-cards">
+          <div class="filter-card">
+            <label><i class="fas fa-user-tag me-2"></i>Rol</label>
+            <select [(ngModel)]="roleFilter" (change)="applyFilters()">
+              <option value="all">Todos</option>
+              <option value="admin">Administrador</option>
+              <option value="coordinador">Coordinador</option>
+              <option value="lider">Líder</option>
+            </select>
+          </div>
+
+          <div class="filter-card">
+            <label><i class="fas fa-power-off me-2"></i>Estado</label>
+            <select [(ngModel)]="statusFilter" (change)="applyFilters()">
+              <option value="all">Todos</option>
+              <option value="active">Activos</option>
+              <option value="inactive">Inactivos</option>
+            </select>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-6 col-lg-3">
-      <div class="card h-100">
-        <div class="card-body">
-          <label class="form-label">Rol</label>
-          <select class="form-select" [(ngModel)]="roleFilter" (change)="applyFilters()">
-            <option value="all">Todos los roles</option>
-            <option value="admin">Administrador</option>
-            <option value="coordinador">Coordinador</option>
-            <option value="lider">Líder</option>
-          </select>
-        </div>
+
+      <!-- Tabla de usuarios -->
+      <div class="users-table-section">
+        @if (loading) {
+          <div class="loading-state">
+            <div class="spinner">
+              <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <p>Cargando usuarios...</p>
+          </div>
+        }
+
+        @if (!loading && filteredUsers.length === 0) {
+          <div class="empty-state">
+            <i class="fas fa-user-slash"></i>
+            <h3>No se encontraron usuarios</h3>
+            <p>Intenta ajustar tus filtros de búsqueda</p>
+            <button class="btn btn-text" (click)="resetFilters()">
+              <i class="fas fa-undo me-1"></i> Limpiar filtros
+            </button>
+          </div>
+        }
+
+        @if (!loading && filteredUsers.length > 0) {
+          <div class="table-responsive">
+            <table class="users-table">
+              <thead>
+                <tr>
+                  <th>Documento</th>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Rol</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (user of filteredUsers; track user._id) {
+                  <tr>
+                    <td>{{ user.document || 'N/A' }}</td>
+                    <td class="user-name">
+                      <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                      </div>
+                      {{ user.fullname }}
+                    </td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                      <span class="role-badge" [ngClass]="'role-' + user.role">
+                        <i class="fas" 
+                           [class.fa-shield-alt]="user.role === 'admin'"
+                           [class.fa-users-cog]="user.role === 'coordinador'"
+                           [class.fa-user-friends]="user.role === 'lider'"></i>
+                        {{ user.role | titlecase }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="status-badge" [ngClass]="user.active ? 'active' : 'inactive'">
+                        <i class="fas" [class.fa-check-circle]="user.active" [class.fa-times-circle]="!user.active"></i>
+                        {{ user.active ? 'Activo' : 'Inactivo' }}
+                      </span>
+                    </td>
+                    <td class="actions-cell">
+                      <div class="action-buttons">
+                        <button class="btn-action edit" (click)="handleButtonClick('edit', user, $event)">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-action delete" (click)="handleButtonClick('delete', user, $event)">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <button class="btn-action toggle" (click)="handleButtonClick('toggle', user, $event)">
+                          <i class="fas" [class.fa-toggle-on]="user.active" [class.fa-toggle-off]="!user.active"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
       </div>
-    </div>
+    </main>
   </div>
 
-  <!-- Tabla de usuarios -->
-  <div class="card shadow-sm">
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>Documento</th>
-              <th>Nombre Completo</th>
-              <th>Email</th>
-              <th>Rol</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Estado de carga -->
-            <tr *ngIf="loading">
-              <td colspan="6" class="text-center py-5">
-                <div class="d-flex justify-content-center align-items-center">
-                  <div class="spinner-border text-primary me-3" role="status"></div>
-                  <span class="fs-5">Cargando usuarios...</span>
-                </div>
-              </td>
-            </tr>
-
-            <!-- Usuarios -->
-            <tr *ngFor="let user of filteredUsers" class="user-row">
-              <td>{{ user.document || 'N/A' }}</td>
-              <td>{{ user.fullname }}</td>
-              <td>{{ user.email }}</td>
-              <td>
-                <span class="badge rounded-pill py-2 px-3" [ngClass]="{
-                  'bg-primary': user.role === 'admin',
-                  'bg-success': user.role === 'coordinador',
-                  'bg-info': user.role === 'lider'
-                }">
-                  {{ user.role | titlecase }}
-                </span>
-              </td>
-              <td>
-                <span class="badge rounded-pill py-2 px-3" [ngClass]="{
-                  'bg-success': user.active,
-                  'bg-secondary': !user.active
-                }">
-                  {{ user.active ? 'Activo' : 'Inactivo' }}
-                </span>
-              </td>
-              <td>
-                <div class="action-buttons d-flex gap-2">
-                    <!-- Botón Editar -->
-                    <button class="btn btn-sm btn-outline-primary action-btn" 
-                            (click)="handleButtonClick('edit', user, $event)"
-                            ngbTooltip="Editar" placement="top">
-                    <i class="fas fa-edit"></i>
-                    </button>
-                    
-                    <!-- Botón Eliminar -->
-                    <button class="btn btn-sm btn-outline-danger action-btn" 
-                            (click)="handleButtonClick('delete', user, $event)"
-                            ngbTooltip="Eliminar" placement="top">
-                    <i class="fas fa-trash-alt"></i>
-                    </button>
-                    
-                    <!-- Botón Estado -->
-                    <button class="btn btn-sm action-btn" 
-                            [ngClass]="{
-                            'btn-outline-success': !user.active,
-                            'btn-outline-warning': user.active
-                            }" 
-                            (click)="handleButtonClick('toggle', user, $event)"
-                            [ngbTooltip]="user.active ? 'Desactivar' : 'Activar'" 
-                            placement="top">
-                    <i class="fas" [ngClass]="{
-                        'fa-toggle-on': user.active,
-                        'fa-toggle-off': !user.active
-                    }"></i>
-                    </button>
-                </div>
-                </td>
-            </tr>
-
-            <!-- Sin resultados -->
-            <tr *ngIf="!loading && filteredUsers.length === 0">
-              <td colspan="6" class="text-center py-5 text-muted">
-                <div class="d-flex justify-content-center align-items-center">
-                  <i class="fas fa-exclamation-circle me-3 fs-4"></i>
-                  <span class="fs-5">No se encontraron usuarios con los filtros aplicados</span>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-</main>
-  </div>
-
-  <!-- Footer en la parte inferior -->
-  <app-footer class="footer"></app-footer>
-</div>
+  <app-footer></app-footer>

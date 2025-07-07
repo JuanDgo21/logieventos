@@ -49,11 +49,6 @@ export class PersonnelListComponent implements OnInit {
     });
   }
 
-  getStatusLabel(status: string): string {
-    const statusOption = this.statusOptions.find(option => option.value === status);
-    return statusOption ? statusOption.label : 'Desconocido';
-  }
-
   loadData(): void {
     this.isLoading = true;
     this.personnelService.getAllPersonnel().subscribe({
@@ -78,6 +73,13 @@ export class PersonnelListComponent implements OnInit {
     });
   }
 
+  resetFilters(): void {
+    this.searchTerm = '';
+    this.statusFilter = 'all';
+    this.typeFilter = 'all';
+    this.filterData();
+  }
+
   openPersonnelForm(personnel?: Personnel): void {
     const modalRef = this.modalService.open(PersonnelFormComponent, { size: 'lg' });
     modalRef.componentInstance.personnel = personnel;
@@ -91,14 +93,16 @@ export class PersonnelListComponent implements OnInit {
     }).catch(() => {});
   }
 
-  getStatusClass(status: string): string {
-    switch(status) {
-      case 'disponible': return 'bg-success';
-      case 'asignado': return 'bg-primary';
-      case 'vacaciones': return 'bg-warning text-dark';
-      case 'inactivo': return 'bg-secondary';
-      default: return 'bg-light text-dark';
-    }
+  toggleStatus(personnel: Personnel): void {
+    const newStatus = personnel.status === 'disponible' ? 'inactivo' : 'disponible';
+    this.personnelService.updatePersonnel(personnel._id, { ...personnel, status: newStatus })
+      .subscribe({
+        next: () => {
+          this.showAlert('Estado actualizado', 'success');
+          this.loadData();
+        },
+        error: () => this.showAlert('Error al actualizar estado', 'danger')
+      });
   }
 
   confirmDelete(id: string): void {
@@ -111,11 +115,19 @@ export class PersonnelListComponent implements OnInit {
     modalRef.result.then((result) => {
       if (result) {
         this.personnelService.deletePersonnel(id).subscribe({
-          next: () => this.showAlert('Personal eliminado', 'success'),
+          next: () => {
+            this.showAlert('Personal eliminado', 'success');
+            this.loadData();
+          },
           error: () => this.showAlert('Error al eliminar', 'danger')
         });
       }
     }).catch(() => {});
+  }
+
+  getStatusLabel(status: string): string {
+    const statusOption = this.statusOptions.find(option => option.value === status);
+    return statusOption ? statusOption.label : 'Desconocido';
   }
 
   getTypeName(typeId: string): string {

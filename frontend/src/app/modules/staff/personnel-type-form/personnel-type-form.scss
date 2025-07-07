@@ -1,0 +1,274 @@
+@use '../../../../styles.scss' as *;
+
+.type-form-modal {
+  background: $dark-color;
+  border-radius: 20px;
+  overflow: hidden;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  
+  .modal-header {
+    padding: 1.5rem;
+    background: $gradient-primary;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    .modal-title {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      
+      .title-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        i {
+          font-size: 1.2rem;
+          color: white;
+        }
+      }
+      
+      h2 {
+        margin: 0;
+        color: white;
+        font-size: 1.5rem;
+      }
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: rotate(90deg);
+      }
+    }
+  }
+  
+  .modal-body {
+    padding: 2rem;
+    background: $dark-color;
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .form-group {
+      label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        font-weight: 500;
+        color: rgba(255,255,255,0.9);
+        
+        i {
+          color: $primary-color;
+          font-size: 0.95rem;
+          width: 20px;
+          text-align: center;
+        }
+      }
+      
+      .input-field {
+        position: relative;
+        
+        input, textarea {
+          width: 100%;
+          padding: 0.75rem 1rem 0.75rem 2.5rem;
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
+          color: white;
+          font-size: 0.95rem;
+          transition: all 0.3s ease;
+          
+          &:focus {
+            outline: none;
+            border-color: $primary-color;
+            background-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+          }
+        }
+        
+        textarea {
+          min-height: 100px;
+          resize: vertical;
+        }
+        
+        /* Iconos */
+        &::before {
+          content: '';
+          font-family: 'Font Awesome 5 Free';
+          font-weight: 900;
+          position: absolute;
+          left: 1rem;
+          top: 50%;
+          transform: translateY(-50%);
+          color: rgba(255, 255, 255, 0.6);
+          font-size: 1rem;
+          pointer-events: none;
+        }
+        
+        &[for="name"]::before {
+          content: '\f02b';
+        }
+        
+        &[for="description"]::before {
+          content: '\f15c';
+          top: 1.2rem;
+        }
+      }
+      
+      .error-message {
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+        color: $danger-color;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        
+        span {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+        }
+      }
+      
+      .toggle-switch {
+        margin-top: 0.5rem;
+        
+        input {
+          display: none;
+          
+          &:checked + label {
+            .toggle-track {
+              background: rgba($success-color, 0.3);
+              
+              .toggle-thumb {
+                left: calc(100% - 20px);
+                background: $success-color;
+              }
+              
+              .toggle-label-on {
+                opacity: 1;
+              }
+              
+              .toggle-label-off {
+                opacity: 0;
+              }
+            }
+          }
+        }
+        
+        label {
+          display: block;
+          cursor: pointer;
+          
+          .toggle-track {
+            position: relative;
+            width: 80px;
+            height: 30px;
+            background: rgba($danger-color, 0.3);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            
+            .toggle-thumb {
+              position: absolute;
+              top: 3px;
+              left: 3px;
+              width: 24px;
+              height: 24px;
+              background: $danger-color;
+              border-radius: 50%;
+              transition: all 0.3s ease;
+              z-index: 2;
+            }
+            
+            .toggle-label-on, .toggle-label-off {
+              position: absolute;
+              top: 0;
+              height: 100%;
+              display: flex;
+              align-items: center;
+              font-size: 0.7rem;
+              font-weight: 600;
+              transition: all 0.3s ease;
+            }
+            
+            .toggle-label-on {
+              left: 10px;
+              color: white;
+              opacity: 0;
+            }
+            
+            .toggle-label-off {
+              right: 10px;
+              color: white;
+              opacity: 1;
+            }
+          }
+        }
+      }
+    }
+    
+    .form-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        
+        &-secondary {
+          background: rgba(255,255,255,0.05);
+          color: rgba(255,255,255,0.8);
+          border: 1px solid rgba(255,255,255,0.1);
+          
+          &:hover {
+            background: rgba(255,255,255,0.1);
+          }
+        }
+        
+        &-primary {
+          background: $gradient-primary;
+          color: white;
+          border: none;
+          
+          &:hover {
+            background: linear-gradient(135deg, darken($primary-color, 5%), darken($secondary-color, 5%));
+          }
+          
+          &:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            background: rgba(255,255,255,0.1);
+          }
+        }
+      }
+    }
+  }
+}
