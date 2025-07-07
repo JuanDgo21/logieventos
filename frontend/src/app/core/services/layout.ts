@@ -44,8 +44,8 @@ export class LayoutService {
         { name: 'Eventos', icon: 'calendar', path: 'pages/events' },
         { name: 'Personal', icon: 'users', path: '/pages/personal' ,
           children: [
-            { name: 'Listado', icon: 'list', path: '/staff/list-staff' },
-            { name: 'Listados', icon: 'list', path: '/staff/list-staff-type' }
+            { name: 'Listado', icon: 'list', path: '/staff/list-staff-type' },
+            { name: 'Listados', icon: 'list', path: '/staff/list-staff' }
           ]
         },
         { name: 'Proveedores', icon: 'truck', path: 'pages/providers' },

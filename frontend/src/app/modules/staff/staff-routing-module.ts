@@ -5,8 +5,8 @@ import { PersonnelTypeListComponent } from './personnel-type-list/personnel-type
 import { PersonnelListComponent } from './personnel-list/personnel-list';
 
 const routes: Routes = [
-  {path: 'list-staff', component: PersonnelTypeListComponent },
-  {path: 'list-staff-type', component: PersonnelListComponent }
+  {path: 'list-staff-type', component: PersonnelTypeListComponent },
+  {path: 'list-staff', component: PersonnelListComponent }
 ];
 
 @NgModule({
