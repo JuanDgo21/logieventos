@@ -9,14 +9,15 @@ import { NewPersonnel, Personnel, PersonnelApiResponse, UpdatePersonnel } from '
   providedIn: 'root'
 })
 export class PersonnelService {
-  private personnelListSubject = new BehaviorSubject<Personnel[]>([]);
+  public personnelListSubject = new BehaviorSubject<Personnel[]>([]);
   public personnelList$ = this.personnelListSubject.asObservable();
 
-  private personnelTypesSubject = new BehaviorSubject<PersonnelType[]>([]);
+  public personnelTypesSubject = new BehaviorSubject<PersonnelType[]>([]);
   public personnelTypes$ = this.personnelTypesSubject.asObservable();
 
   constructor(private apiService: ApiService) {
     this.loadInitialData();
+    console.log('PersonnelService constructor llamado');
   }
 
   private loadInitialData(): void {

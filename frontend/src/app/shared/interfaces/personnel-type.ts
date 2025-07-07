@@ -5,8 +5,8 @@ export interface PersonnelType {
   isActive: boolean;
   createdBy: string; // ID del usuario que creó el registro
   updatedBy?: string; // ID del último usuario que actualizó
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt_: string;
 }
 
 // Tipo para crear nuevo tipo de personal

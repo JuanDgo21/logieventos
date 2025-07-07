@@ -13,6 +13,7 @@ import { DashboardUsersComponent } from './components/dashboard-users/dashboard-
 import { SharedModule } from '../shared/shared-module';
 import { NgbProgressbarModule } from '@ng-bootstrap/ng-bootstrap';
 import { DashboardStaffComponent } from './components/dashboard-staff/dashboard-staff';
+import { StaffModule } from '../modules/staff/staff-module';
 
 
 @NgModule({
@@ -32,7 +33,8 @@ import { DashboardStaffComponent } from './components/dashboard-staff/dashboard-
     FontAwesomeModule,
     RouterModule,
     FormsModule,
-    NgbProgressbarModule
+    NgbProgressbarModule,
+    StaffModule
     // UserManagementModule,
     // BrowserAnimationsModule
     // NgModule

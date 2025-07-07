@@ -42,16 +42,29 @@ export class LayoutService {
       admin: [
         { name: 'Dashboard', icon: 'tachometer-alt', path: 'pages/dashboard' },
         { name: 'Eventos', icon: 'calendar', path: 'pages/events' },
-        { name: 'Personal', icon: 'users', path: 'pages/staff' },
+        { name: 'Personal', icon: 'users', path: '/pages/personal' ,
+          children: [
+            { name: 'Listado', icon: 'list', path: '/staff/list-staff' },
+            { name: 'Listados', icon: 'list', path: '/staff/list-staff-type' }
+          ]
+        },
         { name: 'Proveedores', icon: 'truck', path: 'pages/providers' },
         { name: 'Recursos', icon: 'box-open', path: 'pages/resources' },
         { name: 'Contratos', icon: 'file-contract', path: 'pages/contracts' },
-        { name: 'Usuarios', icon: 'user-cog', path: '/pages/usuarios' }
+        { name: 'Usuarios', icon: 'user-cog', path: '/pages/usuarios',
+          children: [
+            { name: 'Listado', icon: 'list', path: '/users/list' }
+          ]
+        }
       ],
       coordinador: [
         { name: 'Dashboard', icon: 'tachometer-alt', path: 'pages/dashboard' },
         { name: 'Eventos', icon: 'calendar', path: 'pages/events' },
-        { name: 'Personal', icon: 'users', path: 'pages/staff' },
+        { name: 'Personal', icon: 'users', path: 'pages/staff' ,
+          children: [
+            { name: '', icon: '', path: '' }
+          ]
+        },
         { name: 'Recursos', icon: 'box-open', path: 'pages/resources' },
         { name: 'Contratos', icon: 'file-contract', path: 'pages/contracts' }
       ],

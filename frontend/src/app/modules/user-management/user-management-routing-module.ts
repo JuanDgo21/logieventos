@@ -7,7 +7,7 @@ const routes: Routes = [
   { path: '', // Ruta relativa a '/users'
     redirectTo: 'list', pathMatch: 'full' },
   { path: 'list', component: UserListComponent },
-  { path: 'profile/:id', // Usar parámetro para perfil específico
+  { path: 'profile', // Usar parámetro para perfil específico
     component: UserProfileComponent },
 ];
 

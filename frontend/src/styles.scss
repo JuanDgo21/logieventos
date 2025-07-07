@@ -68,21 +68,21 @@ $gradient-success: linear-gradient(135deg, $success-color, darken($success-color
   }
 }
 
-@mixin particle-effect {
-  position: relative;
-  overflow: hidden;
-  &::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-    transform: rotate(0deg);
-    animation: particle-rotate 15s linear infinite;
-  }
-}
+// @mixin particle-effect {
+//   position: relative;
+//   overflow: hidden;
+//   &::after {
+//     content: '';
+//     position: absolute;
+//     top: -50%;
+//     left: -50%;
+//     width: 200%;
+//     height: 200%;
+//     background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+//     transform: rotate(0deg);
+//     animation: particle-rotate 15s linear infinite;
+//   }
+// }
 
 // Animaciones
 @keyframes particle-rotate {
@@ -120,7 +120,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   overflow: hidden;
-  @include particle-effect;
+  // @include particle-effect;
 }
 
 .input-field {
