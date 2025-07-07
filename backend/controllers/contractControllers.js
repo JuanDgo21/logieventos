@@ -80,7 +80,7 @@ exports.getContractById = async (req, res) => {
 exports.searchContractsByName = async (req, res) => {
   try {
     const { name } = req.query;
-    
+
     if (!name || name.trim() === '') {
       return res.status(400).json({
         success: false,
@@ -92,7 +92,10 @@ exports.searchContractsByName = async (req, res) => {
       name: { $regex: name, $options: 'i' }
     })
     .sort({ createdAt: -1 })
-    .limit(10); // Limitar resultados para no sobrecargar
+    .limit(10)
+    .populate('resources.resource', 'name description quantity cost')
+    .populate('providers.provider', 'name contactPerson email phone')
+    .populate('personnel.person', 'firstName lastName email phone');
 
     res.status(200).json({
       success: true,
@@ -273,6 +276,7 @@ exports.updateContract = async (req, res) => {
   try {
     // Extraer datos del cuerpo de la solicitud
     const {
+      name,
       clientName,
       clientPhone,
       clientEmail,
@@ -290,6 +294,7 @@ exports.updateContract = async (req, res) => {
     const updateData = {};
 
     // Asignar valores solo si vienen en la solicitud
+    if (name) updateData.name = name;
     if (clientName) updateData.clientName = clientName;
     if (clientPhone) updateData.clientPhone = clientPhone;
     if (clientEmail) updateData.clientEmail = clientEmail;
@@ -383,6 +388,12 @@ exports.updateContract = async (req, res) => {
       data: updatedContract
     });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Ya existe un contrato con ese nombre.'
+      });
+    }
     // Manejo de errores
     res.status(500).json({
       success: false,

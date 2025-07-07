@@ -120,14 +120,25 @@ export class ContractService {
     console.log('Token:', localStorage.getItem('token'));
     return this.http.post<Contract>(this.apiUrl, contract, {
       headers: this.getHeaders()
-    }).pipe(catchError(this.handleError));
+    }).pipe(
+      catchError((err) => {
+        console.error('ContractService error:', err);
+        return throwError(() => err);
+      })
+    );
   }
 
   updateContract(id: string, contract: Contract): Observable<Contract> {
-    return this.http.put<Contract>(`${this.apiUrl}/${id}`, contract, {
-      headers: this.getHeaders()
-    }).pipe(catchError(this.handleError));
-  }
+  return this.http.put<{ success: boolean, message: string, data: Contract }>(
+    `${this.apiUrl}/${id}`, 
+    contract, 
+    { headers: this.getHeaders() }
+  ).pipe(
+    map(res => res.data), // <- EXTRAER SOLO EL CONTRACTO
+    catchError(this.handleError)
+  );
+}
+
 
   deleteContract(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, {
