@@ -16,6 +16,7 @@ import { BaseChartDirective } from 'ng2-charts';
   styleUrl: './dashboard-users.scss'
 })
 export class DashboardUsersComponent implements OnInit {
+  
   userRole: string = '';
   currentSubtitle: number = 0;
   stats = {
@@ -24,15 +25,13 @@ export class DashboardUsersComponent implements OnInit {
     totalUsers: 0
   };
 
-  // Datos para la distribución de roles
   roleDistribution = {
     labels: ['Administradores', 'Coordinadores', 'Líderes'],
-    data: [3, 7, 15],
+    data: [0, 0, 0], // Inicializar en 0
     colors: ['bg-primary', 'bg-success', 'bg-info'],
-    total: 25
+    total: 0
   };
 
-  // Definición de las acciones rápidas
   quickActions = [
     {
       title: 'Agregar Usuario',
@@ -54,28 +53,69 @@ export class DashboardUsersComponent implements OnInit {
     }
   ];
 
+  recentUsers: User[] = [];
+  loading = true;
+  // Añade esto en la clase DashboardUsersComponent
+  public math = Math;
+
   constructor(
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private modalService: NgbModal,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.userRole = this.authService.getUserRole() || '';
-    this.loadStats();
+    this.loadData();
     this.startSubtitleRotation();
   }
 
-  loadStats(): void {
+  loadData(): void {
+    this.loading = true;
     this.userService.getAllUsers().subscribe({
-      next: (users: User[]) => {
-        this.stats.totalUsers = users.length;
-        this.stats.activeUsers = users.filter(u => u.active).length;
-        this.stats.activePercentage = this.stats.totalUsers > 0 
-          ? Math.round((this.stats.activeUsers / this.stats.totalUsers) * 100)
-          : 0;
+      next: (response: any) => {
+        // Asegúrate de trabajar con un array
+        const users = Array.isArray(response) ? response : response.data || [];
+        this.processUserData(users);
+        this.loading = false;
       },
-      error: (err) => console.error('Error al cargar estadísticas:', err)
+      error: (err) => {
+        console.error('Error al cargar datos:', err);
+        this.loading = false;
+      }
     });
+  }
+
+  processUserData(users: User[]): void {
+    if (!Array.isArray(users)) {
+      console.error('Los usuarios no son un array:', users);
+      users = [];
+    }
+
+    // Estadísticas básicas
+    this.stats.totalUsers = users.length;
+    this.stats.activeUsers = users.filter(u => u.active).length;
+    this.stats.activePercentage = this.stats.totalUsers > 0 
+      ? Math.round((this.stats.activeUsers / this.stats.totalUsers) * 100)
+      : 0;
+
+    // Distribución de roles
+    this.roleDistribution.data = [
+      users.filter(u => u.role === 'admin').length,
+      users.filter(u => u.role === 'coordinador').length,
+      users.filter(u => u.role === 'lider').length
+    ];
+    this.roleDistribution.total = users.length;
+
+    // Usuarios recientes (últimos 5)
+    this.recentUsers = users
+      .sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+      })
+      .slice(0, 5);
   }
 
   startSubtitleRotation(): void {
@@ -85,21 +125,50 @@ export class DashboardUsersComponent implements OnInit {
   }
 
   calculatePercentage(value: number): number {
-    return (value / this.roleDistribution.total) * 100;
+    return this.roleDistribution.total > 0 
+      ? (value / this.roleDistribution.total) * 100
+      : 0;
   }
 
   openUserForm(): void {
-    console.log('Abrir formulario de usuario');
-    // Implementación real aquí
+    const modalRef = this.modalService.open(UserFormComponent, {
+      backdrop: 'static',
+      keyboard: false,
+      windowClass: 'modal-xl'
+    });
+    
+    modalRef.result.then((result) => {
+      if (result === 'saved') {
+        this.loadData(); // Recargar datos después de guardar
+      }
+    }).catch(() => {});
   }
 
   openRoleManager(): void {
+    // Implementación para administrar roles
     console.log('Abrir administrador de roles');
-    // Implementación real aquí
+    // this.router.navigate(['/admin/roles']);
   }
 
   viewReports(): void {
+    // Implementación para ver reportes
     console.log('Ver reportes de usuarios');
-    // Implementación real aquí
+    // this.router.navigate(['/admin/reports/users']);
+  }
+
+  // Método para formatear fechas
+  formatDate(dateString: string | Date | undefined): string {
+    if (!dateString) return 'N/A';
+    
+    try {
+      const date = new Date(dateString);
+      return isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch (e) {
+      return 'N/A';
+    }
   }
 }

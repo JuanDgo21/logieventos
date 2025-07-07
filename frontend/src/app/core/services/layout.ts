@@ -42,10 +42,12 @@ export class LayoutService {
       admin: [
         { name: 'Dashboard', icon: 'tachometer-alt', path: 'pages/dashboard' },
         { name: 'Eventos', icon: 'calendar', path: 'pages/events' },
-        { name: 'Personal', icon: 'users', path: '/pages/home-staff' ,
+        { name: 'Personal', icon: 'users-cog', 
+          path: '/pages/personal', // Ruta padre
           children: [
-            { name: 'Listado', icon: 'list', path: '/staff/list-staff-type' },
-            { name: 'Listados', icon: 'list', path: '/staff/list-staff' }
+            { name: 'Dashboard', icon: 'tachometer-alt', path: '/pages/personal' }, //Ruta hija
+            { name: 'Tipos de Personal', icon: 'tags', path: '/staff/personnel-types' },
+            { name: 'Listado de Personal', icon: 'id-badge', path: '/staff/personnel' }
           ]
         },
         { name: 'Proveedores', icon: 'truck', path: 'pages/providers' },
@@ -66,9 +68,11 @@ export class LayoutService {
       coordinador: [
         { name: 'Dashboard', icon: 'tachometer-alt', path: 'pages/dashboard' },
         { name: 'Eventos', icon: 'calendar', path: 'pages/events' },
-        { name: 'Personal', icon: 'users', path: 'pages/staff' ,
+        { name: 'Personal', icon: 'users-cog', 
+          path: '/pages/personal', // Ruta padre
           children: [
-            { name: '', icon: '', path: '' }
+            { name: 'Dashboard', icon: 'tachometer-alt', path: '/pages/personal' }, //Ruta hija
+            { name: 'Listado de Personal', icon: 'id-badge', path: '/staff/personnel' }
           ]
         },
         { name: 'Recursos', icon: 'box-open', path: 'pages/resources' },

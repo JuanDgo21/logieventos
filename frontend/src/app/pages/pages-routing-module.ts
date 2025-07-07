@@ -13,7 +13,7 @@ const routes: Routes = [
     redirectTo: 'principal', pathMatch: 'full' },
   { path: 'principal', component: DashboardComponent },
   { path: 'usuarios', component: DashboardUsersComponent },
-  { path: 'home-staff', component: DashboardStaffComponent },
+  { path: 'personal', component: DashboardStaffComponent },
 
   { path: 'home-providers', component: ProvidersPage },
   { path: 'inventory-page', component: InventoryPageComponent },

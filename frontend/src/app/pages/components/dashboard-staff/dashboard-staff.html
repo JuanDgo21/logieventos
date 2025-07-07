@@ -14,148 +14,175 @@
     </div>
   </div>
 
-  <!-- Tarjetas de estadísticas -->
-  <div class="stats-section p-4">
-    <div class="row g-4">
-      <div class="col-md-3">
-        <div class="card bg-primary text-white">
-          <div class="card-body">
-            <i class="fas fa-user-tie fa-2x mb-3"></i>
-            <h3>{{ stats.totalEmployees }}</h3>
-            <p>Total de Empleados</p>
-            <div class="d-flex align-items-center">
-              <div class="bg-white rounded-circle me-2" style="width: 10px; height: 10px;"></div>
-              <small>+{{ stats.newHires }} este mes</small>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-3">
-        <div class="card bg-success text-white">
-          <div class="card-body">
-            <i class="fas fa-user-check fa-2x mb-3"></i>
-            <h3>{{ stats.activeEmployees }}</h3>
-            <p>Empleados Activos</p>
-            <div class="d-flex align-items-center">
-              <div class="bg-white rounded-circle me-2" style="width: 10px; height: 10px;"></div>
-              <small>{{ calculatePercentage(stats.activeEmployees) | number:'1.0-0' }}% del total</small>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-3">
-        <div class="card bg-info text-white">
-          <div class="card-body">
-            <i class="fas fa-umbrella-beach fa-2x mb-3"></i>
-            <h3>{{ stats.onVacation }}</h3>
-            <p>En Vacaciones</p>
-            <div class="d-flex align-items-center">
-              <div class="bg-white rounded-circle me-2" style="width: 10px; height: 10px;"></div>
-              <small>{{ calculatePercentage(stats.onVacation) | number:'1.0-0' }}% del total</small>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-3">
-        <div class="card bg-warning text-white">
-          <div class="card-body">
-            <i class="fas fa-user-plus fa-2x mb-3"></i>
-            <h3>{{ stats.newHires }}</h3>
-            <p>Nuevos Contratados</p>
-            <div class="d-flex align-items-center">
-              <div class="bg-white rounded-circle me-2" style="width: 10px; height: 10px;"></div>
-              <small>+{{ stats.newHires }} este mes</small>
-            </div>
-          </div>
-        </div>
-      </div>
+  <!-- Loading indicator -->
+  <div *ngIf="isLoading" class="text-center p-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
     </div>
+    <p class="mt-2">Cargando datos del personal...</p>
   </div>
 
-  <!-- Acciones rápidas -->
-  <div class="quick-actions-section p-4">
-    <h4 class="mb-4">
-      <i class="fas fa-bolt me-2 text-primary"></i>Acciones Rápidas RRHH
-    </h4>
-    
-    <div class="row g-4">
-      <div class="col-md-4" *ngFor="let action of quickActions">
-        <div class="card h-100 shadow-sm" (click)="action.action()" style="cursor: pointer;">
-          <div class="card-body text-center">
-            <div class="rounded-circle p-3 mb-3 d-inline-block" [ngClass]="action.color">
-              <i [class]="action.icon" class="text-white fa-lg"></i>
+  <!-- Contenido principal -->
+  <div *ngIf="!isLoading">
+    <!-- Tarjetas de estadísticas -->
+    <div class="stats-section p-4">
+      <div class="row g-4">
+        <div class="col-md-3">
+          <div class="card bg-primary text-white">
+            <div class="card-body">
+              <i class="fas fa-user-tie fa-2x mb-3"></i>
+              <h3>{{ stats.totalEmployees }}</h3>
+              <p>Total de Empleados</p>
+              <div class="d-flex align-items-center">
+                <div class="bg-white rounded-circle me-2" style="width: 10px; height: 10px;"></div>
+                <small>+{{ stats.newHires }} este mes</small>
+              </div>
             </div>
-            <h5 class="card-title">{{ action.title }}</h5>
-            <p class="card-text text-muted">Haz clic para realizar esta acción</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Distribución por departamento -->
-  <div class="department-section p-4">
-    <div class="card shadow-sm">
-      <div class="card-header bg-white">
-        <h5 class="m-0">
-          <i class="fas fa-building me-2 text-primary"></i>Distribución por Departamento
-        </h5>
-      </div>
-      <div class="card-body">
-        <div *ngFor="let dept of departmentDistribution.labels; let i = index" class="mb-3">
-          <div class="d-flex justify-content-between mb-1">
-            <span>
-              <i class="fas fa-circle me-2" [ngClass]="'text-' + departmentDistribution.colors[i].split('-')[1]"></i>
-              {{ dept }}
-            </span>
-            <span class="fw-bold">
-              {{ departmentDistribution.data[i] }} ({{ calculatePercentage(departmentDistribution.data[i]) | number:'1.0-0' }}%)
-            </span>
-          </div>
-          <div class="progress">
-            <div class="progress-bar" 
-                 [ngClass]="departmentDistribution.colors[i]"
-                 [style.width]="calculatePercentage(departmentDistribution.data[i]) + '%'">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Sección de herramientas RRHH -->
-  <div class="hr-tools-section p-4">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <h2 class="mb-4">
-          <i class="fas fa-id-card-alt me-2 text-primary"></i>Herramientas de Recursos Humanos
-        </h2>
-        
-        <div class="mb-4">
-          <h5 class="mb-2">Próximas evaluaciones: <span class="badge bg-info">15 empleados</span></h5>
-          <div class="progress mb-3">
-            <div class="progress-bar bg-info" style="width: 30%">30% completado</div>
-          </div>
-
-          <h5 class="mb-2">Vacaciones pendientes: <span class="badge bg-warning">8 solicitudes</span></h5>
-          <div class="progress">
-            <div class="progress-bar bg-warning" style="width: 60%">60% procesado</div>
           </div>
         </div>
         
-        <div class="d-flex flex-wrap gap-2">
-          <button class="btn btn-primary">
-            <i class="fas fa-file-alt me-1"></i> Generar Reporte
+        <div class="col-md-3">
+          <div class="card bg-success text-white">
+            <div class="card-body">
+              <i class="fas fa-user-check fa-2x mb-3"></i>
+              <h3>{{ stats.activeEmployees }}</h3>
+              <p>Empleados Activos</p>
+              <div class="d-flex align-items-center">
+                <div class="bg-white rounded-circle me-2" style="width: 10px; height: 10px;"></div>
+                <small>{{ calculatePercentage(stats.activeEmployees) | number:'1.0-0' }}% del total</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card bg-info text-white">
+            <div class="card-body">
+              <i class="fas fa-umbrella-beach fa-2x mb-3"></i>
+              <h3>{{ stats.onVacation }}</h3>
+              <p>En Vacaciones</p>
+              <div class="d-flex align-items-center">
+                <div class="bg-white rounded-circle me-2" style="width: 10px; height: 10px;"></div>
+                <small>{{ calculatePercentage(stats.onVacation) | number:'1.0-0' }}% del total</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card bg-warning text-white">
+            <div class="card-body">
+              <i class="fas fa-user-plus fa-2x mb-3"></i>
+              <h3>{{ stats.newHires }}</h3>
+              <p>Nuevos Contratados</p>
+              <div class="d-flex align-items-center">
+                <div class="bg-white rounded-circle me-2" style="width: 10px; height: 10px;"></div>
+                <small>+{{ stats.newHires }} este mes</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Acciones rápidas -->
+    <div class="quick-actions-section p-4">
+      <h4 class="mb-4">
+        <i class="fas fa-bolt me-2 text-primary"></i>Acciones Rápidas RRHH
+      </h4>
+      
+      <div class="row g-4">
+        <div class="col-md-4" *ngFor="let action of quickActions">
+          <div class="card h-100 shadow-sm" (click)="action.action()" style="cursor: pointer;">
+            <div class="card-body text-center">
+              <div class="rounded-circle p-3 mb-3 d-inline-block" [ngClass]="action.color">
+                <i [class]="action.icon" class="text-white fa-lg"></i>
+              </div>
+              <h5 class="card-title">{{ action.title }}</h5>
+              <p class="card-text text-muted">Haz clic para realizar esta acción</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Distribución por departamento -->
+    <div class="department-section p-4" *ngIf="departmentDistribution.labels.length > 0">
+      <div class="card shadow-sm">
+        <div class="card-header bg-white">
+          <h5 class="m-0">
+            <i class="fas fa-building me-2 text-primary"></i>Distribución por Departamento
+          </h5>
+        </div>
+        <div class="card-body">
+          <div *ngFor="let dept of departmentDistribution.labels; let i = index" class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span>
+                <i class="fas fa-circle me-2" [ngClass]="'text-' + departmentDistribution.colors[i].split('-')[1]"></i>
+                {{ dept }}
+              </span>
+              <span class="fw-bold">
+                {{ departmentDistribution.data[i] }} ({{ calculatePercentage(departmentDistribution.data[i]) | number:'1.0-0' }}%)
+              </span>
+            </div>
+            <div class="progress">
+              <div class="progress-bar" 
+                  [ngClass]="departmentDistribution.colors[i]"
+                  [style.width]="calculatePercentage(departmentDistribution.data[i]) + '%'">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Últimos empleados agregados -->
+    <div class="recent-personnel-section p-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h5 class="m-0">
+            <i class="fas fa-user-clock me-2 text-primary"></i>Últimos Empleados Agregados
+          </h5>
+          <button class="btn btn-sm btn-primary" (click)="openAddPersonnelModal()">
+            <i class="fas fa-plus me-1"></i> Agregar Nuevo
           </button>
-          <button class="btn btn-success">
-            <i class="fas fa-calendar-check me-1"></i> Programar Evaluaciones
-          </button>
-          <button class="btn btn-danger">
-            <i class="fas fa-exclamation-circle me-1"></i> Alertas de Contrato
-          </button>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Departamento</th>
+                  <th>Estado</th>
+                  <th>Email</th>
+                  <th>Teléfono</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let person of personnelList.slice(0, 5)">
+                  <td>{{ person.firstName }} {{ person.lastName }}</td>
+                  <td>{{ getTypeName(person.personnelType) }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="{
+                      'bg-success': person.status === 'disponible',
+                      'bg-primary': person.status === 'asignado',
+                      'bg-warning': person.status === 'vacaciones',
+                      'bg-secondary': person.status === 'inactivo'
+                    }">
+                      {{ 
+                        person.status === 'disponible' ? 'Disponible' :
+                        person.status === 'asignado' ? 'Asignado' :
+                        person.status === 'vacaciones' ? 'Vacaciones' : 'Inactivo'
+                      }}
+                    </span>
+                  </td>
+                  <td>{{ person.email }}</td>
+                  <td>{{ person.phone || 'N/A' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
