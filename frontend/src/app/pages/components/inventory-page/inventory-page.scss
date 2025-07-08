@@ -1,15 +1,16 @@
-/* Variables */
+// Importamos las variables y mixins del styles.scss principal
+@use 'sass:color';
+@use '../../../../styles.scss' as *;
+
+/* Variables locales - complementan las globales */
 $sidebar-width: 250px;
 $navbar-height: 100px;
-$primary-gradient: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-$success-gradient: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
-$info-gradient: linear-gradient(135deg, #36b9cc 0%, #258391 100%);
 
-/* Layout Principal */
+/* Layout Principal - usando el fondo oscuro del tema */
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
-  background-color: #f8f9fc;
+  background-color: $dark-color;
   
   app-sidebar {
     width: $sidebar-width;
@@ -36,7 +37,7 @@ app-navbar {
   position: fixed;
   top: 0;
   z-index: 90;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 /* Contenido Principal */
@@ -44,6 +45,7 @@ app-navbar {
   margin-top: $navbar-height;
   min-height: calc(100vh - #{$navbar-height});
   position: relative;
+  padding: 2rem;
   
   &::before {
     content: '';
@@ -52,103 +54,233 @@ app-navbar {
     left: $sidebar-width;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(78, 115, 223, 0.05) 0%, rgba(28, 200, 138, 0.05) 100%);
+    background: $gradient-primary;
+    opacity: 0.03;
     z-index: -1;
-    opacity: 0.5;
   }
 }
 
 /* Header */
 .dashboard-header {
   text-align: center;
+  margin-bottom: 3rem;
   
   .animated-title {
     animation: fadeIn 1s ease-out;
     
-    .highlight {
-      color: #4e73df;
-      position: relative;
+    h1 {
+      color: $light-color;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
       
-      &::after {
-        content: '';
-        position: absolute;
-        bottom: -5px;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background: linear-gradient(90deg, #4e73df, transparent);
+      .highlight {
+        color: $primary-color;
+        position: relative;
+        
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -5px;
+          left: 0;
+          width: 100%;
+          height: 3px;
+          background: $gradient-primary;
+          border-radius: 3px;
+        }
+      }
+    }
+    
+    .subtitle {
+      color: rgba($light-color, 0.7);
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+  }
+}
+
+/* Sección de tarjetas */
+.cards-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 2rem;
+  margin: 3rem 0;
+}
+
+/* Tarjetas - aplicando el estilo premium */
+.card {
+  @include glass-effect;
+  border-radius: 16px;
+  padding: 2rem;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  @include floating-effect;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+  }
+
+  .card-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    margin: 0 auto 1.5rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+    color: $light-color;
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: $light-color;
+    font-size: 1.8rem;
+  }
+
+  .card-content {
+    margin-bottom: 2rem;
+    color: rgba($light-color, 0.8);
+
+    p {
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+
+      li {
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        i {
+          color: $success-color;
+        }
       }
     }
   }
 }
 
-/* Secciones */
-.dashboard-sections {
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.stats-section, 
-.quick-actions-section,
-.data-visualization-section,
-.admin-tools-section {
-  margin-bottom: 2.5rem;
-}
-
-/* Tarjetas de Estadísticas */
-.stat-card {
-  border-radius: 0.5rem;
-  color: white;
-  height: 100%;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  
+// Estilos específicos para cada tipo de card
+.resource-card {
   &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 60%);
-    transform: rotate(30deg);
+    background: $gradient-accent;
   }
-  
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    
-    &::before {
-      animation: shine 1.5s ease-out infinite;
+
+  &.hover {
+    .card-icon {
+      background: $gradient-accent;
+      color: $light-color;
     }
   }
-  
-  /* Gradientes para cada tipo */
-  &.bg-gradient-primary { background: $primary-gradient; }
-  &.bg-gradient-success { background: $success-gradient; }
-  &.bg-gradient-info { background: $info-gradient; }
-}
 
-/* Acciones Rápidas */
-.action-card {
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  height: 100%;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+  .card-icon {
+    color: $accent-color;
   }
 }
 
-/* Footer */
-app-footer {
-  width: calc(100% - #{$sidebar-width});
-  margin-left: $sidebar-width;
+.type-card {
+  &::before {
+    background: $gradient-primary;
+  }
+
+  &.hover {
+    .card-icon {
+      background: $gradient-primary;
+      color: $light-color;
+    }
+  }
+
+  .card-icon {
+    color: $primary-color;
+  }
+}
+
+.card-button {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: auto;
+  color: $light-color;
+  @include floating-effect;
+
+  .resource-card & {
+    background: $gradient-accent;
+    
+    &:hover {
+      background: linear-gradient(135deg, darken($accent-color, 5%), darken(color.adjust($accent-color, $lightness: -15%), 5%));
+    }
+  }
+
+  .type-card & {
+    background: $gradient-primary;
+    
+    &:hover {
+      background: linear-gradient(135deg, darken($primary-color, 5%), darken($secondary-color, 5%));
+    }
+  }
+}
+
+/* Sección informativa */
+.info-section {
+  width: 100%;
+  margin-top: 3rem;
+
+  .info-card {
+    @include glass-effect;
+    border-radius: 16px;
+    padding: 2rem;
+    border-left: 5px solid $success-color;
+    
+    h3 {
+      color: $light-color;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      i {
+        color: $warning-color;
+      }
+    }
+
+    p {
+      color: rgba($light-color, 0.8);
+      line-height: 1.6;
+      font-size: 1.1rem;
+    }
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Responsive */
@@ -168,198 +300,14 @@ app-footer {
   }
   
   .dashboard-content {
-    padding: 1rem;
+    padding: 1.5rem;
     
     &::before {
       left: 0;
     }
   }
-}
-
-/* Sección de tarjetas - ahora ocupa más espacio */
-.cards-section {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 2rem;
-  margin: 2rem 0;
-  width: 100%;
-}
-
-/* Tarjetas individuales - más grandes */
-.card {
-  background: white;
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  width: 100%; /* Asegura que ocupe todo el espacio disponible */
-
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  }
-
-    .card-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    margin: 0 auto 1.5rem;
-    transition: all 0.3s ease;
-  }
-
-  h2 {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    color: #333;
-    font-size: 1.8rem;
-  }
-
-  .card-content {
-    margin-bottom: 2rem;
-    color: #555;
-
-    p {
-      margin-bottom: 1rem;
-      font-size: 1.1rem;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-
-      li {
-        margin-bottom: 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-
-        i {
-          color: #4CAF50;
-        }
-      }
-    }
+  
+  .cards-section {
+    grid-template-columns: 1fr;
   }
 }
-
-// Estilos específicos para cada tipo de card
-.resource-card {
-  &::before {
-    background: linear-gradient(90deg, #FF7B54, #FFB26B);
-  }
-
-  &.hover {
-    .card-icon {
-      background: linear-gradient(135deg, #FF7B54, #FFB26B);
-      color: white;
-    }
-  }
-
-  .card-icon {
-    color: #FF7B54;
-    background: rgba(255, 123, 84, 0.1);
-  }
-}
-
-.type-card {
-  &::before {
-    background: linear-gradient(90deg, #4F6DF5, #6A8EFF);
-  }
-
-  &.hover {
-    .card-icon {
-      background: linear-gradient(135deg, #4F6DF5, #6A8EFF);
-      color: white;
-    }
-  }
-
-  .card-icon {
-    color: #4F6DF5;
-    background: rgba(79, 109, 245, 0.1);
-  }
-}
-
-.card-button {
-  display: block;
-  width: 100%;
-  padding: 1rem;
-  border: none;
-  border-radius: 50px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: auto;
-  box-sizing: border-box;
-
-  .resource-card & {
-    background: linear-gradient(90deg, #FF7B54, #FFB26B);
-    color: white;
-
-    &:hover {
-      background: linear-gradient(90deg, #FF6B3B, #FF9E4F);
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(255, 123, 84, 0.3);
-    }
-  }
-
-  .type-card & {
-    background: linear-gradient(90deg, #4F6DF5, #6A8EFF);
-    color: white;
-
-    &:hover {
-      background: linear-gradient(90deg, #3A5BD9, #5577F5);
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(79, 109, 245, 0.3);
-    }
-  }
-}
-
-/* Sección informativa - más ancha */
-.info-section {
-  width: 100%;
-
-  .info-card {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    border-top: 5px solid #8BC34A;
-    width: 100%;
-    box-sizing: border-box;
-
-    h3 {
-      color: #333;
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-
-      i {
-        color: #FFC107;
-      }
-    }
-
-    p {
-      color: #555;
-      line-height: 1.6;
-      font-size: 1.1rem;
-    }
-  }
-}
-
-/* Animaciones (mantener las mismas) */
-@keyframes fadeIn { /* ... */ }
-@keyframes subtitleFade { /* ... */ }
-@keyframes shine { /* ... */ }
-@keyframes pulse { /* ... */ }

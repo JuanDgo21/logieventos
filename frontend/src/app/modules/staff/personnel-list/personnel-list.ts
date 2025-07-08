@@ -5,6 +5,7 @@ import { PersonnelType } from '../../../shared/interfaces/personnel-type';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { PersonnelFormComponent } from '../personnel-form/personnel-form';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal';
+import { AuthService } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-personnel-list',
@@ -32,7 +33,8 @@ export class PersonnelListComponent implements OnInit {
 
   constructor(
     private personnelService: PersonnelService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -139,5 +141,22 @@ export class PersonnelListComponent implements OnInit {
     this.alertMessage = message;
     this.alertType = type;
     setTimeout(() => this.alertMessage = '', 5000);
+  }
+
+  // Métodos para verificar permisos:
+  canCreate(): boolean {
+    return this.authService.hasAnyRole(['admin', 'coordinador']);
+  }
+
+  canEdit(personnel: Personnel): boolean {
+    return this.authService.hasAnyRole(['admin', 'coordinador']);
+  }
+
+  canDelete(): boolean {
+    return this.authService.hasRole('admin');
+  }
+
+  canToggleStatus(): boolean {
+    return this.authService.hasAnyRole(['admin', 'coordinador']);
   }
 }

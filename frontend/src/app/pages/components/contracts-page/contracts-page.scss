@@ -6,79 +6,78 @@
   min-height: 100vh;
   width: 100%;
   overflow-x: hidden;
-  background-color: $light-color;
+  background-color: $dark-color;
+  color: $light-color;
 }
 
 /* ==========================================
-   AJUSTES GENERALES PARA LAYOUT Y CONTENEDORES
+   ESTRUCTURA PRINCIPAL
 ============================================= */
-
-::ng-deep .mat-snack-bar-container {
-  z-index: 2000 !important; // Más alto que el modal
-}
-
-
 .main-content {
-  flex: 1 1 auto;
-  min-width: 0;
+  flex: 1;
+  padding: 2rem;
+  margin-left: 250px; // Ajustar según el ancho de tu sidebar
+  transition: margin 0.3s ease;
+
+  @media (max-width: 992px) {
+    margin-left: 0;
+    padding: 1rem;
+  }
 }
 
 .container-fluid {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
+  padding: 0;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 /* ==========================================
-   CONTENEDOR TÍTULO Y BÚSQUEDA (FLEX)
+   ENCABEZADO Y BÚSQUEDA
 ============================================= */
-
 .d-flex.justify-content-between.align-items-center {
-  flex-wrap: nowrap; // evita que se parta el contenido
-  align-items: center;
-  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba($light-color, 0.1);
+  margin-bottom: 2rem;
+
+  h1 {
+    font-weight: 600;
+    color: $light-color;
+    margin: 0;
+  }
 }
 
 /* ==========================================
-   CONTENEDOR DE BÚSQUEDA
+   COMPONENTE DE BÚSQUEDA MEJORADO
 ============================================= */
-
 .search-container-left {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
   position: relative;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  flex: 0 0 auto;
-  min-width: 0;
-  max-width: 250px;
 
   .search-box {
     position: relative;
-    order: 1;
-    direction: ltr;
     transition: all 0.3s ease;
     width: 0;
-    overflow: hidden;
     opacity: 0;
-    display: flex;
-    align-items: center;
+    overflow: hidden;
 
     input {
-      background-color: rgba(255, 255, 255, 0.2);
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      border-radius: 20px;
-      color: #333;
-      padding: 8px 35px 8px 15px;
+      @include glass-effect;
+      border-radius: 50px;
+      padding: 0.5rem 1rem;
+      color: $light-color;
+      border: 1px solid rgba($light-color, 0.2);
       transition: all 0.3s ease;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
       width: 100%;
-      font-size: 1rem;
+
+      &::placeholder {
+        color: rgba($light-color, 0.6);
+      }
 
       &:focus {
-        background-color: rgba(255, 255, 255, 0.3);
-        border-color: #86b7fe;
-        outline: none;
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        border-color: $primary-color;
+        box-shadow: 0 0 0 2px rgba($primary-color, 0.3);
       }
     }
 
@@ -89,176 +88,261 @@
       transform: translateY(-50%);
       background: none;
       border: none;
-      color: #6c757d;
-      padding: 5px;
-      z-index: 2;
+      color: rgba($light-color, 0.6);
       cursor: pointer;
-      opacity: 0.7;
-      transition: all 0.2s ease;
+      transition: color 0.2s;
 
       &:hover {
-        opacity: 1;
-        color: #dc3545;
+        color: $danger-color;
       }
     }
   }
 
   .search-toggle {
-    order: 2;
-    background: transparent;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    @include glass-effect;
     border-radius: 50%;
     width: 40px;
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #495057;
-    transition: all 0.3s ease;
+    color: $light-color;
+    border: none;
     cursor: pointer;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.05);
-      color: #0d6efd;
-    }
+    transition: all 0.3s ease;
 
     i {
-      transition: transform 0.2s ease;
+      transition: transform 0.2s;
+    }
+
+    &:hover {
+      background: rgba($light-color, 0.1);
+      color: $primary-color;
     }
   }
 
   &.active {
     .search-box {
-      width: 100%;
-      max-width: 250px;
+      width: 250px;
       opacity: 1;
-      margin-right: 10px;
+      margin-right: 0.5rem;
     }
 
     .search-toggle {
-      background: rgba(0, 0, 0, 0.05);
-      border-color: rgba(13, 110, 253, 0.25);
-      color: #0d6efd;
+      background: rgba($primary-color, 0.2);
+      color: $primary-color;
     }
   }
 
   &.has-text {
     .search-toggle {
-      background-color: $primary;
+      background: $gradient-primary;
       color: white;
-      border-color: $primary;
+    }
+  }
+}
+
+/* ==========================================
+   TARJETAS DE ESTADO
+============================================= */
+.card {
+  @include glass-effect;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border-left: 4px solid;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .card-body {
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .card-title {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  .display-6 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0;
+  }
+}
+
+// Colores para los estados basados en statusMeta
+.border-borrador { border-color: map-get($status-colors, 'borrador'); }
+.border-activo { border-color: map-get($status-colors, 'activo'); }
+.border-completado { border-color: map-get($status-colors, 'completado'); }
+.border-cancelado { border-color: map-get($status-colors, 'cancelado'); }
+
+/* ==========================================
+   TABLAS
+============================================= */
+.table-responsive {
+  border-radius: 12px;
+  overflow: hidden;
+  @include glass-effect;
+}
+
+.table {
+  margin-bottom: 0;
+  color: $light-color;
+
+  thead {
+    th {
+      background: rgba($primary-color, 0.2);
+      border-bottom: none;
+      font-weight: 500;
+      padding: 1rem;
+    }
+  }
+
+  tbody {
+    tr {
+      transition: all 0.2s ease;
+      border-bottom: 1px solid rgba($light-color, 0.05);
 
       &:hover {
-        background-color: darken($primary, 10%);
+        background: rgba($light-color, 0.03);
+      }
+
+      td {
+        padding: 1rem;
+        vertical-align: middle;
       }
     }
   }
 }
 
-/* =======================
-   ESTADOS DE CONTRATOS
-=========================== */
-
-.bg-borrador {
-  background-color: #6c757d;
-}
-
-.bg-completado {
-  background-color: #0d6efd;
-}
-
-.detalleEspacio {
-  margin-right: 5px;
-}
-
-/* =======================
-   BOTÓN "VER TODOS"
-=========================== */
-
-.btn-link {
-  color: #0d6efd;
-  text-decoration: none;
-  transition: all 0.3s;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-/* =======================
-   TARJETAS DE ESTADO
-=========================== */
-
-.card {
-  border: none;
-  border-radius: 10px;
-  overflow: hidden;
-  transition: transform 0.2s;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
-  }
-
-  .card-body {
-    padding: 1.5rem;
-  }
-
-  .card-title,
-  .display-6 {
-    color: #f8f9ff;
-  }
-}
-
-/* =======================
-   TABLA DE CONTRATOS
-=========================== */
-
-.table-lg {
-  td,
-  th {
-    padding: 1rem;
-    vertical-align: middle;
-    font-size: 1rem;
-  }
-
-  th {
-    font-weight: 600;
-    background-color: #f8f9fa;
-  }
-}
-
-/* =======================
+/* ==========================================
    RESULTADOS DE BÚSQUEDA
-=========================== */
-
+============================================= */
 .search-results-container {
-  min-height: 300px;
-  padding-bottom: 1rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  transition: all 0.3s ease-in-out;
+  animation: fadeIn 0.3s ease;
+  margin-top: 1rem;
 
-  .card,
-  .alert {
-    flex-shrink: 0;
+  .card-header {
+    background: rgba($primary-color, 0.2) !important;
+    border-bottom: none;
   }
 
   .no-results {
-    padding: 2rem 1rem;
+    padding: 2rem;
     text-align: center;
-    font-size: 1rem;
-    color: #888;
-    width: 100%;
-  }
+    color: rgba($light-color, 0.7);
 
-  .table {
-    width: 100%;
+    h5 {
+      color: $light-color;
+      margin-bottom: 0.5rem;
+    }
   }
 }
 
+/* ==========================================
+   PAGINACIÓN
+============================================= */
+.pagination {
+  .page-item {
+    margin: 0 2px;
+
+    .page-link {
+      @include glass-effect;
+      border: none;
+      color: $light-color;
+      min-width: 40px;
+      text-align: center;
+      transition: all 0.2s;
+
+      &:hover {
+        background: rgba($light-color, 0.1);
+      }
+    }
+
+    &.active .page-link {
+      background: $gradient-primary;
+      color: white;
+    }
+
+    &.disabled .page-link {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+}
+
+/* ==========================================
+   MODALES
+============================================= */
+.modal-content {
+  @include glass-effect;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+
+  .modal-header {
+    border-bottom: 1px solid rgba($light-color, 0.1);
+    background: rgba($primary-color, 0.1);
+  }
+
+  .modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  .form-label {
+    color: $light-color;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-control, .form-select {
+    @include glass-effect;
+    border: 1px solid rgba($light-color, 0.1);
+    color: $light-color;
+
+    &:focus {
+      border-color: $primary-color;
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.3);
+    }
+  }
+}
+
+/* ==========================================
+   BADGES PARA ESTADOS
+============================================= */
+.badge {
+  padding: 0.35em 0.65em;
+  font-weight: 500;
+  border-radius: 50px;
+
+  &.bg-borrador { background-color: map-get($status-colors, 'borrador'); }
+  &.bg-activo { background-color: map-get($status-colors, 'activo'); }
+  &.bg-completado { background-color: map-get($status-colors, 'completado'); }
+  &.bg-cancelado { background-color: map-get($status-colors, 'cancelado'); }
+}
+
+/* ==========================================
+   RESPONSIVIDAD
+============================================= */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
+
+  .search-container-left.active .search-box {
+    width: 180px;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
 
 @keyframes fadeIn {
   from {
@@ -271,112 +355,219 @@
   }
 }
 
-/* =======================
-   PAGINACIÓN
-=========================== */
-
-.pagination {
-  .page-item {
-    margin: 0 2px;
-
-    .page-link {
-      border-radius: 5px;
-      min-width: 40px;
-      text-align: center;
-      border: 1px solid #dee2e6;
-      color: $primary;
-      transition: all 0.2s;
-      padding: 0.5rem 0.75rem;
-
-      &:hover {
-        background-color: #f8f9fa;
+/* ==========================================
+   FORMULARIOS DE CONTRATO
+============================================= */
+.modal-content {
+  background: rgba($dark-color, 0.9); // Fondo más opaco para mejor contraste
+  backdrop-filter: blur(10px);
+  
+  .modal-header {
+    h5 {
+      color: $light-color;
+      font-weight: 600;
+    }
+  }
+  
+  .modal-body {
+    color: rgba($light-color, 0.9); // Texto más claro
+    
+    label, .form-label {
+      color: $light-color !important;
+      opacity: 0.9;
+    }
+    
+    // Estilos para secciones colapsables
+    .border.rounded.p-3 {
+      background: rgba($light-color, 0.05);
+      border: 1px solid rgba($light-color, 0.1) !important;
+      
+      h6 {
+        color: $light-color;
+        a {
+          color: inherit;
+          text-decoration: none;
+          
+          &:hover {
+            color: $primary-color;
+          }
+        }
       }
     }
-
-    &.active .page-link {
-      background-color: $primary;
-      border-color: $primary;
-      color: white;
+    
+    // Checkboxes y sus etiquetas
+    .form-check {
+      margin-bottom: 0.5rem;
+      
+      .form-check-label {
+        color: $light-color;
+        opacity: 0.9;
+      }
+      
+      .form-check-input {
+        &:checked {
+          background-color: $primary-color;
+          border-color: $primary-color;
+        }
+      }
     }
-
-    &.disabled .page-link {
-      color: #6c757d;
-      pointer-events: none;
+    
+    // Inputs de cantidad/rol/horas
+    .ms-4.mt-1 {
+      .form-control-sm {
+        background: rgba($light-color, 0.1);
+        border-color: rgba($light-color, 0.2);
+        color: $light-color;
+        
+        &:focus {
+          border-color: $primary-color;
+          box-shadow: 0 0 0 0.2rem rgba($primary-color, 0.25);
+        }
+      }
+    }
+    
+    // Texto de términos
+    .text-muted.fst-italic {
+      color: rgba($light-color, 0.7) !important;
+    }
+  }
+  
+  // Botones del footer
+  .modal-footer {
+    border-top: 1px solid rgba($light-color, 0.1);
+    
+    .btn-secondary {
+      background: rgba($light-color, 0.1);
+      color: $light-color;
+      
+      &:hover {
+        background: rgba($light-color, 0.2);
+      }
+    }
+    
+    .btn-primary {
+      background: $gradient-primary;
+      border: none;
+      
+      &:hover {
+        background: linear-gradient(135deg, darken($primary-color, 5%), darken($secondary-color, 5%));
+      }
     }
   }
 }
 
-/* =======================
-   RESPONSIVIDAD
-=========================== */
-
-@media (max-width: 992px) {
-  .main-content {
-    margin-left: 0;
+/* ==========================================
+   MEJORAS ESPECÍFICAS PARA CHECKBOXES
+============================================= */
+.form-check-input {
+  width: 1.2em;
+  height: 1.2em;
+  margin-top: 0.2em;
+  background-color: rgba($light-color, 0.1);
+  border: 1px solid rgba($light-color, 0.3);
+  
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba($primary-color, 0.25);
   }
-
-  .table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .search-container-left.active .search-box {
-    width: 180px;
+  
+  &:checked {
+    background-color: $primary-color;
+    border-color: $primary-color;
   }
 }
 
+/* ==========================================
+   AJUSTES PARA TEXTO EN SECCIONES
+============================================= */
+// Sección de presupuesto
+strong {
+  color: $light-color;
+  opacity: 0.9;
+}
+
+// Texto de estado
+.text-borrador { color: map-get($status-colors, 'borrador'); }
+.text-activo { color: map-get($status-colors, 'activo'); }
+.text-completado { color: map-get($status-colors, 'completado'); }
+.text-cancelado { color: map-get($status-colors, 'cancelado'); }
+
+// Texto de términos
+textarea.form-control {
+  background: rgba($light-color, 0.1);
+  border: 1px solid rgba($light-color, 0.2);
+  color: $light-color;
+  
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 0.2rem rgba($primary-color, 0.25);
+    background: rgba($light-color, 0.15);
+  }
+}
+
+/* ==========================================
+   BOTONES INFERIORES
+============================================= */
+.btn-lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* ==========================================
+   RESPONSIVIDAD PARA FORMULARIOS
+============================================= */
 @media (max-width: 768px) {
-  .card {
-    margin-bottom: 1rem;
+  .modal-dialog {
+    margin: 0.5rem auto;
   }
-
-  .search-container-left {
-    margin-left: auto;
-
-    &.active .search-box {
-      width: 150px;
-    }
-  }
-
-  .table-lg {
-    td,
-    th {
-      padding: 0.75rem;
+  
+  .modal-content {
+    border-radius: 0;
+    
+    .modal-body {
+      padding: 1rem;
     }
   }
 }
 
-/* =======================
-   ESTABILIZA ALTURA DE RESULTADOS
-=========================== */
+/* ==========================================
+   ESTILOS PARA SELECT DE ESTADO
+============================================= */
+select.form-select {
+  background-color: rgba($light-color, 0.1) !important;
+  border: 1px solid rgba($light-color, 0.2) !important;
+  color: $light-color !important;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%23ffffff' fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
 
-.search-results-container {
-  min-height: 200px; // altura mínima para evitar que se encoja
-  transition: min-height 0.3s ease;
-
-  .table {
-    width: 100%;
+  &:focus {
+    border-color: $primary-color !important;
+    box-shadow: 0 0 0 0.25rem rgba($primary-color, 0.25) !important;
+    outline: none;
   }
 
-  .no-results {
-    padding: 2rem;
-    text-align: center;
-    font-size: 1rem;
-    color: #888;
+  option {
+    background-color: $dark-color;
+    color: $light-color;
+    padding: 0.5rem;
+  }
+
+  &[disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 }
 
-/* =======================
-   AJUSTES FINALES
-=========================== */
-
-body,
-html,
-.main-content,
-.container-fluid {
-  font-size: 1rem !important;
-  transform: none !important;
-  zoom: 1 !important;
-}
-
-
+/* Estilos específicos para cada opción de estado */
+option[value="borrador"] { color: map-get($status-colors, 'borrador'); }
+option[value="activo"] { color: map-get($status-colors, 'activo'); }
+option[value="completado"] { color: map-get($status-colors, 'completado'); }
+option[value="cancelado"] { color: map-get($status-colors, 'cancelado'); }

@@ -37,7 +37,7 @@ import { UserManagementModule } from '../modules/user-management/user-management
     FormsModule,
     NgbProgressbarModule,
     StaffModule,
-    UserManagementModule
+    UserManagementModule,
     // UserManagementModule,
     // BrowserAnimationsModule
     // NgModule

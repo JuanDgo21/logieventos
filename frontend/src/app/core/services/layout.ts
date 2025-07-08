@@ -80,6 +80,13 @@ export class LayoutService {
       ],
       lider: [
         { name: 'Mis Eventos', icon: 'calendar-check', path: 'pages/my-events' },
+        { name: 'Personal', icon: 'users-cog', 
+          path: '/pages/personal', // Ruta padre
+          children: [
+            { name: 'Dashboard', icon: 'tachometer-alt', path: '/pages/personal' }, //Ruta hija
+            { name: 'Listado de Personal', icon: 'id-badge', path: '/staff/personnel' }
+          ]
+        },
         { name: 'Asistencia', icon: 'clipboard-list', path: 'pages/attendance' },
         { name: 'Recursos', icon: 'box-open', path: '/inventory-page' }
       ]

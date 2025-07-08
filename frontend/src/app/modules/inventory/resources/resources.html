@@ -35,15 +35,13 @@
       </div>
       
       <div class="form-group">
-        <label>Tipo de Recurso:</label>
-        <select [ngModel]="editingResource ? editingResource.resourceType : newResource.resourceType"
-                (ngModelChange)="onFieldChange('resourceType', $event)"
-                [disabled]="isLoading" 
-                required>
-          <option value="">Seleccione un tipo</option>
-          <option *ngFor="let type of resourceTypes" [value]="type._id">
-            {{ type.name }}
-            <span *ngIf="type.description"> - {{ type.description }}</span>
+        <label>Estado:</label>
+        <select class="styled-select status-select"
+                [ngModel]="editingResource ? editingResource.status : newResource.status"
+                (ngModelChange)="onFieldChange('status', $event)"
+                [disabled]="isLoading">
+          <option *ngFor="let option of statusOptions" [value]="option.value" [class]="'status-' + option.value">
+            {{ option.label }}
           </option>
         </select>
         <small *ngIf="!resourceTypes.length" class="text-warning">

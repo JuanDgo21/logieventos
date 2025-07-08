@@ -115,6 +115,7 @@
                 <option [value]="type._id">{{ type.name }}</option>
               }
             </select>
+          
             @if (personnelForm.get('personnelType')?.invalid && personnelForm.get('personnelType')?.touched) {
               <div class="error-message">
                 <span><i class="fas fa-exclamation-circle"></i> Por favor seleccione una categoría</span>
@@ -167,7 +168,8 @@
         <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss()">
           <i class="fas fa-times"></i> Cancelar
         </button>
-        <button type="submit" class="btn btn-primary" [disabled]="personnelForm.invalid || isSaving">
+       <button type="submit" class="btn btn-primary" [disabled]="false">
+
           @if (isSaving) {
             <i class="fas fa-spinner fa-spin"></i> Procesando...
           } @else {
