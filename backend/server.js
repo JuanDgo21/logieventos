@@ -5,7 +5,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const { MongoClient } = require('mongodb');
 
-// Importar rutas
+// Importar rutas principales
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes');
@@ -14,9 +14,14 @@ const resourceRoutes = require('./routes/resourceRoutes');
 const providerRoutes = require('./routes/providerRoutes');
 const personnelRoutes = require('./routes/personnelRoutes');
 const eventTypeRoutes = require('./routes/eventTypeRoutes');
-const providerTypeRoutes = require('./routes/providerTypeRoutes'); // <-- Añadido
+const providerTypeRoutes = require('./routes/providerTypeRoutes');
 const personnelTypeRoutes = require('./routes/personnelTypeRoutes');
 const resourceTypeRoutes = require('./routes/resourceTypeRoutes');
+const reportRoutes = require('./routes/report.routes');
+
+
+// Importar el nuevo controlador de reportes
+const reportController = require('./controllers/reportControllers');
 
 // Configurar aplicación Express
 const app = express();
@@ -38,25 +43,30 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // Conexión a MongoDB con Mongoose
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Conexión a MongoDB exitosa'))
   .catch(error => console.error('Error de conexión a MongoDB:', error.message));
 
-// Rutas
+// ======================================
+// Configuración de Rutas
+// ======================================
+
+// Rutas principales
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
-app.use('/api/contracts', contractRoutes);
+app.use('/api/contracts', contractRoutes); // <-- Aquí están las rutas básicas de contratos
 app.use('/api/resources', resourceRoutes);
 app.use('/api/providers', providerRoutes);
 app.use('/api/personnel', personnelRoutes);
 app.use('/api/event-types', eventTypeRoutes);
-app.use('/api/provider-types', providerTypeRoutes); // <-- Añadido
+app.use('/api/provider-types', providerTypeRoutes);
 app.use('/api/personnel-types', personnelTypeRoutes);
 app.use('/api/resource-types', resourceTypeRoutes);
-
+app.use('/api/reports', reportRoutes);
 // Ruta de prueba
 app.get('/', (req, res) => {
   res.json({ message: 'API de Gestión de Eventos y Logística' });
