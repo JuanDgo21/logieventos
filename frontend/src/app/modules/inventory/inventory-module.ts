@@ -31,7 +31,7 @@ import { SharedModule } from '../../shared/shared-module';
     SharedModule
   ],
     exports: [
-      //ResourcesComponent
+      //ResourcesComponent QUITAR ESTO PARA USAR LAS PAGINAS EN OTROS MODULOS
     ]
 })
 export class InventoryModule { }

@@ -8,7 +8,7 @@
       <!-- Elemento de menú principal -->
       <div class="menu-parent" [class.has-children]="module.children">
         <a class="menu-item d-flex align-items-center p-3" 
-           [routerLink]="module.children ? null : module.path"
+           [routerLink]="module.children ? null: ['/pages', module.path]"
            routerLinkActive="active"
            [routerLinkActiveOptions]="{exact: true}"
            (click)="module.children ? toggleSubMenu(module) : setActiveModule(module.name)">
