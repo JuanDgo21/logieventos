@@ -1,26 +1,31 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AlertModalComponent } from '../../shared/components/alert-modal/alert-modal';
+import { AuthService } from './auth';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AlertService {
-  constructor(private dialog: MatDialog) {}
+  constructor(
+    private dialog: MatDialog,
+    private authService: AuthService
+  ) {}
 
   showError(options: {
     type: 'create' | 'update' | 'delete' | 'auth';
     message: string;
     title?: string;
-    userRole?: string;  // Ahora se pasa desde el componente
-    showReload?: boolean; // Ahora se pasa desde el componente
   }): void {
+    //const userRole = this.authService.getPrimaryRole();
+    const isTokenExpired = this.authService.isTokenExpired();
+    
     const data = {
       title: options.title || this.getDefaultTitle(options.type),
       message: options.message,
       type: options.type,
-      userRole: options.userRole,
-      showReload: options.showReload
+      //userRole: userRole,
+      showReload: isTokenExpired
     };
 
     this.dialog.open(AlertModalComponent, {

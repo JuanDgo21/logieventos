@@ -18,22 +18,19 @@ export class AuthService {
   }
 
   // ============ MÉTODOS DE AUTENTICACIÓN ============
-  register(username: string, email: string, password: string, role: string): Observable<any> {
-    console.log('register llamado con:', { username, email, password, role });
-    const allowedRoles = ['admin', 'coordinador', 'lider'];
-    if (!allowedRoles.includes(role)) {
-      console.log('register: rol no válido proporcionado');
-      return throwError(() => new Error('Rol no válido. Los roles permitidos son: admin, coordinador, lider'));
+  register(userData: Omit<User, '_id' | 'createdAt' | 'updatedAt'>): Observable<any> {
+    // Validación de roles permitidos
+    const validRoles = ['admin', 'coordinador', 'lider'];
+    if (!validRoles.includes(userData.role)) {
+      return throwError(() => new Error('Rol no válido'));
     }
 
-    return this.apiService.postOb(apiRouters.AUTH.SIGNUP, { username, email, password, role }).pipe(
+    return this.apiService.postOb(apiRouters.AUTH.SIGNUP, userData).pipe(
       tap((response) => {
-        console.log('register respuesta recibida:', response);
         this.handleAuthResponse(response);
       }),
       catchError(error => {
-        console.log('register error ocurrido:', error);
-        return this.handleError('Error en registro:', error);
+        return throwError(() => error);
       })
     );
   }
@@ -43,10 +40,24 @@ export class AuthService {
     return this.apiService.postOb(apiRouters.AUTH.SIGNIN, { email, password }).pipe(
       tap((response) => {
         console.log('login respuesta recibida:', response);
+        
+        // Verificación adicional del estado activo
+        if (response.user && !response.user.active) {
+          console.log('Usuario inactivo detectado:', response.user.email);
+          throw new Error('USER_INACTIVE');
+        }
+        
         this.handleAuthResponse(response);
       }),
       catchError(error => {
         console.log('login error ocurrido:', error);
+        
+        // Manejo específico para usuarios inactivos
+        if (error.message === 'USER_INACTIVE') {
+          const inactiveError = new Error('Tu cuenta está desactivada. Contacta al administrador.');
+          return throwError(() => inactiveError);
+        }
+        
         return this.handleError('Error en login:', error);
       })
     );

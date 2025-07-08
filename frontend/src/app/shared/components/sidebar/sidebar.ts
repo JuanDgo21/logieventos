@@ -12,6 +12,7 @@ import { LayoutService } from '../../../core/services/layout';
 export class SidebarComponent implements OnInit {
   modules: any[] = [];
   collapsed = false;
+  expandedMenus: any = {};
 
   constructor(
     public layoutService: LayoutService,
@@ -29,9 +30,23 @@ export class SidebarComponent implements OnInit {
     
     if (role) {
       this.modules = this.layoutService.getModulesForRole(role);
+      // Inicializar estado de los menús
+      this.modules.forEach(module => {
+        if (module.children) {
+          this.expandedMenus[module.name] = false;
+        }
+      });
     } else {
       this.router.navigate(['/auth/login']);
     }
+  }
+
+  isExpanded(module: any): boolean {
+    return this.expandedMenus[module.name];
+  }
+
+  toggleSubMenu(module: any): void {
+    this.expandedMenus[module.name] = !this.expandedMenus[module.name];
   }
 
   setActiveModule(module: string): void {

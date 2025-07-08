@@ -2,20 +2,21 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { UserManagementRoutingModule } from './user-management-routing-module';
-import { UserList } from './user-list/user-list';
+import { UserListComponent } from './user-list/user-list';
 import { UserProfileComponent } from './user-profile/user-profile';
-import { RoleManagement } from './role-management/role-management';
 import { SharedModule } from '../../shared/shared-module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { UserFormComponent } from './user-form/user-form';
 
 
 @NgModule({
   declarations: [
-    UserList,
+    UserListComponent,
     UserProfileComponent,
-    RoleManagement
+    UserFormComponent,
   ],
   imports: [
     CommonModule,
@@ -24,13 +25,13 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     FormsModule,
     RouterModule,
     ReactiveFormsModule,
-    FontAwesomeModule
-
+    FontAwesomeModule,
+    NgbModule
   ],
   exports: [
-    UserList,
+    UserListComponent,
     UserProfileComponent,
-    RoleManagement
+    UserFormComponent
   ]
 })
 export class UserManagementModule { }

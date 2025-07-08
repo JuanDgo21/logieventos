@@ -9,12 +9,16 @@ import { RouterModule } from '@angular/router';
 import { ToastrModule } from 'ngx-toastr';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ResourceTypesComponent } from './resource-types/resource-types';
+import { SidebarStateService } from '../../core/services/sidebar-state';
+import { SharedModule } from '../../shared/shared-module';
+
 
 
 @NgModule({
+  providers: [SidebarStateService], 
   declarations: [
-    //ResourcesComponent
-    //ResourceTypesComponent
+    ResourcesComponent,
+    ResourceTypesComponent
   ],
   imports: [
     CommonModule,
@@ -22,10 +26,12 @@ import { ResourceTypesComponent } from './resource-types/resource-types';
     RouterModule,
     ReactiveFormsModule,
     HttpClientModule,
-    FontAwesomeModule
+    FormsModule,
+    FontAwesomeModule,
+    SharedModule
   ],
     exports: [
-      //ResourcesComponent
+      //ResourcesComponent QUITAR ESTO PARA USAR LAS PAGINAS EN OTROS MODULOS
     ]
 })
 export class InventoryModule { }

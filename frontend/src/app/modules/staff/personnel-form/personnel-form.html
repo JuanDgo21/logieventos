@@ -1,0 +1,187 @@
+<div class="personnel-form-modal">
+  <div class="modal-header">
+    <div class="modal-title">
+      <div class="title-icon">
+        <i class="fas fa-user-edit"></i>
+      </div>
+      <h2>
+        @if (personnel) {
+          Editar Personal
+        } @else {
+          Nuevo Personal
+        }
+      </h2>
+    </div>
+    <button class="close-btn" (click)="activeModal.dismiss()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    @if (errorMessage) {
+      <div class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        <div>
+          <strong>Error!</strong> {{ errorMessage }}
+        </div>
+        <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+      </div>
+    }
+
+    <form [formGroup]="personnelForm" (ngSubmit)="savePersonnel()">
+      <div class="form-grid">
+        <!-- Nombre -->
+        <div class="form-group">
+          <label><i class="fas fa-user"></i> Nombre*</label>
+          <div class="input-field">
+            <input type="text" formControlName="firstName" placeholder="Ingrese el nombre">
+            @if (personnelForm.get('firstName')?.invalid && personnelForm.get('firstName')?.touched) {
+              <div class="error-message">
+                @if (personnelForm.get('firstName')?.errors?.['required']) {
+                  <span><i class="fas fa-exclamation-circle"></i> Campo requerido</span>
+                }
+                @if (personnelForm.get('firstName')?.errors?.['maxlength']) {
+                  <span><i class="fas fa-exclamation-circle"></i> Máximo 50 caracteres</span>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Apellido -->
+        <div class="form-group">
+          <label><i class="fas fa-user"></i> Apellido*</label>
+          <div class="input-field">
+            <input type="text" formControlName="lastName" placeholder="Ingrese el apellido">
+            @if (personnelForm.get('lastName')?.invalid && personnelForm.get('lastName')?.touched) {
+              <div class="error-message">
+                @if (personnelForm.get('lastName')?.errors?.['required']) {
+                  <span><i class="fas fa-exclamation-circle"></i> Campo requerido</span>
+                }
+                @if (personnelForm.get('lastName')?.errors?.['maxlength']) {
+                  <span><i class="fas fa-exclamation-circle"></i> Máximo 50 caracteres</span>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label><i class="fas fa-envelope"></i> Email*</label>
+          <div class="input-field">
+            <input type="email" formControlName="email" placeholder="Ingrese el email">
+            @if (personnelForm.get('email')?.invalid && personnelForm.get('email')?.touched) {
+              <div class="error-message">
+                @if (personnelForm.get('email')?.errors?.['required']) {
+                  <span><i class="fas fa-exclamation-circle"></i> Campo requerido</span>
+                }
+                @if (personnelForm.get('email')?.errors?.['email']) {
+                  <span><i class="fas fa-exclamation-circle"></i> Formato de email inválido</span>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Teléfono -->
+        <div class="form-group">
+          <label><i class="fas fa-phone"></i> Teléfono</label>
+          <div class="input-field">
+            <input type="tel" formControlName="phone" placeholder="Ingrese el teléfono">
+            @if (personnelForm.get('phone')?.invalid && personnelForm.get('phone')?.touched) {
+              <div class="error-message">
+                <span><i class="fas fa-exclamation-circle"></i> Formato inválido (10-15 dígitos)</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Categoría -->
+        <div class="form-group">
+          <label><i class="fas fa-user-tag"></i> Categoría*</label>
+          
+          @if (personnel) {
+            <div class="current-type">
+              <i class="fas fa-info-circle"></i>
+              <span>Categoría actual: <strong>{{ currentTypeName }}</strong></span>
+            </div>
+          }
+          
+          <div class="input-field">
+            <select formControlName="personnelType" (change)="onTypeChange($event)">
+              <option value="">Seleccione una categoría</option>
+              @for (type of personnelTypes; track type._id) {
+                <option [value]="type._id">{{ type.name }}</option>
+              }
+            </select>
+          
+            @if (personnelForm.get('personnelType')?.invalid && personnelForm.get('personnelType')?.touched) {
+              <div class="error-message">
+                <span><i class="fas fa-exclamation-circle"></i> Por favor seleccione una categoría</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Estado -->
+        <div class="form-group">
+          <label><i class="fas fa-power-off"></i> Estado*</label>
+          <div class="input-field">
+            <select formControlName="status">
+              @for (status of statusOptions; track status.value) {
+                <option [value]="status.value">{{ status.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- Habilidades -->
+        <div class="form-group full-width">
+          <label><i class="fas fa-tools"></i> Habilidades</label>
+          <div class="skills-input-container">
+            <div class="input-field">
+              <input type="text" [(ngModel)]="newSkill" 
+                     [ngModelOptions]="{standalone: true}" 
+                     placeholder="Añadir nueva habilidad" 
+                     (keyup.enter)="addSkill()">
+              <button class="add-skill-btn" (click)="addSkill()">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            
+            <div class="skills-list">
+              @for (skill of personnelForm.get('skills')?.value; track skill) {
+                <div class="skill-tag">
+                  {{ skill }}
+                  <button type="button" class="remove-skill" (click)="removeSkill(skill)">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-footer">
+        <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+       <button type="submit" class="btn btn-primary" [disabled]="false">
+
+          @if (isSaving) {
+            <i class="fas fa-spinner fa-spin"></i> Procesando...
+          } @else {
+            <i class="fas fa-save"></i> 
+            @if (personnel) {
+              Actualizar
+            } @else {
+              Guardar
+            }
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

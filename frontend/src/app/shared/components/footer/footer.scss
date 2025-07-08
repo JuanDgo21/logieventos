@@ -1,15 +1,30 @@
 @use '../../../../styles.scss' as *;
 
 .app-footer {
+  position: fixed;
+  bottom: 0;
+  left: 280px;
+  right: 0;
+  height: 60px;
+  z-index: 900;
+  transition: left 0.3s ease;
+  background: rgba(20, 20, 40, 0.9);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
-  background: rgba($dark-color, 0.9);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.7);
-  font-size: 0.9rem;
+  padding: 0 2rem;
+
+  // ... (resto de tus estilos del footer)
+  
+  .sidebar.collapsed ~ & {
+    left: 70px;
+  }
+  
+  @media (max-width: 992px) {
+    left: 0 !important;
+  }
 
   .footer-left {
     display: flex;
@@ -17,11 +32,10 @@
     gap: 1rem;
 
     .version {
-      background: rgba($primary-color, 0.2);
-      color: $primary-color;
-      padding: 0.2rem 0.5rem;
-      border-radius: 10px;
-      font-size: 0.8rem;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-family: monospace;
     }
   }
 
@@ -29,22 +43,33 @@
     display: flex;
     align-items: center;
     gap: 1.5rem;
+  }
 
-    .footer-link {
-      color: rgba(255,255,255,0.7);
-      text-decoration: none;
-      transition: color 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+  .footer-link {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 
-      &:hover {
-        color: $primary-color;
-      }
+    &:hover {
+      color: $primary-color;
+    }
+  }
+}
 
-      i {
-        font-size: 1rem;
-      }
+@media (max-width: 768px) {
+  .app-footer {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+    padding: 1rem;
+
+    .footer-left,
+    .footer-right {
+      width: 100%;
+      justify-content: center;
     }
   }
 }

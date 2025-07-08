@@ -1,24 +1,36 @@
 <div class="sidebar" [class.collapsed]="collapsed">
   <div class="sidebar-header d-flex align-items-center justify-content-between p-3">
-    <div class="d-flex align-items-center">
-      <i class="fas fa-calendar-alt me-2"></i>
-      <span *ngIf="!collapsed" class="app-name">LogiEventos</span>
-    </div>
-    <button class="btn btn-link p-0" (click)="layoutService.toggleSidebar()">
-      <i class="fas fa-chevron-left"></i>
-    </button>
+    <!-- ... (header se mantiene igual) ... -->
   </div>
 
   <div class="sidebar-menu">
     <ng-container *ngFor="let module of modules">
-      <a class="menu-item d-flex align-items-center p-3" 
-         [routerLink]="[module.path]"
-         routerLinkActive="active"
-         [routerLinkActiveOptions]="{exact: true}"
-         (click)="setActiveModule(module.name)">
-        <i class="fas fa-{{module.icon}} me-3"></i>
-        <span *ngIf="!collapsed">{{module.name}}</span>
-      </a>
+      <!-- Elemento de menú principal -->
+      <div class="menu-parent" [class.has-children]="module.children">
+        <a class="menu-item d-flex align-items-center p-3" 
+           [routerLink]="module.children ? null: ['/pages', module.path]"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{exact: true}"
+           (click)="module.children ? toggleSubMenu(module) : setActiveModule(module.name)">
+          <i class="fas fa-{{module.icon}} me-3"></i>
+          <span *ngIf="!collapsed">{{module.name}}</span>
+          <i *ngIf="module.children && !collapsed" 
+             class="fas fa-angle-down ms-auto" 
+             [class.rotated]="isExpanded(module)"></i>
+        </a>
+
+        <!-- Submenú -->
+        <div *ngIf="module.children && isExpanded(module) && !collapsed" class="submenu">
+          <a *ngFor="let child of module.children" 
+             class="menu-item d-flex align-items-center p-3 ps-5"
+             [routerLink]="child.path"
+             routerLinkActive="active"
+             (click)="setActiveModule(child.name)">
+            <i class="fas fa-{{child.icon}} me-3"></i>
+            <span>{{child.name}}</span>
+          </a>
+        </div>
+      </div>
     </ng-container>
   </div>
 

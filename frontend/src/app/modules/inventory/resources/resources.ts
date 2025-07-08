@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // <-- Añade esta importación
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth';
-import { AlertService } from '../../../core/services/alert';
 import { Router } from '@angular/router';
 import { MatDialogModule } from '@angular/material/dialog';
 import { AlertModalComponent } from '../../../shared/components/alert-modal/alert-modal';
+import { AlertService } from '../../../core/services/alert';
+import { SidebarStateService } from '../../../core/services/sidebar-state';
 
 interface Resource {
   _id?: string;
@@ -35,13 +36,12 @@ interface ResourceType {
 
 @Component({
   selector: 'app-resources',
-  standalone: true,
-  imports: [CommonModule, FormsModule], // <-- Añade FormsModule aquí
+  standalone: false,
   templateUrl: './resources.html',
   styleUrls: ['./resources.scss']
 })
 
-export class ResourcesComponent implements OnInit {
+export class ResourcesComponent {
   resources: Resource[] = [];
   resourceTypes: ResourceType[] = [];
   newResource: Resource = { 
@@ -71,11 +71,14 @@ export class ResourcesComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private alertService: AlertService,
-  ) {}
+    public sidebarState: SidebarStateService
+  ) {
+  }
 
   ngOnInit(): void {
     this.loadResources();
     this.loadActiveResourceTypes();
+    this.sidebarState.isOpen = true;
   }
 
   private getAuthHeaders(): HttpHeaders {
@@ -112,20 +115,6 @@ export class ResourcesComponent implements OnInit {
         }
       }
     });
-  }
-
-  private parseApiResponse(response: any): Resource[] {
-    if (Array.isArray(response)) {
-      return response;
-    } else if (response?.data && Array.isArray(response.data)) {
-      return response.data;
-    } else if (response?.resources && Array.isArray(response.resources)) {
-      return response.resources;
-    } else if (response?.items && Array.isArray(response.items)) {
-      return response.items;
-    }
-    console.warn('Unexpected API response structure:', response);
-    return [];
   }
 
   loadActiveResourceTypes(): void {
@@ -271,16 +260,16 @@ export class ResourcesComponent implements OnInit {
     return resource.resourceType.name || 'Desconocido';
   }
 
-  // getResourceDescription(resource: Resource): string | null {
-  //   if (!resource.resourceType) return null;
+  getResourceDescription(resource: Resource): string | null {
+    if (!resource.resourceType) return null;
     
-  //   if (typeof resource.resourceType === 'string') {
-  //     const type = this.resourceTypes.find(t => t._id === resource.resourceType);
-  //     return type?.description || null;
-  //   }
+    if (typeof resource.resourceType === 'string') {
+      const type = this.resourceTypes.find(t => t._id === resource.resourceType);
+      return type?.description || null;
+    }
     
-  //   return resource.resourceType.description || null;
-  // }
+    return resource.resourceType.description || null;
+  }
 
   getStatusLabel(status: string): string {
     const option = this.statusOptions.find(opt => opt.value === status);

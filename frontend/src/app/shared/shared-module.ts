@@ -5,24 +5,32 @@ import { NavbarComponent } from './components/navbar/navbar';
 import { RouterModule } from '@angular/router';
 import { SidebarComponent } from './components/sidebar/sidebar';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal';
+import { SidebarInventoryComponent } from './components/sidebar-inventory/sidebar-inventory';
 
 
 @NgModule({
   declarations: [
     FooterComponent,
     NavbarComponent,
-    SidebarComponent
+    SidebarComponent,
+    ConfirmModalComponent,
+    SidebarInventoryComponent
   ],
   imports: [
     CommonModule,
     RouterModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   exports: [
     FooterComponent,
     NavbarComponent,
-    SidebarComponent
+    SidebarComponent,
+    ConfirmModalComponent,
+    SidebarInventoryComponent
   ]
 })
 export class SharedModule { }

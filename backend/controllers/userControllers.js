@@ -137,8 +137,10 @@ exports.createUser = async (req, res) => {
       username,
       email,
       password: await bcrypt.hash(password, 10), // Hash de la contraseña
-      role: role || 'lider', // Rol por defecto: 'lider'
+      role: role || 'lider', // Rol por defecto
+      active: true            // ✅ El usuario se crea como activo por defecto
     });
+
 
     // Guarda el usuario en la base de datos
     const savedUser = await user.save();
@@ -184,9 +186,9 @@ exports.createUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
   console.log(`Iniciando updateUser para ID: ${req.params.id} con datos:`, req.body);
   try {
-    const { document, fullname, username, email, password, role, status } = req.body;
-    const updateData = {}; // Objeto para almacenar los campos a actualizar
-    
+    const { document, fullname, username, email, password, role, active } = req.body;
+    const updateData = {};
+
     console.log('Validando permisos para actualización');
     // Validaciones de permisos:
     
@@ -216,7 +218,7 @@ exports.updateUser = async (req, res) => {
     if (fullname) updateData.fullname = fullname;
     if (username) updateData.username = username;
     if (email) updateData.email = email;
-    if (status) updateData.status = status;
+    if (typeof active === 'boolean') updateData.active = active;
     
     // Manejo especial para el campo 'role' (solo editable por admin)
     if (role) {

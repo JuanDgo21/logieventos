@@ -1,0 +1,93 @@
+<div class="type-form-modal">
+  <div class="modal-header">
+    <div class="modal-title">
+      <div class="title-icon">
+        <i class="fas fa-tag"></i>
+      </div>
+      <h2>
+        @if (type) {
+          Editar Categoría
+        } @else {
+          Nueva Categoría
+        }
+      </h2>
+    </div>
+    <button class="close-btn" (click)="activeModal.dismiss()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <form [formGroup]="typeForm">
+      <div class="form-grid">
+        <!-- Nombre -->
+        <div class="form-group">
+          <label><i class="fas fa-tag"></i> Nombre*</label>
+          <div class="input-field">
+            <input type="text" formControlName="name" placeholder="Nombre de la categoría">
+            @if (typeForm.get('name')?.invalid && typeForm.get('name')?.touched) {
+              <div class="error-message">
+                @if (typeForm.get('name')?.errors?.['required']) {
+                  <span><i class="fas fa-exclamation-circle"></i> Campo requerido</span>
+                }
+                @if (typeForm.get('name')?.errors?.['maxlength']) {
+                  <span><i class="fas fa-exclamation-circle"></i> Máximo 50 caracteres</span>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div class="form-group">
+          <label><i class="fas fa-align-left"></i> Descripción</label>
+          <div class="input-field">
+            <textarea formControlName="description" rows="3" 
+                      placeholder="Descripción opcional (máx. 200 caracteres)"></textarea>
+            @if (typeForm.get('description')?.invalid && typeForm.get('description')?.touched) {
+              <div class="error-message">
+                @if (typeForm.get('description')?.errors?.['maxlength']) {
+                  <span><i class="fas fa-exclamation-circle"></i> Máximo 200 caracteres</span>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Estado -->
+        <div class="form-group">
+          <label><i class="fas fa-power-off"></i> Estado</label>
+          <div class="toggle-switch">
+            <input type="checkbox" id="isActive" formControlName="isActive">
+            <label for="isActive" [class.active]="typeForm.get('isActive')?.value">
+              <span class="toggle-track">
+                <span class="toggle-thumb"></span>
+                <span class="toggle-label-on">Activo</span>
+                <span class="toggle-label-off">Inactivo</span>
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-footer">
+        <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button type="button" class="btn btn-primary" (click)="saveType()" 
+                [disabled]="typeForm.invalid || isSaving">
+          @if (isSaving) {
+            <i class="fas fa-spinner fa-spin"></i> Guardando...
+          } @else {
+            <i class="fas fa-save"></i> 
+            @if (type) {
+              Actualizar
+            } @else {
+              Guardar
+            }
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

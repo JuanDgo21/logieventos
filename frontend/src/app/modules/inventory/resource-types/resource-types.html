@@ -1,4 +1,6 @@
 <div class="resource-types-container">
+  <app-sidebar-inventory></app-sidebar-inventory>
+  <div class="content" [class.sidebar-collapsed]="!sidebarState.isOpen">  
   <h2>
     <i class="fas fa-tags"></i>
     Gestión de Tipos de Recursos

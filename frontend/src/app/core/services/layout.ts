@@ -40,25 +40,55 @@ export class LayoutService {
   getModulesForRole(role: string): any[] {
     const modules = {
       admin: [
-        { name: 'Dashboard', icon: 'tachometer-alt', path: 'pages/dashboard' },
+        { name: 'Dashboard', icon: 'tachometer-alt', path: 'principal' },
         { name: 'Eventos', icon: 'calendar', path: 'pages/events' },
-        { name: 'Personal', icon: 'users', path: 'pages/staff' },
+        { name: 'Personal', icon: 'users-cog', 
+          path: '/pages/personal', // Ruta padre
+          children: [
+            { name: 'Dashboard', icon: 'tachometer-alt', path: '/pages/personal' }, //Ruta hija
+            { name: 'Tipos de Personal', icon: 'tags', path: '/staff/personnel-types' },
+            { name: 'Listado de Personal', icon: 'id-badge', path: '/staff/personnel' }
+          ]
+        },
         { name: 'Proveedores', icon: 'truck', path: 'pages/providers' },
-        { name: 'Recursos', icon: 'box-open', path: 'pages/resources' },
-        { name: 'Contratos', icon: 'file-contract', path: 'pages/contracts' },
-        { name: 'Usuarios', icon: 'user-cog', path: 'pages/users' }
+        { name: 'Recursos', icon: 'box-open', path: 'inventory-page' },
+        { name: 'Contratos', icon: 'file-contract', path: 'contracts-page' },
+        
+        { 
+          name: 'Usuarios', 
+          icon: 'users', 
+          path: '/pages/users', // Esta es la ruta padre
+          children: [
+            { name: 'Dashboard', icon: 'tachometer-alt', path: '/pages/usuarios' }, // Ruta hija
+            { name: 'Lista de Usuarios', icon: 'list', path: '/users/list' },
+          ]
+        }
+
       ],
       coordinador: [
-        { name: 'Dashboard', icon: 'tachometer-alt', path: 'pages/dashboard' },
+        { name: 'Dashboard', icon: 'tachometer-alt', path: '/pages/principal' },
         { name: 'Eventos', icon: 'calendar', path: 'pages/events' },
-        { name: 'Personal', icon: 'users', path: 'pages/staff' },
-        { name: 'Recursos', icon: 'box-open', path: 'pages/resources' },
-        { name: 'Contratos', icon: 'file-contract', path: 'pages/contracts' }
+        { name: 'Personal', icon: 'users-cog', 
+          path: '/pages/personal', // Ruta padre
+          children: [
+            { name: 'Dashboard', icon: 'tachometer-alt', path: '/pages/personal' }, //Ruta hija
+            { name: 'Listado de Personal', icon: 'id-badge', path: '/staff/personnel' }
+          ]
+        },
+        { name: 'Recursos', icon: 'box-open', path: 'inventory-page' },
+        { name: 'Contratos', icon: 'file-contract', path: 'contracts-page' }
       ],
       lider: [
         { name: 'Mis Eventos', icon: 'calendar-check', path: 'pages/my-events' },
+        { name: 'Personal', icon: 'users-cog', 
+          path: '/pages/personal', // Ruta padre
+          children: [
+            { name: 'Dashboard', icon: 'tachometer-alt', path: '/pages/personal' }, //Ruta hija
+            { name: 'Listado de Personal', icon: 'id-badge', path: '/staff/personnel' }
+          ]
+        },
         { name: 'Asistencia', icon: 'clipboard-list', path: 'pages/attendance' },
-        { name: 'Recursos', icon: 'box-open', path: 'pages/resources' }
+        { name: 'Recursos', icon: 'box-open', path: '/inventory-page' }
       ]
     };
     return modules[role as keyof typeof modules] || [];

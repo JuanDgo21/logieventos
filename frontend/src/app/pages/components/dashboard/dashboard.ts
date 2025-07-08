@@ -66,4 +66,14 @@ export class DashboardComponent implements OnInit {
     const decodedToken = this.authService.decodeToken();
     return decodedToken?.role || 'guest';
   }
+
+  getDailyMessage(): string {
+  const messages = [
+    "¡Hoy es un gran día para organizar eventos!",
+    "Tu productividad hoy está al 100% 💪",
+    "¿Qué evento planearemos hoy?",
+    "¡Tu último evento fue un éxito! 🎉"
+  ];
+  return messages[Math.floor(Math.random() * messages.length)];
+}
 }
