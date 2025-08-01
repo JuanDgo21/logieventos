@@ -1,0 +1,104 @@
+[{
+  "_id": {
+    "$oid": "6865a9e2c3c70679d2911c97"
+  },
+  "name": "Conferencia Empresarial",
+  "description": "Evento enfocado en compartir avances, estrategias y resultados corporativos",
+  "defaultResources": [
+    {
+      "resourceType": "sonido",
+      "description": "Sistema de audio profesional para presentaciones",
+      "defaultQuantity": 2,
+      "_id": {
+        "$oid": "6865a9e2c3c70679d2911c98"
+      }
+    },
+    {
+      "resourceType": "mobiliario",
+      "description": "Sillas y mesas para asistentes",
+      "defaultQuantity": 100,
+      "_id": {
+        "$oid": "6865a9e2c3c70679d2911c99"
+      }
+    },
+    {
+      "resourceType": "catering",
+      "description": "Refrigerios para asistentes",
+      "defaultQuantity": 1,
+      "_id": {
+        "$oid": "6865a9e2c3c70679d2911c9a"
+      }
+    }
+  ],
+  "requiredPersonnelType": {
+    "$oid": "68659ba0aaeb2679ff62c6da"
+  },
+  "estimatedDuration": 5,
+  "category": "corporativo",
+  "additionalRequirements": [
+    "Proyector multimedia",
+    "Conexión a internet estable"
+  ],
+  "active": true,
+  "createdAt": {
+    "$date": "2025-07-02T21:51:30.372Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-02T21:56:30.975Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6865abb20173e15122f9c04c"
+  },
+  "name": "Festival de Arte Local",
+  "description": "Evento cultural que reúne a artistas locales para exhibiciones, música en vivo y talleres.",
+  "defaultResources": [
+    {
+      "resourceType": "iluminacion",
+      "description": "Luces para escenarios y zonas de exposición",
+      "defaultQuantity": 4,
+      "_id": {
+        "$oid": "6865abb20173e15122f9c04d"
+      }
+    },
+    {
+      "resourceType": "mobiliario",
+      "description": "Mesas para artistas y zonas de descanso para visitantes",
+      "defaultQuantity": 20,
+      "_id": {
+        "$oid": "6865abb20173e15122f9c04e"
+      }
+    },
+    {
+      "resourceType": "sonido",
+      "description": "Sistema de sonido para música en vivo",
+      "defaultQuantity": 2,
+      "_id": {
+        "$oid": "6865abb20173e15122f9c04f"
+      }
+    }
+  ],
+  "requiredPersonnelType": {
+    "$oid": "68659a7f11b2bdba3d78f523"
+  },
+  "estimatedDuration": 9,
+  "category": "cultural",
+  "additionalRequirements": [
+    "Permisos municipales para uso del espacio público",
+    "Control de acceso",
+    "Voluntarios para logística"
+  ],
+  "createdBy": {
+    "$oid": "6865896878a39a2cc63bedd6"
+  },
+  "active": true,
+  "createdAt": {
+    "$date": "2025-07-02T21:59:14.644Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-02T21:59:51.358Z"
+  },
+  "__v": 0
+}]
