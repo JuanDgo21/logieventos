@@ -1,0 +1,250 @@
+
+<app-navbar></app-navbar>
+<div class="main-container">
+
+
+<div class="container-fluid py-4 animate__animated animate__fadeIn">
+  <!-- Header mejorado -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+    <div>
+      <h1 class="h3 mb-1">Gestión de Eventos</h1>
+    </div>
+    <button class="btn btn-primary px-4" (click)="openModal('create')">
+      <i class="fas fa-plus me-2"></i>Nuevo Evento
+    </button>
+  </div>
+
+  <!-- Panel de filtros mejorado -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body py-3">
+      <div class="row g-3 align-items-center">
+        <div class="col-md-6">
+          <div class="input-group">
+            <span class="input-group-text bg-transparent"><i class="fas fa-search"></i></span>
+            <input type="text" class="form-control border-start-0" 
+                   [(ngModel)]="searchTerm" 
+                   (input)="applyFilters()"
+                   placeholder="Buscar por título, descripción o ubicación...">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" [(ngModel)]="selectedStatus" (change)="applyFilters()">
+            <option value="all">Todos los estados</option>
+            <option *ngFor="let status of statusOptions" [value]="status.value">
+              {{status.label}}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" [(ngModel)]="selectedCategory" (change)="applyFilters()">
+            <option value="all">Todas las categorías</option>
+            <option *ngFor="let cat of categories" [value]="cat.id">{{cat.name}}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Listado de eventos mejorado -->
+  <div class="row row-cols-8 row-cols-md-5 row-cols-xl-4 g-3">
+    <div class="col" *ngFor="let event of filteredEvents">
+      <div class="card h-100 shadow-sm border-hover">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0 flex-grow-1">{{event.title}}</h5>
+          <span class="badge ms-2" [ngClass]="'bg-' + getStatusColor(event.status)">
+            <i [class]="getStatusIcon(event.status)" class="me-1"></i>
+            {{getStatusLabel(event.status)}}
+          </span>
+        </div>
+        <div class="card-body">
+          <p class="card-text text-truncate-3">{{event.description}}</p>
+          <ul class="list-group list-group-flush mb-3">
+            <li class="list-group-item d-flex align-items-center">
+              <i class="far fa-calendar-alt text-muted me-2"></i>
+              {{event.date | date:'fullDate'}}
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+              <i class="fas fa-map-marker-alt text-muted me-2"></i>
+              {{event.location}}
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+              <i class="fas fa-users text-muted me-2"></i>
+              {{event.attendees || 0}} asistentes
+            </li>
+            <li class="list-group-item d-flex align-items-center" *ngIf="event.category">
+              <i class="fas fa-tag text-muted me-2"></i>
+              {{getCategoryName(event.category)}}
+            </li>
+          </ul>
+        </div>
+        <div class="card-footer bg-transparent border-top-0">
+          <div class="d-flex justify-content-end gap-2">
+            <button class="btn btn-sm btn-outline-primary" (click)="openModal('edit', event)">
+              <i class="far fa-edit me-1"></i>Editar
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete(event.id)">
+              <i class="far fa-trash-alt me-1"></i>Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no hay eventos -->
+  <div class="text-center py-5" *ngIf="filteredEvents.length === 0">
+    <div class="empty-state">
+      <i class="far fa-calendar-times empty-state-icon"></i>
+      <h4 class="empty-state-title">No se encontraron eventos</h4>
+      <p class="empty-state-text text-muted">No hay eventos que coincidan con tus criterios de búsqueda</p>
+      <button class="btn btn-primary px-4" (click)="openModal('create')">
+        <i class="fas fa-plus me-2"></i>Crear nuevo evento
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal mejorado -->
+  <div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">
+            <i [class]="editingEvent ? 'far fa-edit me-2' : 'fas fa-plus me-2'"></i>
+            {{editingEvent ? 'Editar Evento' : 'Nuevo Evento'}}
+          </h5>
+          <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
+        </div>
+        <div class="modal-body">
+          <form #eventForm="ngForm" (ngSubmit)="saveEvent()">
+            <div class="row g-3">
+              <div class="col-md-8">
+                <div class="mb-3">
+                  <label class="form-label">Título del evento <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" 
+                         [(ngModel)]="currentEvent.title" 
+                         name="title" 
+                         required
+                         [class.is-invalid]="eventForm.submitted && !currentEvent.title">
+                  <div class="invalid-feedback">Por favor ingresa un título para el evento</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">Categoría</label>
+                  <select class="form-select" [(ngModel)]="currentEvent.category" name="category">
+                    <option [ngValue]="null">Sin categoría</option>
+                    <option *ngFor="let cat of categories" [value]="cat.id">{{cat.name}}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Descripción</label>
+              <textarea class="form-control" 
+                        [(ngModel)]="currentEvent.description" 
+                        name="description" 
+                        rows="3"
+                        placeholder="Describe el evento..."></textarea>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Fecha <span class="text-danger">*</span></label>
+                  <input type="date" class="form-control" 
+                         [(ngModel)]="currentEvent.date" 
+                         name="date" 
+                         required
+                         [class.is-invalid]="eventForm.submitted && !currentEvent.date">
+                  <div class="invalid-feedback">Selecciona una fecha válida</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Hora</label>
+                  <input type="time" class="form-control" [(ngModel)]="currentEvent.time" name="time">
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-8">
+                <div class="mb-3">
+                  <label class="form-label">Ubicación <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" 
+                         [(ngModel)]="currentEvent.location" 
+                         name="location" 
+                         required
+                         [class.is-invalid]="eventForm.submitted && !currentEvent.location">
+                  <div class="invalid-feedback">Ingresa una ubicación válida</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">Asistentes esperados</label>
+                  <input type="number" class="form-control" [(ngModel)]="currentEvent.attendees" name="attendees" min="0">
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Estado <span class="text-danger">*</span></label>
+                  <select class="form-select" 
+                          [(ngModel)]="currentEvent.status" 
+                          name="status" 
+                          required
+                          [class.is-invalid]="eventForm.submitted && !currentEvent.status">
+                    <option *ngFor="let status of statusOptions" [value]="status.value">
+                      {{status.label}}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Prioridad</label>
+                  <select class="form-select" [(ngModel)]="currentEvent.priority" name="priority">
+                    <option value="low">Baja</option>
+                    <option value="medium">Media</option>
+                    <option value="high">Alta</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-top-0">
+          <button type="button" class="btn btn-outline-secondary" (click)="closeModal()">
+            <i class="fas fa-times me-1"></i> Cancelar
+          </button>
+          <button type="button" class="btn btn-primary" (click)="eventForm.ngSubmit.emit()">
+            <i [class]="editingEvent ? 'fas fa-save me-1' : 'fas fa-check me-1'"></i>
+            {{editingEvent ? 'Guardar cambios' : 'Crear evento'}}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'"></div>
+
+  <!-- Toast de notificación -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+    <div *ngIf="showToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header" [ngClass]="toastType === 'success' ? 'bg-success text-white' : 'bg-danger text-white'">
+        <strong class="me-auto">{{toastTitle}}</strong>
+        <button type="button" class="btn-close btn-close-white" (click)="hideToast()"></button>
+      </div>
+      <div class="toast-body">
+        {{toastMessage}}
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Footer mejorado -->
+<div class="container-fluid bg-light py-4 mt-5">
+  <div class="text-center text-muted">
+    &copy; LogiEventos. Todos los derechos reservados.
+  </div>

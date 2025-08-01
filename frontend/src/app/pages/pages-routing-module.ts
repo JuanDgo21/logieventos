@@ -18,8 +18,7 @@ const routes: Routes = [
   { path: 'home-providers', component: ProvidersPage },
   { path: 'inventory-page', component: InventoryPageComponent },
   { path: 'contracts-page', component: ContractsPage},
-  { path: 'events-page', component: EventsPage },
-
+  { path: 'events-page', component: EventsPageComponent },
 ];
 
 @NgModule({
