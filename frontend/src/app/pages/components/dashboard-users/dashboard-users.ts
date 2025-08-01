@@ -6,8 +6,8 @@ import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/
 import { UserFormComponent } from '../../../modules/user-management/user-form/user-form';
 import { AuthService } from '../../../core/services/auth';
 import { Router } from '@angular/router';
-import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
-import { BaseChartDirective } from 'ng2-charts';
+// import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+// import { BaseChartDirective } from 'ng2-charts';
 
 @Component({
   selector: 'app-dashboard-users',
