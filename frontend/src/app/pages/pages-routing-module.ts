@@ -4,9 +4,9 @@ import { ProvidersPage } from './components/providers/providers';
 import { InventoryPageComponent } from './components/inventory-page/inventory-page';
 import { DashboardComponent } from './components/dashboard/dashboard';
 import { ContractsPage } from './components/contracts-page/contracts-page';
-import { EventsPage } from './components/events-page/events-page';
 import { DashboardUsersComponent } from './components/dashboard-users/dashboard-users';
 import { DashboardStaffComponent } from './components/dashboard-staff/dashboard-staff';
+import { EventsPageComponent } from './components/events-page/events-page';
 const routes: Routes = [
 
   { path: '', // Ruta relativa a '/pages'

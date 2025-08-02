@@ -41,7 +41,7 @@ export class LayoutService {
     const modules = {
       admin: [
         { name: 'Dashboard', icon: 'tachometer-alt', path: 'principal' },
-        { name: 'Eventos', icon: 'calendar', path: 'pages/events' },
+        { name: 'Eventos', icon: 'calendar', path: 'events-page' },
         { name: 'Personal', icon: 'users-cog', 
           path: '/pages/personal', // Ruta padre
           children: [
