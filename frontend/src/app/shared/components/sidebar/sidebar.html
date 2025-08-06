@@ -4,7 +4,7 @@
   </div>
 
   <div class="sidebar-menu">
-    <ng-container *ngFor="let module of modules">
+    @for (module of modules; track module) {
       <!-- Elemento de menú principal -->
       <div class="menu-parent" [class.has-children]="module.children">
         <a class="menu-item d-flex align-items-center p-3" 
@@ -13,31 +13,39 @@
            [routerLinkActiveOptions]="{exact: true}"
            (click)="module.children ? toggleSubMenu(module) : setActiveModule(module.name)">
           <i class="fas fa-{{module.icon}} me-3"></i>
-          <span *ngIf="!collapsed">{{module.name}}</span>
-          <i *ngIf="module.children && !collapsed" 
-             class="fas fa-angle-down ms-auto" 
-             [class.rotated]="isExpanded(module)"></i>
+          @if (!collapsed) {
+            <span>{{module.name}}</span>
+          }
+          @if (module.children && !collapsed) {
+            <i class="fas fa-angle-down ms-auto" 
+               [class.rotated]="isExpanded(module)"></i>
+          }
         </a>
 
         <!-- Submenú -->
-        <div *ngIf="module.children && isExpanded(module) && !collapsed" class="submenu">
-          <a *ngFor="let child of module.children" 
-             class="menu-item d-flex align-items-center p-3 ps-5"
-             [routerLink]="child.path"
-             routerLinkActive="active"
-             (click)="setActiveModule(child.name)">
-            <i class="fas fa-{{child.icon}} me-3"></i>
-            <span>{{child.name}}</span>
-          </a>
-        </div>
+        @if (module.children && isExpanded(module) && !collapsed) {
+          <div class="submenu">
+            @for (child of module.children; track child) {
+              <a class="menu-item d-flex align-items-center p-3 ps-5"
+                 [routerLink]="child.path"
+                 routerLinkActive="active"
+                 (click)="setActiveModule(child.name)">
+                <i class="fas fa-{{child.icon}} me-3"></i>
+                <span>{{child.name}}</span>
+              </a>
+            }
+          </div>
+        }
       </div>
-    </ng-container>
+    }
   </div>
 
-  <div class="sidebar-footer p-3" *ngIf="!collapsed">
-    <div class="system-status d-flex align-items-center">
-      <div class="status-indicator online me-2"></div>
-      <span>Sistema Operativo</span>
+  @if (!collapsed) {
+    <div class="sidebar-footer p-3">
+      <div class="system-status d-flex align-items-center">
+        <div class="status-indicator online me-2"></div>
+        <span>Sistema Operativo</span>
+      </div>
     </div>
-  </div>
+  }
 </div>

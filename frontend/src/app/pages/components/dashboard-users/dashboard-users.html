@@ -10,8 +10,11 @@
         <div class="header-content">
           <h1><i class="fas fa-users me-2"></i> Gestión de Usuarios</h1>
           <div class="header-actions">
-            <button class="btn btn-refresh" (click)="loadData()">
-              <i class="fas fa-sync-alt"></i> Actualizar
+            <button class="btn btn-primary" (click)="openUserForm()">
+              <i class="fas fa-plus me-2"></i> Nuevo Usuario
+            </button>
+            <button class="btn btn-text ms-2" (click)="loadData()">
+              <i class="fas fa-sync-alt"></i>
             </button>
           </div>
         </div>
@@ -31,19 +34,20 @@
       
       <!-- Tarjetas de Resumen -->
       <div class="summary-cards">
-        <div class="summary-card" [style.background]="getGradient('activeUsers')">
-          <div class="card-content">
-            <div class="card-icon">
-              <i class="fas fa-user-check"></i>
+      <!-- Tarjeta de usuarios activos -->
+      <div class="summary-card" [style.background]="getGradient('activeUsers')">
+        <div class="card-content">
+          <div class="card-icon">
+            <i class="fas fa-user-check"></i>
+          </div>
+          <div class="card-info">
+            <h3>{{ stats.activeUsers }}</h3>
+            <p>Usuarios Activos</p>
+            <div class="card-trend trend-up">
+              <i class="fas fa-arrow-up"></i>
+              <span>+{{ stats.activeUsers > 0 ? math.round(stats.activeUsers * 0.1) : 0 }} este mes</span>
             </div>
-            <div class="card-info">
-              <h3>{{ stats.activeUsers }}</h3>
-              <p>Usuarios Activos</p>
-              <div class="card-trend">
-                <i class="fas fa-arrow-up"></i>
-                <span>+{{ stats.activeUsers > 0 ? math.round(stats.activeUsers * 0.1) : 0 }} este mes</span>
-              </div>
-            </div>
+          </div>
             <div class="card-wave"></div>
           </div>
         </div>
@@ -94,13 +98,14 @@
         <!-- Acciones Rápidas -->
         <div class="dashboard-section quick-actions-section">
           <div class="section-header">
-            <h2><i class="fas fa-bolt"></i> Acciones Rápidas</h2>
+            <h2><i class="fas fa-bolt me-2"></i> Acciones Rápidas</h2>
           </div>
           <div class="quick-actions-grid">
-            <div class="quick-action" [style.background]="getGradient('addUser')" (click)="openUserForm()">
+            <div class="quick-action" (click)="openUserForm()">
               <div class="action-content">
-                <i class="fas fa-user-plus"></i>
-                <span>Agregar Usuario</span>
+                <i class="fas fa-user-plus fa-2x mb-2"></i>
+                <span class="fw-bold">Agregar Usuario</span>
+                <small class="text-muted">Crear nuevo usuario</small>
               </div>
               <div class="action-wave"></div>
             </div>

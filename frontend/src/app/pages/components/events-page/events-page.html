@@ -1,107 +1,100 @@
-
 <app-navbar></app-navbar>
 <div class="main-container">
+  <app-sidebar></app-sidebar>
 
-
-<div class="container-fluid py-4 animate__animated animate__fadeIn">
-  <!-- Header mejorado -->
-  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
-    <div>
-      <h1 class="h3 mb-1">Gestión de Eventos</h1>
+  <div class="container-fluid py-4 animate__animated animate__fadeIn">
+    <!-- Header responsive -->
+    <div class="header-container">
+      <h1 class="page-title">Gestión de Eventos</h1>
+      <button class="btn btn-primary new-event-btn" (click)="openModal('create')">
+        <i class="fas fa-plus me-2"></i>Nuevo Evento
+      </button>
     </div>
-    <button class="btn btn-primary px-4" (click)="openModal('create')">
-      <i class="fas fa-plus me-2"></i>Nuevo Evento
-    </button>
-  </div>
 
-  <!-- Panel de filtros mejorado -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-body py-3">
-      <div class="row g-3 align-items-center">
-        <div class="col-md-6">
-          <div class="input-group">
-            <span class="input-group-text bg-transparent"><i class="fas fa-search"></i></span>
-            <input type="text" class="form-control border-start-0" 
-                   [(ngModel)]="searchTerm" 
-                   (input)="applyFilters()"
-                   placeholder="Buscar por título, descripción o ubicación...">
-          </div>
-        </div>
-        <div class="col-md-3">
-          <select class="form-select" [(ngModel)]="selectedStatus" (change)="applyFilters()">
-            <option value="all">Todos los estados</option>
-            <option *ngFor="let status of statusOptions" [value]="status.value">
-              {{status.label}}
-            </option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <select class="form-select" [(ngModel)]="selectedCategory" (change)="applyFilters()">
-            <option value="all">Todas las categorías</option>
-            <option *ngFor="let cat of categories" [value]="cat.id">{{cat.name}}</option>
-          </select>
-        </div>
+    <!-- Panel de filtros responsive -->
+    <div class="filters-container">
+      <div class="search-filter">
+        <i class="fas fa-search"></i>
+        <input type="text" 
+               [(ngModel)]="searchTerm" 
+               (input)="applyFilters()"
+               placeholder="Buscar eventos...">
+      </div>
+      
+      <div class="filter-selectors">
+        <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+          <option value="all">Todos los estados</option>
+          <option *ngFor="let status of statusOptions" [value]="status.value">
+            {{status.label}}
+          </option>
+        </select>
+        
+        <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
+          <option value="all">Todas las categorías</option>
+          <option *ngFor="let cat of categories" [value]="cat.id">{{cat.name}}</option>
+        </select>
       </div>
     </div>
-  </div>
 
-  <!-- Listado de eventos mejorado -->
-  <div class="row row-cols-8 row-cols-md-5 row-cols-xl-4 g-3">
-    <div class="col" *ngFor="let event of filteredEvents">
-      <div class="card h-100 shadow-sm border-hover">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="card-title mb-0 flex-grow-1">{{event.title}}</h5>
-          <span class="badge ms-2" [ngClass]="'bg-' + getStatusColor(event.status)">
-            <i [class]="getStatusIcon(event.status)" class="me-1"></i>
+    <!-- Listado de eventos responsive -->
+    <div class="events-grid">
+      <div class="event-card" *ngFor="let event of filteredEvents">
+        <div class="card-header">
+          <h5 class="event-title">{{event.title}}</h5>
+          <span class="event-status" [ngClass]="'status-' + event.status">
+            <i [class]="getStatusIcon(event.status)"></i>
             {{getStatusLabel(event.status)}}
           </span>
         </div>
+        
         <div class="card-body">
-          <p class="card-text text-truncate-3">{{event.description}}</p>
-          <ul class="list-group list-group-flush mb-3">
-            <li class="list-group-item d-flex align-items-center">
-              <i class="far fa-calendar-alt text-muted me-2"></i>
-              {{event.date | date:'fullDate'}}
-            </li>
-            <li class="list-group-item d-flex align-items-center">
-              <i class="fas fa-map-marker-alt text-muted me-2"></i>
-              {{event.location}}
-            </li>
-            <li class="list-group-item d-flex align-items-center">
-              <i class="fas fa-users text-muted me-2"></i>
-              {{event.attendees || 0}} asistentes
-            </li>
-            <li class="list-group-item d-flex align-items-center" *ngIf="event.category">
-              <i class="fas fa-tag text-muted me-2"></i>
-              {{getCategoryName(event.category)}}
-            </li>
-          </ul>
-        </div>
-        <div class="card-footer bg-transparent border-top-0">
-          <div class="d-flex justify-content-end gap-2">
-            <button class="btn btn-sm btn-outline-primary" (click)="openModal('edit', event)">
-              <i class="far fa-edit me-1"></i>Editar
-            </button>
-            <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete(event.id)">
-              <i class="far fa-trash-alt me-1"></i>Eliminar
-            </button>
+          <p class="event-description">{{event.description}}</p>
+          
+          <div class="event-details">
+            <div class="detail-item">
+              <i class="far fa-calendar-alt"></i>
+              <span>{{event.date | date:'mediumDate'}}</span>
+            </div>
+            
+            <div class="detail-item">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>{{event.location}}</span>
+            </div>
+            
+            <div class="detail-item">
+              <i class="fas fa-users"></i>
+              <span>{{event.attendees || 0}} asistentes</span>
+            </div>
+            
+            <div class="detail-item" *ngIf="event.category">
+              <i class="fas fa-tag"></i>
+              <span>{{getCategoryName(event.category)}}</span>
+            </div>
           </div>
+        </div>
+        
+        <div class="card-actions">
+          <button class="btn-action edit" (click)="openModal('edit', event)">
+            <i class="far fa-edit"></i>
+            <span>Editar</span>
+          </button>
+          <button class="btn-action delete" (click)="confirmDelete(event.id)">
+            <i class="far fa-trash-alt"></i>
+            <span>Eliminar</span>
+          </button>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Mensaje cuando no hay eventos -->
-  <div class="text-center py-5" *ngIf="filteredEvents.length === 0">
-    <div class="empty-state">
-      <i class="far fa-calendar-times empty-state-icon"></i>
-      <h4 class="empty-state-title">No se encontraron eventos</h4>
-      <p class="empty-state-text text-muted">No hay eventos que coincidan con tus criterios de búsqueda</p>
-      <button class="btn btn-primary px-4" (click)="openModal('create')">
+    <!-- Mensaje cuando no hay eventos -->
+    <div class="empty-state" *ngIf="filteredEvents.length === 0">
+      <i class="far fa-calendar-times"></i>
+      <h4>No se encontraron eventos</h4>
+      <p>No hay eventos que coincidan con tus criterios de búsqueda</p>
+      <button class="btn btn-primary" (click)="openModal('create')">
         <i class="fas fa-plus me-2"></i>Crear nuevo evento
       </button>
     </div>
-  </div>
 
   <!-- Modal mejorado -->
   <div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'">
@@ -243,8 +236,6 @@
     </div>
   </div>
 </div>
+</div>
 <!-- Footer mejorado -->
-<div class="container-fluid bg-light py-4 mt-5">
-  <div class="text-center text-muted">
-    &copy; LogiEventos. Todos los derechos reservados.
-  </div>
+  <app-footer></app-footer>
