@@ -5,7 +5,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { PagesRoutingModule } from './pages-routing-module';
 import { ProvidersPage } from './components/providers/providers';
 import { RouterModule } from '@angular/router';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InventoryPageComponent } from './components/inventory-page/inventory-page';
 import { DashboardComponent } from './components/dashboard/dashboard';
 import { ContractsPage } from './components/contracts-page/contracts-page';
@@ -16,6 +15,8 @@ import { NgbProgressbarModule } from '@ng-bootstrap/ng-bootstrap';
 import { DashboardStaffComponent } from './components/dashboard-staff/dashboard-staff';
 import { StaffModule } from '../modules/staff/staff-module';
 import { UserManagementModule } from '../modules/user-management/user-management-module';
+import { FormsModule } from '@angular/forms';
+import { EventPageComponent } from './components/event-page/event-page';
 
 
 @NgModule({
@@ -25,7 +26,8 @@ import { UserManagementModule } from '../modules/user-management/user-management
     DashboardComponent,
     ContractsPage,
     DashboardUsersComponent,
-    DashboardStaffComponent
+    DashboardStaffComponent,
+    EventPageComponent
   ],
   imports: [
     CommonModule,
@@ -49,7 +51,8 @@ import { UserManagementModule } from '../modules/user-management/user-management
     DashboardComponent,
     ContractsPage,
     DashboardUsersComponent,
-    DashboardStaffComponent
+    DashboardStaffComponent,
+    EventPageComponent
   ]
 })
 export class PagesModule { }

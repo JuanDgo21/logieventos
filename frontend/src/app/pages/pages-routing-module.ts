@@ -6,7 +6,8 @@ import { DashboardComponent } from './components/dashboard/dashboard';
 import { ContractsPage } from './components/contracts-page/contracts-page';
 import { DashboardUsersComponent } from './components/dashboard-users/dashboard-users';
 import { DashboardStaffComponent } from './components/dashboard-staff/dashboard-staff';
-import { EventsPageComponent } from './components/events-page/events-page';
+import { EventPageComponent } from './components/event-page/event-page';
+
 const routes: Routes = [
 
   { path: '', // Ruta relativa a '/pages'
@@ -18,7 +19,7 @@ const routes: Routes = [
   { path: 'home-providers', component: ProvidersPage },
   { path: 'inventory-page', component: InventoryPageComponent },
   { path: 'contracts-page', component: ContractsPage},
-  { path: 'events-page', component: EventsPageComponent },
+  { path: 'events-page', component: EventPageComponent }
 ];
 
 @NgModule({
