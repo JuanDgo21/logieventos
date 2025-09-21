@@ -1,0 +1,153 @@
+[{
+  "_id": {
+    "$oid": "686ca779d98d557094e88337"
+  },
+  "name": "Administrador General",
+  "description": "Responsable de la gestión general del sistema.",
+  "isActive": true,
+  "createdBy": {
+    "$oid": "6865e77b5bf2a563d2cdac65"
+  },
+  "createdAt": {
+    "$date": "2025-07-08T05:07:05.433Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:07:05.433Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ca786d98d557094e88339"
+  },
+  "name": "Coordinador Académico",
+  "description": "Encargado de coordinar las actividades académicas.",
+  "isActive": true,
+  "createdBy": {
+    "$oid": "6865e77b5bf2a563d2cdac65"
+  },
+  "createdAt": {
+    "$date": "2025-07-08T05:07:18.546Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:07:18.546Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ca796d98d557094e8833b"
+  },
+  "name": "Líder de Proyecto",
+  "description": "Supervisa el avance de los proyectos asignados.",
+  "isActive": true,
+  "createdBy": {
+    "$oid": "6865e77b5bf2a563d2cdac65"
+  },
+  "createdAt": {
+    "$date": "2025-07-08T05:07:34.345Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:07:34.345Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ca7a1d98d557094e8833d"
+  },
+  "name": "Técnico de Soporte",
+  "description": "Brinda asistencia técnica a usuarios y equipos.",
+  "isActive": true,
+  "createdBy": {
+    "$oid": "6865e77b5bf2a563d2cdac65"
+  },
+  "createdAt": {
+    "$date": "2025-07-08T05:07:45.993Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:07:45.993Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ca7afd98d557094e8833f"
+  },
+  "name": "Desarrollador de Software",
+  "description": "Diseña y desarrolla soluciones informáticas.",
+  "isActive": true,
+  "createdBy": {
+    "$oid": "6865e77b5bf2a563d2cdac65"
+  },
+  "createdAt": {
+    "$date": "2025-07-08T05:07:59.713Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:07:59.713Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ca7bbd98d557094e88341"
+  },
+  "name": "Analista Funcional",
+  "description": "Analiza requerimientos y necesidades de negocio.",
+  "isActive": true,
+  "createdBy": {
+    "$oid": "6865e77b5bf2a563d2cdac65"
+  },
+  "createdAt": {
+    "$date": "2025-07-08T05:08:11.488Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:08:11.488Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ca7cad98d557094e88343"
+  },
+  "name": "Gestor Documental",
+  "description": "Administra la documentación interna del sistema.",
+  "isActive": true,
+  "createdBy": {
+    "$oid": "6865e77b5bf2a563d2cdac65"
+  },
+  "createdAt": {
+    "$date": "2025-07-08T05:08:26.705Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:08:26.705Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ca7d5d98d557094e88345"
+  },
+  "name": "Instructor de Formación",
+  "description": "Encargado de impartir conocimientos técnicos.",
+  "isActive": true,
+  "createdBy": {
+    "$oid": "6865e77b5bf2a563d2cdac65"
+  },
+  "createdAt": {
+    "$date": "2025-07-08T05:08:37.731Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:08:37.731Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ca7e1d98d557094e88347"
+  },
+  "name": "Evaluador de Desempeño",
+  "description": "Evalúa el rendimiento del personal vinculado.",
+  "isActive": true,
+  "createdBy": {
+    "$oid": "6865e77b5bf2a563d2cdac65"
+  },
+  "createdAt": {
+    "$date": "2025-07-08T05:08:49.967Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:08:49.967Z"
+  }
+}]

@@ -1,0 +1,228 @@
+[{
+  "_id": {
+    "$oid": "6865e77b5bf2a563d2cdac65"
+  },
+  "document": 123454,
+  "fullname": "pepito",
+  "username": "adminis",
+  "email": "admin@gmail.com",
+  "password": "$2b$10$1fUvbLwwncPN.dRWnotRJOeXbuZbi9rnR0sEbpfdyLKMpqYI2MAfO",
+  "role": "admin",
+  "createdAt": {
+    "$date": "2025-07-03T02:14:19.694Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T04:54:26.854Z"
+  },
+  "__v": 0,
+  "active": true
+},
+{
+  "_id": {
+    "$oid": "6865f7ecb6e7c9dee9105cb0"
+  },
+  "document": 1012365478,
+  "fullname": "pedro piedra",
+  "username": "pedro coord",
+  "email": "coordi@gmail.com",
+  "password": "$2b$10$lFXTueS4zxDt0rWrqYzYDuB.6hMpwavLcxx8y9saLcbC/CvEL1me.",
+  "role": "coordinador",
+  "createdAt": {
+    "$date": "2025-07-03T03:24:28.145Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-07T14:43:17.130Z"
+  },
+  "__v": 0,
+  "active": true
+},
+{
+  "_id": {
+    "$oid": "6865f871b6e7c9dee9105cba"
+  },
+  "document": 1011254789,
+  "fullname": "fede fernandes",
+  "username": "fede lider",
+  "email": "lider@gmail.com",
+  "password": "$2b$10$lpXSw55QX5o65VurNA3gd.iS1CoirKFkb7b5tmWl1HPkIRvVba6YC",
+  "role": "lider",
+  "createdAt": {
+    "$date": "2025-07-03T03:26:41.835Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-05T22:57:18.583Z"
+  },
+  "__v": 0,
+  "active": true
+},
+{
+  "_id": {
+    "$oid": "686ca660d98d557094e8830e"
+  },
+  "document": 1012345670,
+  "fullname": "María Fernanda Gómez",
+  "username": "mfgomez",
+  "email": "mfgomez@example.com",
+  "password": "$2b$10$7UO2pTyKjRpN0WLdYiipLu0pqka..BTcAn0rpLxfa775VSyvxoEaa",
+  "role": "admin",
+  "active": true,
+  "createdAt": {
+    "$date": "2025-07-08T05:02:24.423Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:02:24.423Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686ca669d98d557094e88312"
+  },
+  "document": 1012345671,
+  "fullname": "Carlos Andrés Ríos",
+  "username": "carios",
+  "email": "carlos.rios@example.com",
+  "password": "$2b$10$czO8wabEru7ROSeZ3FezBuDWQSipzTmbpCdlH7drnzlygp2cPPUh2",
+  "role": "coordinador",
+  "active": true,
+  "createdAt": {
+    "$date": "2025-07-08T05:02:33.887Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:02:33.887Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686ca673d98d557094e88316"
+  },
+  "document": 1012345672,
+  "fullname": "Laura Natalia Pérez",
+  "username": "lnperez",
+  "email": "laura.perez@example.com",
+  "password": "$2b$10$8hrJB5LGt/y/ku9tVYUAuuHY6RHRK.brZUVjS12VR6ON75ql7rCYa",
+  "role": "lider",
+  "active": true,
+  "createdAt": {
+    "$date": "2025-07-08T05:02:43.543Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:02:43.543Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686ca682d98d557094e8831a"
+  },
+  "document": 1012345673,
+  "fullname": "Julián Esteban Torres",
+  "username": "jetorres",
+  "email": "julian.torres@example.com",
+  "password": "$2b$10$GpRquV7naFWcEFRYvywFLOr48fGr8WCAy9uGLs5DYiu0OfyIa6uv.",
+  "role": "lider",
+  "active": true,
+  "createdAt": {
+    "$date": "2025-07-08T05:02:58.856Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:02:58.856Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686ca68bd98d557094e8831e"
+  },
+  "document": 1012345674,
+  "fullname": "Ana Milena Ramírez",
+  "username": "amramirez",
+  "email": "ana.ramirez@example.com",
+  "password": "$2b$10$s72bcExG4QhOjoNQkxsrI.WcoOci.fYb5JCTASerYgMKNTf1GLqGS",
+  "role": "coordinador",
+  "active": true,
+  "createdAt": {
+    "$date": "2025-07-08T05:03:07.940Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:03:07.940Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686ca695d98d557094e88322"
+  },
+  "document": 1012345675,
+  "fullname": "David Santiago Castaño",
+  "username": "dscastano",
+  "email": "david.castano@example.com",
+  "password": "$2b$10$H3ggxSTDVHwjH.tO3iGQD.039npOTpMgtcgvX3vMfDPSNvAakMtDe",
+  "role": "lider",
+  "active": true,
+  "createdAt": {
+    "$date": "2025-07-08T05:03:17.673Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:03:17.673Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686ca69fd98d557094e88326"
+  },
+  "document": 1012345676,
+  "fullname": "Luisa Fernanda Hoyos",
+  "username": "lfhoyos",
+  "email": "luisa.hoyos@example.com",
+  "password": "$2b$10$u3eFKAyQwk2f.b3ZOTBJQerW7c/61yHC49kqDGSkPKIFnw6seeyXm",
+  "role": "lider",
+  "active": true,
+  "createdAt": {
+    "$date": "2025-07-08T05:03:27.015Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:03:27.015Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686ca6a8d98d557094e8832a"
+  },
+  "document": 1012345677,
+  "fullname": "Mateo Alejandro Vargas",
+  "username": "mavargas",
+  "email": "mateo.vargas@example.com",
+  "password": "$2b$10$I8ou5dojM2lBMmtvcRpj4.RzY2ynB7TamXOKvu426eU3M3nfWYwFC",
+  "role": "admin",
+  "active": true,
+  "createdAt": {
+    "$date": "2025-07-08T05:03:36.126Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:03:36.126Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686ca6b1d98d557094e8832e"
+  },
+  "document": 1012345678,
+  "fullname": "Isabella Martínez",
+  "username": "imartinez",
+  "email": "isabella.martinez@example.com",
+  "password": "$2b$10$OUOud0mmx58zyj6XZB..F.ZAlhXAu6YuxQxdyweItQ9l2alqr5l5.",
+  "role": "coordinador",
+  "active": true,
+  "createdAt": {
+    "$date": "2025-07-08T05:03:45.234Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:03:45.234Z"
+  },
+  "__v": 0
+}]

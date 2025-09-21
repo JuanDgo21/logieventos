@@ -1,21 +1,24 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { User } from '../../../shared/interfaces/user';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { UserService } from '../../../core/services/user';
+  import { Component, Input, OnInit } from '@angular/core';
+  import { User } from '../../../shared/interfaces/user';
+  import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+  import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+  import { UserService } from '../../../core/services/user';
+import { catchError, finalize, of } from 'rxjs';
 
-@Component({
-  selector: 'app-user-form',
-  standalone: false,
-  templateUrl: './user-form.html',
-  styleUrl: './user-form.scss'
-})
-export class UserFormComponent implements OnInit {
+  @Component({
+    selector: 'app-user-form',
+    standalone: false,
+    templateUrl: './user-form.html',
+    styleUrl: './user-form.scss'
+  })
+  export class UserFormComponent implements OnInit {
   @Input() user: User | null = null;
   userForm!: FormGroup;
   loading = false;
   errorMessage: string | null = null;
   roles = ['admin', 'coordinador', 'lider'];
+  showPassword = false;
+  showConfirmPassword = false;
 
   constructor(
     public activeModal: NgbActiveModal,

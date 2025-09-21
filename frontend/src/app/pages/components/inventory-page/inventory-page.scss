@@ -1,0 +1,535 @@
+// Importamos las variables y mixins del styles.scss principal
+@use 'sass:color';
+@use '../../../../styles.scss' as *;
+
+/* Variables locales - complementan las globales */
+$sidebar-width: 250px;
+$navbar-height: 100px;
+
+.inventory-container {
+  padding: 2rem;
+  position: relative;
+  z-index: 1;
+
+  // Header del Dashboard
+  .inventory-header {
+    margin-bottom: 2rem;
+    
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      
+      i {
+        margin-right: 0.75rem;
+        color: $accent-color;
+      }
+    }
+    
+    .subtitle {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1rem;
+      margin: 0;
+    }
+  }
+
+  // Decoraciones (opcional)
+  .inventory-decorations {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    
+    .decoration {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.1;
+      animation: float 15s infinite linear;
+      
+      &.particle-1 {
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, $primary-color 0%, transparent 70%);
+        top: 20%;
+        left: 10%;
+      }
+      
+      &.particle-2 {
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, $accent-color 0%, transparent 70%);
+        bottom: 15%;
+        right: 10%;
+        animation-delay: 3s;
+      }
+    }
+  }
+
+  // Sección de tarjetas principales
+  .main-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .main-card {
+    @include glass-effect;
+    border-radius: 15px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    @include floating-effect;
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+    }
+    
+    .card-icon {
+      width: 50px;
+      height: 50px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      color: $accent-color;
+    }
+    
+    h2 {
+      margin: 0 0 1rem;
+      font-size: 1.4rem;
+    }
+    
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      
+      li {
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+        color: rgba(255,255,255,0.8);
+        
+        i {
+          color: $success-color;
+          font-size: 0.8rem;
+        }
+      }
+    }
+    
+    .card-button {
+      margin-top: 1.5rem;
+      width: 100%;
+    }
+  }
+
+  // Sección de recursos recientes
+  .recent-section {
+    @include glass-effect;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      
+      h2 {
+        margin: 0;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+    }
+  }
+
+  // Tabla de recursos
+  .resources-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    
+    thead th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: rgba(255,255,255,0.8);
+      border-bottom: 2px solid rgba(255,255,255,0.1);
+    }
+    
+    tbody tr {
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: rgba(255,255,255,0.05);
+      }
+      
+      td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+      }
+    }
+  }
+
+  // Versión móvil de la tabla
+  @media (max-width: 768px) {
+    .resources-table {
+      thead {
+        display: none;
+      }
+      
+      tbody tr {
+        display: block;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.05);
+        
+        td {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.75rem 1rem;
+          border-bottom: none;
+          
+          &:before {
+            content: attr(data-label);
+            font-weight: 600;
+            margin-right: 1rem;
+            color: rgba(255,255,255,0.7);
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(50px, 30px) rotate(10deg); }
+  66% { transform: translate(-30px, 50px) rotate(-5deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+/* Layout Principal - usando el fondo oscuro del tema */
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: $dark-color;
+  
+  app-sidebar {
+    width: $sidebar-width;
+    min-width: $sidebar-width;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 100;
+    transition: all 0.3s ease;
+  }
+}
+
+.main-content-wrapper {
+  width: calc(100% - #{$sidebar-width});
+  margin-left: $sidebar-width;
+  transition: all 0.3s ease;
+}
+
+/* Navbar */
+app-navbar {
+  width: 100%;
+  height: $navbar-height;
+  position: fixed;
+  top: 0;
+  z-index: 90;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Contenido Principal */
+.dashboard-content {
+  margin-top: $navbar-height;
+  min-height: calc(100vh - #{$navbar-height});
+  position: relative;
+  padding: 2rem;
+  
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: $sidebar-width;
+    right: 0;
+    bottom: 0;
+    background: $gradient-primary;
+    opacity: 0.03;
+    z-index: -1;
+  }
+}
+
+/* Header */
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  
+  .animated-title {
+    animation: fadeIn 1s ease-out;
+    
+    h1 {
+      color: $light-color;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      
+      .highlight {
+        color: $primary-color;
+        position: relative;
+        
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -5px;
+          left: 0;
+          width: 100%;
+          height: 3px;
+          background: $gradient-primary;
+          border-radius: 3px;
+        }
+      }
+    }
+    
+    .subtitle {
+      color: rgba($light-color, 0.7);
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+  }
+}
+
+/* Sección de tarjetas */
+.cards-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 2rem;
+  margin: 3rem 0;
+}
+
+/* Tarjetas - aplicando el estilo premium */
+.card {
+  @include glass-effect;
+  border-radius: 16px;
+  padding: 2rem;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  @include floating-effect;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+  }
+
+  .card-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    margin: 0 auto 1.5rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+    color: $light-color;
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: $light-color;
+    font-size: 1.8rem;
+  }
+
+  .card-content {
+    margin-bottom: 2rem;
+    color: rgba($light-color, 0.8);
+
+    p {
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+
+      li {
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        i {
+          color: $success-color;
+        }
+      }
+    }
+  }
+}
+
+// Estilos específicos para cada tipo de card
+.resource-card {
+  &::before {
+    background: $gradient-accent;
+  }
+
+  &.hover {
+    .card-icon {
+      background: $gradient-accent;
+      color: $light-color;
+    }
+  }
+
+  .card-icon {
+    color: $accent-color;
+  }
+}
+
+.type-card {
+  &::before {
+    background: $gradient-primary;
+  }
+
+  &.hover {
+    .card-icon {
+      background: $gradient-primary;
+      color: $light-color;
+    }
+  }
+
+  .card-icon {
+    color: $primary-color;
+  }
+}
+
+.card-button {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: auto;
+  color: $light-color;
+  @include floating-effect;
+
+  .resource-card & {
+    background: $gradient-accent;
+    
+    &:hover {
+      background: linear-gradient(135deg, darken($accent-color, 5%), darken(color.adjust($accent-color, $lightness: -15%), 5%));
+    }
+  }
+
+  .type-card & {
+    background: $gradient-primary;
+    
+    &:hover {
+      background: linear-gradient(135deg, darken($primary-color, 5%), darken($secondary-color, 5%));
+    }
+  }
+}
+
+/* Sección informativa */
+.info-section {
+  width: 100%;
+  margin-top: 3rem;
+
+  .info-card {
+    @include glass-effect;
+    border-radius: 16px;
+    padding: 2rem;
+    border-left: 5px solid $success-color;
+    
+    h3 {
+      color: $light-color;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      i {
+        color: $warning-color;
+      }
+    }
+
+    p {
+      color: rgba($light-color, 0.8);
+      line-height: 1.6;
+      font-size: 1.1rem;
+    }
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .main-content-wrapper,
+  app-footer {
+    width: 100%;
+    margin-left: 0;
+  }
+  
+  app-sidebar {
+    transform: translateX(-100%);
+    
+    &.open {
+      transform: translateX(0);
+    }
+  }
+  
+  .dashboard-content {
+    padding: 1.5rem;
+    
+    &::before {
+      left: 0;
+    }
+  }
+  
+  .cards-section {
+    grid-template-columns: 1fr;
+  }
+}

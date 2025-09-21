@@ -4,9 +4,10 @@ import { ProvidersPage } from './components/providers/providers';
 import { InventoryPageComponent } from './components/inventory-page/inventory-page';
 import { DashboardComponent } from './components/dashboard/dashboard';
 import { ContractsPage } from './components/contracts-page/contracts-page';
-import { EventsPage } from './components/events-page/events-page';
 import { DashboardUsersComponent } from './components/dashboard-users/dashboard-users';
 import { DashboardStaffComponent } from './components/dashboard-staff/dashboard-staff';
+import { EventPageComponent } from './components/event-page/event-page';
+
 const routes: Routes = [
 
   { path: '', // Ruta relativa a '/pages'
@@ -18,8 +19,7 @@ const routes: Routes = [
   { path: 'home-providers', component: ProvidersPage },
   { path: 'inventory-page', component: InventoryPageComponent },
   { path: 'contracts-page', component: ContractsPage},
-  { path: 'events-page', component: EventsPage },
-
+  { path: 'events-page', component: EventPageComponent }
 ];
 
 @NgModule({

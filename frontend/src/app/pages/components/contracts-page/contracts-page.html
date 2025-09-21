@@ -48,8 +48,8 @@
       <div *ngFor="let status of statusList" class="col-md-3 mb-4">
         <div class="card border-start border-{{ statusMeta[status].color }} border-4 h-100">
           <div class="card-body text-center">
-            <h5 class="card-title">{{ statusMeta[status].label }}</h5>
-            <p class="display-6">{{ getStatusCount(status) }}</p>
+            <h5 class="card-title text-light">{{ statusMeta[status].label }}</h5>
+            <p class="display-6 text-light">{{ getStatusCount(status) }}</p>
           </div>
         </div>
       </div>
@@ -57,31 +57,31 @@
 
 <!-- Resultados de búsqueda (reemplaza la tabla principal) -->
     <div *ngIf="searchExecuted" class="search-results-container">
-      <div *ngIf="isSearching" class="text-muted">Buscando contratos...</div>
+      <div *ngIf="isSearching" class="text-lg-muted">Buscando contratos...</div>
       <div *ngIf="!isSearching && searchResults.length === 0" class="alert alert-danger border mt-3 d-flex align-items-start gap-3">
   <i class="fas fa-search-minus fa-2x text-danger"></i>
   <div class="no-results" *ngIf="!searchResults.length">
     <h5 class="mb-1">Sin resultados para "{{ searchTerm }}"</h5>
     <p class="mb-2 text-muted">No se encontraron contratos que coincidan con tu búsqueda.</p>
-    <button class="btn btn-sm btn-outline-dark" (click)="clearSearch()">
+    <button class="btn btn-sm btn-outline-light" (click)="clearSearch()">
       <i class="fas fa-arrow-left me-1"></i> Volver a todos los contratos
     </button>
   </div>
 </div>
       <div *ngIf="!isSearching && searchResults.length > 0" class="card shadow-sm mt-2">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <div class="card-header bg-dark d-flex justify-content-between align-items-center">
           <div>
-            <h5 class="mb-0">Resultados para "{{searchTerm}}"</h5>
-            <small class="text-muted">{{searchResults.length}} coincidencias</small>
+            <h5 class="mb-0 text-light">Resultados para "{{searchTerm}}"</h5>
+            <small class="text-light">{{searchResults.length}} coincidencias</small>
           </div>
-          <button class="btn btn-sm btn-outline-secondary" (click)="clearSearch()">
+          <button class="btn btn-sm btn-outline-secondary btn-outline-light" (click)="clearSearch()">
             <i class="fas fa-times me-1"></i> Volver a todos
           </button>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-lg mb-0 align-middle">
-              <thead class="bg-light">
+            <table class="table table-lg mb-0 align-middle table-dark">
+              <thead class="bg-dark">
                 <tr>
                   <th>Contrato</th>
                   <th>Cliente</th>
@@ -96,12 +96,12 @@
                   <td>{{ contract.name }}</td>
                   <td>
                     {{ contract.clientName }}<br>
-                    <small class="text-muted">{{ contract.clientEmail }}</small>
-                    <small class="text-muted">{{ contract.clientPhone }}</small>
+                    <small class="text-lg-muted">{{ contract.clientEmail }}</small><br>
+                    <small class="text-lg-muted">{{ contract.clientPhone }}</small>
                   </td>
                   <td>
                     {{ contract.startDate | date:'dd/MM/yyyy' : 'UTC' }}<br>
-                    <small class="text-muted">hasta {{ contract.endDate | date:'dd/MM/yyyy' : 'UTC' }}</small>
+                    <small class="text-lg-muted">hasta {{ contract.endDate | date:'dd/MM/yyyy' : 'UTC' }}</small>
                   </td>
                   <td>
                     <span class="badge bg-{{ statusMeta[contract.status].color }}">
@@ -135,13 +135,13 @@
 
     <!-- Tabla principal (solo visible sin búsqueda activa) -->
     <div class="" *ngIf="contracts.length && (!searchExecuted || (searchExecuted && searchResults.length === 0 && isSearching))">
-      <div class="card-header bg-light">
+      <div class="card-header bg-dark">
         <h5 class="mb-0">Contratos Registrados</h5>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-lg mb-0 align-middle">
-            <thead class="bg-light">
+          <table class="table table-lg mb-0 align-middle table-dark">
+            <thead class="bg-dark text-center">
               <tr>
                 <th>Contrato</th>
                 <th>Cliente</th>
@@ -156,12 +156,12 @@
                 <td>{{ contract.name }}</td>
                 <td>
                   {{ contract.clientName }}<br>
-                  <small class="text-muted">{{ contract.clientEmail }}</small><br>
-                  <small class="text-muted">{{ contract.clientPhone }}</small>
+                  <small class="text-lg-muted">{{ contract.clientEmail }}</small><br>
+                  <small class="text-lg-muted">{{ contract.clientPhone }}</small>
                 </td>
                 <td>
                   {{ contract.startDate | date: 'dd/MM/yyyy':'UTC' }}<br>
-                  <small class="text-muted">hasta {{ contract.endDate | date: 'dd/MM/yyyy':'UTC' }}</small>
+                  <small class="text-lg-muted">hasta {{ contract.endDate | date: 'dd/MM/yyyy':'UTC' }}</small>
                 </td>
                 <td>
                   <span class="text-{{ statusMeta[contract.status].color }}">
@@ -245,7 +245,7 @@
 
         <h6>Recursos</h6>
         <div *ngIf="selectedContract.resources.length > 0; else noResources">
-          <table class="table table-sm">
+          <table class="table table-sm table-dark">
             <thead>
               <tr>
                 <th>Recursos</th>
@@ -262,11 +262,11 @@
         </div>
         <ng-template #noResources>
           <p class="text-muted fst-italic">No hay recursos definidos para este contrato.</p>
-        </ng-template>
+        </ng-template><br>
 
         <h6>Proveedores</h6>
         <div *ngIf="selectedContract.providers.length > 0; else noProviders">
-          <table class="table table-sm">
+          <table class="table table-sm table-dark">
             <thead>
               <tr>
                 <th>Proveedor</th>
@@ -285,11 +285,11 @@
         </div>
         <ng-template #noProviders>
           <p class="text-muted fst-italic">No hay proveedores asociados a este contrato.</p>
-        </ng-template>
+        </ng-template><br>
 
         <h6>Personal</h6>
         <div *ngIf="selectedContract.personnel.length > 0; else noPersonnel">
-          <table class="table table-sm">
+          <table class="table table-sm table-dark">
             <thead>
               <tr>
                 <th>Nombre</th>

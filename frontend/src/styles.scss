@@ -1,64 +1,57 @@
-// Configuración inicial
+// Configuración inicial - Importamos la librería de color de Sass
 @use 'sass:color';
 
-// Variables de colores temáticos
-$primary-color: #6a11cb;
-$secondary-color: #2575fc;
-$accent-color: #f46b45;
-$success-color: #38ef7d;
-$warning-color: #f9d423;
-$danger-color: #ff416c;
-$dark-color: #1a1a2e;
-$light-color: #f8f9ff;
+// =============================================
+// VARIABLES DE COLORES
+// =============================================
 
-$gray-50: #f9fafb;
-$gray-100: #f3f4f6;
-$gray-200: #e5e7eb;
-$gray-300: #d1d5db;
-$gray-400: #9ca3af;
-$gray-500: #6b7280;
-$gray-600: #4b5563;
-$gray-700: #374151;
-$gray-800: #1f2937;
-$gray-900: #111827;
+// Paleta de colores principales del tema
+$primary-color: #6a11cb;    // Color primario (morado)
+$secondary-color: #2575fc;  // Color secundario (azul)
+$accent-color: #f46b45;     // Color de acento (naranja)
+$success-color: #38ef7d;    // Color para indicar éxito (verde)
+$warning-color: #f9d423;    // Color para advertencias (amarillo)
+$danger-color: #ff416c;     // Color para errores (rojo)
+$dark-color: #1a1a2e;       // Color oscuro de fondo
+$light-color: #f8f9ff;      // Color claro para texto
 
-$dark: #1a1a2e;
-$white: #ffffff;
-$primary: #4f46e5;
+// Colores adicionales
+$gray-200: #e5e7eb;         // Gris claro
+$primary: #007bff;          // Azul primario alternativo
 
-// $primary-color: #4f46e5;
-// $secondary-color: #7c3aed;
-// $success-color: #10b981;
-// $danger-color: #ef4444;
-// $warning-color: #f59e0b;
-// $dark-color: #1e293b;
-// $light-color: #f8fafc;
-// $gray-200: #e2e8f0;
-// $gray-400: #94a3b8;
-// $gray-600: #475569;
+// =============================================
+// MIXINS REUTILIZABLES
+// =============================================
 
-
-// Mixins reutilizables
+// Efecto de vidrio esmerilado (glass morphism)
 @mixin glass-effect {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+// Efecto de elevación al hacer hover
 @mixin floating-effect {
   transition: transform 0.3s ease;
   &:hover {
     transform: translateY(-5px);
   }
 }
+ // :3 
+// =============================================
+// DEGRADADOS PROFESIONALES
+// =============================================
 
-
-// Degradados profesionales
+// Degradados basados en los colores principales
 $gradient-primary: linear-gradient(135deg, $primary-color, $secondary-color);
 $gradient-accent: linear-gradient(135deg, $accent-color, darken($accent-color, 15%));
 $gradient-success: linear-gradient(135deg, $success-color, darken($success-color, 15%));
 
-// Efectos especiales
+// =============================================
+// EFECTOS ESPECIALES
+// =============================================
+
+// Versión extendida del efecto flotante con sombra
 @mixin floating-effect {
   transform: translateY(0);
   transition: all 0.3s ease;
@@ -68,65 +61,83 @@ $gradient-success: linear-gradient(135deg, $success-color, darken($success-color
   }
 }
 
-// @mixin particle-effect {
-//   position: relative;
-//   overflow: hidden;
-//   &::after {
-//     content: '';
-//     position: absolute;
-//     top: -50%;
-//     left: -50%;
-//     width: 200%;
-//     height: 200%;
-//     background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-//     transform: rotate(0deg);
-//     animation: particle-rotate 15s linear infinite;
-//   }
-// }
+// Efecto de partículas animadas
+@mixin particle-effect {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    transform: rotate(0deg);
+    animation: particle-rotate 15s linear infinite;
+    pointer-events: none; // ← 👈 AGREGA ESTO
+    z-index: 0;            // ← 👈 OPCIONAL PERO RECOMENDADO
+  }
+}
 
-// Animaciones
+// =============================================
+// ANIMACIONES
+// =============================================
+
+// Animación para el efecto de partículas
 @keyframes particle-rotate {
   to { transform: rotate(360deg); }
 }
 
+// Animación de pulso con brillo
 @keyframes pulse-glow {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; box-shadow: 0 0 15px currentColor; }
 }
 
-// Estilos base
+// =============================================
+// ESTILOS BASE
+// =============================================
+
+// Estilos generales del cuerpo del documento
 body {
   font-family: 'Poppins', sans-serif;
   background: $dark-color;
-  color: white;
+  color: rgb(255, 255, 255);
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  // Fondo con degradados radiales sutiles
   background-image: 
     radial-gradient(circle at 10% 20%, rgba($primary-color, 0.1) 0%, transparent 20%),
     radial-gradient(circle at 90% 80%, rgba($secondary-color, 0.1) 0%, transparent 20%);
 }
 
-// Utilidades
+// =============================================
+// UTILIDADES
+// =============================================
+
+// Clase para aplicar efecto de pulso
 .pulse-effect {
   animation: pulse-glow 2s infinite alternate;
 }
 
+// Estilo base para tarjetas
 .card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
+  @include glass-effect; // Aplica el efecto de vidrio esmerilado
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   overflow: hidden;
-  // @include particle-effect;
+  @include particle-effect; // Aplica el efecto de partículas
 }
 
+// Estilo para campos de entrada
 .input-field {
   position: relative;
   margin-bottom: 1.5rem;
   
+  // Estilo para iconos dentro de los campos
   i {
     position: absolute;
     left: 15px;
@@ -136,6 +147,7 @@ body {
     transition: all 0.3s ease;
   }
   
+  // Estilo para el input
   input {
     width: 100%;
     padding: 15px 15px 15px 45px;
@@ -146,23 +158,27 @@ body {
     font-size: 1rem;
     transition: all 0.3s ease;
     
+    // Estilo cuando el input tiene foco
     &:focus {
       outline: none;
       border-color: $primary-color;
       background: rgba(255,255,255,0.15);
       box-shadow: 0 0 0 2px rgba($primary-color, 0.3);
       
+      // Cambia el color del icono cuando el input tiene foco
       + i {
         color: $primary-color;
       }
     }
     
+    // Estilo del placeholder
     &::placeholder {
       color: rgba(255,255,255,0.5);
     }
   }
 }
 
+// Estilo para botones
 .btn {
   display: inline-flex;
   align-items: center;
@@ -177,28 +193,33 @@ body {
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
-  @include floating-effect;
+  @include floating-effect; // Aplica efecto flotante
   
+  // Variante primaria del botón
   &-primary {
     background: $gradient-primary;
     color: white;
     
+    // Efecto hover para botón primario
     &:hover {
       background: linear-gradient(135deg, darken($primary-color, 5%), darken($secondary-color, 5%));
     }
   }
   
+  // Variante de texto del botón
   &-text {
     background: transparent;
     color: rgba(255,255,255,0.7);
     padding: 10px;
     
+    // Efecto hover para botón de texto
     &:hover {
       color: $accent-color;
     }
   }
 }
 
+// Estilo para alertas/notificaciones
 .alert {
   padding: 15px;
   border-radius: 10px;
@@ -206,24 +227,28 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.3s ease; // Animación al aparecer
   
+  // Estilo para iconos en alertas
   i {
     font-size: 1.2rem;
   }
   
+  // Variante de éxito
   &-success {
     background: rgba($success-color, 0.1);
     border-left: 4px solid $success-color;
     color: $success-color;
   }
   
+  // Variante de peligro/error
   &-danger {
     background: rgba($danger-color, 0.1);
     border-left: 4px solid $danger-color;
     color: $danger-color;
   }
   
+  // Variante de advertencia
   &-warning {
     background: rgba($warning-color, 0.1);
     border-left: 4px solid $warning-color;
@@ -231,390 +256,16 @@ body {
   }
 }
 
-.error-snackbar {
-  background-color: #f44336 !important;
-  color: white !important;
-  font-weight: 500;
-
-  .mat-simple-snackbar-action {
-    color: white;
-  }
-} 
-
+// Animación para fade in
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-// Efecto de onda (para botones)
-.wave-effect {
-  position: relative;
-  overflow: hidden;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 5px;
-    height: 5px;
-    background: rgba(255, 255, 255, 0.5);
-    opacity: 0;
-    border-radius: 100%;
-    transform: scale(1, 1) translate(-50%, -50%);
-    transform-origin: 50% 50%;
-  }
-
-  &:focus:not(:active)::after {
-    animation: wave 0.5s ease-out;
-  }
-}
-
-@keyframes wave {
-  0% {
-    transform: scale(0, 0);
-    opacity: 0.5;
-  }
-  100% {
-    transform: scale(20, 20);
-    opacity: 0;
-  }
-}
-
-// Tooltips personalizados
-.tooltip-premium {
-  @include glass-effect;
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
-  font-size: 0.8rem;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* Estructura principal */
-.profile-wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background-color: #f1f5f9;
-}
-
-.profile-layout {
-  display: flex;
-  flex: 1;
-}
-
-.profile-main-content {
-  flex: 1;
-  padding: 2rem;
-  overflow-y: auto;
-  background-color: white;
-}
-
-/* Encabezado */
-.profile-header {
-  text-align: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid $gray-200;
-
-  .user-avatar {
-    position: relative;
-    display: inline-block;
-    margin-bottom: 1rem;
-
-    i {
-      font-size: 5rem;
-      color: $primary-color;
-    }
-
-    .user-role {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      background: $primary-color;
-      color: white;
-      padding: 0.25rem 0.75rem;
-      border-radius: 1rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-  }
-
-  .profile-title {
-    font-size: 1.75rem;
-    color: $dark-color;
-    margin-bottom: 0.5rem;
-  }
-
-  .profile-subtitle {
-    color: $gray-600;
-    font-size: 1rem;
-  }
-}
-
-/* Alertas */
-.profile-alert {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin-bottom: 2rem;
-  font-size: 0.9rem;
-
-  .alert-content {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-
-    i {
-      font-size: 1.25rem;
-    }
-  }
-
-  .alert-close {
-    background: none;
-    border: none;
-    color: inherit;
-    cursor: pointer;
-    padding: 0.25rem;
-  }
-
-  &.alert-success {
-    background-color: rgba($success-color, 0.1);
-    color: darken($success-color, 10%);
-    border-left: 4px solid $success-color;
-  }
-
-  &.alert-danger {
-    background-color: rgba($danger-color, 0.1);
-    color: darken($danger-color, 10%);
-    border-left: 4px solid $danger-color;
-  }
-
-  &.alert-warning {
-    background-color: rgba($warning-color, 0.1);
-    color: darken($warning-color, 10%);
-    border-left: 4px solid $warning-color;
-  }
-}
-
-/* Formulario */
-.profile-form {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.form-columns {
-  display: flex;
-  gap: 2rem;
-  margin-bottom: 2rem;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 1rem;
-  }
-}
-
-.form-column {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-
-  label {
-    font-weight: 600;
-    color: $dark-color;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-  }
-
-  input {
-    padding: 0.75rem 1rem;
-    border: 1px solid $gray-200;
-    border-radius: 0.5rem;
-    font-size: 1rem;
-    transition: all 0.2s;
-
-    &:focus {
-      outline: none;
-      border-color: $primary-color;
-      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
-    }
-
-    &.invalid {
-      border-color: $danger-color;
-    }
-  }
-
-  .password-input {
-    position: relative;
-
-    input {
-      width: 100%;
-      padding-right: 2.5rem;
-    }
-
-    .toggle-visibility {
-      position: absolute;
-      right: 0.75rem;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: $gray-400;
-      cursor: pointer;
-      padding: 0.25rem;
-
-      &:hover {
-        color: $primary-color;
-      }
-    }
-  }
-}
-
-.error-message {
-  color: $danger-color;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin-top: 0.25rem;
-
-  i {
-    font-size: 0.9rem;
-  }
-}
-
-/* Sección de contraseña */
-.password-section {
-  margin-bottom: 2rem;
-  border: 1px solid $gray-200;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  transition: all 0.3s ease;
-
-  &.active {
-    border-color: $primary-color;
-    box-shadow: 0 0 0 1px $primary-color;
-  }
-
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    background-color: $light-color;
-    cursor: pointer;
-
-    h3 {
-      margin: 0;
-      font-size: 1.1rem;
-      color: $dark-color;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .toggle-password-btn {
-      background: none;
-      border: none;
-      color: $primary-color;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem;
-      font-size: 0.9rem;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-  }
-
-  .password-fields {
-    padding: 1.5rem;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-}
-
-/* Botones */
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 2rem;
-
-  .save-btn {
-    background-color: $primary-color;
-    color: white;
-    border: none;
-    border-radius: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-
-    &:hover {
-      background-color: darken($primary-color, 5%);
-    }
-
-    &:disabled {
-      background-color: $gray-400;
-      cursor: not-allowed;
-    }
-  }
-}
-
-/* Responsive */
-@media (max-width: 576px) {
-  .profile-main-content {
-    padding: 1rem;
-  }
-
-  .profile-header {
-    .user-avatar i {
-      font-size: 4rem;
-    }
-
-    .profile-title {
-      font-size: 1.5rem;
-    }
-  }
-
-  .password-section {
-    .section-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-  }
-
-  .form-actions {
-    justify-content: center;
-  }
-}
-/* Importing Bootstrap SCSS file. */
-@import 'bootstrap/scss/bootstrap';
-
-/* Importing Bootstrap SCSS file. */
-@import 'bootstrap/scss/bootstrap';
+// Mapa de colores para estados
+$status-colors: (
+  'borrador': #6c757d,
+  'activo': #28a745,
+  'completado': #007bff,
+  'cancelado': #dc3545
+);

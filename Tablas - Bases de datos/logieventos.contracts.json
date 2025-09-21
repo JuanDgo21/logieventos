@@ -1,0 +1,651 @@
+[{
+  "_id": {
+    "$oid": "6867037e5bce9c07e0889452"
+  },
+  "name": "Contrato Gala Anual 2025",
+  "clientName": "Federico Valverde",
+  "clientPhone": "+57 3176543210",
+  "clientEmail": "eventos@inversionesdelta.com",
+  "startDate": {
+    "$date": "2025-09-01T00:00:00.000Z"
+  },
+  "endDate": {
+    "$date": "2025-09-02T00:00:00.000Z"
+  },
+  "status": "borrador",
+  "terms": "Este contrato cubre el alquiler de recursos y la prestación de servicios para la Gala Anual 2025. Cualquier modificación deberá ser notificada con al menos 7 días de anticipación.",
+  "resources": [
+    {
+      "resource": {
+        "$oid": "6865acf40173e15122f9c079"
+      },
+      "quantity": 5,
+      "_id": {
+        "$oid": "6867037e5bce9c07e0889453"
+      }
+    },
+    {
+      "resource": {
+        "$oid": "6865addedaf9d335ec5b363f"
+      },
+      "quantity": 2,
+      "_id": {
+        "$oid": "6867037e5bce9c07e0889454"
+      }
+    }
+  ],
+  "providers": [
+    {
+      "provider": {
+        "$oid": "686703675bce9c07e088944b"
+      },
+      "serviceDescription": "Servicio de catering para 150 personas",
+      "cost": 4500000,
+      "_id": {
+        "$oid": "6867037e5bce9c07e0889455"
+      }
+    }
+  ],
+  "personnel": [
+    {
+      "person": {
+        "$oid": "6865af522abaea7a6a59da05"
+      },
+      "role": "Coordinador de evento",
+      "hours": 10,
+      "_id": {
+        "$oid": "6867037e5bce9c07e0889456"
+      }
+    },
+    {
+      "person": {
+        "$oid": "6865b00ac7a8081a7100608d"
+      },
+      "role": "Técnico de sonido",
+      "hours": 8,
+      "_id": {
+        "$oid": "6867037e5bce9c07e0889457"
+      }
+    }
+  ],
+  "createdBy": {
+    "$oid": "686586fab7fc3ebb478c0b10"
+  },
+  "createdAt": {
+    "$date": "2025-07-03T22:26:06.617Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T19:41:05.197Z"
+  },
+  "budget": 1123464
+},
+{
+  "_id": {
+    "$oid": "686836cbf5d6a2953526911b"
+  },
+  "name": "Contrato Gala Anual 2026",
+  "clientName": "Corporación Inversiones Delta",
+  "clientPhone": "+57 3176543210",
+  "clientEmail": "eventos@inversionesdelta.com",
+  "startDate": {
+    "$date": "2025-09-01T00:00:00.000Z"
+  },
+  "endDate": {
+    "$date": "2025-09-02T00:00:00.000Z"
+  },
+  "budget": 12000000,
+  "status": "activo",
+  "terms": "Este contrato cubre el alquiler de recursos y la prestación de servicios para la Gala Anual 2025. Cualquier modificación deberá ser notificada con al menos 7 días de anticipación.",
+  "resources": [
+    {
+      "resource": {
+        "$oid": "6865acf40173e15122f9c079"
+      },
+      "quantity": 5,
+      "_id": {
+        "$oid": "686836cbf5d6a2953526911c"
+      }
+    },
+    {
+      "resource": {
+        "$oid": "6865addedaf9d335ec5b363f"
+      },
+      "quantity": 2,
+      "_id": {
+        "$oid": "686836cbf5d6a2953526911d"
+      }
+    }
+  ],
+  "providers": [
+    {
+      "provider": {
+        "$oid": "686703675bce9c07e088944b"
+      },
+      "serviceDescription": "Servicio de catering para 150 personas",
+      "cost": 4500000,
+      "_id": {
+        "$oid": "686836cbf5d6a2953526911e"
+      }
+    }
+  ],
+  "personnel": [
+    {
+      "person": {
+        "$oid": "6865af522abaea7a6a59da05"
+      },
+      "role": "Coordinador de evento",
+      "hours": 10,
+      "_id": {
+        "$oid": "686836cbf5d6a2953526911f"
+      }
+    },
+    {
+      "person": {
+        "$oid": "6865b00ac7a8081a7100608d"
+      },
+      "role": "Técnico de sonido",
+      "hours": 8,
+      "_id": {
+        "$oid": "686836cbf5d6a29535269120"
+      }
+    }
+  ],
+  "createdBy": {
+    "$oid": "686586fab7fc3ebb478c0b10"
+  },
+  "createdAt": {
+    "$date": "2025-07-04T20:17:15.653Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-04T20:17:31.224Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686836f2f5d6a2953526916c"
+  },
+  "name": "Contrato Gala Anual 2027",
+  "clientName": "Corporación Inversiones Delta",
+  "clientPhone": "+57 3176543210",
+  "clientEmail": "eventos@inversionesdelta.com",
+  "startDate": {
+    "$date": "2025-09-01T00:00:00.000Z"
+  },
+  "endDate": {
+    "$date": "2025-09-02T00:00:00.000Z"
+  },
+  "budget": 12000000,
+  "status": "completado",
+  "terms": "Este contrato cubre el alquiler de recursos y la prestación de servicios para la Gala Anual 2025. Cualquier modificación deberá ser notificada con al menos 7 días de anticipación.",
+  "resources": [
+    {
+      "resource": {
+        "$oid": "6865acf40173e15122f9c079"
+      },
+      "quantity": 5,
+      "_id": {
+        "$oid": "686836f2f5d6a2953526916d"
+      }
+    },
+    {
+      "resource": {
+        "$oid": "6865addedaf9d335ec5b363f"
+      },
+      "quantity": 2,
+      "_id": {
+        "$oid": "686836f2f5d6a2953526916e"
+      }
+    }
+  ],
+  "providers": [
+    {
+      "provider": {
+        "$oid": "686703675bce9c07e088944b"
+      },
+      "serviceDescription": "Servicio de catering para 150 personas",
+      "cost": 4500000,
+      "_id": {
+        "$oid": "686836f2f5d6a2953526916f"
+      }
+    }
+  ],
+  "personnel": [
+    {
+      "person": {
+        "$oid": "6865af522abaea7a6a59da05"
+      },
+      "role": "Coordinador de evento",
+      "hours": 10,
+      "_id": {
+        "$oid": "686836f2f5d6a29535269170"
+      }
+    },
+    {
+      "person": {
+        "$oid": "6865b00ac7a8081a7100608d"
+      },
+      "role": "Técnico de sonido",
+      "hours": 8,
+      "_id": {
+        "$oid": "686836f2f5d6a29535269171"
+      }
+    }
+  ],
+  "createdBy": {
+    "$oid": "686586fab7fc3ebb478c0b10"
+  },
+  "createdAt": {
+    "$date": "2025-07-04T20:17:54.759Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-04T20:18:26.768Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686837ce1f72091e8747e94f"
+  },
+  "name": "Contrato de Tejo 2021",
+  "clientName": "Corporación Inversiones Delta",
+  "clientPhone": "+57 3176543210",
+  "clientEmail": "eventos@inversionesdelta.com",
+  "startDate": {
+    "$date": "2025-09-01T00:00:00.000Z"
+  },
+  "endDate": {
+    "$date": "2025-09-02T00:00:00.000Z"
+  },
+  "budget": 12000000,
+  "status": "cancelado",
+  "terms": "Este contrato cubre el alquiler de recursos y la prestación de servicios para la Gala Anual 2025. Cualquier modificación deberá ser notificada con al menos 7 días de anticipación.",
+  "resources": [
+    {
+      "resource": {
+        "$oid": "6865acf40173e15122f9c079"
+      },
+      "quantity": 5,
+      "_id": {
+        "$oid": "686837ce1f72091e8747e950"
+      }
+    },
+    {
+      "resource": {
+        "$oid": "6865addedaf9d335ec5b363f"
+      },
+      "quantity": 2,
+      "_id": {
+        "$oid": "686837ce1f72091e8747e951"
+      }
+    }
+  ],
+  "providers": [
+    {
+      "provider": {
+        "$oid": "686703675bce9c07e088944b"
+      },
+      "serviceDescription": "Servicio de catering para 150 personas",
+      "cost": 4500000,
+      "_id": {
+        "$oid": "686837ce1f72091e8747e952"
+      }
+    }
+  ],
+  "personnel": [
+    {
+      "person": {
+        "$oid": "6865af522abaea7a6a59da05"
+      },
+      "role": "Coordinador de evento",
+      "hours": 10,
+      "_id": {
+        "$oid": "686837ce1f72091e8747e953"
+      }
+    },
+    {
+      "person": {
+        "$oid": "6865b00ac7a8081a7100608d"
+      },
+      "role": "Técnico de sonido",
+      "hours": 8,
+      "_id": {
+        "$oid": "686837ce1f72091e8747e954"
+      }
+    }
+  ],
+  "createdBy": {
+    "$oid": "686586fab7fc3ebb478c0b10"
+  },
+  "createdAt": {
+    "$date": "2025-07-04T20:21:34.586Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-04T20:21:34.586Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686852b428621fda73ae5883"
+  },
+  "name": "Contrato de Tejo 2026",
+  "clientName": "Corporación Inversiones Delta",
+  "clientPhone": "+57 3176543210",
+  "clientEmail": "eventos@inversionesdelta.com",
+  "startDate": {
+    "$date": "2025-09-01T00:00:00.000Z"
+  },
+  "endDate": {
+    "$date": "2025-09-02T00:00:00.000Z"
+  },
+  "budget": 8000000,
+  "status": "activo",
+  "terms": "Este contrato cubre el alquiler de recursos y la prestación de servicios para la Gala Anual 2025. Cualquier modificación deberá ser notificada con al menos 7 días de anticipación.",
+  "resources": [
+    {
+      "resource": {
+        "$oid": "6865addedaf9d335ec5b363f"
+      },
+      "quantity": 2,
+      "_id": {
+        "$oid": "686c2821801c23df655cf17e"
+      }
+    },
+    {
+      "resource": {
+        "$oid": "6865acf40173e15122f9c079"
+      },
+      "quantity": 5,
+      "_id": {
+        "$oid": "686c2821801c23df655cf17f"
+      }
+    }
+  ],
+  "providers": [
+    {
+      "provider": {
+        "$oid": "686703675bce9c07e088944b"
+      },
+      "serviceDescription": "Servicio de catering para 150 personas",
+      "cost": 4500000,
+      "_id": {
+        "$oid": "686c2821801c23df655cf180"
+      }
+    }
+  ],
+  "personnel": [
+    {
+      "person": {
+        "$oid": "6865b00ac7a8081a7100608d"
+      },
+      "role": "Técnico de sonido",
+      "hours": 8,
+      "_id": {
+        "$oid": "686c2821801c23df655cf181"
+      }
+    },
+    {
+      "person": {
+        "$oid": "6865af522abaea7a6a59da05"
+      },
+      "role": "Coordinador de evento",
+      "hours": 10,
+      "_id": {
+        "$oid": "686c2821801c23df655cf182"
+      }
+    }
+  ],
+  "createdBy": {
+    "$oid": "686586fab7fc3ebb478c0b10"
+  },
+  "createdAt": {
+    "$date": "2025-07-04T22:16:20.104Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-07T20:03:45.645Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686d74bcae5bfc26e30d2ced"
+  },
+  "name": "Contrato 2027",
+  "clientName": "Corporación Inversiones Delta",
+  "clientPhone": "+57 3176543210",
+  "clientEmail": "eventos@inversionesdelta.com",
+  "startDate": {
+    "$date": "2025-09-01T00:00:00.000Z"
+  },
+  "endDate": {
+    "$date": "2025-09-02T00:00:00.000Z"
+  },
+  "budget": 12000000,
+  "status": "activo",
+  "terms": "Este contrato cubre el alquiler de recursos y la prestación de servicios para la Gala Anual 2025. Cualquier modificación deberá ser notificada con al menos 7 días de anticipación.",
+  "resources": [
+    {
+      "resource": {
+        "$oid": "6865acf40173e15122f9c079"
+      },
+      "quantity": 5,
+      "_id": {
+        "$oid": "686d74bcae5bfc26e30d2cee"
+      }
+    },
+    {
+      "resource": {
+        "$oid": "6865addedaf9d335ec5b363f"
+      },
+      "quantity": 2,
+      "_id": {
+        "$oid": "686d74bcae5bfc26e30d2cef"
+      }
+    }
+  ],
+  "providers": [
+    {
+      "provider": {
+        "$oid": "686703675bce9c07e088944b"
+      },
+      "serviceDescription": "Servicio de catering para 150 personas",
+      "cost": 4500000,
+      "_id": {
+        "$oid": "686d74bcae5bfc26e30d2cf0"
+      }
+    }
+  ],
+  "personnel": [
+    {
+      "person": {
+        "$oid": "6865af522abaea7a6a59da05"
+      },
+      "role": "Coordinador de evento",
+      "hours": 10,
+      "_id": {
+        "$oid": "686d74bcae5bfc26e30d2cf1"
+      }
+    },
+    {
+      "person": {
+        "$oid": "6865b00ac7a8081a7100608d"
+      },
+      "role": "Técnico de sonido",
+      "hours": 8,
+      "_id": {
+        "$oid": "686d74bcae5bfc26e30d2cf2"
+      }
+    }
+  ],
+  "createdBy": {
+    "$oid": "686586fab7fc3ebb478c0b10"
+  },
+  "createdAt": {
+    "$date": "2025-07-08T19:42:52.132Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T19:42:52.132Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686d74e48966795ea409130e"
+  },
+  "name": "Contrato 2023",
+  "clientName": "Corporación Inversiones Delta",
+  "clientPhone": "+57 3176543210",
+  "clientEmail": "eventos@inversionesdelta.com",
+  "startDate": {
+    "$date": "2025-09-01T00:00:00.000Z"
+  },
+  "endDate": {
+    "$date": "2025-09-02T00:00:00.000Z"
+  },
+  "budget": 12000000,
+  "status": "activo",
+  "terms": "Este contrato cubre el alquiler de recursos y la prestación de servicios para la Gala Anual 2025. Cualquier modificación deberá ser notificada con al menos 7 días de anticipación.",
+  "resources": [
+    {
+      "resource": {
+        "$oid": "6865acf40173e15122f9c079"
+      },
+      "quantity": 5,
+      "_id": {
+        "$oid": "686d74e48966795ea409130f"
+      }
+    },
+    {
+      "resource": {
+        "$oid": "6865addedaf9d335ec5b363f"
+      },
+      "quantity": 2,
+      "_id": {
+        "$oid": "686d74e48966795ea4091310"
+      }
+    }
+  ],
+  "providers": [
+    {
+      "provider": {
+        "$oid": "686703675bce9c07e088944b"
+      },
+      "serviceDescription": "Servicio de catering para 150 personas",
+      "cost": 4500000,
+      "_id": {
+        "$oid": "686d74e48966795ea4091311"
+      }
+    }
+  ],
+  "personnel": [
+    {
+      "person": {
+        "$oid": "6865af522abaea7a6a59da05"
+      },
+      "role": "Coordinador de evento",
+      "hours": 10,
+      "_id": {
+        "$oid": "686d74e48966795ea4091312"
+      }
+    },
+    {
+      "person": {
+        "$oid": "6865b00ac7a8081a7100608d"
+      },
+      "role": "Técnico de sonido",
+      "hours": 8,
+      "_id": {
+        "$oid": "686d74e48966795ea4091313"
+      }
+    }
+  ],
+  "createdBy": {
+    "$oid": "6865896878a39a2cc63bedd6"
+  },
+  "createdAt": {
+    "$date": "2025-07-08T19:43:32.567Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T19:43:32.567Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686d775163e9ab690bb97b47"
+  },
+  "name": "Contrato 2021",
+  "clientName": "Corporación Inversiones Delta",
+  "clientPhone": "+57 3176543210",
+  "clientEmail": "eventos@inversionesdelta.com",
+  "startDate": {
+    "$date": "2025-09-01T00:00:00.000Z"
+  },
+  "endDate": {
+    "$date": "2025-09-02T00:00:00.000Z"
+  },
+  "budget": 12000000,
+  "event": {
+    "$oid": "686d73feda5375f1ab4ecbab"
+  },
+  "status": "activo",
+  "terms": "Este contrato cubre el alquiler de recursos y la prestación de servicios para la Gala Anual 2025. Cualquier modificación deberá ser notificada con al menos 7 días de anticipación.",
+  "resources": [
+    {
+      "resource": {
+        "$oid": "6865addedaf9d335ec5b363f"
+      },
+      "quantity": 2,
+      "_id": {
+        "$oid": "686d78299f7c84a61538aaa5"
+      }
+    },
+    {
+      "resource": {
+        "$oid": "6865acf40173e15122f9c079"
+      },
+      "quantity": 5,
+      "_id": {
+        "$oid": "686d78299f7c84a61538aaa6"
+      }
+    }
+  ],
+  "providers": [
+    {
+      "provider": {
+        "$oid": "686703675bce9c07e088944b"
+      },
+      "serviceDescription": "Servicio de catering para 150 personas",
+      "cost": 4500000,
+      "_id": {
+        "$oid": "686d78299f7c84a61538aaa7"
+      }
+    }
+  ],
+  "personnel": [
+    {
+      "person": {
+        "$oid": "6865b00ac7a8081a7100608d"
+      },
+      "role": "Técnico de sonido",
+      "hours": 8,
+      "_id": {
+        "$oid": "686d78299f7c84a61538aaa8"
+      }
+    },
+    {
+      "person": {
+        "$oid": "6865af522abaea7a6a59da05"
+      },
+      "role": "Coordinador de evento",
+      "hours": 10,
+      "_id": {
+        "$oid": "686d78299f7c84a61538aaa9"
+      }
+    }
+  ],
+  "createdBy": {
+    "$oid": "6865896878a39a2cc63bedd6"
+  },
+  "createdAt": {
+    "$date": "2025-07-08T19:53:53.050Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T19:57:29.263Z"
+  }
+}]

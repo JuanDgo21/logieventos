@@ -1,67 +1,93 @@
-<div class="modal-header">
-  <h5 class="modal-title">
-    <i class="fas fa-tag me-2"></i>
-    {{ type ? 'Editar Categoría' : 'Nueva Categoría' }}
-  </h5>
-  <button type="button" class="btn-close" (click)="activeModal.dismiss()"></button>
-</div>
-
-<div class="modal-body">
-  <form [formGroup]="typeForm">
-    <div class="mb-3">
-      <label for="name" class="form-label">Nombre*</label>
-      <div class="input-group">
-        <span class="input-group-text"><i class="fas fa-tag"></i></span>
-        <input type="text" class="form-control" id="name" formControlName="name" 
-               placeholder="Nombre de la categoría">
+<div class="type-form-modal">
+  <div class="modal-header">
+    <div class="modal-title">
+      <div class="title-icon">
+        <i class="fas fa-tag"></i>
       </div>
-      <div *ngIf="typeForm.get('name')?.invalid && typeForm.get('name')?.touched" 
-           class="text-danger mt-1">
-        <small *ngIf="typeForm.get('name')?.errors?.['required']">
-          El nombre es requerido
-        </small>
-        <small *ngIf="typeForm.get('name')?.errors?.['maxlength']">
-          Máximo 50 caracteres
-        </small>
-      </div>
+      <h2>
+        @if (type) {
+          Editar Categoría
+        } @else {
+          Nueva Categoría
+        }
+      </h2>
     </div>
+    <button class="close-btn" (click)="activeModal.dismiss()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
 
-    <div class="mb-3">
-      <label for="description" class="form-label">Descripción</label>
-      <div class="input-group">
-        <span class="input-group-text"><i class="fas fa-align-left"></i></span>
-        <textarea class="form-control" id="description" formControlName="description"
-                  rows="3" placeholder="Descripción opcional (máx. 200 caracteres)"></textarea>
+  <div class="modal-body">
+    <form [formGroup]="typeForm">
+      <div class="form-grid">
+        <!-- Nombre -->
+        <div class="form-group">
+          <label><i class="fas fa-tag"></i> Nombre*</label>
+          <div class="input-field">
+            <input type="text" formControlName="name" placeholder="Nombre de la categoría">
+            @if (typeForm.get('name')?.invalid && typeForm.get('name')?.touched) {
+              <div class="error-message">
+                @if (typeForm.get('name')?.errors?.['required']) {
+                  <span><i class="fas fa-exclamation-circle"></i> Campo requerido</span>
+                }
+                @if (typeForm.get('name')?.errors?.['maxlength']) {
+                  <span><i class="fas fa-exclamation-circle"></i> Máximo 50 caracteres</span>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div class="form-group">
+          <label><i class="fas fa-align-left"></i> Descripción</label>
+          <div class="input-field">
+            <textarea formControlName="description" rows="3" 
+                      placeholder="Descripción opcional (máx. 200 caracteres)"></textarea>
+            @if (typeForm.get('description')?.invalid && typeForm.get('description')?.touched) {
+              <div class="error-message">
+                @if (typeForm.get('description')?.errors?.['maxlength']) {
+                  <span><i class="fas fa-exclamation-circle"></i> Máximo 200 caracteres</span>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Estado -->
+        <div class="form-group">
+          <label><i class="fas fa-power-off"></i> Estado</label>
+          <div class="toggle-switch">
+            <input type="checkbox" id="isActive" formControlName="isActive">
+            <label for="isActive" [class.active]="typeForm.get('isActive')?.value">
+              <span class="toggle-track">
+                <span class="toggle-thumb"></span>
+                <span class="toggle-label-on">Activo</span>
+                <span class="toggle-label-off">Inactivo</span>
+              </span>
+            </label>
+          </div>
+        </div>
       </div>
-      <div *ngIf="typeForm.get('description')?.invalid && typeForm.get('description')?.touched" 
-           class="text-danger mt-1">
-        <small *ngIf="typeForm.get('description')?.errors?.['maxlength']">
-          Máximo 200 caracteres
-        </small>
+
+      <div class="form-footer">
+        <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button type="button" class="btn btn-primary" (click)="saveType()" 
+                [disabled]="typeForm.invalid || isSaving">
+          @if (isSaving) {
+            <i class="fas fa-spinner fa-spin"></i> Guardando...
+          } @else {
+            <i class="fas fa-save"></i> 
+            @if (type) {
+              Actualizar
+            } @else {
+              Guardar
+            }
+          }
+        </button>
       </div>
-    </div>
-
-    <div class="form-check form-switch mb-3">
-      <input class="form-check-input" type="checkbox" role="switch" 
-             id="isActive" formControlName="isActive">
-      <label class="form-check-label" for="isActive">
-        {{ typeForm.get('isActive')?.value ? 'Activo' : 'Inactivo' }}
-      </label>
-    </div>
-  </form>
-</div>
-
-<div class="modal-footer">
-  <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss()">
-    <i class="fas fa-times me-2"></i>Cancelar
-  </button>
-  <button type="button" class="btn btn-primary" (click)="saveType()" [disabled]="typeForm.invalid || isSaving">
-    <span *ngIf="!isSaving">
-      <i class="fas fa-save me-2"></i>{{ type ? 'Actualizar' : 'Guardar' }}
-    </span>
-    <span *ngIf="isSaving">
-      <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-      Guardando...
-    </span>
-  </button>
+    </form>
+  </div>
 </div>

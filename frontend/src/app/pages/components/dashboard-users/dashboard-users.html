@@ -1,156 +1,217 @@
-<div class="dashboard-content">
-      <app-navbar></app-navbar>
-
-  <!-- Encabezado con animaciones -->
-  <div class="dashboard-header">
-            <app-sidebar></app-sidebar>
-    <div class="animated-title">
-      <h1 class="display-5 fw-bold text-primary">
-        <i class="fas fa-users me-2"></i>Gestión de <span class="highlight">Usuarios</span>
-      </h1>
-    </div>
+<!-- <div class="dashboard-layout"> -->
+  <app-navbar></app-navbar>
+  
+  <div class="main-content-wrapper">
+    <app-sidebar></app-sidebar>
     
-    <div class="rotating-subtitle">
-      <p [class.visible]="currentSubtitle === 0">Panel de control administrativo</p>
-      <p [class.visible]="currentSubtitle === 1">Administra los usuarios del sistema</p>
-      <p [class.visible]="currentSubtitle === 2">Visualiza estadísticas clave</p>
-    </div>
-  </div>
+    <main class="dashboard-content">
+      <!-- Header del Dashboard -->
+      <div class="dashboard-header">
+        <div class="header-content">
+          <h1><i class="fas fa-users me-2"></i> Gestión de Usuarios</h1>
+          <div class="header-actions">
+            <button class="btn btn-primary" (click)="openUserForm()">
+              <i class="fas fa-plus me-2"></i> Nuevo Usuario
+            </button>
+            <button class="btn btn-text ms-2" (click)="loadData()">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+          </div>
+        </div>
+      </div>
 
-  <!-- Tarjetas de estadísticas -->
-  <div class="stats-section">
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="stat-card bg-gradient-primary">
-          <div class="card-body">
-            <i class="fas fa-user-check stat-icon"></i>
+      <div class="user-greeting">
+        <h2>¡Hola Administrador! <span class="greeting-emoji">👋</span></h2>
+        <p class="daily-message">Panel de control administrativo</p>
+      </div>
+
+      <!-- Decoraciones -->
+      <div class="dashboard-decorations">
+        <div class="decoration particle-1"></div>
+        <div class="decoration particle-2"></div>
+        <div class="decoration particle-3"></div>
+      </div>
+      
+      <!-- Tarjetas de Resumen -->
+      <div class="summary-cards">
+      <!-- Tarjeta de usuarios activos -->
+      <div class="summary-card" [style.background]="getGradient('activeUsers')">
+        <div class="card-content">
+          <div class="card-icon">
+            <i class="fas fa-user-check"></i>
+          </div>
+          <div class="card-info">
             <h3>{{ stats.activeUsers }}</h3>
             <p>Usuarios Activos</p>
-            <div class="status-indicator">
-              <div class="dot bg-white"></div>
-              <span class="trend-indicator">+2% este mes</span>
+            <div class="card-trend trend-up">
+              <i class="fas fa-arrow-up"></i>
+              <span>+{{ stats.activeUsers > 0 ? math.round(stats.activeUsers * 0.1) : 0 }} este mes</span>
             </div>
           </div>
-        </div>
-      </div>
-      
-      <div class="col-md-4">
-        <div class="stat-card bg-gradient-success">
-          <div class="card-body">
-            <i class="fas fa-percent stat-icon"></i>
-            <h3>{{ stats.activePercentage }}%</h3>
-            <p>Tasa de Actividad</p>
-            <div class="status-indicator">
-              <div class="dot bg-white"></div>
-              <span class="trend-indicator">+5% desde ayer</span>
-            </div>
+            <div class="card-wave"></div>
           </div>
         </div>
-      </div>
-      
-      <div class="col-md-4">
-        <div class="stat-card bg-gradient-info">
-          <div class="card-body">
-            <i class="fas fa-users stat-icon"></i>
-            <h3>{{ stats.totalUsers }}</h3>
-            <p>Total de Usuarios</p>
-            <div class="status-indicator">
-              <div class="dot bg-white"></div>
-              <span class="trend-indicator">+3 nuevos hoy</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Acciones rápidas -->
-  <div class="quick-actions-section">
-    <h4 class="section-title">
-      <i class="fas fa-bolt me-2"></i>Acciones Rápidas
-    </h4>
-    
-    <div class="row g-4">
-      <div class="col-md-4" *ngFor="let action of quickActions">
-        <div class="action-card" (click)="action.action()">
-          <div class="card-body">
-            <div class="action-icon" [ngClass]="action.color">
-              <i [class]="action.icon"></i>
+        <div class="summary-card" [style.background]="getGradient('activePercentage')">
+          <div class="card-content">
+            <div class="card-icon">
+              <i class="fas fa-percent"></i>
             </div>
-            <h5>{{ action.title }}</h5>
-            <p>Haz clic para realizar esta acción</p>
+            <div class="card-info">
+              <h3>{{ stats.activePercentage }}%</h3>
+              <p>Tasa de Actividad</p>
+              <div class="card-trend" [ngClass]="{
+                'trend-up': stats.activePercentage >= 70,
+                'trend-warning': stats.activePercentage >= 30 && stats.activePercentage < 70,
+                'trend-down': stats.activePercentage < 30
+              }">
+                <i [class]="stats.activePercentage >= 70 ? 'fas fa-arrow-up' : 
+                           stats.activePercentage >= 30 ? 'fas fa-minus' : 'fas fa-arrow-down'"></i>
+                <span>{{ stats.activePercentage >= 70 ? 'Excelente' : 
+                       stats.activePercentage >= 30 ? 'Aceptable' : 'Baja' }}</span>
+              </div>
+            </div>
+            <div class="card-wave"></div>
+          </div>
+        </div>
+
+        <div class="summary-card" [style.background]="getGradient('totalUsers')">
+          <div class="card-content">
+            <div class="card-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="card-info">
+              <h3>{{ stats.totalUsers }}</h3>
+              <p>Total de Usuarios</p>
+              <div class="card-trend">
+                <i class="fas fa-user-plus"></i>
+                <span>+{{ recentUsers.length }} nuevos</span>
+              </div>
+            </div>
+            <div class="card-wave"></div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Gráfico de distribución de roles -->
-  <div class="dynamic-content-section">
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="chart-card card">
-          <div class="card-header">
-            <h5 class="m-0 font-weight-bold">
-              <i class="fas fa-chart-pie me-2"></i>Distribución de Roles
-            </h5>
+      <!-- Contenido Principal -->
+      <div class="dashboard-main">
+        <!-- Acciones Rápidas -->
+        <div class="dashboard-section quick-actions-section">
+          <div class="section-header">
+            <h2><i class="fas fa-bolt me-2"></i> Acciones Rápidas</h2>
           </div>
-          <div class="card-body">
-            <div class="role-distribution-chart">
-              <div *ngFor="let role of roleDistribution.labels; let i = index" class="mb-4">
-                <div class="d-flex justify-content-between mb-2">
-                  <span>
-                    <i class="fas fa-circle me-2" [ngClass]="'text-' + roleDistribution.colors[i].split('-')[1]"></i>
-                    {{ role }}
-                  </span>
-                  <span class="fw-bold">
-                    {{ roleDistribution.data[i] }} ({{ calculatePercentage(roleDistribution.data[i]) | number:'1.0-0' }}%)
-                  </span>
+          <div class="quick-actions-grid">
+            <div class="quick-action" (click)="openUserForm()">
+              <div class="action-content">
+                <i class="fas fa-user-plus fa-2x mb-2"></i>
+                <span class="fw-bold">Agregar Usuario</span>
+                <small class="text-muted">Crear nuevo usuario</small>
+              </div>
+              <div class="action-wave"></div>
+            </div>
+
+            <div class="quick-action" [style.background]="getGradient('manageRoles')" (click)="openRoleManager()">
+              <div class="action-content">
+                <i class="fas fa-user-shield"></i>
+                <span>Administrar Roles</span>
+              </div>
+              <div class="action-wave"></div>
+            </div>
+
+            <div class="quick-action" [style.background]="getGradient('viewReports')" (click)="viewReports()">
+              <div class="action-content">
+                <i class="fas fa-chart-bar"></i>
+                <span>Ver Reportes</span>
+              </div>
+              <div class="action-wave"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actividad Reciente -->
+        <div class="dashboard-section recent-activity">
+          <div class="section-header">
+            <h2><i class="fas fa-history"></i> Últimos Usuarios</h2>
+            <a href="#" class="view-all">Ver todo <i class="fas fa-chevron-right"></i></a>
+          </div>
+          <div class="activity-list">
+            <div *ngFor="let user of recentUsers" class="activity-item">
+              <div class="activity-icon" [style.background]="getUserRoleColor(user.role)">
+                <i [class]="getUserRoleIcon(user.role)"></i>
+              </div>
+              <div class="activity-details">
+                <p>{{ user.fullname }} <span class="badge" [ngClass]="getUserRoleBadge(user.role)">{{ user.role | titlecase }}</span></p>
+                <small>Registrado el {{ formatDate(user.createdAt) }}</small>
+                <div class="user-status" [ngClass]="{'active': user.active, 'inactive': !user.active}">
+                  {{ user.active ? 'Activo' : 'Inactivo' }}
                 </div>
-                <div class="progress">
-                  <div class="progress-bar" 
-                       [ngClass]="roleDistribution.colors[i]"
-                       role="progressbar" 
-                       [style.width]="calculatePercentage(roleDistribution.data[i]) + '%'"
-                       [attr.aria-valuenow]="roleDistribution.data[i]" 
-                       aria-valuemin="0" 
-                       [attr.aria-valuemax]="roleDistribution.total">
-                  </div>
-                </div>
+              </div>
+            </div>
+            <div *ngIf="recentUsers.length === 0" class="activity-item empty-state">
+              <div class="activity-icon" style="background: rgba(255,255,255,0.1)">
+                <i class="fas fa-users-slash"></i>
+              </div>
+              <div class="activity-details">
+                <p>No hay usuarios recientes</p>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Sección específica por rol -->
-  <div class="role-specific-section" *ngIf="userRole === 'admin'">
-    <div class="admin-highlight card">
-      <div class="card-body">
-        <h2><i class="fas fa-shield-alt me-2"></i>Herramientas de Administrador</h2>
-        
-        <div class="system-health">
-          <h5 class="mb-3">Estado del Sistema: <span class="badge bg-success">Estable</span></h5>
-          <div class="progress">
-            <div class="progress-bar bg-success" style="width: 95%">95% de capacidad</div>
+      <!-- Distribución de Roles -->
+      <div class="dashboard-section role-distribution">
+        <div class="section-header">
+          <h2><i class="fas fa-chart-pie"></i> Distribución de Roles</h2>
+        </div>
+        <div class="distribution-chart">
+          <div *ngFor="let role of roleDistribution.labels; let i = index" class="role-item">
+            <div class="role-info">
+              <div class="role-color" [style.background]="getRoleColor(role)"></div>
+              <span class="role-name">{{ role }}</span>
+              <span class="role-count">{{ roleDistribution.data[i] }} ({{ calculatePercentage(roleDistribution.data[i]) | number:'1.0-0' }}%)</span>
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar" [style.width]="calculatePercentage(roleDistribution.data[i]) + '%'" 
+                   [style.background]="getRoleColor(role)"></div>
+            </div>
           </div>
         </div>
-        
-        <div class="admin-actions mt-4">
-          <button class="btn btn-primary me-2">
-            <i class="fas fa-cog me-1"></i> Configuración
-          </button>
-          <button class="btn btn-warning me-2">
-            <i class="fas fa-history me-1"></i> Ver Registros
-          </button>
-          <button class="btn btn-danger">
-            <i class="fas fa-exclamation-triangle me-1"></i> Alertas
-          </button>
+      </div>
+
+      <!-- Herramientas de Administrador -->
+      <div *ngIf="userRole === 'admin'" class="dashboard-section admin-tools">
+        <div class="section-header">
+          <h2><i class="fas fa-shield-alt"></i> Herramientas de Administrador</h2>
+        </div>
+        <div class="tools-content">
+          <div class="system-health">
+            <h5>Estado del Sistema</h5>
+            <div class="health-status" [ngClass]="{
+              'healthy': stats.totalUsers > 0,
+              'warning': stats.totalUsers === 0
+            }">
+              <span>{{ stats.totalUsers > 0 ? 'Estable' : 'Sin usuarios' }}</span>
+              <div class="health-bar">
+                <div class="health-progress" [style.width]="stats.totalUsers > 0 ? '95%' : '10%'"></div>
+              </div>
+            </div>
+          </div>
+          <div class="admin-buttons">
+            <button class="admin-btn primary" (click)="openUserForm()">
+              <i class="fas fa-user-plus"></i> Nuevo Usuario
+            </button>
+            <button class="admin-btn success" (click)="openRoleManager()">
+              <i class="fas fa-user-shield"></i> Gestionar Roles
+            </button>
+            <button class="admin-btn danger" (click)="viewReports()">
+              <i class="fas fa-chart-bar"></i> Ver Reportes
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </main>
   </div>
-      <app-footer></app-footer>
-</div>
+
+  <app-footer></app-footer>
+<!-- </div> -->

@@ -1,0 +1,212 @@
+[{
+  "_id": {
+    "$oid": "686ca86bd98d557094e8834a"
+  },
+  "firstName": "Camila",
+  "lastName": "García",
+  "email": "camila.garcia@example.com",
+  "phone": "+573014567890",
+  "personnelType": {
+    "$oid": "686ca779d98d557094e88337"
+  },
+  "status": "disponible",
+  "skills": [
+    "Gestión administrativa",
+    "Comunicación"
+  ],
+  "createdAt": {
+    "$date": "2025-07-08T05:11:07.533Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:11:07.533Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ca874d98d557094e8834d"
+  },
+  "firstName": "Esteban",
+  "lastName": "Martínez",
+  "email": "esteban.martinez@example.com",
+  "phone": "+573012345678",
+  "personnelType": {
+    "$oid": "686ca786d98d557094e88339"
+  },
+  "status": "disponible",
+  "skills": [
+    "Planificación académica",
+    "Liderazgo"
+  ],
+  "createdAt": {
+    "$date": "2025-07-08T05:11:16.496Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:11:16.496Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ca881d98d557094e88350"
+  },
+  "firstName": "Paula",
+  "lastName": "López",
+  "email": "paula.lopez@example.com",
+  "phone": "+573005678123",
+  "personnelType": {
+    "$oid": "686ca796d98d557094e8833b"
+  },
+  "status": "disponible",
+  "skills": [
+    "Gestión de equipos",
+    "Scrum",
+    "Comunicación efectiva"
+  ],
+  "createdAt": {
+    "$date": "2025-07-08T05:11:29.034Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:11:29.034Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ca88bd98d557094e88353"
+  },
+  "firstName": "Ricardo",
+  "lastName": "Torres",
+  "email": "ricardo.torres@example.com",
+  "phone": "+573008889999",
+  "personnelType": {
+    "$oid": "686ca7a1d98d557094e8833d"
+  },
+  "status": "disponible",
+  "skills": [
+    "Soporte técnico",
+    "Diagnóstico de hardware",
+    "Redes"
+  ],
+  "createdAt": {
+    "$date": "2025-07-08T05:11:39.610Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:11:39.610Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ca894d98d557094e88356"
+  },
+  "firstName": "Natalia",
+  "lastName": "Mejía",
+  "email": "natalia.mejia@example.com",
+  "phone": "+573006666777",
+  "personnelType": {
+    "$oid": "686ca7afd98d557094e8833f"
+  },
+  "status": "disponible",
+  "skills": [
+    "Node.js",
+    "Angular",
+    "MongoDB"
+  ],
+  "createdAt": {
+    "$date": "2025-07-08T05:11:48.020Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:11:48.020Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ca89ed98d557094e88359"
+  },
+  "firstName": "Jorge",
+  "lastName": "Salazar",
+  "email": "jorge.salazar@example.com",
+  "phone": "+573005551234",
+  "personnelType": {
+    "$oid": "686ca7bbd98d557094e88341"
+  },
+  "status": "disponible",
+  "skills": [
+    "Análisis de requisitos",
+    "Documentación",
+    "UML"
+  ],
+  "createdAt": {
+    "$date": "2025-07-08T05:11:58.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:11:58.814Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ca8a9d98d557094e8835c"
+  },
+  "firstName": "Luisa",
+  "lastName": "Mendoza",
+  "email": "luisa.mendoza@example.com",
+  "phone": "+573004441111",
+  "personnelType": {
+    "$oid": "686ca7cad98d557094e88343"
+  },
+  "status": "disponible",
+  "skills": [
+    "Gestión documental",
+    "Archivo físico y digital"
+  ],
+  "createdAt": {
+    "$date": "2025-07-08T05:12:09.824Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:12:09.824Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ca8b6d98d557094e8835f"
+  },
+  "firstName": "Daniel",
+  "lastName": "Cárdenas",
+  "email": "daniel.cardenas@example.com",
+  "phone": "+573003331122",
+  "personnelType": {
+    "$oid": "686ca7d5d98d557094e88345"
+  },
+  "status": "disponible",
+  "skills": [
+    "Pedagogía",
+    "Capacitación técnica"
+  ],
+  "createdAt": {
+    "$date": "2025-07-08T05:12:22.530Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:12:22.530Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ca8bfd98d557094e88362"
+  },
+  "firstName": "Andrea",
+  "lastName": "Moreno",
+  "email": "andrea.moreno@example.com",
+  "phone": "+573002229988",
+  "personnelType": {
+    "$oid": "686ca7e1d98d557094e88347"
+  },
+  "status": "disponible",
+  "skills": [
+    "Evaluación de desempeño",
+    "Indicadores",
+    "Retroalimentación"
+  ],
+  "createdAt": {
+    "$date": "2025-07-08T05:12:31.790Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T05:12:31.790Z"
+  }
+}]
