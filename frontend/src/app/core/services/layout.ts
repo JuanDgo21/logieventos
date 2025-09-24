@@ -50,7 +50,9 @@ export class LayoutService {
             { name: 'Listado de Personal', icon: 'id-badge', path: '/staff/personnel' }
           ]
         },
-        { name: 'Proveedores', icon: 'truck', path: 'pages/providers' },
+         { name: 'Proveedor', icon: 'users-cog', 
+          path: 'home-providers', // Ruta padre
+        },
         { name: 'Recursos', icon: 'box-open', path: 'inventory-page' },
         { name: 'Contratos', icon: 'file-contract', path: 'contracts-page' },
         

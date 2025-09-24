@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { ProvidersPage } from './components/providers/providers';
+import { ProvidersPageComponent } from './components/providers/providers';
 import { InventoryPageComponent } from './components/inventory-page/inventory-page';
 import { DashboardComponent } from './components/dashboard/dashboard';
 import { ContractsPage } from './components/contracts-page/contracts-page';
@@ -16,7 +16,7 @@ const routes: Routes = [
   { path: 'usuarios', component: DashboardUsersComponent },
   { path: 'personal', component: DashboardStaffComponent },
 
-  { path: 'home-providers', component: ProvidersPage },
+  { path: 'home-providers', component: ProvidersPageComponent },
   { path: 'inventory-page', component: InventoryPageComponent },
   { path: 'contracts-page', component: ContractsPage},
   { path: 'events-page', component: EventPageComponent }

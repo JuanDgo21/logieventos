@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { PagesRoutingModule } from './pages-routing-module';
-import { ProvidersPage } from './components/providers/providers';
+import { ProvidersPageComponent } from './components/providers/providers';
 import { RouterModule } from '@angular/router';
 import { InventoryPageComponent } from './components/inventory-page/inventory-page';
 import { DashboardComponent } from './components/dashboard/dashboard';
@@ -21,7 +21,7 @@ import { EventPageComponent } from './components/event-page/event-page';
 
 @NgModule({
   declarations: [
-    ProvidersPage,
+    ProvidersPageComponent,
     InventoryPageComponent,
     DashboardComponent,
     ContractsPage,
@@ -46,7 +46,7 @@ import { EventPageComponent } from './components/event-page/event-page';
     // AuthService
   ],
   exports: [
-    ProvidersPage,
+    ProvidersPageComponent,
     InventoryPageComponent,
     DashboardComponent,
     ContractsPage,

@@ -1,13 +1,16 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { Holi } from './components/holi/holi';
+import { ProviderComponent } from './provider/provider';
+import { ProviderType } from '../../shared/interfaces/provider-type';
+import { ProviderTypeComponent } from './provider-type/provider-type';
 
 const routes: Routes = [
-  { path: 'nose', component: Holi }
+    {path: 'providers', component: ProviderComponent},
+    {path: 'provider-type', component: ProviderTypeComponent},
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class ProviderRoutingModule { }
+export class ProviderRoutingModule {}
