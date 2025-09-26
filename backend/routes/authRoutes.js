@@ -4,7 +4,7 @@ const router = express.Router();
 
 // Importación del controlador de autenticación y middlewares de validación
 const authController = require('../controllers/authControllers');
-const { verifySignup } = require('../middlewares');
+const { verifySignup, authJwt } = require('../middlewares');
 
 /**
  * Ruta para registro de nuevos usuarios
@@ -33,6 +33,7 @@ router.post('/signup',
 router.post('/signin', authController.signin);  // Controlador de autenticación directo
 
 // Nuevas rutas para recuperación de contraseña
+router.post('/change-password', [authJwt.verifyToken], authController.changePassword);
 router.post('/forgot-password', authController.forgotPassword);
 router.post('/reset-password', authController.resetPassword);
 

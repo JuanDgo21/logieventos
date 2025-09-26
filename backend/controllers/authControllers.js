@@ -291,9 +291,47 @@ const resetPassword = async (req, res) => {
   }
 };
 
+/**
+ * Función para que un usuario logueado cambie su contraseña
+ */
+// Se declara como una constante, igual que las otras funciones
+const changePassword = async (req, res) => {
+  try {
+    // 1. Encontrar al usuario por el ID que viene en el token (gracias al middleware)
+    const user = await User.findById(req.userId).select('+password');
+    if (!user) {
+      return res.status(404).send({ message: 'Usuario no encontrado.' });
+    }
+
+    const { currentPassword, newPassword } = req.body;
+
+    // 2. Verificar que la contraseña actual sea correcta
+    const passwordIsValid = bcrypt.compareSync(
+      currentPassword,
+      user.password
+    );
+
+    if (!passwordIsValid) {
+      return res.status(401).send({ message: 'La contraseña actual es incorrecta.' });
+    }
+
+    // 3. Hashear y guardar la nueva contraseña
+    // El middleware .pre('save') de tu modelo User.js se encargará del hasheo automáticamente
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).send({ message: '¡Contraseña actualizada correctamente!' });
+
+  } catch (error) {
+    console.error("Error en changePassword:", error);
+    res.status(500).send({ message: 'Ocurrió un error en el servidor.' });
+  }
+};
+
 module.exports = {
   signup,
   signin,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  changePassword
 };
