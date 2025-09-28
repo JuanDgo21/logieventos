@@ -12,9 +12,14 @@
 
     <div class="header-container">
       <h1 class="page-title">Gestión de Eventos</h1>
-      <button class="btn btn-primary new-event-btn" (click)="openModal('create')">
-        <i class="fas fa-plus me-2"></i>Nuevo Evento
-      </button>
+      <div class="d-flex gap-2">
+        <button class="btn btn-secondary" routerLink="/pages/event-types">
+            <i class="fas fa-tags me-2"></i>Tipos de Eventos
+        </button>
+        <button class="btn btn-primary new-event-btn" (click)="openModal('create')">
+          <i class="fas fa-plus me-2"></i>Nuevo Evento
+        </button>
+      </div>
     </div>
 
     <div class="filters-container">

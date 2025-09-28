@@ -17,6 +17,7 @@ import { StaffModule } from '../modules/staff/staff-module';
 import { UserManagementModule } from '../modules/user-management/user-management-module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EventPageComponent } from './components/event-page/event-page';
+import { EventTypeComponent } from './components/event-type/event-type';
 
 
 @NgModule({
@@ -27,7 +28,8 @@ import { EventPageComponent } from './components/event-page/event-page';
     ContractsPage,
     DashboardUsersComponent,
     DashboardStaffComponent,
-    EventPageComponent
+    EventPageComponent,
+    EventTypeComponent
   ],
   imports: [
     CommonModule,

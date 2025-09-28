@@ -1,0 +1,375 @@
+@use '../../../../styles.scss' as *;
+
+// Estructura principal
+.main-container {
+  display: flex;
+  min-height: 100vh;
+  background: $dark-color;
+  color: $light-color;
+}
+
+// Contenedor de contenido
+.container-fluid {
+  flex: 1;
+  padding: 1.5rem; // Padding uniforme
+  margin-left: 280px; // Ancho del sidebar
+  transition: margin-left 0.3s ease;
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba($primary-color, 0.1) 0%, transparent 20%),
+    radial-gradient(circle at 90% 80%, rgba($secondary-color, 0.1) 0%, transparent 20%);
+    
+  @media (max-width: 992px) {
+    margin-left: 0;
+    padding: 1rem;
+  }
+}
+
+// Header
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  
+  .page-title-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .back-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    color: $light-color;
+    font-size: 1rem;
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+      background: rgba(255,255,255,0.2);
+    }
+  }
+  
+  .page-title {
+    color: $light-color;
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .new-event-btn {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    
+    @media (max-width: 576px) {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+// Filtros
+.filters-container {
+  @include glass-effect;
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+
+  .search-filter {
+    flex-grow: 1;
+    min-width: 300px;
+    position: relative;
+    
+    i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,0.7);
+    }
+    
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 3rem;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: white;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+        background: rgba(255,255,255,0.15);
+        box-shadow: 0 0 0 2px rgba($primary-color, 0.3);
+      }
+      
+      &::placeholder { color: rgba(255,255,255,0.5); }
+    }
+  }
+  
+  .filter-selectors {
+    flex-shrink: 0;
+    min-width: 200px;
+    
+    select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: white;
+      font-size: 1rem;
+      
+      option {
+        background: rgba(26, 26, 46, 0.95);
+        color: white;
+      }
+    }
+  }
+}
+
+// Contenedor de la tabla
+.table-responsive-container {
+  @include glass-effect;
+  border-radius: 15px;
+  padding: 2rem;
+  overflow-x: auto;
+}
+
+.table {
+  color: $light-color;
+  border-color: rgba(255, 255, 255, 0.15);
+  min-width: 700px;
+
+  thead th {
+    color: rgba($light-color, 0.7);
+    border-bottom-width: 2px;
+    padding: 1rem 1.5rem;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+  }
+
+  tbody tr {
+    transition: background-color 0.2s ease;
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  td {
+    padding: 1rem 1.5rem;
+    vertical-align: middle;
+  }
+
+  .badge {
+    padding: 0.4em 0.8em;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .category-badge {
+    color: white;
+    &.category-corporativo { background-color: rgba($primary-color, 0.8); }
+    &.category-social { background-color: rgba($secondary-color, 0.8); }
+    &.category-cultural { background-color: rgba(156, 39, 176, 0.8); }
+    &.category-deportivo { background-color: rgba(40, 167, 69, 0.8); }
+    &.category-academico { background-color: rgba(23, 162, 184, 0.8); }
+  }
+
+  .actions-cell {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+  }
+
+  .btn-sm {
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .table-toggle {
+    display: inline-flex;
+    align-items: center;
+    padding-left: 0;
+    
+    .form-check-input {
+      width: 2.5em;
+      height: 1.25em;
+      margin-left: 0;
+      cursor: pointer;
+      background-color: rgba(255,255,255,0.2);
+      border-color: rgba(255,255,255,0.3);
+
+      &:checked {
+        background-color: $success-color;
+        border-color: $success-color;
+      }
+    }
+    
+    .form-check-label {
+      margin-left: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+  }
+}
+
+// Estado vacío
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: rgba(255, 255, 255, 0.6);
+  i { font-size: 3rem; margin-bottom: 1rem; }
+  h4 { margin-bottom: 0.5rem; }
+  p { color: rgba(255, 255, 255, 0.4); }
+}
+
+// Modal
+.modal-content {
+  @include glass-effect;
+  border: none;
+
+  .modal-body {
+    background: rgba($dark-color, 0.9);
+    padding: 2rem;
+    max-height: 70vh;
+    overflow-y: auto;
+
+    h6 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: $light-color;
+      margin-top: 2rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .form-label {
+      color: rgba($light-color, 0.8);
+      font-weight: 500;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: $light-color;
+      padding: 0.75rem 1rem;
+      
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+      }
+      
+      &:focus {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: $primary-color;
+        box-shadow: 0 0 0 0.25rem rgba($primary-color, 0.25);
+      }
+    }
+
+    .form-select option {
+      background: rgba(26, 26, 46, 0.95);
+    }
+    
+    .custom-toggle {
+      .form-check-input {
+        height: 1.5em;
+        width: 3em;
+        margin-top: 0;
+        background-color: rgba(255,255,255,0.2);
+        border-color: rgba(255,255,255,0.3);
+        &:checked {
+          background-color: $primary-color;
+          border-color: $primary-color;
+        }
+        &:focus {
+          box-shadow: 0 0 0 0.25rem rgba($primary-color, 0.25);
+        }
+      }
+      .form-check-label {
+        color: rgba($light-color, 0.9);
+        font-weight: 500;
+        margin-left: 0.5rem;
+        line-height: 1.5em;
+      }
+    }
+
+    .resource-row {
+      padding: 1rem 0;
+      margin-bottom: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      &:last-of-type {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+    }
+    
+    .btn-add-row {
+      display: inline-flex;
+      align-items: center;
+      color: $success-color;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      padding: 0.5rem 0;
+      transition: color 0.2s ease;
+      i {
+        margin-right: 0.5rem;
+      }
+      &:hover {
+        color: lighten($success-color, 15%);
+      }
+    }
+
+    .btn-remove {
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      line-height: 1;
+      padding: 0;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+  }
+
+  .modal-footer {
+    padding: 1.5rem 2rem;
+    gap: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+// Reglas para Responsive
+@media (max-width: 768px) {
+  .modal-body {
+    .row > [class*="col-"] {
+      &:not(:last-child) {
+        margin-bottom: 1rem;
+      }
+    }
+
+    .resource-row > [class*="col-"] {
+      &:not(:last-child) {
+        margin-bottom: 0.75rem;
+      }
+    }
+  }
+}

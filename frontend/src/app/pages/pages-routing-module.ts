@@ -7,6 +7,7 @@ import { ContractsPage } from './components/contracts-page/contracts-page';
 import { DashboardUsersComponent } from './components/dashboard-users/dashboard-users';
 import { DashboardStaffComponent } from './components/dashboard-staff/dashboard-staff';
 import { EventPageComponent } from './components/event-page/event-page';
+import { EventTypeComponent } from './components/event-type/event-type';
 
 const routes: Routes = [
 
@@ -19,7 +20,8 @@ const routes: Routes = [
   { path: 'home-providers', component: ProvidersPageComponent },
   { path: 'inventory-page', component: InventoryPageComponent },
   { path: 'contracts-page', component: ContractsPage},
-  { path: 'events-page', component: EventPageComponent }
+  { path: 'events-page', component: EventPageComponent },
+  { path: 'event-types', component: EventTypeComponent }
 ];
 
 @NgModule({

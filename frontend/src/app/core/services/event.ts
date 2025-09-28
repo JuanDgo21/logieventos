@@ -21,6 +21,12 @@ export interface Contract {
   name: string;
 }
 
+export interface PersonnelType {
+  _id: string;
+  name: string;
+  description?: string;
+}
+
 // --- NUEVO: Interfaces para las respuestas de la API de User y Contract ---
 export interface UserApiResponse {
   success: boolean;
@@ -31,6 +37,12 @@ export interface UserApiResponse {
 export interface ContractApiResponse {
   success: boolean;
   data: Contract | Contract[];
+  message?: string;
+}
+
+export interface PersonnelTypeApiResponse {
+  success: boolean;
+  data: PersonnelType | PersonnelType[];
   message?: string;
 }
 
@@ -53,6 +65,9 @@ export class EventService {
   private contractsSubject = new BehaviorSubject<Contract[]>([]);
   public contracts$ = this.contractsSubject.asObservable();
 
+  private personnelTypesSubject = new BehaviorSubject<PersonnelType[]>([]);
+  public personnelTypes$ = this.personnelTypesSubject.asObservable();
+
 
   constructor(private apiService: ApiService) {
     this.loadInitialData();
@@ -69,6 +84,7 @@ export class EventService {
     // --- NUEVO: Cargar usuarios y contratos ---
     this.getAllUsers().subscribe();
     this.getAllContracts().subscribe();
+    this.getAllPersonnelTypes().subscribe();
   }
 
   // ============ MÉTODOS UTILITARIOS ============
@@ -365,6 +381,15 @@ export class EventService {
   getActiveEventTypes(): Observable<EventType[]> {
     return this.eventTypes$.pipe(
       map(eventTypes => eventTypes.filter(eventType => eventType.active))
+    );
+  }
+
+  getAllPersonnelTypes(): Observable<PersonnelType[]> {
+    // Asegúrate de que esta ruta exista en tus apiRouters
+    return this.apiService.getOb(apiRouters.TYPES.PERSONNEL.BASE).pipe(
+      map((response: any) => this.handleArrayResponse<PersonnelType>(response as PersonnelTypeApiResponse)),
+      tap(personnelTypes => this.personnelTypesSubject.next(personnelTypes)),
+      catchError(error => this.handleError('Error obteniendo tipos de personal', error))
     );
   }
 
