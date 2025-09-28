@@ -1,3 +1,5 @@
+// event.ts
+
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, map, Observable, tap, throwError } from 'rxjs';
 import { ApiService } from './api';
@@ -6,6 +8,32 @@ import { apiRouters } from '../constants/apiRouters';
 // CORREGIR: Importar desde la ubicación correcta
 import { Event, EventApiResponse, NewEvent, UpdateEvent } from '../../shared/interfaces/event';
 import { EventType, EventTypeApiResponse, NewEventType, UpdateEventType } from '../../shared/interfaces/event-type';
+
+// --- NUEVO: Interfaces para los datos que necesitamos en el formulario ---
+export interface User {
+  _id: string;
+  fullname: string;
+  username: string;
+}
+
+export interface Contract {
+  _id: string;
+  name: string;
+}
+
+// --- NUEVO: Interfaces para las respuestas de la API de User y Contract ---
+export interface UserApiResponse {
+  success: boolean;
+  data: User | User[];
+  message?: string;
+}
+
+export interface ContractApiResponse {
+  success: boolean;
+  data: Contract | Contract[];
+  message?: string;
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +45,14 @@ export class EventService {
 
   private eventTypesSubject = new BehaviorSubject<EventType[]>([]);
   public eventTypes$ = this.eventTypesSubject.asObservable();
+
+  // --- NUEVO: Subjects para usuarios y contratos ---
+  private usersSubject = new BehaviorSubject<User[]>([]);
+  public users$ = this.usersSubject.asObservable();
+
+  private contractsSubject = new BehaviorSubject<Contract[]>([]);
+  public contracts$ = this.contractsSubject.asObservable();
+
 
   constructor(private apiService: ApiService) {
     this.loadInitialData();
@@ -30,6 +66,9 @@ export class EventService {
   private loadInitialData(): void {
     this.getAllEvents().subscribe();
     this.getAllEventTypes().subscribe();
+    // --- NUEVO: Cargar usuarios y contratos ---
+    this.getAllUsers().subscribe();
+    this.getAllContracts().subscribe();
   }
 
   // ============ MÉTODOS UTILITARIOS ============
@@ -38,7 +77,7 @@ export class EventService {
    * @param response Respuesta de la API
    * @returns Array de datos tipado
    */
-  private handleArrayResponse<T>(response: EventApiResponse | EventTypeApiResponse): T[] {
+  private handleArrayResponse<T>(response: EventApiResponse | EventTypeApiResponse | UserApiResponse | ContractApiResponse): T[] {
     if (!response.success) {
       throw new Error(response.message || 'Operación fallida');
     }
@@ -55,7 +94,7 @@ export class EventService {
    * @param response Respuesta de la API
    * @returns Objeto tipado
    */
-  private handleSingleResponse<T>(response: EventApiResponse | EventTypeApiResponse): T {
+  private handleSingleResponse<T>(response: EventApiResponse | EventTypeApiResponse | UserApiResponse | ContractApiResponse): T {
     if (!response.success) {
       throw new Error(response.message || 'Operación fallida');
     }
@@ -212,6 +251,32 @@ export class EventService {
         event.description?.toLowerCase().includes(query.toLowerCase()) ||
         event.location?.toLowerCase().includes(query.toLowerCase())
       ))
+    );
+  }
+  
+  // --- NUEVO: Métodos para obtener Usuarios y Contratos ---
+
+  /**
+   * Obtiene todos los usuarios desde la API
+   */
+  getAllUsers(): Observable<User[]> {
+    // Asegúrate de que esta ruta exista en tus apiRouters
+    return this.apiService.getOb(apiRouters.USERS.BASE).pipe(
+      map((response: any) => this.handleArrayResponse<User>(response as UserApiResponse)),
+      tap(users => this.usersSubject.next(users)),
+      catchError(error => this.handleError('Error obteniendo usuarios', error))
+    );
+  }
+
+  /**
+   * Obtiene todos los contratos desde la API
+   */
+  getAllContracts(): Observable<Contract[]> {
+    // Asegúrate de que esta ruta exista en tus apiRouters
+    return this.apiService.getOb(apiRouters.CONTRACTS.BASE).pipe(
+      map((response: any) => this.handleArrayResponse<Contract>(response as ContractApiResponse)),
+      tap(contracts => this.contractsSubject.next(contracts)),
+      catchError(error => this.handleError('Error obteniendo contratos', error))
     );
   }
 

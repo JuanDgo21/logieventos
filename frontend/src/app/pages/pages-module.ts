@@ -15,7 +15,7 @@ import { NgbProgressbarModule } from '@ng-bootstrap/ng-bootstrap';
 import { DashboardStaffComponent } from './components/dashboard-staff/dashboard-staff';
 import { StaffModule } from '../modules/staff/staff-module';
 import { UserManagementModule } from '../modules/user-management/user-management-module';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EventPageComponent } from './components/event-page/event-page';
 
 
@@ -37,6 +37,7 @@ import { EventPageComponent } from './components/event-page/event-page';
     FontAwesomeModule,
     RouterModule,
     FormsModule,
+    ReactiveFormsModule,
     NgbProgressbarModule,
     StaffModule,
     UserManagementModule,

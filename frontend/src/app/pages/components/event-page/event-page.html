@@ -1,10 +1,8 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
 <div class="main-container">
-  <!-- Navbar, Sidebar y Footer deben estar disponibles a través del SharedModule -->
-  <app-navbar></app-navbar>
-  <app-sidebar></app-sidebar>
 
   <div class="container-fluid py-4">
-    <!-- Loading indicator -->
     <div *ngIf="isLoading" class="loading-overlay">
       <div class="spinner-grow text-primary" role="status">
         <span class="visually-hidden">Cargando...</span>
@@ -12,7 +10,6 @@
       <p class="mt-3">Cargando eventos...</p>
     </div>
 
-    <!-- Header responsive -->
     <div class="header-container">
       <h1 class="page-title">Gestión de Eventos</h1>
       <button class="btn btn-primary new-event-btn" (click)="openModal('create')">
@@ -20,7 +17,6 @@
       </button>
     </div>
 
-    <!-- Panel de filtros responsive -->
     <div class="filters-container">
       <div class="search-filter">
         <i class="fas fa-search"></i>
@@ -45,7 +41,6 @@
       </div>
     </div>
 
-    <!-- Listado de eventos responsive -->
     <div *ngIf="!isLoading" class="events-grid">
       <div class="event-card" *ngFor="let event of filteredEvents">
         <div class="card-header">
@@ -95,7 +90,6 @@
       </div>
     </div>
 
-    <!-- Mensaje cuando no hay eventos -->
     <div *ngIf="!isLoading && filteredEvents.length === 0" class="empty-state">
       <i class="far fa-calendar-times"></i>
       <h4>No se encontraron eventos</h4>
@@ -105,8 +99,7 @@
       </button>
     </div>
 
-    <!-- Modal mejorado -->
-<div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'">
+    <div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg">
       <div class="modal-header bg-primary text-white">
@@ -117,53 +110,68 @@
         <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
       </div>
       <div class="modal-body">
-        <form>
+        <form [formGroup]="eventForm">
           <div class="row g-3">
-            <div class="col-md-8">
+            <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label">Nombre del evento <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" 
-                       [(ngModel)]="currentEvent.name" 
-                       name="name" 
-                       required>
+                <input type="text" class="form-control" formControlName="name">
               </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
               <div class="mb-3">
-                <label class="form-label">Tipo de evento</label>
-                <select class="form-select" [(ngModel)]="currentEvent.eventType" name="eventType">
-                  <option value="">Sin tipo</option> <!-- Cambiado de [ngValue]="null" a value="" -->
+                <label class="form-label">Tipo de evento <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="eventType">
+                  <option [ngValue]="null" disabled>Seleccione un tipo</option>
                   <option *ngFor="let type of eventTypes" [value]="type._id">{{type.name}}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Contrato asociado <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="contract">
+                  <option [ngValue]="null" disabled>Seleccione un contrato</option>
+                  <option *ngFor="let contract of contracts" [value]="contract._id">{{contract.name}}</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Responsable <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="responsable">
+                  <option [ngValue]="null" disabled>Seleccione un responsable</option>
+                  <option *ngFor="let user of users" [value]="user._id">{{user.fullname}}</option>
                 </select>
               </div>
             </div>
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Descripción</label>
+            <label class="form-label">Descripción <span class="text-danger">*</span></label>
             <textarea class="form-control" 
-                      [(ngModel)]="currentEvent.description" 
-                      name="description" 
+                      formControlName="description" 
                       rows="3"
                       placeholder="Describe el evento..."></textarea>
+            <div *ngIf="eventForm.get('description')?.invalid && eventForm.get('description')?.touched" 
+                 class="text-danger mt-1" style="font-size: 0.875rem;">
+              La descripción es obligatoria.
+            </div>
           </div>
-
           <div class="row g-3">
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label">Fecha de inicio <span class="text-danger">*</span></label>
-                <input type="date" class="form-control" 
-                       [(ngModel)]="currentEvent.startDate" 
-                       name="startDate" 
-                       required>
+                <input type="date" class="form-control" formControlName="startDate">
               </div>
             </div>
             <div class="col-md-6">
               <div class="mb-3">
-                <label class="form-label">Fecha de fin</label>
-                <input type="date" class="form-control" 
-                       [(ngModel)]="currentEvent.endDate" 
-                       name="endDate">
+                <label class="form-label">Fecha de fin <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" formControlName="endDate">
               </div>
             </div>
           </div>
@@ -172,19 +180,13 @@
             <div class="col-md-8">
               <div class="mb-3">
                 <label class="form-label">Ubicación <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" 
-                       [(ngModel)]="currentEvent.location" 
-                       name="location" 
-                       required>
+                <input type="text" class="form-control" formControlName="location">
               </div>
             </div>
             <div class="col-md-4">
               <div class="mb-3">
                 <label class="form-label">Estado <span class="text-danger">*</span></label>
-                <select class="form-select" 
-                        [(ngModel)]="currentEvent.status" 
-                        name="status" 
-                        required>
+                <select class="form-select" formControlName="status">
                   <option *ngFor="let status of statusOptions" [value]="status.value">
                     {{status.label}}
                   </option>
@@ -198,7 +200,7 @@
         <button type="button" class="btn btn-outline-secondary" (click)="closeModal()">
           <i class="fas fa-times me-1"></i> Cancelar
         </button>
-        <button type="button" class="btn btn-primary" (click)="saveEvent()">
+        <button type="button" class="btn btn-primary" (click)="saveEvent()" [disabled]="eventForm.invalid">
           <i [class]="editingEvent ? 'fas fa-save me-1' : 'fas fa-check me-1'"></i>
           {{editingEvent ? 'Guardar cambios' : 'Crear evento'}}
         </button>
@@ -207,6 +209,6 @@
   </div>
 </div>
 <div class="modal-backdrop fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'"></div>
+
 </div>
-<!-- Footer mejorado -->
 <app-footer></app-footer>
