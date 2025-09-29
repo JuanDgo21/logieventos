@@ -69,7 +69,7 @@ export class LayoutService {
       ],
       coordinador: [
         { name: 'Dashboard', icon: 'tachometer-alt', path: '/pages/principal' },
-        { name: 'Eventos', icon: 'calendar', path: 'pages/events' },
+        { name: 'Eventos', icon: 'calendar', path: 'events-page' },
         { name: 'Personal', icon: 'users-cog', 
           path: '/pages/personal', // Ruta padre
           children: [
@@ -81,7 +81,7 @@ export class LayoutService {
         { name: 'Contratos', icon: 'file-contract', path: 'contracts-page' }
       ],
       lider: [
-        { name: 'Mis Eventos', icon: 'calendar-check', path: 'pages/my-events' },
+        { name: 'Eventos', icon: 'calendar', path: 'events-page' },
         { name: 'Personal', icon: 'users-cog', 
           path: '/pages/personal', // Ruta padre
           children: [
