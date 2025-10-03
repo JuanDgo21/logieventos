@@ -1,6 +1,5 @@
 <app-sidebar></app-sidebar>
 
-
 <div class="provider-container">
   <div class="content" [class.sidebar-collapsed]="!sidebarState.isOpen">
     <app-navbar></app-navbar>
@@ -68,13 +67,18 @@
                  [disabled]="isLoading">
         </div>
 
+        <!-- 🔥 Aquí cambiamos el input por un select -->
         <div class="form-group">
           <label>Tipo de Proveedor:</label>
-          <input type="text" 
-                 [(ngModel)]="(editingProvider || newProvider).providerType"
-                 name="providerType" 
-                 required
-                 [disabled]="isLoading">
+          <select [(ngModel)]="(editingProvider || newProvider).providerType"
+        name="providerType"
+        required
+        [disabled]="isLoading">
+  <option *ngFor="let type of providerTypes" [ngValue]="type._id">
+    {{ type.name }}
+  </option>
+</select>
+
         </div>
 
         <div class="form-group">
@@ -120,7 +124,9 @@
             <td>{{ provider.contactPerson || '--' }}</td>
             <td>{{ provider.email || '--' }}</td>
             <td>{{ provider.phone || '--' }}</td>
-            <td>{{ provider.providerType }}</td>
+            <!-- 🔥 Aquí mostramos el nombre en vez del ID -->
+            <td>{{ getProviderTypeName(provider.providerType) }}</td>
+
             <td>
               <span class="status-badge" 
                     [class.activo]="provider.status === 'activo'"

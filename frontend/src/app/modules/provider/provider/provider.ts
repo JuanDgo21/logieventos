@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth';
 import { Router } from '@angular/router';
@@ -12,8 +12,15 @@ interface Provider {
   email?: string;
   phone?: string;
   address?: string;
-  providerType: string;
+  providerType: string; // puede ser _id o nombre según cómo se creó
   status: 'activo' | 'inactivo' | 'suspendido';
+}
+
+interface ProviderType {
+  _id: string;
+  name: string;
+  description?: string;
+  isActive: boolean;
 }
 
 @Component({
@@ -22,10 +29,13 @@ interface Provider {
   templateUrl: './provider.html',
   styleUrls: ['./provider.scss']
 })
-export class ProviderComponent {
+export class ProviderComponent implements OnInit {
   apiUrl = 'http://localhost:3000/api/providers';
+  apiTypesUrl = 'http://localhost:3000/api/provider-types';
 
   providers: Provider[] = [];
+  providerTypes: ProviderType[] = [];
+
   newProvider: Provider = this.getEmptyProvider();
   editingProvider: Provider | null = null;
 
@@ -41,7 +51,11 @@ export class ProviderComponent {
     public sidebarState: SidebarStateService
   ) {
     this.sidebarState.isOpen = true;
+  }
+
+  ngOnInit(): void {
     this.loadProviders();
+    this.loadProviderTypes();
   }
 
   /** ===========================
@@ -95,6 +109,18 @@ export class ProviderComponent {
           this.errorMessage = 'Error al cargar proveedores';
           console.error(err);
           this.isLoading = false;
+        }
+      });
+  }
+
+  loadProviderTypes(): void {
+    this.http.get<{ data: ProviderType[] }>(this.apiTypesUrl, { headers: this.getAuthHeaders() })
+      .subscribe({
+        next: (res) => {
+          this.providerTypes = res.data.filter(type => type.isActive);
+        },
+        error: (err) => {
+          console.error('Error al cargar tipos de proveedor', err);
         }
       });
   }
@@ -173,4 +199,34 @@ export class ProviderComponent {
   cancelEdit(): void {
     this.editingProvider = null;
   }
+
+  /** ===========================
+   *  Mostrar nombre de tipo
+   *  =========================== */
+ getProviderTypeName(providerType: any): string {
+  if (!providerType) return '---';
+
+  // 🔹 Si es un objeto con nombre (caso viejo que guarda todo el objeto)
+  if (typeof providerType === 'object' && providerType.name) {
+    return providerType.name;
+  }
+
+  // 🔹 Si es un string (id en Mongo)
+  if (typeof providerType === 'string') {
+    const byId = this.providerTypes.find(t => t._id === providerType);
+    if (byId) return byId.name;
+
+    // Si no es un id válido pero es un texto
+    const byName = this.providerTypes.find(
+      t => t.name.toLowerCase() === providerType.toLowerCase()
+    );
+    if (byName) return byName.name;
+
+    return providerType; // mostrar tal cual
+  }
+
+  // 🔹 Caso raro (número, booleano, etc.)
+  return String(providerType);
+}
+
 }
