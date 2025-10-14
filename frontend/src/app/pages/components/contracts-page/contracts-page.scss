@@ -1,0 +1,573 @@
+@use '../../../../styles.scss' as *;
+
+.contratos-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  background-color: $dark-color;
+  color: $light-color;
+}
+
+/* ==========================================
+   ESTRUCTURA PRINCIPAL
+============================================= */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  margin-left: 250px; // Ajustar según el ancho de tu sidebar
+  transition: margin 0.3s ease;
+
+  @media (max-width: 992px) {
+    margin-left: 0;
+    padding: 1rem;
+  }
+}
+
+.container-fluid {
+  padding: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ==========================================
+   ENCABEZADO Y BÚSQUEDA
+============================================= */
+.d-flex.justify-content-between.align-items-center {
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba($light-color, 0.1);
+  margin-bottom: 2rem;
+
+  h1 {
+    font-weight: 600;
+    color: $light-color;
+    margin: 0;
+  }
+}
+
+/* ==========================================
+   COMPONENTE DE BÚSQUEDA MEJORADO
+============================================= */
+.search-container-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+
+  .search-box {
+    position: relative;
+    transition: all 0.3s ease;
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+
+    input {
+      @include glass-effect;
+      border-radius: 50px;
+      padding: 0.5rem 1rem;
+      color: $light-color;
+      border: 1px solid rgba($light-color, 0.2);
+      transition: all 0.3s ease;
+      width: 100%;
+
+      &::placeholder {
+        color: rgba($light-color, 0.6);
+      }
+
+      &:focus {
+        border-color: $primary-color;
+        box-shadow: 0 0 0 2px rgba($primary-color, 0.3);
+      }
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: rgba($light-color, 0.6);
+      cursor: pointer;
+      transition: color 0.2s;
+
+      &:hover {
+        color: $danger-color;
+      }
+    }
+  }
+
+  .search-toggle {
+    @include glass-effect;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $light-color;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    i {
+      transition: transform 0.2s;
+    }
+
+    &:hover {
+      background: rgba($light-color, 0.1);
+      color: $primary-color;
+    }
+  }
+
+  &.active {
+    .search-box {
+      width: 250px;
+      opacity: 1;
+      margin-right: 0.5rem;
+    }
+
+    .search-toggle {
+      background: rgba($primary-color, 0.2);
+      color: $primary-color;
+    }
+  }
+
+  &.has-text {
+    .search-toggle {
+      background: $gradient-primary;
+      color: white;
+    }
+  }
+}
+
+/* ==========================================
+   TARJETAS DE ESTADO
+============================================= */
+.card {
+  @include glass-effect;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border-left: 4px solid;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .card-body {
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .card-title {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  .display-6 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0;
+  }
+}
+
+// Colores para los estados basados en statusMeta
+.border-borrador { border-color: map-get($status-colors, 'borrador'); }
+.border-activo { border-color: map-get($status-colors, 'activo'); }
+.border-completado { border-color: map-get($status-colors, 'completado'); }
+.border-cancelado { border-color: map-get($status-colors, 'cancelado'); }
+
+/* ==========================================
+   TABLAS
+============================================= */
+.table-responsive {
+  border-radius: 12px;
+  overflow: hidden;
+  @include glass-effect;
+}
+
+.table {
+  margin-bottom: 0;
+  color: $light-color;
+
+  thead {
+    th {
+      background: rgba($primary-color, 0.2);
+      border-bottom: none;
+      font-weight: 500;
+      padding: 1rem;
+    }
+  }
+
+  tbody {
+    tr {
+      transition: all 0.2s ease;
+      border-bottom: 1px solid rgba($light-color, 0.05);
+
+      &:hover {
+        background: rgba($light-color, 0.03);
+      }
+
+      td {
+        padding: 1rem;
+        vertical-align: middle;
+      }
+    }
+  }
+}
+
+/* ==========================================
+   RESULTADOS DE BÚSQUEDA
+============================================= */
+.search-results-container {
+  animation: fadeIn 0.3s ease;
+  margin-top: 1rem;
+
+  .card-header {
+    background: rgba($primary-color, 0.2) !important;
+    border-bottom: none;
+  }
+
+  .no-results {
+    padding: 2rem;
+    text-align: center;
+    color: rgba($light-color, 0.7);
+
+    h5 {
+      color: $light-color;
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+/* ==========================================
+   PAGINACIÓN
+============================================= */
+.pagination {
+  .page-item {
+    margin: 0 2px;
+
+    .page-link {
+      @include glass-effect;
+      border: none;
+      color: $light-color;
+      min-width: 40px;
+      text-align: center;
+      transition: all 0.2s;
+
+      &:hover {
+        background: rgba($light-color, 0.1);
+      }
+    }
+
+    &.active .page-link {
+      background: $gradient-primary;
+      color: white;
+    }
+
+    &.disabled .page-link {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+}
+
+/* ==========================================
+   MODALES
+============================================= */
+.modal-content {
+  @include glass-effect;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+
+  .modal-header {
+    border-bottom: 1px solid rgba($light-color, 0.1);
+    background: rgba($primary-color, 0.1);
+  }
+
+  .modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  .form-label {
+    color: $light-color;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-control, .form-select {
+    @include glass-effect;
+    border: 1px solid rgba($light-color, 0.1);
+    color: $light-color;
+
+    &:focus {
+      border-color: $primary-color;
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.3);
+    }
+  }
+}
+
+/* ==========================================
+   BADGES PARA ESTADOS
+============================================= */
+.badge {
+  padding: 0.35em 0.65em;
+  font-weight: 500;
+  border-radius: 50px;
+
+  &.bg-borrador { background-color: map-get($status-colors, 'borrador'); }
+  &.bg-activo { background-color: map-get($status-colors, 'activo'); }
+  &.bg-completado { background-color: map-get($status-colors, 'completado'); }
+  &.bg-cancelado { background-color: map-get($status-colors, 'cancelado'); }
+}
+
+/* ==========================================
+   RESPONSIVIDAD
+============================================= */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
+
+  .search-container-left.active .search-box {
+    width: 180px;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================
+   FORMULARIOS DE CONTRATO
+============================================= */
+.modal-content {
+  background: rgba($dark-color, 0.9); // Fondo más opaco para mejor contraste
+  backdrop-filter: blur(10px);
+  
+  .modal-header {
+    h5 {
+      color: $light-color;
+      font-weight: 600;
+    }
+  }
+  
+  .modal-body {
+    color: rgba($light-color, 0.9); // Texto más claro
+    
+    label, .form-label {
+      color: $light-color !important;
+      opacity: 0.9;
+    }
+    
+    // Estilos para secciones colapsables
+    .border.rounded.p-3 {
+      background: rgba($light-color, 0.05);
+      border: 1px solid rgba($light-color, 0.1) !important;
+      
+      h6 {
+        color: $light-color;
+        a {
+          color: inherit;
+          text-decoration: none;
+          
+          &:hover {
+            color: $primary-color;
+          }
+        }
+      }
+    }
+    
+    // Checkboxes y sus etiquetas
+    .form-check {
+      margin-bottom: 0.5rem;
+      
+      .form-check-label {
+        color: $light-color;
+        opacity: 0.9;
+      }
+      
+      .form-check-input {
+        &:checked {
+          background-color: $primary-color;
+          border-color: $primary-color;
+        }
+      }
+    }
+    
+    // Inputs de cantidad/rol/horas
+    .ms-4.mt-1 {
+      .form-control-sm {
+        background: rgba($light-color, 0.1);
+        border-color: rgba($light-color, 0.2);
+        color: $light-color;
+        
+        &:focus {
+          border-color: $primary-color;
+          box-shadow: 0 0 0 0.2rem rgba($primary-color, 0.25);
+        }
+      }
+    }
+    
+    // Texto de términos
+    .text-muted.fst-italic {
+      color: rgba($light-color, 0.7) !important;
+    }
+  }
+  
+  // Botones del footer
+  .modal-footer {
+    border-top: 1px solid rgba($light-color, 0.1);
+    
+    .btn-secondary {
+      background: rgba($light-color, 0.1);
+      color: $light-color;
+      
+      &:hover {
+        background: rgba($light-color, 0.2);
+      }
+    }
+    
+    .btn-primary {
+      background: $gradient-primary;
+      border: none;
+      
+      &:hover {
+        background: linear-gradient(135deg, darken($primary-color, 5%), darken($secondary-color, 5%));
+      }
+    }
+  }
+}
+
+/* ==========================================
+   MEJORAS ESPECÍFICAS PARA CHECKBOXES
+============================================= */
+.form-check-input {
+  width: 1.2em;
+  height: 1.2em;
+  margin-top: 0.2em;
+  background-color: rgba($light-color, 0.1);
+  border: 1px solid rgba($light-color, 0.3);
+  
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba($primary-color, 0.25);
+  }
+  
+  &:checked {
+    background-color: $primary-color;
+    border-color: $primary-color;
+  }
+}
+
+/* ==========================================
+   AJUSTES PARA TEXTO EN SECCIONES
+============================================= */
+// Sección de presupuesto
+strong {
+  color: $light-color;
+  opacity: 0.9;
+}
+
+// Texto de estado
+.text-borrador { color: map-get($status-colors, 'borrador'); }
+.text-activo { color: map-get($status-colors, 'activo'); }
+.text-completado { color: map-get($status-colors, 'completado'); }
+.text-cancelado { color: map-get($status-colors, 'cancelado'); }
+
+// Texto de términos
+textarea.form-control {
+  background: rgba($light-color, 0.1);
+  border: 1px solid rgba($light-color, 0.2);
+  color: $light-color;
+  
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 0.2rem rgba($primary-color, 0.25);
+    background: rgba($light-color, 0.15);
+  }
+}
+
+/* ==========================================
+   BOTONES INFERIORES
+============================================= */
+.btn-lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* ==========================================
+   RESPONSIVIDAD PARA FORMULARIOS
+============================================= */
+@media (max-width: 768px) {
+  .modal-dialog {
+    margin: 0.5rem auto;
+  }
+  
+  .modal-content {
+    border-radius: 0;
+    
+    .modal-body {
+      padding: 1rem;
+    }
+  }
+}
+
+/* ==========================================
+   ESTILOS PARA SELECT DE ESTADO
+============================================= */
+select.form-select {
+  background-color: rgba($light-color, 0.1) !important;
+  border: 1px solid rgba($light-color, 0.2) !important;
+  color: $light-color !important;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%23ffffff' fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+
+  &:focus {
+    border-color: $primary-color !important;
+    box-shadow: 0 0 0 0.25rem rgba($primary-color, 0.25) !important;
+    outline: none;
+  }
+
+  option {
+    background-color: $dark-color;
+    color: $light-color;
+    padding: 0.5rem;
+  }
+
+  &[disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+/* Estilos específicos para cada opción de estado */
+option[value="borrador"] { color: map-get($status-colors, 'borrador'); }
+option[value="activo"] { color: map-get($status-colors, 'activo'); }
+option[value="completado"] { color: map-get($status-colors, 'completado'); }
+option[value="cancelado"] { color: map-get($status-colors, 'cancelado'); }

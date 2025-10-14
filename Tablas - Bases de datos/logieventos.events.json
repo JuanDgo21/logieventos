@@ -1,0 +1,33 @@
+[{
+  "_id": {
+    "$oid": "686d73feda5375f1ab4ecbab"
+  },
+  "name": "Expo Tecnología 2026",
+  "description": "Evento enfocado en la presentación de nuevas tecnologías.",
+  "location": "Centro de Convenciones Corferias, Bogotá",
+  "eventType": {
+    "$oid": "6865a9e2c3c70679d2911c97"
+  },
+  "contract": {
+    "$oid": "6867037e5bce9c07e0889452"
+  },
+  "responsable": {
+    "$oid": "686586fab7fc3ebb478c0b10"
+  },
+  "startDate": {
+    "$date": "2025-10-10T08:00:00.000Z"
+  },
+  "endDate": {
+    "$date": "2025-10-12T18:00:00.000Z"
+  },
+  "status": "planificado",
+  "createdBy": {
+    "$oid": "686586fab7fc3ebb478c0b10"
+  },
+  "createdAt": {
+    "$date": "2025-07-08T19:39:42.046Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-08T19:39:42.046Z"
+  }
+}]

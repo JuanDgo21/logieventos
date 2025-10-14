@@ -1,0 +1,157 @@
+<app-sidebar></app-sidebar>
+
+<div class="provider-container">
+  <div class="content" [class.sidebar-collapsed]="!sidebarState.isOpen">
+    <app-navbar></app-navbar>
+    <h2>
+      <i class="fas fa-truck"></i>
+      Gestión de Proveedores
+    </h2>
+
+    <!-- Mensajes -->
+    <div *ngIf="successMessage" class="alert alert-success">
+      {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Loader -->
+    <div *ngIf="isLoading" class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i> Cargando...
+    </div>
+
+    <!-- Formulario -->
+    <div class="provider-form">
+      <h3>{{ editingProvider ? 'Editar Proveedor' : 'Nuevo Proveedor' }}</h3>
+      
+      <form (ngSubmit)="editingProvider ? updateProvider() : createProvider()" #providerForm="ngForm">
+        <div class="form-group">
+          <label>Nombre:</label>
+          <input type="text" 
+                 [(ngModel)]="(editingProvider || newProvider).name"
+                 name="name" 
+                 required
+                 [disabled]="isLoading">
+        </div>
+
+        <div class="form-group">
+          <label>Persona de Contacto:</label>
+          <input type="text" 
+                 [(ngModel)]="(editingProvider || newProvider).contactPerson"
+                 name="contactPerson"
+                 [disabled]="isLoading">
+        </div>
+
+        <div class="form-group">
+          <label>Email:</label>
+          <input type="email" 
+                 [(ngModel)]="(editingProvider || newProvider).email"
+                 name="email"
+                 [disabled]="isLoading">
+        </div>
+
+        <div class="form-group">
+          <label>Teléfono:</label>
+          <input type="text" 
+                 [(ngModel)]="(editingProvider || newProvider).phone"
+                 name="phone"
+                 [disabled]="isLoading">
+        </div>
+
+        <div class="form-group">
+          <label>Dirección:</label>
+          <input type="text" 
+                 [(ngModel)]="(editingProvider || newProvider).address"
+                 name="address"
+                 [disabled]="isLoading">
+        </div>
+
+        <!-- 🔥 Aquí cambiamos el input por un select -->
+        <div class="form-group">
+          <label>Tipo de Proveedor:</label>
+          <select [(ngModel)]="(editingProvider || newProvider).providerType"
+        name="providerType"
+        required
+        [disabled]="isLoading">
+  <option *ngFor="let type of providerTypes" [ngValue]="type._id">
+    {{ type.name }}
+  </option>
+</select>
+
+        </div>
+
+        <div class="form-group">
+          <label>Estado:</label>
+          <select [(ngModel)]="(editingProvider || newProvider).status"
+                  name="status"
+                  [disabled]="isLoading">
+            <option value="activo">Activo</option>
+            <option value="inactivo">Inactivo</option>
+            <option value="suspendido">Suspendido</option>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" [disabled]="isLoading || !(editingProvider || newProvider).name">
+            {{ isLoading ? 'Guardando...' : (editingProvider ? 'Actualizar' : 'Crear') }}
+          </button>
+          <button *ngIf="editingProvider" type="button"
+                  (click)="cancelEdit()" [disabled]="isLoading">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Tabla -->
+    <div class="provider-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Contacto</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let provider of providers">
+            <td>{{ provider.name }}</td>
+            <td>{{ provider.contactPerson || '--' }}</td>
+            <td>{{ provider.email || '--' }}</td>
+            <td>{{ provider.phone || '--' }}</td>
+            <!-- 🔥 Aquí mostramos el nombre en vez del ID -->
+            <td>{{ getProviderTypeName(provider.providerType) }}</td>
+
+            <td>
+              <span class="status-badge" 
+                    [class.activo]="provider.status === 'activo'"
+                    [class.inactivo]="provider.status === 'inactivo'"
+                    [class.suspendido]="provider.status === 'suspendido'">
+                {{ provider.status }}
+              </span>
+            </td>
+            <td class="actions">
+              <button (click)="editProvider(provider)" title="Editar">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button (click)="deleteProvider(provider._id!)" title="Eliminar" class="danger">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="providers.length === 0 && !isLoading">
+            <td colspan="7" class="no-data">
+              <i class="fas fa-box-open"></i>
+              No hay proveedores registrados
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

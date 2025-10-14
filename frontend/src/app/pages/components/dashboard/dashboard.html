@@ -1,0 +1,94 @@
+<!-- <div class="dashboard-layout"> -->
+  <app-navbar></app-navbar>
+  
+  <div class="main-content-wrapper">
+    <app-sidebar></app-sidebar>
+    
+    <main class="dashboard-content">
+      <!-- Header del Dashboard -->
+      <div class="dashboard-header">
+        <div class="header-content">
+          <h1><i class="fas fa-tachometer-alt me-2"></i> Panel Principal</h1>
+          <div class="header-actions">
+            <button class="btn btn-refresh">
+              <i class="fas fa-sync-alt"></i> Actualizar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="user-greeting">
+        <h2>¡Hola {{getCurrentUsername()}}! <span class="greeting-emoji">👋</span></h2>
+        <p class="daily-message">{{getDailyMessage()}}</p>
+      </div>
+
+      <!-- Añade después del header -->
+      <div class="dashboard-decorations">
+        <div class="decoration particle-1"></div>
+        <div class="decoration particle-2"></div>
+      </div>
+      
+      <!-- Tarjetas de Resumen -->
+      <div class="summary-cards">
+        @for (item of summaryData; track item.key) {
+          <div class="summary-card" [style.background]="getGradient(item.key)">
+            <div class="card-content">
+              <div class="card-icon">
+                <i class="fas fa-{{item.icon}}"></i>
+              </div>
+              <div class="card-info">
+                <h3>{{item.value}}</h3>
+                <p>{{item.label}}</p>
+              </div>
+              <div class="card-wave"></div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Contenido Principal -->
+      <div class="dashboard-main">
+        <!-- Acciones Rápidas -->
+        <div class="dashboard-section quick-actions-section">
+          <div class="section-header">
+            <h2><i class="fas fa-bolt"></i> Acciones Rápidas</h2>
+          </div>
+          <div class="quick-actions-grid">
+            @for (action of filteredQuickActions(); track action.key) {
+              <div class="quick-action" [style.background]="getGradient(action.key)">
+                <div class="action-content">
+                  <i class="fas fa-{{action.icon}}"></i>
+                  <span>{{action.label}}</span>
+                </div>
+                <div class="action-wave"></div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Actividad Reciente -->
+        <div class="dashboard-section recent-activity">
+          <div class="section-header">
+            <h2><i class="fas fa-history"></i> Actividad Reciente</h2>
+            <a href="#" class="view-all">Ver todo <i class="fas fa-chevron-right"></i></a>
+          </div>
+          <div class="activity-list">
+            @for (activity of recentActivities; track activity) {
+              <div class="activity-item">
+                <div class="activity-icon" [style.background]="getGradient('activeEvents')">
+                  <i class="fas fa-{{activity.icon}}"></i>
+                </div>
+                <div class="activity-details">
+                  <p>{{activity.message}}</p>
+                  <small>{{activity.time}}</small>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <app-footer></app-footer>
+<!-- </div> -->

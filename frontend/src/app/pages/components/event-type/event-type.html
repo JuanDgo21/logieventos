@@ -1,0 +1,197 @@
+<app-sidebar></app-sidebar>
+<app-navbar></app-navbar>
+<div class="main-container">
+  <div class="container-fluid py-4">
+    
+    <div *ngIf="isLoading" class="loading-overlay">
+      <div class="spinner-grow text-primary" role="status"></div>
+      <p class="mt-3">Cargando tipos de evento...</p>
+    </div>
+
+    <div class="header-container">
+      <div class="page-title-container">
+        <a routerLink="/pages/events-page" class="back-button">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1 class="page-title">Gestión de Tipos de Evento</h1>
+      </div>
+      <button class="btn btn-primary new-event-btn" (click)="openModal('create')">
+        <i class="fas fa-plus me-2"></i>Nuevo Tipo de Evento
+      </button>
+    </div>
+
+    <div class="filters-container">
+      <div class="search-filter">
+        <i class="fas fa-search"></i>
+        <input type="text"
+               [(ngModel)]="searchTerm"
+               (input)="applyFilters()"
+               placeholder="Buscar por nombre o descripción...">
+      </div>
+      <div class="filter-selectors">
+        <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
+          <option value="all">Todas las categorías</option>
+          <option *ngFor="let cat of categoryOptions" [value]="cat">{{ cat | titlecase }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading" class="table-responsive-container">
+      <table class="table table-dark table-hover align-middle">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Duración (hrs)</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let type of filteredEventTypes">
+            <td>{{ type.name }}</td>
+            <td>
+              <span class="badge category-badge category-{{type.category}}">{{ type.category | titlecase }}</span>
+            </td>
+            <td>{{ type.estimatedDuration || 'N/A' }}</td>
+            <td>
+              <div class="form-check form-switch table-toggle">
+                <input class="form-check-input" type="checkbox" role="switch" 
+                       [id]="'toggle-' + type._id"
+                       [checked]="type.active"
+                       (change)="onStatusChange(type)">
+                <label class="form-check-label" [for]="'toggle-' + type._id">
+                  {{ type.active ? 'Activo' : 'Inactivo' }}
+                </label>
+              </div>
+            </td>
+            <td>
+              <div class="actions-cell">
+                <button class="btn btn-sm btn-outline-light" (click)="openModal('edit', type)">
+                  <i class="far fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete(type)">
+                  <i class="far fa-trash-alt"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="!isLoading && filteredEventTypes.length === 0" class="empty-state">
+      <i class="far fa-calendar-times"></i>
+      <h4>No se encontraron tipos de evento</h4>
+      <p>Prueba a cambiar los filtros o crea un nuevo tipo de evento.</p>
+    </div>
+
+    <div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">{{ isEditing ? 'Editar' : 'Nuevo' }} Tipo de Evento</h5>
+            <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="eventTypeForm">
+              <div class="mb-3">
+                <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="name">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Descripción</label>
+                <textarea class="form-control" formControlName="description" rows="3"></textarea>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Categoría <span class="text-danger">*</span></label>
+                  <select class="form-select" formControlName="category">
+                    <option [ngValue]="null" disabled>Seleccione una categoría</option>
+                    <option *ngFor="let cat of categoryOptions" [value]="cat">{{ cat | titlecase }}</option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Tipo de Personal Requerido <span class="text-danger">*</span></label>
+                  <select class="form-select" formControlName="requiredPersonnelType">
+                      <option [ngValue]="null" disabled>Seleccione un tipo de personal</option>
+                      <option *ngFor="let pType of personnelTypes" [value]="pType._id">{{ pType.name }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Duración Estimada (hrs)</label>
+                  <input type="number" class="form-control" formControlName="estimatedDuration">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label d-block">Estado</label>
+                   <div class="form-check form-switch custom-toggle">
+                    <input class="form-check-input" type="checkbox" role="switch" id="eventTypeActive" formControlName="active">
+                    <label class="form-check-label" for="eventTypeActive">
+                      {{ eventTypeForm.get('active')?.value ? 'Activo' : 'Inactivo' }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <h6>Recursos por Defecto</h6>
+              <div class="row mb-2">
+                  <div class="col-lg-3 d-none d-lg-block"><label class="form-label">Tipo</label></div>
+                  <div class="col-lg-5 d-none d-lg-block"><label class="form-label">Descripción</label></div>
+                  <div class="col-lg-3 d-none d-lg-block"><label class="form-label">Cantidad</label></div>
+              </div>
+              <div formArrayName="defaultResources">
+                <div *ngFor="let resource of defaultResources.controls; let i = index" [formGroupName]="i" class="row resource-row align-items-center">
+                  <div class="col-lg-3 col-md-12">
+                    <select class="form-select form-select-sm" formControlName="resourceType">
+                      <option *ngFor="let rType of resourceTypeOptions" [value]="rType">{{ rType | titlecase }}</option>
+                    </select>
+                  </div>
+                  <div class="col-lg-5 col-md-12">
+                    <input type="text" class="form-control form-control-sm" placeholder="Descripción del recurso" formControlName="description">
+                  </div>
+                  <div class="col-lg-3 col-md-12">
+                    <input type="number" class="form-control form-control-sm" placeholder="Cantidad" formControlName="defaultQuantity">
+                  </div>
+                  <div class="col-lg-1 col-md-12 text-end">
+                    <button type="button" class="btn btn-sm btn-outline-danger btn-remove" (click)="removeResource(i)">&times;</button>
+                  </div>
+                </div>
+              </div>
+              <a href="javascript:void(0)" (click)="addResource()" class="btn-add-row">
+                <i class="fas fa-plus-circle"></i>Añadir Recurso
+              </a>
+
+              <hr>
+
+              <h6>Requisitos Adicionales</h6>
+               <div formArrayName="additionalRequirements">
+                 <div *ngFor="let requirement of additionalRequirements.controls; let i = index" class="row resource-row align-items-center">
+                    <div class="col-11">
+                      <input type="text" class="form-control form-control-sm" placeholder="Escribe un requisito..." [formControlName]="i">
+                    </div>
+                    <div class="col-1 text-end">
+                      <button type="button" class="btn btn-sm btn-outline-danger btn-remove" (click)="removeRequirement(i)">&times;</button>
+                    </div>
+                 </div>
+               </div>
+               <a href="javascript:void(0)" (click)="addRequirement()" class="btn-add-row">
+                 <i class="fas fa-plus-circle"></i>Añadir Requisito
+               </a>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" (click)="closeModal()">Cancelar</button>
+            <button type="button" class="btn btn-primary" (click)="saveEventType()" [disabled]="eventTypeForm.invalid">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'"></div>
+
+  </div>
+</div>
+<app-footer></app-footer>

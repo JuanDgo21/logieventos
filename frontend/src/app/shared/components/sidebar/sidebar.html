@@ -1,0 +1,51 @@
+<div class="sidebar" [class.collapsed]="collapsed">
+  <div class="sidebar-header d-flex align-items-center justify-content-between p-3">
+    <!-- ... (header se mantiene igual) ... -->
+  </div>
+
+  <div class="sidebar-menu">
+    @for (module of modules; track module) {
+      <!-- Elemento de menú principal -->
+      <div class="menu-parent" [class.has-children]="module.children">
+        <a class="menu-item d-flex align-items-center p-3" 
+           [routerLink]="module.children ? null: ['/pages', module.path]"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{exact: true}"
+           (click)="module.children ? toggleSubMenu(module) : setActiveModule(module.name)">
+          <i class="fas fa-{{module.icon}} me-3"></i>
+          @if (!collapsed) {
+            <span>{{module.name}}</span>
+          }
+          @if (module.children && !collapsed) {
+            <i class="fas fa-angle-down ms-auto" 
+               [class.rotated]="isExpanded(module)"></i>
+          }
+        </a>
+
+        <!-- Submenú -->
+        @if (module.children && isExpanded(module) && !collapsed) {
+          <div class="submenu">
+            @for (child of module.children; track child) {
+              <a class="menu-item d-flex align-items-center p-3 ps-5"
+                 [routerLink]="child.path"
+                 routerLinkActive="active"
+                 (click)="setActiveModule(child.name)">
+                <i class="fas fa-{{child.icon}} me-3"></i>
+                <span>{{child.name}}</span>
+              </a>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (!collapsed) {
+    <div class="sidebar-footer p-3">
+      <div class="system-status d-flex align-items-center">
+        <div class="status-indicator online me-2"></div>
+        <span>Sistema Operativo</span>
+      </div>
+    </div>
+  }
+</div>

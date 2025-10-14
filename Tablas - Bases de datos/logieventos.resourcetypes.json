@@ -1,0 +1,85 @@
+[{
+  "_id": {
+    "$oid": "686bca972525ecaa264f0931"
+  },
+  "name": "Sonido",
+  "description": "Sistema de sonidos para eventos corporativos",
+  "active": true,
+  "createdBy": {
+    "$oid": "686bc94b2525ecaa264f0910"
+  },
+  "createdAt": {
+    "$date": "2025-07-07T13:24:39.556Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-07T13:24:48.747Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ddb85b829fba5474389fc"
+  },
+  "name": "Iluminación",
+  "description": "Equipos de iluminación profesional para escenarios",
+  "active": true,
+  "createdBy": {
+    "$oid": "686bc94b2525ecaa264f0910"
+  },
+  "createdAt": {
+    "$date": "2025-07-09T03:01:25.250Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T03:01:25.250Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ddb8db829fba5474389fe"
+  },
+  "name": "Video",
+  "description": "Pantallas y proyectores para transmisiones en vivo",
+  "active": true,
+  "createdBy": {
+    "$oid": "686bc94b2525ecaa264f0910"
+  },
+  "createdAt": {
+    "$date": "2025-07-09T03:01:33.799Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T03:01:33.799Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ddb97b829fba547438a00"
+  },
+  "name": "Backline",
+  "description": "Instrumentos musicales para presentaciones en vivo",
+  "active": true,
+  "createdBy": {
+    "$oid": "686bc94b2525ecaa264f0910"
+  },
+  "createdAt": {
+    "$date": "2025-07-09T03:01:43.266Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T03:01:43.266Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ddba7b829fba547438a02"
+  },
+  "name": "Escenario",
+  "description": "Estructuras modulares para montaje de eventos",
+  "active": true,
+  "createdBy": {
+    "$oid": "686bc94b2525ecaa264f0910"
+  },
+  "createdAt": {
+    "$date": "2025-07-09T03:01:59.273Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T03:01:59.273Z"
+  }
+}]

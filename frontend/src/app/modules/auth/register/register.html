@@ -1,0 +1,194 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="main-content">
+  <div class="register-container">
+    <div class="register-card">
+      <div class="brand-section">
+        <div class="logo-circle">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <h1>Registro de Usuario</h1>
+        <p class="tagline">Completa tus datos para comenzar</p>
+      </div>
+      
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+        <!-- Alertas -->
+        @if (showAlert) {
+          <div class="alert alert-{{alertType}}">
+            <i class="fas {{getAlertIcon()}}"></i>
+            <div>
+              <strong>{{getAlertTitle()}}</strong> {{alertMessage}}
+            </div>
+          </div>
+        }
+        
+        <!-- Documento -->
+        <div class="input-field">
+          <i class="fas fa-id-card"></i>
+          <input 
+            type="text" 
+            formControlName="document" 
+            placeholder="Documento de identidad"
+            (input)="onDocumentInput($event)"
+            [class.invalid]="registerForm.get('document')?.invalid && registerForm.get('document')?.touched">
+        </div>
+        @if (registerForm.get('document')?.invalid && registerForm.get('document')?.touched) {
+          <div class="error-message">
+            @if (registerForm.get('document')?.errors?.['required']) {
+              <span><i class="fas fa-exclamation-circle"></i> El documento es requerido</span>
+            }
+            @if (registerForm.get('document')?.errors?.['pattern']) {
+              <span><i class="fas fa-exclamation-circle"></i> Debe contener solo números (8-12 dígitos)</span>
+            }
+          </div>
+        }
+        
+        <!-- Nombre completo -->
+        <div class="input-field">
+          <i class="fas fa-user"></i>
+          <input 
+            type="text" 
+            formControlName="fullname" 
+            placeholder="Nombre completo"
+            [class.invalid]="registerForm.get('fullname')?.invalid && registerForm.get('fullname')?.touched">
+        </div>
+        @if (registerForm.get('fullname')?.invalid && registerForm.get('fullname')?.touched) {
+          <div class="error-message">
+            @if (registerForm.get('fullname')?.errors?.['required']) {
+              <span><i class="fas fa-exclamation-circle"></i> El nombre completo es requerido</span>
+            }
+            @if (registerForm.get('fullname')?.errors?.['minlength']) {
+              <span><i class="fas fa-exclamation-circle"></i> Mínimo 5 caracteres</span>
+            }
+          </div>
+        }
+        
+        <!-- Nombre de usuario -->
+        <div class="input-field">
+          <i class="fas fa-at"></i>
+          <input 
+            type="text" 
+            formControlName="username" 
+            placeholder="Nombre de usuario"
+            [class.invalid]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
+        </div>
+        @if (registerForm.get('username')?.invalid && registerForm.get('username')?.touched) {
+          <div class="error-message">
+            @if (registerForm.get('username')?.errors?.['required']) {
+              <span><i class="fas fa-exclamation-circle"></i> El nombre de usuario es requerido</span>
+            }
+            @if (registerForm.get('username')?.errors?.['minlength']) {
+              <span><i class="fas fa-exclamation-circle"></i> Mínimo 4 caracteres</span>
+            }
+          </div>
+        }
+        
+        <!-- Email -->
+        <div class="input-field">
+          <i class="fas fa-envelope"></i>
+          <input 
+            type="email" 
+            formControlName="email" 
+            placeholder="Correo electrónico"
+            [class.invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+        </div>
+        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+          <div class="error-message">
+            @if (registerForm.get('email')?.errors?.['required']) {
+              <span><i class="fas fa-exclamation-circle"></i> El email es requerido</span>
+            }
+            @if (registerForm.get('email')?.errors?.['email']) {
+              <span><i class="fas fa-exclamation-circle"></i> Ingresa un email válido</span>
+            }
+          </div>
+        }
+        
+        <!-- Contraseña -->
+        <div class="input-field">
+          <i class="fas fa-lock"></i>
+          <input 
+            [type]="passwordVisible ? 'text' : 'password'" 
+            formControlName="password" 
+            placeholder="Contraseña"
+            [class.invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+          <i 
+            class="fas {{passwordVisible ? 'fa-eye-slash' : 'fa-eye'}} password-toggle" 
+            (click)="togglePasswordVisibility()"></i>
+        </div>
+        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+          <div class="error-message">
+            @if (registerForm.get('password')?.errors?.['required']) {
+              <span><i class="fas fa-exclamation-circle"></i> La contraseña es requerida</span>
+            }
+            @if (registerForm.get('password')?.errors?.['minlength']) {
+              <span><i class="fas fa-exclamation-circle"></i> Mínimo 8 caracteres</span>
+            }
+            @if (registerForm.get('password')?.errors?.['pattern']) {
+              <span><i class="fas fa-exclamation-circle"></i> Debe contener mayúsculas, minúsculas y números</span>
+            }
+          </div>
+        }
+        
+        <!-- Rol -->
+        <div class="input-field select-field">
+          <i class="fas fa-user-tag"></i>
+          <select 
+            formControlName="role" 
+            [class.invalid]="registerForm.get('role')?.invalid && registerForm.get('role')?.touched"
+            [class.placeholder]="!registerForm.get('role')?.value">
+            <option value="" disabled selected>Selecciona un rol</option>
+            @for (role of validRoles; track role.value) {
+              <option [value]="role.value">{{role.label}}</option>
+            }
+          </select>
+        </div>
+        @if (registerForm.get('role')?.invalid && registerForm.get('role')?.touched) {
+          <div class="error-message">
+            @if (registerForm.get('role')?.errors?.['required']) {
+              <span><i class="fas fa-exclamation-circle"></i> Debes seleccionar un rol</span>
+            }
+            @if (registerForm.get('role')?.errors?.['pattern']) {
+              <span><i class="fas fa-exclamation-circle"></i> Rol no válido</span>
+            }
+          </div>
+        }
+        
+        <!-- Botón de registro -->
+        <button 
+          type="submit" 
+          class="btn btn-primary" 
+          [disabled]="isLoading || registerForm.invalid"
+          [class.loading]="isLoading">
+          @if (!isLoading) {
+            <span>Registrarse</span>
+          }
+          @if (isLoading) {
+            <span>
+              <i class="fas fa-spinner fa-spin"></i> Procesando...
+            </span>
+          }
+        </button>
+        
+        <!-- Enlace a login -->
+        <div class="login-link">
+          <span>¿Ya tienes una cuenta?</span>
+          <a routerLink="/auth/login" class="btn-text">
+            <i class="fas fa-sign-in-alt"></i> Iniciar sesión
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>
+
+<!-- Efectos visuales -->
+<div class="effects-container">
+  <div class="particle particle-1"></div>
+  <div class="particle particle-2"></div>
+  <div class="particle particle-3"></div>
+  <div class="gradient-circle top-left"></div>
+  <div class="gradient-circle bottom-right"></div>
+</div>

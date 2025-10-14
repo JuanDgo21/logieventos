@@ -1,0 +1,153 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+<div class="main-container">
+  <div class="container-fluid py-4">
+
+    <div *ngIf="isLoading" class="loading-overlay">
+      <div class="spinner-grow text-primary" role="status"></div>
+      <p class="mt-3">Cargando eventos...</p>
+    </div>
+
+    <div class="header-container">
+      <h1 class="page-title">Gestión de Eventos</h1>
+      <div class="d-flex gap-2">
+        <button *ngIf="canCreate" class="btn btn-secondary" routerLink="/pages/event-types">
+            <i class="fas fa-tags me-2"></i>Tipos de Eventos
+        </button>
+        <button *ngIf="canCreate" class="btn btn-primary new-event-btn" (click)="openModal('create')">
+          <i class="fas fa-plus me-2"></i>Nuevo Evento
+        </button>
+      </div>
+    </div>
+
+    <div class="filters-container">
+      <div class="search-filter">
+        <i class="fas fa-search"></i>
+        <input type="text" [(ngModel)]="searchTerm" (input)="applyFilters()" placeholder="Buscar eventos...">
+      </div>
+      <div class="filter-selectors">
+        <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+          <option value="all">Todos los estados</option>
+          <option *ngFor="let status of statusOptions" [value]="status.value">{{status.label}}</option>
+        </select>
+        <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
+          <option value="all">Todos los tipos</option>
+          <option *ngFor="let type of eventTypes of availableEventTypes" [value]="type._id">{{type.name}}</option>
+        </select>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading" class="events-grid">
+      <div class="event-card" *ngFor="let event of filteredEvents">
+        <div class="card-header">
+          <h5 class="event-title">{{event.name}}</h5>
+          <div class="header-meta">
+            <button *ngIf="canEdit" class="btn-view-details-icon" (click)="viewEventDetails(event)" title="Ver Detalles">
+              <i class="far fa-eye"></i>
+            </button>
+            <span class="event-status" [ngClass]="'status-' + event.status">
+              <i [class]="getStatusIcon(event.status)"></i>
+              {{getStatusLabel(event.status)}}
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="event-description">{{event.description}}</p>
+          <div class="event-details">
+            <div class="detail-item"><i class="far fa-calendar-alt"></i><span>Inicio: {{formatDisplayDate(event.startDate)}}</span></div>
+            <div class="detail-item"><i class="far fa-calendar-alt"></i><span>Fin: {{formatDisplayDate(event.endDate)}}</span></div>
+            <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span>{{event.location}}</span></div>
+            <div class="detail-item" *ngIf="event.eventType"><i class="fas fa-tag"></i><span>{{getCategoryName(event.eventType)}}</span></div>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button *ngIf="canEdit" class="btn-action edit" (click)="openModal('edit', event)"><i class="far fa-edit"></i><span>Editar</span></button>
+          <button *ngIf="canDelete" class="btn-action delete" (click)="confirmDelete(event._id)"><i class="far fa-trash-alt"></i><span>Eliminar</span></button>
+          <button *ngIf="canOnlyView()" class="btn-action view" (click)="viewEventDetails(event)">
+            <i class="far fa-eye"></i>
+            <span>Ver detalles</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading && filteredEvents.length === 0" class="empty-state">
+      <i class="far fa-calendar-times"></i>
+      <h4>No se encontraron eventos</h4>
+      <p>No hay eventos que coincidan con tus criterios de búsqueda</p>
+      <button *ngIf="canCreate" class="btn btn-primary" (click)="openModal('create')"><i class="fas fa-plus me-2"></i>Crear nuevo evento</button>
+    </div>
+
+    <div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">
+              <i [class]="editingEvent ? 'far fa-edit me-2' : 'fas fa-plus me-2'"></i>
+              {{editingEvent ? 'Editar Evento' : 'Nuevo Evento'}}
+            </h5>
+            <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="eventForm">
+              <div class="row g-3">
+                <div class="col-md-6"><div class="mb-3"><label class="form-label">Nombre del evento <span class="text-danger">*</span></label><input type="text" class="form-control" formControlName="name"></div></div>
+                <div class="col-md-6"><div class="mb-3"><label class="form-label">Tipo de evento <span class="text-danger">*</span></label><select class="form-select" formControlName="eventType"><option [ngValue]="null" disabled>Seleccione un tipo</option><option *ngFor="let type of eventTypes" [value]="type._id">{{type.name}}</option></select></div></div>
+              </div>
+              <div class="row g-3">
+                <div class="col-md-6"><div class="mb-3"><label class="form-label">Contrato asociado <span class="text-danger">*</span></label><select class="form-select" formControlName="contract"><option [ngValue]="null" disabled>Seleccione un contrato</option><option *ngFor="let contract of contracts" [value]="contract._id">{{contract.name}}</option></select></div></div>
+                <div class="col-md-6"><div class="mb-3"><label class="form-label">Responsable <span class="text-danger">*</span></label><select class="form-select" formControlName="responsable"><option [ngValue]="null" disabled>Seleccione un responsable</option><option *ngFor="let user of users" [value]="user._id">{{user.fullname}}</option></select></div></div>
+              </div>
+              <div class="mb-3"><label class="form-label">Descripción <span class="text-danger">*</span></label><textarea class="form-control" formControlName="description" rows="3" placeholder="Describe el evento..."></textarea><div *ngIf="eventForm.get('description')?.invalid && eventForm.get('description')?.touched" class="text-danger mt-1" style="font-size: 0.875rem;">La descripción es obligatoria.</div></div>
+              <div class="row g-3">
+                <div class="col-md-6"><div class="mb-3"><label class="form-label">Fecha de inicio <span class="text-danger">*</span></label><input type="date" class="form-control" formControlName="startDate"></div></div>
+                <div class="col-md-6"><div class="mb-3"><label class="form-label">Fecha de fin <span class="text-danger">*</span></label><input type="date" class="form-control" formControlName="endDate"></div></div>
+              </div>
+              <div class="row g-3">
+                <div class="col-md-8"><div class="mb-3"><label class="form-label">Ubicación <span class="text-danger">*</span></label><input type="text" class="form-control" formControlName="location"></div></div>
+                <div class="col-md-4"><div class="mb-3"><label class="form-label">Estado <span class="text-danger">*</span></label><select class="form-select" formControlName="status"><option *ngFor="let status of statusOptions" [value]="status.value">{{status.label}}</option></select></div></div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer border-top-0">
+            <button type="button" class="btn btn-outline-secondary" (click)="closeModal()"><i class="fas fa-times me-1"></i> Cancelar</button>
+            <button type="button" class="btn btn-primary" (click)="saveEvent()" [disabled]="eventForm.invalid"><i [class]="editingEvent ? 'fas fa-save me-1' : 'fas fa-check me-1'"></i> {{editingEvent ? 'Guardar cambios' : 'Crear evento'}}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'"></div>
+
+    <div class="modal fade" [class.show]="showViewModal" [style.display]="showViewModal ? 'block' : 'none'">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" *ngIf="eventToView">
+          <div class="modal-header bg-dark text-white-50">
+            <h5 class="modal-title"><i class="far fa-eye me-2"></i> Detalles del Evento</h5>
+            <button type="button" class="btn-close btn-close-white" (click)="closeViewModal()"></button>
+          </div>
+          <div class="modal-body view-details-body">
+            <div class="detail-section text-center mb-4">
+              <h2 class="detail-title">{{ eventToView.name }}</h2>
+              <p class="detail-description">{{ eventToView.description || 'Este evento no tiene una descripción detallada.' }}</p>
+            </div>
+            <div class="details-grid">
+              <div class="detail-item"><div class="detail-icon-wrapper bg-primary"><i class="fas fa-info-circle"></i></div><div class="detail-content"><strong>Estado</strong><span class="badge" [ngClass]="'status-badge-' + eventToView.status">{{ getStatusLabel(eventToView.status) }}</span></div></div>
+              <div class="detail-item"><div class="detail-icon-wrapper bg-info"><i class="fas fa-tag"></i></div><div class="detail-content"><strong>Tipo de Evento</strong><span>{{ getCategoryName(eventToView.eventType) }}</span></div></div>
+              <div class="detail-item"><div class="detail-icon-wrapper bg-success"><i class="fas fa-map-marker-alt"></i></div><div class="detail-content"><strong>Ubicación</strong><span>{{ eventToView.location }}</span></div></div>
+              <div class="detail-item"><div class="detail-icon-wrapper bg-warning"><i class="far fa-calendar-alt"></i></div><div class="detail-content"><strong>Fecha de Inicio</strong><span>{{ formatDisplayDate(eventToView.startDate) }}</span></div></div>
+              <div class="detail-item"><div class="detail-icon-wrapper bg-danger"><i class="far fa-calendar-check"></i></div><div class="detail-content"><strong>Fecha de Fin</strong><span>{{ formatDisplayDate(eventToView.endDate) }}</span></div></div>
+              <div class="detail-item"><div class="detail-icon-wrapper bg-secondary"><i class="far fa-file-alt"></i></div><div class="detail-content"><strong>Contrato</strong><code>{{ getContractName(eventToView.contract) }}</code></div></div>
+              <div class="detail-item"><div class="detail-icon-wrapper bg-purple"><i class="far fa-user"></i></div><div class="detail-content"><strong>Responsable</strong><code>{{ getResponsableName(eventToView.responsable) }}</code></div></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-light" (click)="closeViewModal()"><i class="fas fa-times me-2"></i>Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade" [class.show]="showViewModal" [style.display]="showViewModal ? 'block' : 'none'"></div>
+
+  </div>
+</div>
+<app-footer></app-footer>

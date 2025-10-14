@@ -1,0 +1,140 @@
+<!-- frontend\src\app\modules\user-management\user-list\user-list.html -->
+  <app-navbar></app-navbar>
+  
+  <div class="main-content-wrapper">
+    <app-sidebar></app-sidebar>
+    
+    <main class="dashboard-content">
+      <!-- Header del Dashboard -->
+      <div class="dashboard-header">
+        <div class="header-content">
+          <h1><i class="fas fa-users me-2"></i> Gestión de Usuarios</h1>
+          <div class="header-actions">
+            <button class="btn btn-primary new-user-btn" (click)="openUserForm()">
+              <i class="fas fa-plus me-2"></i> Nuevo Usuario
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de búsqueda y filtros -->
+      <div class="search-filter-section">
+        <div class="search-card">
+          <div class="input-field">
+            <i class="fas fa-search"></i>
+            <input type="text" 
+                   placeholder="Buscar usuarios..." 
+                   [(ngModel)]="searchTerm" 
+                   (input)="applyFilters()">
+          </div>
+          <button class="btn btn-text" (click)="resetFilters()">
+            <i class="fas fa-undo me-1"></i> Limpiar
+          </button>
+        </div>
+
+        <div class="filter-cards">
+          <div class="filter-card">
+            <label><i class="fas fa-user-tag me-2"></i>Rol</label>
+            <select [(ngModel)]="roleFilter" (change)="applyFilters()">
+              <option value="all">Todos</option>
+              <option value="admin">Administrador</option>
+              <option value="coordinador">Coordinador</option>
+              <option value="lider">Líder</option>
+            </select>
+          </div>
+
+          <div class="filter-card">
+            <label><i class="fas fa-power-off me-2"></i>Estado</label>
+            <select [(ngModel)]="statusFilter" (change)="applyFilters()">
+              <option value="all">Todos</option>
+              <option value="active">Activos</option>
+              <option value="inactive">Inactivos</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de usuarios -->
+      <div class="users-table-section">
+        @if (loading) {
+          <div class="loading-state">
+            <div class="spinner">
+              <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <p>Cargando usuarios...</p>
+          </div>
+        }
+
+        @if (!loading && filteredUsers.length === 0) {
+          <div class="empty-state">
+            <i class="fas fa-user-slash"></i>
+            <h3>No se encontraron usuarios</h3>
+            <p>Intenta ajustar tus filtros de búsqueda</p>
+            <button class="btn btn-text" (click)="resetFilters()">
+              <i class="fas fa-undo me-1"></i> Limpiar filtros
+            </button>
+          </div>
+        }
+
+        @if (!loading && filteredUsers.length > 0) {
+          <div class="table-responsive">
+            <table class="users-table">
+              <thead>
+                <tr>
+                  <th>Documento</th>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Rol</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (user of filteredUsers; track user._id) {
+                  <tr>
+                    <td data-label="Documento">{{ user.document || 'N/A' }}</td>
+                    <td class="user-name" data-label="Nombre">
+                      <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                      </div>
+                      {{ user.fullname }}
+                    </td>
+                    <td data-label="Email">{{ user.email }}</td>
+                    <td data-label="Rol">
+                        <i class="fas" 
+                           [class.fa-shield-alt]="user.role === 'admin'"
+                           [class.fa-users-cog]="user.role === 'coordinador'"
+                           [class.fa-user-friends]="user.role === 'lider'"></i>
+                        {{ user.role | titlecase }}
+                     
+                    </td>
+                    <td data-label="Estado">
+                      <span class="status-badge" [ngClass]="user.active ? 'active' : 'inactive'">
+                        <i class="fas" [class.fa-check-circle]="user.active" [class.fa-times-circle]="!user.active"></i>
+                        {{ user.active ? 'Activo' : 'Inactivo' }}
+                      </span>
+                    </td>
+                    <td class="actions-cell" data-label="Acciones">
+                      <div class="action-buttons">
+                        <button class="btn-action edit" (click)="handleButtonClick('edit', user, $event)">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-action delete" (click)="handleButtonClick('delete', user, $event)">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <button class="btn-action toggle" (click)="handleButtonClick('toggle', user, $event)">
+                          <i class="fas" [class.fa-toggle-on]="user.active" [class.fa-toggle-off]="!user.active"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </main>
+  </div>
+
+  <app-footer></app-footer>

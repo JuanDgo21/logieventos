@@ -1,0 +1,133 @@
+<app-navbar></app-navbar>
+
+<div class="main-content-wrapper">
+  <app-sidebar></app-sidebar>
+  
+  <main class="dashboard-content">
+    <!-- Header del Dashboard -->
+    <div class="dashboard-header">
+      <div class="header-content">
+        <h1><i class="fas fa-tags me-2"></i> Gestión de Categorías de Personal</h1>
+        <div class="header-actions">
+          <button class="btn btn-primary new-user-btn" (click)="openTypeForm()">
+            <i class="fas fa-plus me-2"></i> Nueva Categoría
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alertas -->
+    @if (alertMessage) {
+      <div class="alert" [ngClass]="'alert-' + alertType">
+        <i class="fas" [ngClass]="{
+          'fa-check-circle': alertType === 'success',
+          'fa-exclamation-triangle': alertType === 'danger',
+          'fa-info-circle': alertType === 'info'
+        }"></i>
+        <div>
+          <strong>{{ alertType === 'success' ? 'Éxito!' : alertType === 'danger' ? 'Error!' : 'Información!' }}</strong>
+          {{ alertMessage }}
+        </div>
+      </div>
+    }
+
+    <!-- Barra de búsqueda y filtros -->
+    <div class="search-filter-section">
+      <div class="search-card">
+        <div class="input-field">
+          <i class="fas fa-search"></i>
+          <input type="text" 
+                 placeholder="Buscar categorías..." 
+                 [(ngModel)]="searchTerm" 
+                 (input)="filterData()">
+        </div>
+        <button class="btn btn-text" (click)="resetFilters()">
+          <i class="fas fa-undo me-1"></i> Limpiar
+        </button>
+      </div>
+
+      <div class="filter-cards">
+        <div class="filter-card">
+          <label><i class="fas fa-power-off me-2"></i>Estado</label>
+          <select [(ngModel)]="statusFilter" (change)="filterData()">
+            <option value="all">Todos</option>
+            <option value="active">Activos</option>
+            <option value="inactive">Inactivos</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de categorías -->
+    <div class="table-section">
+      @if (isLoading) {
+        <div class="loading-state">
+          <div class="spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+          </div>
+          <p>Cargando categorías...</p>
+        </div>
+      }
+
+      @if (!isLoading && filteredTypes.length === 0) {
+        <div class="empty-state">
+          <i class="fas fa-tag"></i>
+          <h3>No se encontraron categorías</h3>
+          <p>Intenta ajustar tus filtros de búsqueda</p>
+          <button class="btn btn-text" (click)="resetFilters()">
+            <i class="fas fa-undo me-1"></i> Limpiar filtros
+          </button>
+        </div>
+      }
+
+      @if (!isLoading && filteredTypes.length > 0) {
+        <div class="table-responsive">
+          <table class="personnel-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (type of filteredTypes; track type._id) {
+                <tr>
+                  <td class="type-name" data-label="Nombre">
+                    <div class="type-icon">
+                      <i class="fas fa-tag"></i>
+                    </div>
+                    {{ type.name }}
+                  </td>
+                  <td data-label="Descripción">{{ type.description || '-' }}</td>
+                  <td data-label="Estado">
+                    <span class="status-badge" [ngClass]="type.isActive ? 'active' : 'inactive'">
+                      <i class="fas" [class.fa-check-circle]="type.isActive" [class.fa-times-circle]="!type.isActive"></i>
+                      {{ type.isActive ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </td>
+                  <td class="actions-cell" data-label="Acciones">
+                    <div class="action-buttons">
+                      <button class="btn-action edit" (click)="openTypeForm(type)">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="btn-action delete" (click)="confirmDelete(type._id)">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                      <button class="btn-action toggle" (click)="toggleStatus(type)">
+                        <i class="fas" [class.fa-toggle-on]="type.isActive" [class.fa-toggle-off]="!type.isActive"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </main>
+</div>
+
+<app-footer></app-footer>

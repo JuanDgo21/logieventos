@@ -1,0 +1,74 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+  
+  <div class="main-content-wrapper">
+    <app-navbar></app-navbar>
+    
+    <main class="dashboard-content">
+      <!-- Encabezado con animaciones -->
+      <div class="dashboard-header">
+        <div class="animated-title">
+          <h1 class="display-5 fw-bold text-primary">
+            <i class="fas fa-users me-2"></i>Gestión de <span class="highlight">Inventario</span>
+    </h1>
+    <p class="subtitle">Controla todos los recursos de tus eventos en un solo lugar</p>
+  </div>
+
+  <!-- Sección de tarjetas interactivas -->
+  <div class="cards-section">
+    <!-- Tarjeta de Recursos -->
+    <div class="card resource-card" 
+         (mouseenter)="toggleHover('resource')"
+         (mouseleave)="toggleHover('')"
+         [class.hover]="hoverState === 'resource'"
+         routerLink="/inventory/resources">
+      <div class="card-icon">
+        <i class="fas fa-box-open"></i>
+      </div>
+      <h2>Recursos</h2>
+      <div class="card-content">
+        <p>Gestiona todos los elementos físicos necesarios para tus eventos:</p>
+        <ul>
+          <li><i class="fas fa-check-circle"></i> Mobiliario</li>
+          <li><i class="fas fa-check-circle"></i> Equipos técnicos</li>
+          <li><i class="fas fa-check-circle"></i> Materiales</li>
+        </ul>
+      </div>
+      <button class="card-button">Administrar Recursos</button>
+    </div>
+
+    <!-- Tarjeta de Tipos de Recursos -->
+    <div class="card type-card"
+         (mouseenter)="toggleHover('type')"
+         (mouseleave)="toggleHover('')"
+         [class.hover]="hoverState === 'type'"
+         routerLink="/inventory/resource-types">
+      <div class="card-icon">
+        <i class="fas fa-tags"></i>
+      </div>
+      <h2>Tipos de Recursos</h2>
+      <div class="card-content">
+        <p>Organiza tus recursos por categorías:</p>
+        <ul>
+          <li><i class="fas fa-check-circle"></i> Crear categorías</li>
+          <li><i class="fas fa-check-circle"></i> Asignar propiedades</li>
+          <li><i class="fas fa-check-circle"></i> Gestionar jerarquías</li>
+        </ul>
+      </div>
+      <button class="card-button">Administrar Tipos</button>
+    </div>
+  </div>
+
+  <!-- Sección explicativa -->
+  <div class="info-section">
+    <div class="info-card">
+      <h3><i class="fas fa-lightbulb"></i> ¿Cómo funciona?</h3>
+      <p>
+        El módulo de inventario te permite controlar todos los recursos físicos 
+        necesarios para tus eventos. Organízalos por tipos, lleva un registro de 
+        disponibilidad y asigna recursos a eventos específicos.
+      </p>
+    </div>
+  </div>
+  <app-footer></app-footer>
+</div>

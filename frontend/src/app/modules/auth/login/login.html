@@ -1,0 +1,107 @@
+<div class="login-container">
+  <div class="login-background">
+    <div class="particle particle-1"></div>
+    <div class="particle particle-2"></div>
+    <div class="particle particle-3"></div>
+  </div>
+  
+  <div class="login-card">
+    <div class="brand-section">
+      <div class="logo-circle">
+        <i class="fas fa-calendar-alt"></i>
+      </div>
+      <h1>LogiEventos</h1>
+      <p class="tagline">Gestión profesional de eventos</p>
+    </div>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <!-- Alertas -->
+      @if (showAlert) {
+        <div class="alert alert-{{alertType}}">
+          <i class="fas {{getAlertIcon()}}"></i>
+          <div>
+            <strong>{{getAlertTitle()}}</strong> {{alertMessage}}
+          </div>
+        </div>
+      }
+      
+      <!-- Campo de email -->
+      <div class="input-field">
+        <i class="fas fa-envelope"></i>
+        <input 
+          type="email" 
+          formControlName="email" 
+          placeholder="Correo electrónico"
+          [class.invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+      </div>
+      @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+        <div class="error-message">
+          @if (loginForm.get('email')?.errors?.['required']) {
+            <span>
+              <i class="fas fa-exclamation-circle"></i> El email es requerido
+            </span>
+          }
+          @if (loginForm.get('email')?.errors?.['email']) {
+            <span>
+              <i class="fas fa-exclamation-circle"></i> Ingresa un email válido
+            </span>
+          }
+        </div>
+      }
+      
+      <!-- Campo de contraseña -->
+      <div class="input-field">
+        <i class="fas fa-lock"></i>
+        <input 
+          [type]="passwordVisible ? 'text' : 'password'" 
+          formControlName="password" 
+          placeholder="Contraseña"
+          [class.invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+        <i 
+          class="fas {{passwordVisible ? 'fa-eye-slash' : 'fa-eye'}} password-toggle" 
+          (click)="togglePasswordVisibility()"></i>
+      </div>
+      @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+        <div class="error-message">
+          @if (loginForm.get('password')?.errors?.['required']) {
+            <span>
+              <i class="fas fa-exclamation-circle"></i> La contraseña es requerida
+            </span>
+          }
+          @if (loginForm.get('password')?.errors?.['minlength']) {
+            <span>
+              <i class="fas fa-exclamation-circle"></i> Mínimo 8 caracteres
+            </span>
+          }
+          @if (loginForm.get('password')?.errors?.['pattern']) {
+            <span>
+              <i class="fas fa-exclamation-circle"></i> Debe contener mayúsculas, minúsculas y números
+            </span>
+          }
+        </div>
+      }
+      
+      <!-- Enlace de olvidé contraseña -->
+      <div class="forgot-password">
+        <a (click)="navigateToForgotPassword()" class="btn-text">
+          <i class="fas fa-question-circle"></i> ¿Olvidaste tu contraseña?
+        </a>
+      </div>
+      
+      <!-- Botón de inicio de sesión -->
+      <button 
+        type="submit" 
+        class="btn btn-primary" 
+        [disabled]="isLoading || loginForm.invalid">
+        @if (!isLoading) {
+          <span>Iniciar sesión</span>
+        }
+        @if (isLoading) {
+          <span>
+            <i class="fas fa-spinner fa-spin"></i> Procesando...
+          </span>
+        }
+      </button>
+    </form>
+  </div>
+</div>

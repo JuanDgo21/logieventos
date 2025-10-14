@@ -1,0 +1,304 @@
+@use '../../../../styles.scss' as *;
+
+.register-container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  overflow: hidden;
+  background: $dark-color;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+      radial-gradient(circle at 20% 30%, rgba($primary-color, 0.15) 0%, transparent 30%),
+      radial-gradient(circle at 80% 70%, rgba($secondary-color, 0.15) 0%, transparent 30%);
+    z-index: 0;
+  }
+}
+
+.register-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    animation: float 15s infinite linear;
+    
+    &-1 {
+      width: 300px;
+      height: 300px;
+      top: -50px;
+      left: -50px;
+      animation-delay: 0s;
+    }
+    
+    &-2 {
+      width: 200px;
+      height: 200px;
+      bottom: -30px;
+      right: -30px;
+      animation-delay: 5s;
+    }
+    
+    &-3 {
+      width: 150px;
+      height: 150px;
+      top: 40%;
+      right: 20%;
+      animation-delay: 10s;
+    }
+  }
+  
+  .gradient-circle {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.3;
+    
+    &.top-left {
+      width: 400px;
+      height: 400px;
+      top: -100px;
+      left: -100px;
+      background: $gradient-primary;
+    }
+    
+    &.bottom-right {
+      width: 300px;
+      height: 300px;
+      bottom: -50px;
+      right: -50px;
+      background: $gradient-accent;
+    }
+  }
+}
+
+.register-card {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  padding: 2.5rem;
+  background: rgba(26, 26, 46, 0.8);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  z-index: 1;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: $gradient-primary;
+  }
+}
+
+.brand-section {
+  text-align: center;
+  margin-bottom: 2rem;
+  
+  .logo-circle {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    background: $gradient-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    box-shadow: 0 5px 15px rgba($primary-color, 0.3);
+  }
+  
+  h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(to right, white, #e0e0e0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .tagline {
+    margin-top: 0.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+  }
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-field {
+  position: relative;
+  
+  i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+    z-index: 2;
+  }
+  
+  input, select {
+    width: 100%;
+    padding: 15px 15px 15px 45px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.3);
+      
+      + i {
+        color: $primary-color;
+      }
+    }
+    
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    &.invalid {
+      border-color: $danger-color;
+      
+      + i {
+        color: $danger-color;
+      }
+    }
+  }
+  
+  .password-toggle {
+    position: absolute;
+    right: 15px;
+    left: auto;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.5);
+    
+    &:hover {
+      color: $primary-color;
+    }
+  }
+  
+  &.select-field {
+    select {
+      appearance: none;
+      cursor: pointer;
+      
+      option {
+        background: $dark-color;
+        color: white;
+      }
+      
+      option[disabled] {
+        color: rgba(255, 255, 255, 0.5);
+      }
+    }
+    
+    &::after {
+      content: '\f078';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255, 255, 255, 0.7);
+      pointer-events: none;
+    }
+  }
+}
+
+.error-message {
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: $danger-color;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  
+  span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  i {
+    font-size: 0.7rem;
+  }
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  
+  span {
+    margin-right: 0.5rem;
+  }
+  
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: color 0.3s ease;
+    
+    &:hover {
+      color: $accent-color;
+    }
+  }
+}
+
+.btn-primary {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(10px, 10px);
+  }
+  50% {
+    transform: translate(20px, -10px);
+  }
+  75% {
+    transform: translate(-10px, 20px);
+  }
+}

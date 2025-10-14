@@ -1,0 +1,264 @@
+[{
+  "_id": {
+    "$oid": "686ddbf1b829fba547438a05"
+  },
+  "name": "Micrófono Inalámbrico Shure SM58",
+  "description": "Micrófono inalámbrico profesional para eventos en vivo y conferencias.",
+  "quantity": 8,
+  "cost": 750000,
+  "resourceType": {
+    "$oid": "686bca972525ecaa264f0931"
+  },
+  "status": "disponible",
+  "createdBy": {
+    "$oid": "686bc94b2525ecaa264f0910"
+  },
+  "createdAt": {
+    "$date": "2025-07-09T03:03:13.024Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T03:03:13.024Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ddc07b829fba547438a08"
+  },
+  "name": "Consola de Sonido Yamaha MG10XU",
+  "description": "Consola analógica de 10 canales con efectos integrados.",
+  "quantity": 3,
+  "cost": 1200000,
+  "resourceType": {
+    "$oid": "686bca972525ecaa264f0931"
+  },
+  "status": "en_uso",
+  "createdBy": {
+    "$oid": "686bc94b2525ecaa264f0910"
+  },
+  "createdAt": {
+    "$date": "2025-07-09T03:03:35.325Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T03:03:35.325Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ddc17b829fba547438a0b"
+  },
+  "name": "Parlante Activo JBL EON715",
+  "description": "Parlante de 15 pulgadas para refuerzo sonoro en exteriores.",
+  "quantity": 4,
+  "cost": 950000,
+  "resourceType": {
+    "$oid": "686bca972525ecaa264f0931"
+  },
+  "status": "mantenimiento",
+  "createdBy": {
+    "$oid": "686bc94b2525ecaa264f0910"
+  },
+  "createdAt": {
+    "$date": "2025-07-09T03:03:51.003Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T03:03:51.003Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ddc2fb829fba547438a0e"
+  },
+  "name": "Diadema Inalámbrica Sennheiser HMD-300",
+  "description": "Diadema para presentadores con micrófono integrado.",
+  "quantity": 6,
+  "cost": 650000,
+  "resourceType": {
+    "$oid": "686ddb97b829fba547438a00"
+  },
+  "status": "disponible",
+  "createdBy": {
+    "$oid": "686bc94b2525ecaa264f0910"
+  },
+  "createdAt": {
+    "$date": "2025-07-09T03:04:15.824Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T03:04:15.824Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ddc44b829fba547438a11"
+  },
+  "name": "Proyector Laser Epson EB-L1070U",
+  "description": "Proyector 4K para salas de conferencias.",
+  "quantity": 2,
+  "cost": 3500000,
+  "resourceType": {
+    "$oid": "686ddb8db829fba5474389fe"
+  },
+  "status": "disponible",
+  "createdBy": {
+    "$oid": "686bc94b2525ecaa264f0910"
+  },
+  "createdAt": {
+    "$date": "2025-07-09T03:04:36.692Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T03:04:36.692Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ddc54b829fba547438a14"
+  },
+  "name": "Cámara Sony PXW-Z150",
+  "description": "Cámara profesional 4K para transmisiones en vivo.",
+  "quantity": 5,
+  "cost": 2800000,
+  "resourceType": {
+    "$oid": "686ddb8db829fba5474389fe"
+  },
+  "status": "en_uso",
+  "createdBy": {
+    "$oid": "686bc94b2525ecaa264f0910"
+  },
+  "createdAt": {
+    "$date": "2025-07-09T03:04:52.451Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T03:04:52.451Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ddc69b829fba547438a17"
+  },
+  "name": "Trípode Manfrotto MT190X",
+  "description": "Trípode robusto para cámaras y equipos pesados.",
+  "quantity": 10,
+  "cost": 320000,
+  "resourceType": {
+    "$oid": "686ddba7b829fba547438a02"
+  },
+  "status": "disponible",
+  "createdBy": {
+    "$oid": "686bc94b2525ecaa264f0910"
+  },
+  "createdAt": {
+    "$date": "2025-07-09T03:05:13.859Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T03:05:13.859Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ddc7ab829fba547438a1a"
+  },
+  "name": "Micrófono de Solapa Rode SmartLav+",
+  "description": "Micrófono lavalier para entrevistas y grabaciones.",
+  "quantity": 12,
+  "cost": 180000,
+  "resourceType": {
+    "$oid": "686bca972525ecaa264f0931"
+  },
+  "status": "disponible",
+  "createdBy": {
+    "$oid": "686bc94b2525ecaa264f0910"
+  },
+  "createdAt": {
+    "$date": "2025-07-09T03:05:30.046Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T03:05:30.046Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ddc8eb829fba547438a1d"
+  },
+  "name": "Monitor de Estudio KRK Rokit 5",
+  "description": "Monitores de referencia para producción musical.",
+  "quantity": 7,
+  "cost": 800000,
+  "resourceType": {
+    "$oid": "686ddb8db829fba5474389fe"
+  },
+  "status": "mantenimiento",
+  "createdBy": {
+    "$oid": "686bc94b2525ecaa264f0910"
+  },
+  "createdAt": {
+    "$date": "2025-07-09T03:05:50.412Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T03:05:50.412Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ddca2b829fba547438a20"
+  },
+  "name": "Router Inalámbrico Ubiquiti UniFi",
+  "description": "Router para redes de alta capacidad en eventos.",
+  "quantity": 4,
+  "cost": 450000,
+  "resourceType": {
+    "$oid": "686ddba7b829fba547438a02"
+  },
+  "status": "en_uso",
+  "createdBy": {
+    "$oid": "686bc94b2525ecaa264f0910"
+  },
+  "createdAt": {
+    "$date": "2025-07-09T03:06:10.718Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T03:06:10.718Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ddcb1b829fba547438a23"
+  },
+  "name": "Batería DJ DDJ-1000",
+  "description": "Controladora profesional para DJs.",
+  "quantity": 3,
+  "cost": 2200000,
+  "resourceType": {
+    "$oid": "686ddba7b829fba547438a02"
+  },
+  "status": "disponible",
+  "createdBy": {
+    "$oid": "686bc94b2525ecaa264f0910"
+  },
+  "createdAt": {
+    "$date": "2025-07-09T03:06:25.539Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T03:06:25.539Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "686ddcc8b829fba547438a26"
+  },
+  "name": "Foco LED Moving Head Chauvet Rogue R2",
+  "description": "Foco inteligente para espectáculos en vivo.",
+  "quantity": 6,
+  "cost": 1500000,
+  "resourceType": {
+    "$oid": "686ddb85b829fba5474389fc"
+  },
+  "status": "en_uso",
+  "createdBy": {
+    "$oid": "686bc94b2525ecaa264f0910"
+  },
+  "createdAt": {
+    "$date": "2025-07-09T03:06:48.783Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T03:06:48.783Z"
+  }
+}]

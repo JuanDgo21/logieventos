@@ -1,0 +1,271 @@
+// Configuración inicial - Importamos la librería de color de Sass
+@use 'sass:color';
+
+// =============================================
+// VARIABLES DE COLORES
+// =============================================
+
+// Paleta de colores principales del tema
+$primary-color: #6a11cb;    // Color primario (morado)
+$secondary-color: #2575fc;  // Color secundario (azul)
+$accent-color: #f46b45;     // Color de acento (naranja)
+$success-color: #38ef7d;    // Color para indicar éxito (verde)
+$warning-color: #f9d423;    // Color para advertencias (amarillo)
+$danger-color: #ff416c;     // Color para errores (rojo)
+$dark-color: #1a1a2e;       // Color oscuro de fondo
+$light-color: #f8f9ff;      // Color claro para texto
+
+// Colores adicionales
+$gray-200: #e5e7eb;         // Gris claro
+$primary: #007bff;          // Azul primario alternativo
+
+// =============================================
+// MIXINS REUTILIZABLES
+// =============================================
+
+// Efecto de vidrio esmerilado (glass morphism)
+@mixin glass-effect {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+// Efecto de elevación al hacer hover
+@mixin floating-effect {
+  transition: transform 0.3s ease;
+  &:hover {
+    transform: translateY(-5px);
+  }
+}
+ // :3 
+// =============================================
+// DEGRADADOS PROFESIONALES
+// =============================================
+
+// Degradados basados en los colores principales
+$gradient-primary: linear-gradient(135deg, $primary-color, $secondary-color);
+$gradient-accent: linear-gradient(135deg, $accent-color, darken($accent-color, 15%));
+$gradient-success: linear-gradient(135deg, $success-color, darken($success-color, 15%));
+
+// =============================================
+// EFECTOS ESPECIALES
+// =============================================
+
+// Versión extendida del efecto flotante con sombra
+@mixin floating-effect {
+  transform: translateY(0);
+  transition: all 0.3s ease;
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  }
+}
+
+// Efecto de partículas animadas
+@mixin particle-effect {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    transform: rotate(0deg);
+    animation: particle-rotate 15s linear infinite;
+    pointer-events: none; // ← 👈 AGREGA ESTO
+    z-index: 0;            // ← 👈 OPCIONAL PERO RECOMENDADO
+  }
+}
+
+// =============================================
+// ANIMACIONES
+// =============================================
+
+// Animación para el efecto de partículas
+@keyframes particle-rotate {
+  to { transform: rotate(360deg); }
+}
+
+// Animación de pulso con brillo
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; box-shadow: 0 0 15px currentColor; }
+}
+
+// =============================================
+// ESTILOS BASE
+// =============================================
+
+// Estilos generales del cuerpo del documento
+body {
+  font-family: 'Poppins', sans-serif;
+  background: $dark-color;
+  color: rgb(255, 255, 255);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  // Fondo con degradados radiales sutiles
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba($primary-color, 0.1) 0%, transparent 20%),
+    radial-gradient(circle at 90% 80%, rgba($secondary-color, 0.1) 0%, transparent 20%);
+}
+
+// =============================================
+// UTILIDADES
+// =============================================
+
+// Clase para aplicar efecto de pulso
+.pulse-effect {
+  animation: pulse-glow 2s infinite alternate;
+}
+
+// Estilo base para tarjetas
+.card {
+  @include glass-effect; // Aplica el efecto de vidrio esmerilado
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  @include particle-effect; // Aplica el efecto de partículas
+}
+
+// Estilo para campos de entrada
+.input-field {
+  position: relative;
+  margin-bottom: 1.5rem;
+  
+  // Estilo para iconos dentro de los campos
+  i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255,255,255,0.7);
+    transition: all 0.3s ease;
+  }
+  
+  // Estilo para el input
+  input {
+    width: 100%;
+    padding: 15px 15px 15px 45px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    
+    // Estilo cuando el input tiene foco
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      background: rgba(255,255,255,0.15);
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.3);
+      
+      // Cambia el color del icono cuando el input tiene foco
+      + i {
+        color: $primary-color;
+      }
+    }
+    
+    // Estilo del placeholder
+    &::placeholder {
+      color: rgba(255,255,255,0.5);
+    }
+  }
+}
+
+// Estilo para botones
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 15px 25px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  @include floating-effect; // Aplica efecto flotante
+  
+  // Variante primaria del botón
+  &-primary {
+    background: $gradient-primary;
+    color: white;
+    
+    // Efecto hover para botón primario
+    &:hover {
+      background: linear-gradient(135deg, darken($primary-color, 5%), darken($secondary-color, 5%));
+    }
+  }
+  
+  // Variante de texto del botón
+  &-text {
+    background: transparent;
+    color: rgba(255,255,255,0.7);
+    padding: 10px;
+    
+    // Efecto hover para botón de texto
+    &:hover {
+      color: $accent-color;
+    }
+  }
+}
+
+// Estilo para alertas/notificaciones
+.alert {
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: fadeIn 0.3s ease; // Animación al aparecer
+  
+  // Estilo para iconos en alertas
+  i {
+    font-size: 1.2rem;
+  }
+  
+  // Variante de éxito
+  &-success {
+    background: rgba($success-color, 0.1);
+    border-left: 4px solid $success-color;
+    color: $success-color;
+  }
+  
+  // Variante de peligro/error
+  &-danger {
+    background: rgba($danger-color, 0.1);
+    border-left: 4px solid $danger-color;
+    color: $danger-color;
+  }
+  
+  // Variante de advertencia
+  &-warning {
+    background: rgba($warning-color, 0.1);
+    border-left: 4px solid $warning-color;
+    color: $warning-color;
+  }
+}
+
+// Animación para fade in
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// Mapa de colores para estados
+$status-colors: (
+  'borrador': #6c757d,
+  'activo': #28a745,
+  'completado': #007bff,
+  'cancelado': #dc3545
+);

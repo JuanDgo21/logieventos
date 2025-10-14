@@ -1,0 +1,81 @@
+<nav class="navbar navbar-expand navbar-light">
+  <div class="container-fluid">
+    <div class="d-flex align-items-center">
+      <button class="btn btn-link me-2 sidebar-toggle" (click)="layoutService.toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+      <span class="welcome-message me-2">Bienvenido, {{ displayName }}</span>
+      <span class="badge bg-primary">{{ userRole | titlecase }}</span>
+    </div>
+
+    <div class="d-flex align-items-center">
+      <!-- Opción de Registrar Usuario (solo para admin) -->
+      @if (authService.hasRole('admin')) {
+        <button class="btn btn-outline-primary me-3" [routerLink]="['/auth/register']">
+          <i class="fas fa-user-plus me-1"></i> Registrar Usuario
+        </button>
+      }
+
+      <!-- Notificaciones -->
+      <div class="dropdown me-3">
+        <button class="btn btn-link position-relative" data-bs-toggle="dropdown">
+          <i class="fas fa-bell"></i>
+          @if (notifications.length > 0) {
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              {{ notifications.length }}
+            </span>
+          }
+        </button>
+        <div class="dropdown-menu dropdown-menu-end">
+          @for (notif of notifications; track $index) {
+            <div class="dropdown-item">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-{{ notif.icon }} me-2"></i>
+                <div>
+                  <p class="mb-0">{{ notif.message }}</p>
+                  <small class="text-muted">{{ notif.time }}</small>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Menú de usuario -->
+      <div class="dropdown user-menu">
+        <button class="btn btn-user dropdown-toggle"
+                (click)="toggleMenu()"
+                aria-expanded="false">
+          <i class="fas fa-user-circle me-1"></i>
+          <span class="d-none d-md-inline">{{ displayName }}</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" [class.show]="isMenuOpen">
+          <li>
+            <div class="dropdown-header">
+              <strong>{{ displayName }}</strong>
+              <small class="d-block text-muted">{{ userRole | titlecase }}</small>
+            </div>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item" [routerLink]="['/users/profile']">
+              <i class="fas fa-user me-2"></i> Mi Perfil
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" routerLink="/configuracion">
+              <i class="fas fa-cog me-2"></i> Configuración
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item text-danger" (click)="logout()">
+              <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+    </div>
+  </div>
+</nav>

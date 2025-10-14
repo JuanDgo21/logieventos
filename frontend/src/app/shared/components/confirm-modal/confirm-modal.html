@@ -1,0 +1,36 @@
+<div class="confirm-modal-container">
+  <div class="modal-backdrop">
+    <div class="particle particle-1"></div>
+    <div class="particle particle-2"></div>
+  </div>
+  
+  <div class="confirm-modal-card">
+    <div class="modal-header">
+      <div class="header-content">
+        <div class="icon-circle pulse-effect">
+          <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <h3 class="modal-title">{{ title }}</h3>
+      </div>
+      <button *ngIf="showCloseButton" type="button" class="btn-close" 
+              aria-label="Close" (click)="dismiss()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="message-content">
+        <div class="message-text" [innerHTML]="message"></div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-secondary" (click)="dismiss()">
+        <i class="fas fa-times me-2"></i>{{ cancelText }}
+      </button>
+      <button type="button" class="btn" [ngClass]="confirmClass" (click)="confirm()">
+        <i class="fas fa-check me-2"></i>{{ confirmText }}
+      </button>
+    </div>
+  </div>
+</div>

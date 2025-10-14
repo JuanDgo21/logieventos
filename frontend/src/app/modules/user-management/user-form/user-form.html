@@ -1,0 +1,167 @@
+<div class="user-form-modal">
+  <div class="modal-header">
+    <div class="modal-title">
+      <div class="title-icon">
+        <i class="fas fa-user-edit"></i>
+      </div>
+      <h2>
+        @if (user) {
+          Editar Usuario
+        } @else {
+          Crear Nuevo Usuario
+        }
+      </h2>
+    </div>
+    <button class="close-btn" (click)="activeModal.dismiss()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    @if (errorMessage) {
+      <div class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        <div>
+          <strong>Error!</strong> {{ errorMessage }}
+        </div>
+      </div>
+    }
+
+    <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <!-- Documento -->
+        <div class="form-group">
+          <label><i class="fas fa-id-card"></i> Número de Documento</label>
+          <div class="input-field">
+            <input type="text" formControlName="document" placeholder="Ingrese el número de documento">
+            @if (f['document'].touched && f['document'].errors) {
+              <div class="error-message">
+                @if (f['document'].errors['required']) {
+                  <span><i class="fas fa-exclamation-circle"></i> Campo requerido</span>
+                }
+                @if (f['document'].errors['pattern']) {
+                  <span><i class="fas fa-exclamation-circle"></i> Solo se permiten números</span>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Nombre Completo -->
+        <div class="form-group">
+          <label><i class="fas fa-user"></i> Nombre Completo</label>
+          <div class="input-field">
+            <input type="text" formControlName="fullname" placeholder="Ingrese el nombre completo">
+            @if (f['fullname'].touched && f['fullname'].errors) {
+              <div class="error-message">
+                <span><i class="fas fa-exclamation-circle"></i> Campo requerido</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Nombre de Usuario -->
+        <div class="form-group">
+          <label><i class="fas fa-at"></i> Nombre de Usuario</label>
+          <div class="input-field">
+            <input type="text" formControlName="username" placeholder="Ingrese el nombre de usuario">
+            @if (f['username'].touched && f['username'].errors) {
+              <div class="error-message">
+                <span><i class="fas fa-exclamation-circle"></i> Campo requerido</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label><i class="fas fa-envelope"></i> Correo Electrónico</label>
+          <div class="input-field">
+            <input type="email" formControlName="email" placeholder="Ingrese el correo electrónico">
+            @if (f['email'].touched && f['email'].errors) {
+              <div class="error-message">
+                @if (f['email'].errors['required']) {
+                  <span><i class="fas fa-exclamation-circle"></i> Campo requerido</span>
+                }
+                @if (f['email'].errors['email']) {
+                  <span><i class="fas fa-exclamation-circle"></i> Formato de email inválido</span>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Rol -->
+        <div class="form-group">
+          <label><i class="fas fa-user-tag"></i> Rol</label>
+          <div class="input-field">
+            <select formControlName="role">
+              @for (role of roles; track role) {
+                <option [value]="role">{{ role | titlecase }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        @if (!user) {
+          <!-- Contraseña -->
+          <div class="form-group">
+            <label><i class="fas fa-lock"></i> Contraseña</label>
+            <div class="input-field">
+              <input [type]="showPassword ? 'text' : 'password'" 
+                     formControlName="password" 
+                     placeholder="Ingrese la contraseña">
+              <i class="fas {{showPassword ? 'fa-eye-slash' : 'fa-eye'}} password-toggle" 
+                 (click)="showPassword = !showPassword"></i>
+              @if (f['password'].touched && f['password'].errors) {
+                <div class="error-message">
+                  <span><i class="fas fa-exclamation-circle"></i> Campo requerido</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Confirmar Contraseña -->
+          <div class="form-group">
+            <label><i class="fas fa-lock"></i> Confirmar Contraseña</label>
+            <div class="input-field">
+              <input [type]="showConfirmPassword ? 'text' : 'password'" 
+                     formControlName="confirmPassword" 
+                     placeholder="Confirme la contraseña">
+              <i class="fas {{showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'}} password-toggle" 
+                 (click)="showConfirmPassword = !showConfirmPassword"></i>
+              @if (f['confirmPassword'].touched && f['confirmPassword'].errors) {
+                <div class="error-message">
+                  @if (f['confirmPassword'].errors['required']) {
+                    <span><i class="fas fa-exclamation-circle"></i> Campo requerido</span>
+                  }
+                  @if (f['confirmPassword'].errors['mismatch']) {
+                    <span><i class="fas fa-exclamation-circle"></i> Las contraseñas no coinciden</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="form-footer">
+        <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading || userForm.invalid">
+          @if (loading) {
+            <i class="fas fa-spinner fa-spin"></i> Procesando...
+          } @else {
+            <i class="fas fa-save"></i> 
+            @if (user) {
+              Actualizar
+            } @else {
+              Guardar
+            }
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

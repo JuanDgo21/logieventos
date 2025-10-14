@@ -1,0 +1,252 @@
+    <app-navbar></app-navbar>
+      
+      <main class="main-content">
+        <div class="profile-container">
+          <!-- Encabezado del perfil -->
+          <div class="profile-header">
+            <div class="avatar-container">
+              <div class="avatar-circle">
+                <i class="fas fa-user-circle"></i>
+              </div>
+              <div class="user-info">
+                <h1>Mi Perfil</h1>
+                <p class="user-role">{{ getRoleName() }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alertas -->
+          @if (showAlert) {
+            <div class="custom-alert alert-{{alertType}}">
+              <div class="alert-content">
+                @if (alertType === 'success') {
+                  <i class="fas fa-check-circle"></i>
+                }
+                @if (alertType === 'danger') {
+                  <i class="fas fa-exclamation-circle"></i>
+                }
+                @if (alertType === 'warning') {
+                  <i class="fas fa-exclamation-triangle"></i>
+                }
+                <span>{{alertMessage}}</span>
+              </div>
+              <button class="alert-close" (click)="showAlert = false">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          }
+
+          <!-- Formulario en dos columnas -->
+          <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+            <div class="form-grid">
+              <!-- Columna izquierda -->
+              <div class="form-column">
+                <!-- Documento -->
+                <div class="form-section">
+                  <h3 class="section-title">
+                    <i class="fas fa-id-card"></i> Documento
+                  </h3>
+                  <div class="form-group">
+                    <label for="document">Número de documento</label>
+                    <div class="input-container">
+                      <i class="fas fa-id-card prefix-icon"></i>
+                      <input
+                        id="document"
+                        type="text"
+                        formControlName="document"
+                        placeholder="Ingrese su documento"
+                        [class.invalid]="profileForm.get('document')?.invalid && profileForm.get('document')?.touched">
+                    </div>
+                    @if (profileForm.get('document')?.invalid && profileForm.get('document')?.touched) {
+                      <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        @if (profileForm.get('document')?.errors?.['required']) {
+                          <span>Documento requerido</span>
+                        }
+                        @if (profileForm.get('document')?.errors?.['pattern']) {
+                          <span>Solo se permiten números</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <!-- Nombre completo -->
+                <div class="form-section">
+                  <h3 class="section-title">
+                    <i class="fas fa-user"></i> Información Personal
+                  </h3>
+                  <div class="form-group">
+                    <label for="fullname">Nombre completo</label>
+                    <div class="input-container">
+                      <i class="fas fa-user prefix-icon"></i>
+                      <input
+                        id="fullname"
+                        type="text"
+                        formControlName="fullname"
+                        placeholder="Nombre completo"
+                        [class.invalid]="profileForm.get('fullname')?.invalid && profileForm.get('fullname')?.touched">
+                    </div>
+                    @if (profileForm.get('fullname')?.invalid && profileForm.get('fullname')?.touched) {
+                      <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        @if (profileForm.get('fullname')?.errors?.['required']) {
+                          <span>Nombre requerido</span>
+                        }
+                        @if (profileForm.get('fullname')?.errors?.['minlength']) {
+                          <span>Mínimo 3 caracteres</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <!-- Columna derecha -->
+              <div class="form-column">
+                <!-- Credenciales -->
+                <div class="form-section">
+                  <h3 class="section-title">
+                    <i class="fas fa-key"></i> Credenciales
+                  </h3>
+                  <div class="form-group">
+                    <label for="username">Nombre de usuario</label>
+                    <div class="input-container">
+                      <i class="fas fa-at prefix-icon"></i>
+                      <input
+                        id="username"
+                        type="text"
+                        formControlName="username"
+                        placeholder="Nombre de usuario"
+                        [class.invalid]="profileForm.get('username')?.invalid && profileForm.get('username')?.touched">
+                    </div>
+                    @if (profileForm.get('username')?.invalid && profileForm.get('username')?.touched) {
+                      <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        @if (profileForm.get('username')?.errors?.['required']) {
+                          <span>Usuario requerido</span>
+                        }
+                        @if (profileForm.get('username')?.errors?.['minlength']) {
+                          <span>Mínimo 3 caracteres</span>
+                        }
+                      </div>
+                    }
+                  </div>
+
+                  <div class="form-group">
+                    <label for="email">Correo electrónico</label>
+                    <div class="input-container">
+                      <i class="fas fa-envelope prefix-icon"></i>
+                      <input
+                        id="email"
+                        type="email"
+                        formControlName="email"
+                        placeholder="correo@ejemplo.com"
+                        [class.invalid]="profileForm.get('email')?.invalid && profileForm.get('email')?.touched">
+                    </div>
+                    @if (profileForm.get('email')?.invalid && profileForm.get('email')?.touched) {
+                      <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        @if (profileForm.get('email')?.errors?.['required']) {
+                          <span>Email requerido</span>
+                        }
+                        @if (profileForm.get('email')?.errors?.['email']) {
+                          <span>Email inválido</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sección de contraseña expandible -->
+            <div class="password-section" [class.expanded]="showPasswordFields">
+              <div class="section-header" (click)="togglePasswordFields()">
+                <h3>
+                  <i class="fas fa-lock"></i> Cambiar contraseña
+                </h3>
+                <i class="fas fa-chevron-{{showPasswordFields ? 'up' : 'down'}}"></i>
+              </div>
+
+              @if (showPasswordFields) {
+                <div class="password-fields">
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <label for="currentPassword">Contraseña actual</label>
+                      <div class="input-container">
+                        <i class="fas fa-lock prefix-icon"></i>
+                        <input
+                          id="currentPassword"
+                          [type]="passwordVisible ? 'text' : 'password'"
+                          formControlName="currentPassword"
+                          placeholder="Contraseña actual">
+                        <i 
+                          class="fas {{passwordVisible ? 'fa-eye-slash' : 'fa-eye'}} visibility-toggle"
+                          (click)="togglePasswordVisibility()"></i>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="newPassword">Nueva contraseña</label>
+                      <div class="input-container">
+                        <i class="fas fa-key prefix-icon"></i>
+                        <input
+                          id="newPassword"
+                          [type]="passwordVisible ? 'text' : 'password'"
+                          formControlName="newPassword"
+                          placeholder="Nueva contraseña">
+                      </div>
+                      @if (profileForm.get('newPassword')?.invalid && profileForm.get('newPassword')?.touched) {
+                        <div class="error-message">
+                          <i class="fas fa-exclamation-circle"></i>
+                          @if (profileForm.get('newPassword')?.errors?.['minlength']) {
+                            <span>Mínimo 8 caracteres</span>
+                          }
+                        </div>
+                      }
+                    </div>
+
+                    <div class="form-group">
+                      <label for="confirmPassword">Confirmar contraseña</label>
+                      <div class="input-container">
+                        <i class="fas fa-key prefix-icon"></i>
+                        <input
+                          id="confirmPassword"
+                          [type]="passwordVisible ? 'text' : 'password'"
+                          formControlName="confirmPassword"
+                          placeholder="Confirmar contraseña">
+                      </div>
+                      @if (profileForm.get('confirmPassword')?.errors?.['mismatch']) {
+                        <div class="error-message">
+                          <i class="fas fa-exclamation-circle"></i>
+                          <span>Las contraseñas no coinciden</span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Acciones del formulario -->
+            <div class="form-actions">
+              <button 
+                type="submit" 
+                class="save-button"
+                [disabled]="isLoading || profileForm.invalid">
+                @if (isLoading) {
+                  <i class="fas fa-spinner fa-spin"></i>
+                  <span>Guardando...</span>
+                }
+                @if (!isLoading) {
+                  <i class="fas fa-save"></i>
+                  <span>Guardar cambios</span>
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      </main>
+    
+    <app-footer></app-footer>

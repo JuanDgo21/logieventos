@@ -1,0 +1,193 @@
+  <app-navbar></app-navbar>
+
+<div class="personnel-management-container">
+  
+  <div class="main-content-wrapper">
+    <app-sidebar></app-sidebar>
+    
+    <main class="dashboard-content">
+      <!-- Header -->
+      <div class="dashboard-header">
+        <div class="header-content">
+          <h1><i class="fas fa-users-cog me-2"></i> Gestión de Personal</h1>
+          <div class="header-actions">
+            <!-- En el botón de Nuevo Personal -->
+            @if (canCreate()) {
+              <button class="btn btn-primary" (click)="openPersonnelForm()">
+                <i class="fas fa-user-plus me-2"></i> Nuevo Personal
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Alertas -->
+      @if (alertMessage) {
+        <div class="alert" [ngClass]="'alert-' + alertType">
+          <i class="fas" [ngClass]="{
+            'fa-check-circle': alertType === 'success',
+            'fa-exclamation-triangle': alertType === 'danger',
+            'fa-info-circle': alertType === 'info'
+          }"></i>
+          {{ alertMessage }}
+          <button type="button" class="btn-close" (click)="alertMessage = ''"></button>
+        </div>
+      }
+
+      <!-- Filtros y Búsqueda -->
+      <div class="search-filter-section">
+        <div class="search-card">
+          <div class="input-field">
+            <i class="fas fa-search"></i>
+            <input type="text" 
+                   placeholder="Buscar personal..." 
+                   [(ngModel)]="searchTerm" 
+                   (input)="filterData()">
+          </div>
+          <button class="btn btn-text" (click)="resetFilters()">
+            <i class="fas fa-filter-circle-xmark me-1"></i> Limpiar
+          </button>
+        </div>
+
+        <div class="filter-cards">
+          <div class="filter-card">
+            <label><i class="fas fa-user-tag me-2"></i>Categoría</label>
+            <select [(ngModel)]="typeFilter" (change)="filterData()">
+              <option value="all">Todas</option>
+              @for (type of personnelTypes; track type._id) {
+                <option [value]="type._id">{{ type.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="filter-card">
+            <label><i class="fas fa-power-off me-2"></i>Estado</label>
+            <select [(ngModel)]="statusFilter" (change)="filterData()">
+              <option value="all">Todos</option>
+              @for (status of statusOptions; track status.value) {
+                <option [value]="status.value">{{ status.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de Personal -->
+      <div class="personnel-table-section">
+        @if (isLoading) {
+          <div class="loading-state">
+            <div class="spinner">
+              <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <p>Cargando personal...</p>
+          </div>
+        }
+
+        @if (!isLoading && filteredList.length === 0) {
+          <div class="empty-state">
+            <i class="fas fa-user-slash"></i>
+            <h3>No se encontró personal</h3>
+            <p>Intenta ajustar tus filtros de búsqueda</p>
+            <button class="btn btn-text" (click)="resetFilters()">
+              <i class="fas fa-undo me-1"></i> Limpiar filtros
+            </button>
+          </div>
+        }
+
+        @if (!isLoading && filteredList.length > 0) {
+          <div class="table-responsive">
+            <table class="personnel-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Contacto</th>
+                  <th>Categoría</th>
+                  <th>Estado</th>
+                  <th>Habilidades</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (personnel of filteredList; track personnel._id) {
+                  <tr>
+                    <td class="personnel-name">
+                      <div class="personnel-avatar">
+                        <i class="fas fa-user"></i>
+                      </div>
+                      <div>
+                        <strong>{{ personnel.firstName }} {{ personnel.lastName }}</strong>
+                        <small>ID: {{ personnel._id | slice:0:8 }}...</small>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="contact-info">
+                        <div><i class="fas fa-envelope"></i> {{ personnel.email }}</div>
+                        @if (personnel.phone) {
+                          <div><i class="fas fa-phone"></i> {{ personnel.phone }}</div>
+                        }
+                      </div>
+                    </td>
+                    <td>
+                      <span class="type-badge" [ngClass]="'type-' + personnel.personnelType">
+                        {{ getTypeName(personnel.personnelType) }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="status-badge" [ngClass]="personnel.status">
+                        <i class="fas" 
+                           [class.fa-check-circle]="personnel.status === 'disponible'"
+                           [class.fa-user-clock]="personnel.status === 'asignado'"
+                           [class.fa-umbrella-beach]="personnel.status === 'vacaciones'"
+                           [class.fa-user-slash]="personnel.status === 'inactivo'"></i>
+                        {{ getStatusLabel(personnel.status) }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="skills-container">
+                        @for (skill of personnel.skills || []; track skill; let i = $index) {
+                          @if (i < 2) {
+                            <span class="skill-badge">{{ skill }}</span>
+                          }
+                        }
+                        @if ((personnel.skills || []).length > 2) {
+                          <span class="skill-more">+{{ (personnel.skills || []).length - 2 }} más</span>
+                        }
+                      </div>
+                    </td>
+                    <td class="actions-cell">
+                      <div class="action-buttons">
+                        @if (canEdit(personnel)) {
+                          <button class="btn-action edit" (click)="openPersonnelForm(personnel)">
+                            <i class="fas fa-pen-to-square"></i>
+                          </button>
+                        }
+                        
+                        @if (canDelete()) {
+                          <button class="btn-action delete" (click)="confirmDelete(personnel._id)">
+                            <i class="fas fa-trash-can"></i>
+                          </button>
+                        }
+                        
+                        @if (canToggleStatus()) {
+                          <button class="btn-action status" 
+                                  [ngClass]="{'active': personnel.status === 'disponible'}"
+                                  (click)="toggleStatus(personnel)">
+                            <i class="fas" 
+                              [class.fa-toggle-on]="personnel.status === 'disponible'" 
+                              [class.fa-toggle-off]="personnel.status !== 'disponible'"></i>
+                          </button>
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </main>
+  </div>
+</div>
+
+  <app-footer></app-footer>

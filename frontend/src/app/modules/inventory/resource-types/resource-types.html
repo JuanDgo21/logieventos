@@ -1,0 +1,111 @@
+<div class="resource-types-container">
+  <app-sidebar-inventory></app-sidebar-inventory>
+  <div class="content" [class.sidebar-collapsed]="!sidebarState.isOpen">  
+  <h2>
+    <i class="fas fa-tags"></i>
+    Gestión de Tipos de Recursos
+  </h2>
+  
+  <!-- Mensajes -->
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+  
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <!-- Spinner de carga -->
+  <div *ngIf="isLoading" class="loading-spinner">
+    <i class="fas fa-spinner fa-spin"></i> Cargando...
+  </div>
+  
+  <!-- Formulario -->
+  <div class="resource-type-form">
+    <h3>{{ editingResourceType ? 'Editar Tipo' : 'Nuevo Tipo de Recurso' }}</h3>
+    
+    <div class="form-group">
+      <label>Nombre:</label>
+      <input type="text" 
+             [ngModel]="editingResourceType ? editingResourceType.name : newResourceType.name"
+             (ngModelChange)="onNameChange($event)"
+             [disabled]="isLoading" 
+             required>
+    </div>
+    
+    <div class="form-group">
+      <label>Descripción:</label>
+      <textarea [ngModel]="editingResourceType ? editingResourceType.description : newResourceType.description"
+                (ngModelChange)="onDescriptionChange($event)"
+                [disabled]="isLoading"></textarea>
+    </div>
+    
+    <div class="form-group" *ngIf="editingResourceType">
+      <label>Estado:</label>
+      <div class="status-toggle">
+        <span class="status-label">{{ editingResourceType.active ? 'Activo' : 'Inactivo' }}</span>
+        <label class="switch">
+          <input type="checkbox" 
+                 [ngModel]="editingResourceType.active"
+                 (ngModelChange)="onActiveChange($event)">
+          <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
+    
+    <div class="form-actions">
+      <button *ngIf="!editingResourceType" 
+              (click)="createResourceType()" 
+              [disabled]="isLoading || !newResourceType.name">
+        {{ isLoading ? 'Creando...' : 'Crear' }}
+      </button>
+      <button *ngIf="editingResourceType" 
+              (click)="updateResourceType()" 
+              [disabled]="isLoading || !editingResourceType?.name">
+        {{ isLoading ? 'Actualizando...' : 'Actualizar' }}
+      </button>
+      <button *ngIf="editingResourceType" (click)="cancelEdit()" [disabled]="isLoading">
+        Cancelar
+      </button>
+    </div>
+  </div>
+  
+  <!-- Tabla -->
+  <div class="resource-type-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let type of resourceTypes">
+          <td>{{ type.name }}</td>
+          <td>{{ type.description || '--' }}</td>
+          <td>
+            <span class="status-badge" [class.active]="type.active">
+              {{ type.active ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+          <td class="actions">
+            <button (click)="editResourceType(type)" title="Editar">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button (click)="deleteResourceType(type._id!)" title="Eliminar" class="danger">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="resourceTypes.length === 0 && !isLoading">
+          <td colspan="4" class="no-data">
+            <i class="fas fa-box-open"></i>
+            No hay tipos de recursos registrados
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
