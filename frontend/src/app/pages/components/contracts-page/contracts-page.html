@@ -244,68 +244,73 @@
         <hr>
 
         <h6>Recursos</h6>
-        <div *ngIf="selectedContract.resources.length > 0; else noResources">
-          <table class="table table-sm table-dark">
-            <thead>
-              <tr>
-                <th>Recursos</th>
-                <th>Cantidad</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let r of selectedContract.resources">
-                <td>{{ r.resource.name }}</td>
-                <td>{{ r.quantity }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <ng-container *ngIf="selectedContract?.resources as resources">
+          <div *ngIf="resources.length > 0; else noResources">
+            <table class="table table-sm table-dark">
+              <thead>
+                <tr>
+                  <th>Recursos</th>
+                  <th>Cantidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let r of resources"> <td>{{ r.resource?.name || 'Recurso no disponible' }}</td>
+                  <td>{{ r.quantity }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </ng-container>
         <ng-template #noResources>
           <p class="text-muted fst-italic">No hay recursos definidos para este contrato.</p>
         </ng-template><br>
 
         <h6>Proveedores</h6>
-        <div *ngIf="selectedContract.providers.length > 0; else noProviders">
-          <table class="table table-sm table-dark">
-            <thead>
-              <tr>
-                <th>Proveedor</th>
-                <th>Servicio</th>
-                <th>Costo</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let p of selectedContract.providers">
-                <td>{{ p.provider.name }}</td>
-                <td>{{ p.serviceDescription }}</td>
-                <td>${{ p.cost }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <ng-container *ngIf="selectedContract?.providers as providers">
+          <div *ngIf="providers.length > 0; else noProviders">
+            <table class="table table-sm table-dark">
+              <thead>
+                <tr>
+                  <th>Proveedor</th>
+                  <th>Servicio</th>
+                  <th>Costo</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let p of providers">
+                  <td>{{ p.provider?.name || 'Proveedor no disponible' }}</td>
+                  <td>{{ p.serviceDescription || 'No definido' }}</td>
+                  <td>${{ p.cost | number: '1.2-2' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </ng-container>
         <ng-template #noProviders>
-          <p class="text-muted fst-italic">No hay proveedores asociados a este contrato.</p>
+          <p class="text-muted fst-italic">No hay proveedores asignados a este contrato.</p>
         </ng-template><br>
 
         <h6>Personal</h6>
-        <div *ngIf="selectedContract.personnel.length > 0; else noPersonnel">
-          <table class="table table-sm table-dark">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Rol</th>
-                <th>Horas</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let per of selectedContract.personnel">
-                <td>{{ per.person.firstName }} {{ per.person.lastName }}</td>
-                <td>{{ per.role }}</td>
-                <td>{{ per.hours }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <ng-container *ngIf="selectedContract?.personnel as personnel">
+          <div *ngIf="personnel.length > 0; else noPersonnel">
+            <table class="table table-sm table-dark">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Rol</th>
+                  <th>Horas</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let per of personnel">
+                  <td>{{ per.person?.firstName ? (per.person.firstName + ' ' + (per.person.lastName || '')) : 'Personal no disponible' }}</td>
+                  <td>{{ per.role }}</td>
+                  <td>{{ per.hours }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </ng-container>
         <ng-template #noPersonnel>
           <p class="text-muted fst-italic">No hay personal asignado a este contrato.</p>
         </ng-template>
