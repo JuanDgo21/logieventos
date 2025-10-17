@@ -8,7 +8,8 @@ export const apiRouters = {
     SIGNIN: `/${API}/auth/signin`,               // Ruta para inicio de sesión
     SIGNUP: `/${API}/auth/signup`,              // Ruta para registro de usuarios
     FORGOT_PASSWORD: `/${API}/auth/forgot-password`,  // Ruta para solicitar recuperación de contraseña
-    RESET_PASSWORD: `/${API}/auth/reset-password`     // Ruta para restablecer contraseña
+    RESET_PASSWORD: `/${API}/auth/reset-password`,
+    REFRESH_TOKEN: '/api/auth/refresh-token',     // Ruta para restablecer contraseña
   },
 
   // Rutas para gestión de usuarios

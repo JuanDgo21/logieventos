@@ -1,373 +1,234 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, tap, catchError, throwError } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { apiRouters } from '../../core/constants/apiRouters';
+import { BehaviorSubject, Observable, tap, catchError, throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { ApiService } from './api';
+import { apiRouters } from '../../core/constants/apiRouters';
 import { DecodedToken } from '../../shared/interfaces/auth';
 import { User } from '../../shared/interfaces/user';
-
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private apiService: ApiService) {
-    console.log('AuthService constructor llamado');
-  }
+  private readonly TOKEN_KEY = 'token';
+  private authState = new BehaviorSubject<boolean>(this.hasValidToken());
 
-  // ============ MÉTODOS DE AUTENTICACIÓN ============
+  constructor(private apiService: ApiService) {}
+
+  // =========================================================
+  // 🔐 REGISTRO Y LOGIN
+  // =========================================================
+
   register(userData: Omit<User, '_id' | 'createdAt' | 'updatedAt'>): Observable<any> {
-    // Validación de roles permitidos
     const validRoles = ['admin', 'coordinador', 'lider'];
     if (!validRoles.includes(userData.role)) {
       return throwError(() => new Error('Rol no válido'));
     }
 
     return this.apiService.postOb(apiRouters.AUTH.SIGNUP, userData).pipe(
-      tap((response) => {
-        this.handleAuthResponse(response);
-      }),
-      catchError(error => {
-        return throwError(() => error);
-      })
+      tap((response) => this.handleAuthSuccess(response)),
+      catchError((error) => this.handleError('Error al registrar', error))
     );
   }
 
   login(email: string, password: string): Observable<any> {
-    console.log('login llamado con:', { email, password });
     return this.apiService.postOb(apiRouters.AUTH.SIGNIN, { email, password }).pipe(
       tap((response) => {
-        console.log('login respuesta recibida:', response);
-        
-        // Verificación adicional del estado activo
         if (response.user && !response.user.active) {
-          console.log('Usuario inactivo detectado:', response.user.email);
-          throw new Error('USER_INACTIVE');
+          throw new Error('Tu cuenta está desactivada. Contacta al administrador.');
         }
-        
-        this.handleAuthResponse(response);
+        this.handleAuthSuccess(response);
       }),
-      catchError(error => {
-        console.log('login error ocurrido:', error);
-        
-        // Manejo específico para usuarios inactivos
-        if (error.message === 'USER_INACTIVE') {
-          const inactiveError = new Error('Tu cuenta está desactivada. Contacta al administrador.');
-          return throwError(() => inactiveError);
-        }
-        
-        return this.handleError('Error en login:', error);
-      })
+      catchError((error) => this.handleError('Error al iniciar sesión', error))
     );
   }
 
-  private handleAuthResponse(response: any): void {
-    console.log('handleAuthResponse llamado con:', response);
+  private handleAuthSuccess(response: any): void {
     if (response?.token) {
-      console.log('token encontrado en respuesta');
-      const decodedToken: DecodedToken = jwtDecode(response.token);
-      console.log('token decodificado:', decodedToken);
-      
-      localStorage.setItem('token', response.token);
-      console.log('token almacenado en localStorage');
+      try {
+        jwtDecode<DecodedToken>(response.token); // valida el token
+        localStorage.setItem(this.TOKEN_KEY, response.token);
+        this.authState.next(true);
+      } catch {
+        this.authState.next(false);
+      }
     } else {
-      console.log('no se encontró token en la respuesta');
+      this.authState.next(false);
     }
   }
 
-  // ============ MÉTODOS DE CONTRASEÑA ============
-  forgotPassword(email: string): Observable<any> {
-    console.log('forgotPassword llamado con:', { email });
-    return this.apiService.postOb(apiRouters.AUTH.FORGOT_PASSWORD, { email }).pipe(
-      catchError(error => {
-        console.log('forgotPassword error ocurrido:', error);
-        return this.handlePasswordError(error, 'recuperación');
-      })
-    );
+  // =========================================================
+  // 🔎 ESTADO DE AUTENTICACIÓN
+  // =========================================================
+
+  get authStatus$(): Observable<boolean> {
+    return this.authState.asObservable();
   }
 
-  resetPassword(token: string, newPassword: string): Observable<any> {
-    console.log('resetPassword llamado con:', { token, newPassword });
-    return this.apiService.postOb(apiRouters.AUTH.RESET_PASSWORD, { token, newPassword }).pipe(
-      catchError(error => {
-        console.log('resetPassword error ocurrido:', error);
-        return this.handlePasswordError(error, 'actualización');
-      })
-    );
-  }
-
-  private handlePasswordError(error: any, context: string): Observable<never> {
-    console.log('handlePasswordError llamado con:', { error, context });
-    let errorMessage = `Error al procesar la ${context}`;
-    
-    if (error.error?.message) {
-      errorMessage = error.error.message;
-      console.log('mensaje de error del objeto error:', error.error.message);
-    } else if (error.status === 404) {
-      errorMessage = context === 'recuperación' ? 'No se encontró el usuario' : 'Usuario no encontrado';
-      console.log('error 404 detectado');
-    } else if (error.status === 400) {
-      errorMessage = 'Token inválido o expirado';
-      console.log('error 400 detectado');
-    }
-
-    console.error(`[AuthService] Error en ${context}:`, error);
-    return throwError(() => new Error(errorMessage));
-  }
-
-  // ============ VERIFICACIONES DE AUTENTICACIÓN ============
   isLoggedIn(): boolean {
-    console.log('isLoggedIn llamado');
     const token = this.getToken();
-    console.log('token:', token);
-    if (!token) {
-      console.log('no se encontró token, retornando false');
-      return false;
-    }
-
+    if (!token) return false;
     try {
       const decoded = jwtDecode<DecodedToken>(token);
-      console.log('token decodificado:', decoded);
-      const isLoggedIn = Date.now() < decoded.exp * 1000;
-      console.log('isLoggedIn:', isLoggedIn);
-      return isLoggedIn;
-    } catch (error) {
-      console.error('Error decodificando token:', error);
+      return Date.now() < decoded.exp * 1000;
+    } catch {
+      return false;
+    }
+  }
+
+  logout(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    this.authState.next(false);
+  }
+
+  // =========================================================
+  // 🧠 TOKEN Y DECODE
+  // =========================================================
+
+  getToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  private hasValidToken(): boolean {
+    const token = this.getToken();
+    if (!token) return false;
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      return Date.now() < decoded.exp * 1000;
+    } catch {
       return false;
     }
   }
 
   isTokenExpired(): boolean {
-    console.log('isTokenExpired llamado');
     const token = this.getToken();
-    console.log('token:', token);
-    if (!token) {
-      console.log('no se encontró token, retornando true');
-      return true;
-    }
-
+    if (!token) return true;
     try {
       const decoded = jwtDecode<DecodedToken>(token);
-      console.log('token decodificado:', decoded);
-      const isExpired = Date.now() >= decoded.exp * 1000;
-      console.log('isTokenExpired:', isExpired);
-      return isExpired;
-    } catch (error) {
-      console.error('Error decodificando token:', error);
+      return Date.now() >= decoded.exp * 1000;
+    } catch {
       return true;
     }
   }
 
-  // ============ MÉTODOS UTILITARIOS ============
-  getToken(): string | null {
-    console.log('getToken llamado');
-    const token = localStorage.getItem('token');
-    console.log('token de localStorage:', token);
-    return token;
+  decodeToken(token?: string): DecodedToken | null {
+    const tokenToDecode = token || this.getToken();
+    if (!tokenToDecode) return null;
+    try {
+      return jwtDecode<DecodedToken>(tokenToDecode);
+    } catch {
+      return null;
+    }
   }
 
-  logout(): void {
-    console.log('logout llamado');
-    localStorage.removeItem('token');
-    console.log('token removido de localStorage');
+  // =========================================================
+  // 👤 DATOS DEL USUARIO
+  // =========================================================
+
+  getUserRole(): string | null {
+    return this.decodeToken()?.role || null;
   }
+
+  getUserId(): string | null {
+    return this.decodeToken()?.id || null;
+  }
+
+  getCurrentUserData(): { id: string; email: string; role: string } | null {
+    const decoded = this.decodeToken();
+    return decoded ? { id: decoded.id, email: decoded.email, role: decoded.role } : null;
+  }
+
+  // =========================================================
+  // 🛡️ ROLES Y PERMISOS
+  // =========================================================
+
+  hasRole(role: string): boolean {
+    return this.getUserRole() === role;
+  }
+
+  hasAnyRole(roles: string[]): boolean {
+    const role = this.getUserRole();
+    return role ? roles.includes(role) : false;
+  }
+
+  // =========================================================
+  // 🔁 REFRESCO DE TOKEN
+  // =========================================================
+
+  shouldRefreshToken(minutesBefore = 5): boolean {
+    const token = this.getToken();
+    if (!token) return false;
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      const now = Date.now() / 1000;
+      const threshold = decoded.exp - minutesBefore * 60;
+      return now >= threshold;
+    } catch {
+      return false;
+    }
+  }
+
+  refreshToken(): Observable<any> {
+    return this.apiService.postOb(apiRouters.AUTH.REFRESH_TOKEN, {}).pipe(
+      tap((response) => this.handleAuthSuccess(response)),
+      catchError((error) => this.handleError('Error al refrescar token', error))
+    );
+  }
+
+  // =========================================================
+  // 🧩 PERFIL DEL USUARIO
+  // =========================================================
+
+  getUserProfile(): Observable<User> {
+    const userId = this.getUserId();
+    if (!userId) {
+      return throwError(() => new Error('No se pudo obtener el ID del usuario'));
+    }
+    return this.apiService.getOb(apiRouters.USERS.BY_ID(userId)).pipe(
+      catchError((error) => this.handleError('Error obteniendo perfil', error))
+    );
+  }
+
+  updateUserProfile(userData: Partial<User>): Observable<User> {
+    const userId = this.getUserId();
+    if (!userId) {
+      return throwError(() => new Error('No se pudo obtener el ID del usuario'));
+    }
+    return this.apiService.putOb(apiRouters.USERS.BY_ID(userId), userData).pipe(
+      catchError((error) => this.handleError('Error actualizando perfil', error))
+    );
+  }
+
+  // =========================================================
+  // 🔐 CONTRASEÑAS
+  // =========================================================
+
+  forgotPassword(email: string): Observable<any> {
+    return this.apiService.postOb(apiRouters.AUTH.FORGOT_PASSWORD, { email }).pipe(
+      catchError((error) => this.handlePasswordError(error, 'recuperación'))
+    );
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    return this.apiService.postOb(apiRouters.AUTH.RESET_PASSWORD, { token, newPassword }).pipe(
+      catchError((error) => this.handlePasswordError(error, 'actualización'))
+    );
+  }
+
+  private handlePasswordError(error: any, context: string): Observable<never> {
+    let message = `Error en la ${context}`;
+    if (error.error?.message) message = error.error.message;
+    else if (error.status === 404) message = 'Usuario no encontrado';
+    else if (error.status === 400) message = 'Token inválido o expirado';
+    return throwError(() => new Error(message));
+  }
+
+  // =========================================================
+  // ⚠️ MANEJO DE ERRORES
+  // =========================================================
 
   private handleError(context: string, error: any): Observable<never> {
-    console.log('handleError llamado con:', { context, error });
-    console.error(`[AuthService] ${context}`, error);
-    return throwError(() => error);
+    this.authState.next(false);
+    return throwError(() => error?.error?.message || `${context}. Intenta nuevamente.`);
   }
-
-  /**
-   * Decodifica el token JWT y devuelve su contenido
-   */
-  decodeToken(token?: string): DecodedToken | null {
-    console.log('decodeToken llamado');
-    
-    // Si no se proporciona token, usar el almacenado
-    const tokenToDecode = token || this.getToken();
-    console.log('token a decodificar:', tokenToDecode);
-    
-    if (!tokenToDecode) {
-      console.log('no se encontró token, retornando null');
-      return null;
-    }
-
-    try {
-      const decoded = jwtDecode<DecodedToken>(tokenToDecode);
-      console.log('token decodificado:', decoded);
-      return decoded;
-    } catch (error) {
-      console.error('Error decodificando token:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Verifica si el usuario tiene alguno de los roles especificados
-   */
-  hasAnyRole(roles: string[]): boolean {
-    console.log('hasAnyRole llamado con roles:', roles);
-    
-    const decodedToken = this.decodeToken();
-    if (!decodedToken) {
-      console.log('no se pudo decodificar el token, retornando false');
-      return false;
-    }
-
-    // Verificar si el rol del usuario está en la lista de roles permitidos
-    const hasRole = roles.includes(decodedToken.role);
-    console.log('el usuario tiene alguno de los roles requeridos:', hasRole);
-    
-    return hasRole;
-
-  }
-
-  /**
-   * Verifica si el usuario tiene un rol específico (más específico que hasAnyRole)
-   */
-  hasRole(requiredRole: string): boolean {
-    console.log(`hasRole llamado para verificar rol: ${requiredRole}`);
-    const userRole = this.getUserRole();
-    const hasRole = userRole === requiredRole;
-    console.log(`Usuario tiene rol ${requiredRole}: ${hasRole}`);
-    return hasRole;
-  }
-
-  /**
-   * Obtiene el rol del usuario actual desde el token
-   */
-  getUserRole(): string | null {
-    console.log('getUserRole llamado');
-    const decoded = this.decodeToken();
-    if (!decoded) {
-      console.log('Token no válido o no existe');
-      return null;
-    }
-    console.log(`Rol obtenido: ${decoded.role}`);
-    return decoded.role;
-  }
-
-  /**
-   * Obtiene el ID del usuario actual desde el token
-   */
-  getUserId(): string | null {
-    console.log('getUserId llamado');
-    const decoded = this.decodeToken();
-    if (!decoded) {
-      console.log('Token no válido o no existe');
-      return null;
-    }
-    console.log(`ID obtenido: ${decoded.id}`);
-    return decoded.id;
-  }
-
-  /**
-   * Verifica si el token está activo y cerca de expirar (útil para refrescar token)
-   */
-  shouldRefreshToken(minutesBefore = 5): boolean {
-    console.log(`shouldRefreshToken llamado (${minutesBefore} minutos antes)`);
-    const token = this.getToken();
-    if (!token) {
-      console.log('No hay token, no se puede refrescar');
-      return false;
-    }
-
-    try {
-      const decoded = jwtDecode<DecodedToken>(token);
-      const now = Date.now() / 1000; // Convertir a segundos
-      const expirationThreshold = decoded.exp - (minutesBefore * 60);
-      const shouldRefresh = now >= expirationThreshold;
-      
-      console.log(`Token expira en: ${new Date(decoded.exp * 1000)}`);
-      console.log(`Debería refrescar: ${shouldRefresh}`);
-      
-      return shouldRefresh;
-    } catch (error) {
-      console.error('Error decodificando token:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Intenta refrescar el token de autenticación
-   */
-  refreshToken(): Observable<any> {
-    console.log('refreshToken llamado');
-    // Nota: Necesitarías implementar el endpoint /auth/refresh-token en tu backend
-    return this.apiService.postOb('/api/auth/refresh-token', {}).pipe(
-      tap((response) => {
-        console.log('Token refrescado correctamente');
-        this.handleAuthResponse(response);
-      }),
-      catchError(error => {
-        console.log('Error refrescando token:', error);
-        return this.handleError('Error al refrescar token:', error);
-      })
-    );
-  }
-
-  /**
-   * Obtiene los datos básicos del usuario actual desde el token
-   */
-  getCurrentUserData(): { id: string, email: string, role: string } | null {
-    console.log('getCurrentUserData llamado');
-    const decoded = this.decodeToken();
-    if (!decoded) {
-      console.log('No se pudo obtener datos del usuario');
-      return null;
-    }
-    
-    const userData = {
-      id: decoded.id,
-      email: decoded.email,
-      role: decoded.role
-    };
-    
-    console.log('Datos del usuario actual:', userData);
-    return userData;
-  }
-
-  // ============ MÉTODOS PARA UserService ============
-  // (Estos serían parte de un UserService separado)
-
-  /**
-   * Obtiene los datos completos del usuario actual desde la API
-   */
-  getUserProfile(): Observable<User> {
-    console.log('getUserProfile llamado');
-    const userId = this.getUserId();
-    if (!userId) {
-      return throwError(() => new Error('No se pudo obtener el ID del usuario'));
-    }
-    
-    return this.apiService.getOb(apiRouters.USERS.BY_ID(userId)).pipe(
-      catchError(error => {
-        console.log('Error obteniendo perfil:', error);
-        return this.handleError('Error obteniendo perfil:', error);
-      })
-    );
-  }
-
-  /**
-   * Actualiza los datos del usuario
-   */
-  updateUserProfile(userData: Partial<User>): Observable<User> {
-    console.log('updateUserProfile llamado con:', userData);
-    const userId = this.getUserId();
-    if (!userId) {
-      return throwError(() => new Error('No se pudo obtener el ID del usuario'));
-    }
-    
-    return this.apiService.putOb(apiRouters.USERS.BY_ID(userId), userData).pipe(
-      catchError(error => {
-        console.log('Error actualizando perfil:', error);
-        return this.handleError('Error actualizando perfil:', error);
-      })
-    );
-  }
-  
-
 }
