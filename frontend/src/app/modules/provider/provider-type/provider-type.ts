@@ -120,7 +120,8 @@
     }
 
     updateProviderType(): void {
-      if (!this.editingProviderType || !this.editingProviderType._id) return;
+      // Usar optional chaining para una comprobación más concisa
+      if (!this.editingProviderType?._id) return;
       this.isLoading = true;
 
       const url = `${this.apiUrl}/${this.editingProviderType._id}`;
