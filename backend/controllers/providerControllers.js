@@ -2,25 +2,103 @@ const Provider = require('../models/Provider');
 const ProviderType = require('../models/ProviderType');
 const Contract = require('../models/Contract');
 
+// --- Funciones Auxiliares para updateProvider ---
+
+/**
+ * Helper 1: Valida los permisos y datos para la actualización.
+ * Devuelve 'true' si es válido, o envía una respuesta de error y devuelve 'false'.
+ */
+const validateUpdatePermissions = async (req, res) => {
+  const { status, providerType } = req.body;
+
+  // Validación 1: Rol de usuario
+  if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
+    res.status(403).json({
+      success: false,
+      message: 'Solo administradores y coordinadores pueden actualizar proveedores'
+    });
+    return false; // No es válido
+  }
+
+  // Validación 2: Permiso para cambiar estado
+  if (status && req.userRole === 'coordinador') {
+    res.status(403).json({
+      success: false,
+      message: 'Coordinadores no pueden cambiar el estado de los proveedores'
+    });
+    return false; // No es válido
+  }
+
+  // Validación 3: Existencia del Tipo de Proveedor (si se cambia)
+  if (providerType) {
+    // ✅ CORRECCIÓN (S5147): Forzamos el ID 'providerType' a string
+    const providerTypeExists = await ProviderType.findById(String(providerType));
+    if (!providerTypeExists) {
+      res.status(404).json({
+        success: false,
+        message: 'El tipo de proveedor especificado no existe'
+      });
+      return false; // No es válido
+    }
+  }
+
+  return true; // Todas las validaciones pasaron
+};
+
+/**
+ * Helper 2: Construye el objeto de actualización basado en el body.
+ */
+const buildUpdateData = (body) => {
+  const { name, contactPerson, email, phone, address, providerType, status } = body;
+  const updateData = {};
+
+  if (name) updateData.name = name;
+  if (contactPerson) updateData.contactPerson = contactPerson;
+  if (email) updateData.email = email;
+  if (phone) updateData.phone = phone;
+  if (address) updateData.address = address;
+  if (providerType) updateData.providerType = providerType;
+  if (status) updateData.status = status;
+  
+  return updateData;
+};
+
+/**
+ * Helper 3: Maneja los errores del bloque catch.
+ */
+const handleProviderError = (error, res) => {
+  // Manejo especial para errores de duplicado (email o nombre único)
+  if (error.code === 11000) {
+    return res.status(400).json({
+      success: false,
+      message: 'Ya existe un proveedor con ese nombre o email',
+      field: error.keyPattern.email ? 'email' : 'name'
+    });
+  }
+  // Manejo de otros errores
+  res.status(500).json({
+    success: false,
+    message: 'Error al actualizar proveedor',
+    error: error.message
+  });
+};
+
+
+// --- Controladores (Exports) ---
+
 /**
  * Controlador: Obtener todos los proveedores
- * Acceso: Todos los roles (pero líderes solo ven proveedores activos)
  */
 exports.getAllProviders = async (req, res) => {
   try {
-    // Filtro especial para líderes (solo proveedores activos)
     const filter = req.userRole === 'lider' ? { status: 'activo' } : {};
-    
-    // Buscar todos los proveedores y poblar el tipo de proveedor
     const providers = await Provider.find(filter).populate('providerType', 'name');
     
-    // Respuesta exitosa con los datos encontrados
     res.status(200).json({
       success: true,
       data: providers
     });
   } catch (error) {
-    // Manejo de errores del servidor
     res.status(500).json({
       success: false,
       message: 'Error al obtener proveedores',
@@ -31,15 +109,13 @@ exports.getAllProviders = async (req, res) => {
 
 /**
  * Controlador: Obtener proveedor por ID
- * Acceso: Todos los roles (pero líderes solo pueden ver activos)
  */
 exports.getProviderById = async (req, res) => {
   try {
-    // Buscar proveedor por ID y poblar el tipo de proveedor
-    const provider = await Provider.findById(req.params.id)
+    // ✅ CORRECCIÓN (S5147): Forzamos el ID a string
+    const provider = await Provider.findById(String(req.params.id))
       .populate('providerType', 'name description');
     
-    // Si no se encuentra el proveedor
     if (!provider) {
       return res.status(404).json({
         success: false,
@@ -47,7 +123,6 @@ exports.getProviderById = async (req, res) => {
       });
     }
     
-    // Validación especial para líderes (solo pueden ver activos)
     if (req.userRole === 'lider' && provider.status !== 'activo') {
       return res.status(403).json({
         success: false,
@@ -55,13 +130,11 @@ exports.getProviderById = async (req, res) => {
       });
     }
     
-    // Respuesta exitosa con los datos encontrados
     res.status(200).json({
       success: true,
       data: provider
     });
   } catch (error) {
-    // Manejo de errores del servidor
     res.status(500).json({
       success: false,
       message: 'Error al obtener proveedor',
@@ -72,11 +145,9 @@ exports.getProviderById = async (req, res) => {
 
 /**
  * Controlador: Crear nuevo proveedor
- * Acceso: Solo administradores y coordinadores
  */
 exports.createProvider = async (req, res) => {
   try {
-    // Validar rol del usuario
     if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
       return res.status(403).json({
         success: false,
@@ -84,10 +155,8 @@ exports.createProvider = async (req, res) => {
       });
     }
 
-    // Extraer datos del cuerpo de la solicitud
     const { name, contactPerson, email, phone, address, providerType } = req.body;
     
-    // Validar campos obligatorios
     if (!name || !email || !providerType) {
       return res.status(400).json({
         success: false,
@@ -95,8 +164,8 @@ exports.createProvider = async (req, res) => {
       });
     }
 
-    // Verificar que el tipo de proveedor exista
-    const providerTypeExists = await ProviderType.findById(providerType);
+    // ✅ CORRECCIÓN (S5147): Forzamos el ID 'providerType' a string
+    const providerTypeExists = await ProviderType.findById(String(providerType));
     if (!providerTypeExists) {
       return res.status(404).json({
         success: false,
@@ -104,7 +173,6 @@ exports.createProvider = async (req, res) => {
       });
     }
 
-    // Crear nueva instancia del proveedor
     const provider = new Provider({
       name,
       contactPerson,
@@ -112,88 +180,41 @@ exports.createProvider = async (req, res) => {
       phone,
       address,
       providerType,
-      status: 'activo' // Estado por defecto
+      status: 'activo'
     });
 
-    // Guardar en la base de datos
     const savedProvider = await provider.save();
     
-    // Respuesta exitosa (status 201 - Created)
     res.status(201).json({
       success: true,
       message: 'Proveedor creado exitosamente',
       data: savedProvider
     });
   } catch (error) {
-    // Manejo especial para errores de duplicado (email o nombre único)
-    if (error.code === 11000) {
-      return res.status(400).json({
-        success: false,
-        message: 'Ya existe un proveedor con ese nombre o email',
-        field: error.keyPattern.email ? 'email' : 'name'
-      });
-    }
-    // Manejo de otros errores
-    res.status(500).json({
-      success: false,
-      message: 'Error al crear proveedor',
-      error: error.message
-    });
+    // Usamos el helper de errores aquí también para consistencia
+    handleProviderError(error, res);
   }
 };
 
 /**
  * Controlador: Actualizar proveedor
- * Acceso: Solo administradores y coordinadores
- * Restricciones: Coordinadores no pueden cambiar estado
+ * ✅ REFACTORIZADO (S3776): Lógica extraída a helpers.
  */
 exports.updateProvider = async (req, res) => {
   try {
-    // Validar rol del usuario
-    if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
-      return res.status(403).json({
-        success: false,
-        message: 'Solo administradores y coordinadores pueden actualizar proveedores'
-      });
+    // 1. Validar (Complejidad ahora en el helper)
+    const isValid = await validateUpdatePermissions(req, res);
+    if (!isValid) {
+      return; // El helper ya envió la respuesta de error
     }
 
-    // Extraer datos del cuerpo de la solicitud
-    const { name, contactPerson, email, phone, address, providerType, status } = req.body;
-    const updateData = {};
+    // 2. Construir datos (Complejidad ahora en el helper)
+    const updateData = buildUpdateData(req.body);
 
-    // Preparar datos a actualizar
-    if (name) updateData.name = name;
-    if (contactPerson) updateData.contactPerson = contactPerson;
-    if (email) updateData.email = email;
-    if (phone) updateData.phone = phone;
-    if (address) updateData.address = address;
-    
-    // Validación especial para coordinadores (no pueden cambiar estado)
-    if (status) {
-      if (req.userRole === 'coordinador') {
-        return res.status(403).json({
-          success: false,
-          message: 'Coordinadores no pueden cambiar el estado de los proveedores'
-        });
-      }
-      updateData.status = status;
-    }
-
-    // Validar tipo de proveedor si se quiere cambiar
-    if (providerType) {
-      const providerTypeExists = await ProviderType.findById(providerType);
-      if (!providerTypeExists) {
-        return res.status(404).json({
-          success: false,
-          message: 'El tipo de proveedor especificado no existe'
-        });
-      }
-      updateData.providerType = providerType;
-    }
-
-    // Buscar y actualizar el proveedor
+    // 3. Ejecutar
+    // ✅ CORRECCIÓN (S5147): Forzamos el ID a string
     const updatedProvider = await Provider.findByIdAndUpdate(
-      req.params.id,
+      String(req.params.id),
       updateData,
       { 
         new: true, // Devuelve el documento actualizado
@@ -201,7 +222,7 @@ exports.updateProvider = async (req, res) => {
       }
     ).populate('providerType', 'name');
 
-    // Si no se encuentra el proveedor
+    // 4. Manejar resultado
     if (!updatedProvider) {
       return res.status(404).json({
         success: false,
@@ -209,38 +230,24 @@ exports.updateProvider = async (req, res) => {
       });
     }
 
-    // Respuesta exitosa con los datos actualizados
+    // 5. Respuesta exitosa
     res.status(200).json({
       success: true,
       message: 'Proveedor actualizado exitosamente',
       data: updatedProvider
     });
+
   } catch (error) {
-    // Manejo especial para errores de duplicado (email o nombre único)
-    if (error.code === 11000) {
-      return res.status(400).json({
-        success: false,
-        message: 'Ya existe un proveedor con ese nombre o email',
-        field: error.keyPattern.email ? 'email' : 'name'
-      });
-    }
-    // Manejo de otros errores
-    res.status(500).json({
-      success: false,
-      message: 'Error al actualizar proveedor',
-      error: error.message
-    });
+    // 6. Manejar errores (Complejidad ahora en el helper)
+    handleProviderError(error, res);
   }
 };
 
 /**
  * Controlador: Eliminar proveedor
- * Acceso: Solo administradores
- * Validación: No se puede eliminar si está en contratos
  */
 exports.deleteProvider = async (req, res) => {
   try {
-    // Validar que el usuario sea administrador
     if (req.userRole !== 'admin') {
       return res.status(403).json({
         success: false,
@@ -248,12 +255,11 @@ exports.deleteProvider = async (req, res) => {
       });
     }
 
-    // Verificar si el proveedor está asignado a algún contrato
+    // ✅ CORRECCIÓN (S5147): Forzamos el ID a string
     const contractWithProvider = await Contract.findOne({ 
-      'providers.provider': req.params.id 
+      'providers.provider': String(req.params.id) 
     });
     
-    // Prevenir eliminación si el proveedor está en uso
     if (contractWithProvider) {
       return res.status(400).json({
         success: false,
@@ -261,10 +267,9 @@ exports.deleteProvider = async (req, res) => {
       });
     }
 
-    // Eliminar el proveedor
-    const deletedProvider = await Provider.findByIdAndDelete(req.params.id);
+    // ✅ CORRECCIÓN (S5147): Forzamos el ID a string
+    const deletedProvider = await Provider.findByIdAndDelete(String(req.params.id));
     
-    // Si no se encuentra el proveedor
     if (!deletedProvider) {
       return res.status(404).json({
         success: false,
@@ -272,13 +277,11 @@ exports.deleteProvider = async (req, res) => {
       });
     }
     
-    // Respuesta exitosa
     res.status(200).json({
       success: true,
       message: 'Proveedor eliminado correctamente'
     });
   } catch (error) {
-    // Manejo de errores del servidor
     res.status(500).json({
       success: false,
       message: 'Error al eliminar proveedor',
