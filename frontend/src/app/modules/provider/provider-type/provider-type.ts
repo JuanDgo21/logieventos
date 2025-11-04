@@ -219,8 +219,4 @@
     getStatusText(isActive: boolean): string {
       return isActive ? 'Activo' : 'Inactivo';
     }
-
-    getStatusClass(isActive: boolean): string {
-      return isActive ? 'badge-success' : 'badge-secondary';
-    }
   }
