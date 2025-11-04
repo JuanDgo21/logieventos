@@ -15,7 +15,6 @@
     </div>
     
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-      <!-- Alertas -->
       @if (showAlert) {
         <div class="alert alert-{{alertType}}">
           <i class="fas {{getAlertIcon()}}"></i>
@@ -25,7 +24,6 @@
         </div>
       }
       
-      <!-- Campo de email -->
       <div class="input-field">
         <i class="fas fa-envelope"></i>
         <input 
@@ -49,7 +47,6 @@
         </div>
       }
       
-      <!-- Campo de contraseña -->
       <div class="input-field">
         <i class="fas fa-lock"></i>
         <input 
@@ -57,10 +54,15 @@
           formControlName="password" 
           placeholder="Contraseña"
           [class.invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-        <i 
-          class="fas {{passwordVisible ? 'fa-eye-slash' : 'fa-eye'}} password-toggle" 
-          (click)="togglePasswordVisibility()"></i>
-      </div>
+        
+        <button 
+          type="button" 
+          class="password-toggle" 
+          (click)="togglePasswordVisibility()"
+          aria-label="Mostrar u ocultar contraseña">
+            <i class="fas {{passwordVisible ? 'fa-eye-slash' : 'fa-eye'}}"></i>
+        </button>
+        </div>
       @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
         <div class="error-message">
           @if (loginForm.get('password')?.errors?.['required']) {
@@ -81,14 +83,12 @@
         </div>
       }
       
-      <!-- Enlace de olvidé contraseña -->
       <div class="forgot-password">
         <a (click)="navigateToForgotPassword()" class="btn-text">
           <i class="fas fa-question-circle"></i> ¿Olvidaste tu contraseña?
         </a>
       </div>
       
-      <!-- Botón de inicio de sesión -->
       <button 
         type="submit" 
         class="btn btn-primary" 
