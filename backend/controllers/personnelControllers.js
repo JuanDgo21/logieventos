@@ -12,6 +12,7 @@ exports.getAllPersonnel = async (req, res) => {
     const filter = req.userRole === 'lider' ? { status: 'disponible' } : {};
     
     // Buscar todo el personal con su tipo de personal asociado
+    // Esta consulta es segura, no usa input directo del usuario en el filtro.
     const personnel = await Personnel.find(filter)
       .populate('personnelType', 'name rate') // Solo nombre y tarifa del tipo
       .sort({ lastName: 1, firstName: 1 }); // Ordenar por apellido y nombre
@@ -37,8 +38,8 @@ exports.getAllPersonnel = async (req, res) => {
  */
 exports.getPersonnelById = async (req, res) => {
   try {
-    // Buscar personal por ID con información de su tipo
-    const person = await Personnel.findById(req.params.id)
+    // ✅ CORRECCIÓN: Forzamos el ID a string
+    const person = await Personnel.findById(String(req.params.id))
       .populate('personnelType', 'name description rate');
       
     // Si no se encuentra el personal
@@ -98,7 +99,8 @@ exports.createPersonnel = async (req, res) => {
     }
 
     // Verificar que el tipo de personal exista
-    const personnelTypeExists = await PersonnelType.findById(personnelType);
+    // ✅ CORRECCIÓN: Forzamos el ID 'personnelType' a string
+    const personnelTypeExists = await PersonnelType.findById(String(personnelType));
     if (!personnelTypeExists) {
       return res.status(404).json({
         success: false,
@@ -183,7 +185,8 @@ exports.updatePersonnel = async (req, res) => {
 
     // Validar tipo de personal si se quiere cambiar
     if (personnelType) {
-      const personnelTypeExists = await PersonnelType.findById(personnelType);
+      // ✅ CORRECCIÓN: Forzamos el ID 'personnelType' a string
+      const personnelTypeExists = await PersonnelType.findById(String(personnelType));
       if (!personnelTypeExists) {
         return res.status(404).json({
           success: false,
@@ -194,8 +197,9 @@ exports.updatePersonnel = async (req, res) => {
     }
 
     // Buscar y actualizar el personal
+    // ✅ CORRECCIÓN: Forzamos el ID a string
     const updatedPersonnel = await Personnel.findByIdAndUpdate(
-      req.params.id,
+      String(req.params.id),
       updateData,
       { 
         new: true, // Devuelve el documento actualizado
@@ -251,8 +255,9 @@ exports.deletePersonnel = async (req, res) => {
     }
 
     // Verificar si el personal está asignado a algún contrato
+    // ✅ CORRECCIÓN: Forzamos el ID a string
     const contractWithPersonnel = await Contract.findOne({ 
-      'personnel.person': req.params.id 
+      'personnel.person': String(req.params.id) 
     });
     
     // Prevenir eliminación si está en uso
@@ -264,7 +269,8 @@ exports.deletePersonnel = async (req, res) => {
     }
 
     // Eliminar el personal
-    const deletedPersonnel = await Personnel.findByIdAndDelete(req.params.id);
+    // ✅ CORRECCIÓN: Forzamos el ID a string
+    const deletedPersonnel = await Personnel.findByIdAndDelete(String(req.params.id));
     
     // Si no se encuentra el personal
     if (!deletedPersonnel) {
