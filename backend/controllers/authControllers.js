@@ -113,7 +113,10 @@ const signin = async (req, res) => {
     }
 
     // Buscar usuario incluyendo el password (normalmente excluido)
-    const user = await User.findOne({ email }).select('+password');
+    
+    // ✅ CORRECCIÓN: Se usa String(email) para forzar el tipo a string
+    // y prevenir Inyección NoSQL.
+    const user = await User.findOne({ email: String(email) }).select('+password');
     
     // Usuario no encontrado
     if (!user) {
@@ -182,7 +185,10 @@ const forgotPassword = async (req, res) => {
     }
 
     // Solo verificamos que el usuario existe
-    const user = await User.findOne({ email });
+    
+    // ✅ CORRECCIÓN: Se usa String(email) para forzar el tipo a string
+    // y prevenir Inyección NoSQL.
+    const user = await User.findOne({ email: String(email) });
     
     if (!user) {
       // Por seguridad, no revelamos si el email existe o no
