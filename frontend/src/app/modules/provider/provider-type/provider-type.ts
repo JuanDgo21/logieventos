@@ -36,10 +36,10 @@
     successMessage = '';
 
     constructor(
-      private http: HttpClient,
-      private authService: AuthService,
-      private router: Router,
-      private alertService: AlertService,
+      private readonly http: HttpClient,
+      private readonly authService: AuthService,
+      private readonly router: Router,
+      private readonly alertService: AlertService,
       public sidebarState: SidebarStateService
     ) {
       this.sidebarState.isOpen = true;
@@ -120,7 +120,8 @@
     }
 
     updateProviderType(): void {
-      if (!this.editingProviderType || !this.editingProviderType._id) return;
+      // Usar optional chaining para una comprobación más concisa
+      if (!this.editingProviderType?._id) return;
       this.isLoading = true;
 
       const url = `${this.apiUrl}/${this.editingProviderType._id}`;
@@ -217,9 +218,5 @@
 
     getStatusText(isActive: boolean): string {
       return isActive ? 'Activo' : 'Inactivo';
-    }
-
-    getStatusClass(isActive: boolean): string {
-      return isActive ? 'badge-success' : 'badge-secondary';
     }
   }
