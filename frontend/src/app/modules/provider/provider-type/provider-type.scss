@@ -274,8 +274,8 @@
           }
           
           &:not(.active) {
-            background: rgba(255, 65, 108, 0.2);
-            color: #ff416c;
+            background: rgba(66, 10, 23, 0.637);
+            color: #fc4973;
           }
         }
         
@@ -293,8 +293,8 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s;
-            background: rgba(106, 17, 203, 0.2);
-            color: #6a11cb;
+            background: rgba(36, 6, 68, 0.753);
+            color: #8512ff;
             
             i {
               font-size: 0.9rem;
@@ -306,8 +306,8 @@
             }
             
             &.status-toggle-btn {
-              background: rgba(249, 212, 35, 0.2);
-              color: #f9d423;
+              background: rgba(90, 77, 11, 0.938);
+              color: #ffde37;
               
               &:hover {
                 background: rgba(249, 212, 35, 0.3);
@@ -315,8 +315,8 @@
             }
             
             &.danger {
-              background: rgba(255, 65, 108, 0.2);
-              color: #ff416c;
+              background: rgba(82, 13, 29, 0.603);
+              color: #fd4a74;
               
               &:hover {
                 background: rgba(255, 65, 108, 0.3);
