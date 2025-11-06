@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+  import { Injectable } from '@angular/core';
 import { ApiService } from './api';
 import { User } from '../../shared/interfaces/user';
 import { apiRouters } from '../constants/apiRouters';
@@ -100,8 +100,9 @@ export class UserService {
         if (typeof response === 'string') {
           try {
             return JSON.parse(response);
-          } catch (e) {
-            console.warn('No se pudo parsear la respuesta:', response);
+          } catch (parseError) { // CORREGIDO: Renombrado 'e' a 'parseError' y manejado adecuadamente
+            console.warn('[UserService] No se pudo parsear la respuesta JSON:', response, 'Error:', parseError);
+            // En caso de error de parseo, retornamos la respuesta original como string
             return response;
           }
         }
@@ -115,8 +116,8 @@ export class UserService {
           try {
             const parsed = JSON.parse(error.error.text);
             return of(parsed); // Convierte en observable
-          } catch (e) {
-            console.warn('Error parseando error response:', e);
+          } catch (parseError) { // CORREGIDO: Renombrado 'e' a 'parseError' y manejado adecuadamente
+            console.warn('[UserService] Error parseando respuesta de error:', parseError);
             return throwError(() => new Error('Error procesando la respuesta del servidor'));
           }
         }
