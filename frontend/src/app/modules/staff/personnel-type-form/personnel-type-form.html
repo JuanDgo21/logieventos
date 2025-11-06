@@ -20,11 +20,11 @@
   <div class="modal-body">
     <form [formGroup]="typeForm">
       <div class="form-grid">
-        <!-- Nombre -->
+        
         <div class="form-group">
-          <label><i class="fas fa-tag"></i> Nombre*</label>
+          <label for="typeName"><i class="fas fa-tag"></i> Nombre*</label>
           <div class="input-field">
-            <input type="text" formControlName="name" placeholder="Nombre de la categoría">
+            <input type="text" id="typeName" formControlName="name" placeholder="Nombre de la categoría">
             @if (typeForm.get('name')?.invalid && typeForm.get('name')?.touched) {
               <div class="error-message">
                 @if (typeForm.get('name')?.errors?.['required']) {
@@ -37,12 +37,10 @@
             }
           </div>
         </div>
-
-        <!-- Descripción -->
         <div class="form-group">
-          <label><i class="fas fa-align-left"></i> Descripción</label>
+          <label for="typeDesc"><i class="fas fa-align-left"></i> Descripción</label>
           <div class="input-field">
-            <textarea formControlName="description" rows="3" 
+            <textarea id="typeDesc" formControlName="description" rows="3" 
                       placeholder="Descripción opcional (máx. 200 caracteres)"></textarea>
             @if (typeForm.get('description')?.invalid && typeForm.get('description')?.touched) {
               <div class="error-message">
@@ -53,10 +51,8 @@
             }
           </div>
         </div>
-
-        <!-- Estado -->
         <div class="form-group">
-          <label><i class="fas fa-power-off"></i> Estado</label>
+          <label for="isActive"><i class="fas fa-power-off"></i> Estado</label>
           <div class="toggle-switch">
             <input type="checkbox" id="isActive" formControlName="isActive">
             <label for="isActive" [class.active]="typeForm.get('isActive')?.value">
@@ -68,7 +64,7 @@
             </label>
           </div>
         </div>
-      </div>
+        </div>
 
       <div class="form-footer">
         <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss()">

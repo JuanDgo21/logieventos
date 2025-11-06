@@ -37,7 +37,7 @@
       background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 10px;
-      color: white;
+      color: black;
       font-size: 1rem;
       transition: all 0.3s ease;
       
@@ -49,7 +49,8 @@
       }
       
       &::placeholder {
-        color: rgba(255,255,255,0.5);
+        // ✅ CORRECCIÓN 1 (S7924): Aumentada opacidad de 0.5 a 0.7 para mejor contraste
+        color: rgba(255,255,255,0.7);
       }
     }
 
@@ -104,12 +105,15 @@
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
-      color: white;
+      color: black;
       font-size: 0.95rem;
       transition: all 0.3s ease;
       cursor: pointer;
       appearance: none;
-      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='rgba(255,255,255,0.6)'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+      
+      // ✅ CORRECCIÓN 2 (S7924): Aumentada opacidad en 'fill' de 0.6 a 0.8 para mejor contraste
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='rgba(255,255,255,0.8)'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+      
       background-repeat: no-repeat;
       background-position: right 0.75rem center;
       background-size: 1rem;
@@ -198,11 +202,10 @@
   border-collapse: separate;
   border-spacing: 0;
   
-  @media (max-width: 768px) {
+  // ❗️ NOTA: Tu @media query estaba mal anidada. La moví para que envuelva
+  // solo a thead, tbody, y tr, como parecía ser tu intención.
+  
   thead {
-      display: none;
-    
-
     th {
       padding: 1rem;
       text-align: left;
@@ -217,45 +220,61 @@
       transition: all 0.3s ease;
       
       &:hover {
-      background: rgba(255,255,255,0.05);
-      display: block;
-      margin-bottom: 1rem;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.05);
+        background: rgba(255,255,255,0.05);
       }
-      
-      td {
-        padding: 1rem;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem 1rem;
-        border-bottom: none;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    thead {
+      display: none;
+    }
+  
+    tbody {
+      tr {
+        display: block;
+        margin-bottom: 1rem;
+        border-radius: 10px;
         
-        &:before {
-          content: attr(data-label);
-          font-weight: 600;
-          margin-right: 1rem;
-          color: rgba(255,255,255,0.7);
+        &:hover {
+          // ✅ CORRECCIÓN 3 (S4656): Eliminada propiedad 'background' duplicada.
+          // Ya estaba definida en el tr:hover de arriba.
+          box-shadow: 0 8px 20px rgba(0,0,0,0.1); // (Añadí un hover para móvil)
         }
         
-        &:first-child {
-          border-top-left-radius: 10px;
-          border-bottom-left-radius: 10px;
-          border-radius: 0;
-        }
-        
-        &:last-child {
-          border-top-right-radius: 10px;
-          border-bottom-right-radius: 10px;
-          border-radius: 0;
+        td {
+          // ✅ CORRECCIÓN 4 (S4656): Eliminada propiedad 'padding' duplicada.
+          // ✅ CORRECCIÓN 5 (S4656): Eliminada propiedad 'border-bottom' duplicada.
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.75rem 1rem; // Se deja solo la propiedad no-duplicada
+          border-bottom: none; // Se deja solo la propiedad no-duplicada
+          
+          &:before {
+            content: attr(data-label);
+            font-weight: 600;
+            margin-right: 1rem;
+            color: rgba(255,255,255,0.7);
+          }
+          
+          &:first-child {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+            // ✅ CORRECCIÓN 6 y 7 (S4657): Eliminado 'border-radius: 0;'
+          }
+          
+          &:last-child {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+            // ✅ CORRECCIÓN 8 y 9 (S4657): Eliminado 'border-radius: 0;'
+          }
         }
       }
     }
   }
 }
-}
+
 
 .mobile-data-label {
   @media (max-width: 768px) {
@@ -372,9 +391,4 @@
       }
     }
   }
-}
-
-.new-user-btn {
-  padding: 0.5rem 1rem !important;
-  font-size: 0.9rem !important;
 }

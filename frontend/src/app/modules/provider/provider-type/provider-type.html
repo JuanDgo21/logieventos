@@ -1,6 +1,5 @@
 <app-sidebar></app-sidebar>
 
-
 <div class="provider-type-container">
   <div class="content" [class.sidebar-collapsed]="!sidebarState.isOpen">
     <app-navbar></app-navbar>
@@ -9,7 +8,6 @@
       Gestión de Tipos de Proveedores
     </h2>
 
-    <!-- Mensajes -->
     <div *ngIf="successMessage" class="alert alert-success">
       {{ successMessage }}
     </div>
@@ -17,20 +15,18 @@
       {{ errorMessage }}
     </div>
 
-    <!-- Loader -->
     <div *ngIf="isLoading" class="loading-spinner">
       <i class="fas fa-spinner fa-spin"></i> Cargando...
     </div>
 
-    <!-- Formulario -->
     <div class="provider-type-form">
       <h3>{{ editingProviderType ? 'Editar Tipo' : 'Nuevo Tipo de Proveedor' }}</h3>
       
       <form (ngSubmit)="editingProviderType ? updateProviderType() : createProviderType()" #providerTypeForm="ngForm">
+        
         <div class="form-group">
-          <label>Nombre:</label>
-          <input type="text" 
-                 [(ngModel)]="(editingProviderType || newProviderType).name"
+          <label for="providerTypeName">Nombre:</label> <input type="text" 
+                 id="providerTypeName" [(ngModel)]="(editingProviderType || newProviderType).name"
                  name="name" 
                  required
                  [disabled]="isLoading"
@@ -41,28 +37,28 @@
             El nombre debe tener entre 3 y 50 caracteres
           </small>
         </div>
-
         <div class="form-group">
-          <label>Descripción:</label>
-          <textarea [(ngModel)]="(editingProviderType || newProviderType).description"
+          <label for="providerTypeDesc">Descripción:</label> <textarea id="providerTypeDesc" [(ngModel)]="(editingProviderType || newProviderType).description"
                     name="description"
                     [disabled]="isLoading"
                     rows="3"></textarea>
         </div>
-
         <div class="form-group" *ngIf="editingProviderType">
           <label>Estado:</label>
             <div class="status-toggle">
-            <span class="status-label">{{ editingProviderType.isActive ? getActiveStatusText() : getInactiveStatusText() }}</span>
+            <span class="status-label">{{ getStatusText(editingProviderType.isActive) }}</span> <!-- CORREGIDO: Cambiado a getStatusText -->
             <label class="switch">
               <input type="checkbox" 
                      [checked]="editingProviderType.isActive"
                      (change)="editingProviderType.isActive = !editingProviderType.isActive">
               <span class="slider round"></span>
+              
+              <span class="status-label-text">
+                Estado: {{ editingProviderType.isActive ? 'Activo' : 'Inactivo' }}
+              </span>
             </label>
           </div>
         </div>
-
         <div class="form-actions">
           <button type="submit" 
                   [disabled]="isLoading || !isValidProviderType(editingProviderType || newProviderType)">
@@ -78,7 +74,6 @@
       </form>
     </div>
 
-    <!-- Tabla -->
     <div class="provider-type-table">
       <table>
         <thead>
@@ -95,7 +90,7 @@
             <td>{{ type.description || '--' }}</td>
             <td>
               <span class="status-badge" [class.active]="type.isActive">
-                {{ type.isActive ? getActiveStatusText() : getInactiveStatusText() }}
+                {{ getStatusText(type.isActive) }} <!-- CORREGIDO: Cambiado a getStatusText -->
               </span>
             </td>
             <td class="actions">
