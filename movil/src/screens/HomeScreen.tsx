@@ -1,38 +1,22 @@
 /**
  * @file HomeScreen.tsx
  * @description Pantalla principal de la aplicación (Dashboard).
- * Muestra un resumen de datos clave como eventos activos, contratos, y usuarios.
- * También presenta una sección de actividad reciente (actualmente con datos estáticos).
- * Los datos se recargan automáticamente cada vez que la pantalla entra en foco.
- * @requires react
- * @requires react-native
- * @requires @expo/vector-icons - Para los iconos.
- * @requires expo-linear-gradient - Para los gradientes en las tarjetas de resumen.
- * @requires ../contexts/AuthContext - Para obtener el token y datos del usuario.
- * @requires ../services/api - Para realizar las peticiones al backend.
- * @requires ../navigation/AppNavigator - Para la tipificación de la navegación.
- * @requires ../components/AppHeader - Para el encabezado reutilizable.
+ * ...
  */
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator, ColorValue } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../navigation/AppNavigator';
+import { RootStackParamList } from '../navigation/AppNavigator'; // <--- EL ERROR ESTÁ RELACIONADO CON ESTE ARCHIVO
 import { LinearGradient } from 'expo-linear-gradient';
 import api from '../services/api';
 import AppHeader from '../components/AppHeader';
 
-// ========================================================================
-// --- DEFINICIÓN DE TIPOS ---
-// ========================================================================
+// ... (El resto de tus tipos)
 
-/**
- * @interface DashboardData
- * @description Define la estructura del objeto que almacena los datos numéricos para el dashboard.
- */
 interface DashboardData {
   eventos: number;
   contratos: number;
@@ -41,11 +25,21 @@ interface DashboardData {
 }
 
 /**
- * @typedef {StackNavigationProp<RootStackParamList, 'Home'>} HomeScreenNavigationProp
+ * @typedef {StackNavigationProp<RootStackParamList, 'TU_NOMBRE_DE_RUTA_AQUI'>} HomeScreenNavigationProp
  * @description Define el tipo específico para la propiedad de navegación de esta pantalla,
  * asegurando el tipado correcto para las acciones de navegación.
  */
-type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+
+// CORRECCIÓN (TS2344): Reemplaza 'YOUR_ROUTE_NAME_HERE' 
+// con el nombre que usaste en tu AppNavigator.ts (ej. "Home", "Dashboard", etc.)
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList>;
+
+type CounterItem = {
+  name: string;
+  value: number;
+  icon: string;
+  colors: readonly [ColorValue, ColorValue];
+};
 
 /**
  * @component HomeScreen
@@ -57,20 +51,11 @@ const HomeScreen = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>(); // Hook para la navegación.
 
   // --- ESTADOS DEL COMPONENTE ---
-  /** @description Almacena los datos calculados para mostrar en las tarjetas del dashboard. */
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-  /** @description Controla la visibilidad del indicador de carga principal. */
   const [loading, setLoading] = useState(true);
 
-  /** @description Determina si el usuario actual tiene permisos para crear otros usuarios. */
   const canCreateUser = user?.role === 'admin';
 
-  /**
-   * @function fetchData
-   * @description Función asíncrona y memoizada (useCallback) para obtener todos los datos necesarios para el dashboard.
-   * Utiliza `Promise.allSettled` para asegurar que la pantalla no falle si el usuario no tiene permisos para una de las peticiones.
-   * Calcula los totales y actualiza el estado `dashboardData`.
-   */
   const fetchData = useCallback(async () => {
     setLoading(true);
     if (!token) {
@@ -80,8 +65,6 @@ const HomeScreen = () => {
     try {
       const headers = { 'x-access-token': token };
 
-      // Se usa Promise.allSettled para que un fallo en una petición (ej. por falta de permisos)
-      // no impida que las otras se completen.
       const results = await Promise.allSettled([
         api.get('/events', { headers }),
         api.get('/contracts', { headers }),
@@ -89,13 +72,11 @@ const HomeScreen = () => {
         api.get('/users', { headers }),
       ]);
 
-      // Procesa los resultados de forma segura, asignando `null` si una petición falló.
       const eventosRes = results[0].status === 'fulfilled' ? results[0].value : null;
       const contratosRes = results[1].status === 'fulfilled' ? results[1].value : null;
       const personalRes = results[2].status === 'fulfilled' ? results[2].value : null;
       const usuariosRes = results[3].status === 'fulfilled' ? results[3].value : null;
 
-      // Realiza los cálculos solo con los datos que se pudieron obtener.
       const eventosActivos = eventosRes ? eventosRes.data.data.filter((evento: any) => evento.status === 'en_progreso') : [];
       const usuariosActivos = usuariosRes ? usuariosRes.data.data.filter((usuario: any) => usuario.active === true) : [];
 
@@ -114,26 +95,17 @@ const HomeScreen = () => {
     } finally {
       setLoading(false);
     }
-  }, [token]); // La función se recalcula solo si el token cambia.
+  }, [token]);
 
-  /**
-   * @function useEffect
-   * @description Hook de efecto que añade un "listener" al evento 'focus' de la navegación.
-   * Esto asegura que la función `fetchData` se ejecute cada vez que el usuario vuelve a esta pantalla,
-   * manteniendo los datos siempre actualizados.
-   */
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       fetchData();
     });
-
-    // La función de limpieza se ejecuta cuando el componente se desmonta para evitar fugas de memoria.
     return unsubscribe;
   }, [navigation, fetchData]);
 
 
-  /** @description Array de configuración para renderizar las tarjetas de resumen del dashboard. */
-  const counters = [
+  const counters: CounterItem[] = [
     { name: 'Eventos Activos', value: dashboardData?.eventos ?? 0, icon: 'calendar-check', colors: ['#7E57C2', '#512DA8'] },
     { name: 'Contratos', value: dashboardData?.contratos ?? 0, icon: 'file-contract', colors: ['#FF6F61', '#E64A19'] },
     { name: 'Personal', value: dashboardData?.personal ?? 0, icon: 'users', colors: ['#FFA726', '#F57C00'] },
@@ -156,9 +128,9 @@ const HomeScreen = () => {
           {loading ? (
             <ActivityIndicator size="large" color="#9370DB" style={{marginTop: 50, width: '100%'}} />
           ) : (
-            counters.map((item, index) => (
+            counters.map((item) => (
               <LinearGradient
-                key={index}
+                key={item.name}
                 colors={item.colors}
                 style={styles.summaryCard}>
                 <FontAwesome5 name={item.icon as any} size={24} color="#fff" />

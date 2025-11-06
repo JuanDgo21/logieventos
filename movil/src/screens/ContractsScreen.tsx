@@ -5,13 +5,15 @@
  * filtrar por estado, y realizar acciones como ver detalles, editar o eliminar según su rol.
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Alert, TextInput, Keyboard, Modal, ScrollView, SafeAreaView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Alert, TextInput, Modal, ScrollView } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import api from '../services/api';
 import { FontAwesome5 } from '@expo/vector-icons';
 import AppHeader from '../components/AppHeader';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 // --- Definición de Tipos ---
 
@@ -103,7 +105,7 @@ const ContractsHeader = React.memo(({
         {isSearching && (
           <View style={styles.searchBarContainer}>
             <TextInput style={styles.searchInput} placeholder="Buscar por nombre..." placeholderTextColor="#999" value={searchInput} onChangeText={setSearchInput} returnKeyType="search" onSubmitEditing={handleSearchPress} />
-            {searchQuery === '' && (<TouchableOpacity style={styles.searchSubmitButton} onPress={handleSearchPress}><FontAwesome5 name="chevron-right" size={20} color="#ffffffff" /></TouchableOpacity>)}
+            {searchQuery === '' && (<TouchableOpacity style={styles.searchSubmitButton} onPress={handleSearchPress}><FontAwesome5 name="chevron-right" size={20} color="#fff" /></TouchableOpacity>)}
             {searchQuery !== '' && (<TouchableOpacity style={styles.resetButton} onPress={onSearchReset}><FontAwesome5 name="times" size={20} color="#fff" /></TouchableOpacity>)}
           </View>
         )}
@@ -132,10 +134,21 @@ const ContractsHeader = React.memo(({
 
 const PAGE_SIZE = 2; // Define cuántos contratos se muestran por página
 
+// (ts:7053) Creada función helper para obtener estilos de estado de forma segura
+const getStatusStyle = (status: ContractStatus) => {
+  switch (status) {
+    case 'borrador': return styles.status_borrador;
+    case 'activo': return styles.status_activo;
+    case 'completado': return styles.status_completado;
+    case 'cancelado': return styles.status_cancelado;
+    default: return {};
+  }
+};
+
 const ContractsScreen = () => {
   // --- Hooks de Contexto y Navegación ---
   const { user, logout, token } = useAuth();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<any>>();
 
   // --- Estados de la Pantalla ---
   // Estado para los datos y la paginación
@@ -289,15 +302,24 @@ const ContractsScreen = () => {
   };
   
   /** @description Renderiza el modal que muestra los detalles completos de un contrato. */
-  const renderDetailsModal = () => (
-    <Modal animationType="slide" transparent={true} visible={isModalVisible} onRequestClose={() => setIsModalVisible(false)}>
-      <SafeAreaView style={styles.modalSafeArea}><View style={styles.modalContainer}><View style={styles.modalHeader}><Text style={styles.modalTitle}>Detalles del Contrato</Text><TouchableOpacity onPress={() => setIsModalVisible(false)}><FontAwesome5 name="times" size={24} color="#ccc" /></TouchableOpacity></View><ScrollView contentContainerStyle={styles.modalContent}><View style={styles.detailRow}><Text style={styles.detailLabel}>Nombre:</Text><Text style={styles.detailValue}>{selectedContract?.name}</Text></View><View style={styles.detailRow}><Text style={styles.detailLabel}>Cliente:</Text><Text style={styles.detailValue}>{selectedContract?.clientName} ({selectedContract?.clientEmail} - {selectedContract?.clientPhone})</Text></View><View style={styles.detailRow}><Text style={styles.detailLabel}>Fechas:</Text><Text style={styles.detailValue}>{formatDate(selectedContract?.startDate || '')} a {formatDate(selectedContract?.endDate || '')}</Text></View><View style={styles.detailRow}><Text style={styles.detailLabel}>Presupuesto:</Text><Text style={styles.detailValue}>{formatCurrency(selectedContract?.budget || 0)}</Text></View><View style={styles.detailRow}><Text style={styles.detailLabel}>Estado:</Text><View style={[styles.statusBadge, styles[`status_${selectedContract?.status}`]]}><Text style={styles.statusBadgeText}>{selectedContract?.status}</Text></View></View><View style={styles.detailRow}><Text style={styles.detailLabel}>Términos:</Text><Text style={styles.detailValue}>{selectedContract?.terms || 'No especificados'}</Text></View>
-            {selectedContract?.resources?.length > 0 && (<View style={styles.tableContainer}><Text style={styles.tableTitle}>Recursos</Text><View style={styles.tableHeader}><Text style={styles.tableHeaderText}>Recurso</Text><Text style={styles.tableHeaderText}>Cantidad</Text></View>{selectedContract.resources.map((item, index) => (<View key={index} style={styles.tableRow}><Text style={styles.tableCell}>{item.resource?.name}</Text><Text style={styles.tableCell}>{item.quantity}</Text></View>))}</View>)}
-            {selectedContract?.providers?.length > 0 && (<View style={styles.tableContainer}><Text style={styles.tableTitle}>Proveedores</Text><View style={styles.tableHeader}><Text style={styles.tableHeaderText}>Proveedor</Text><Text style={styles.tableHeaderText}>Servicio</Text><Text style={styles.tableHeaderText}>Costo</Text></View>{selectedContract.providers.map((item, index) => (<View key={index} style={styles.tableRow}><Text style={styles.tableCell}>{item.provider?.name}</Text><Text style={styles.tableCell}>{item.serviceDescription || 'N/A'}</Text><Text style={styles.tableCell}>{formatCurrency(item.cost)}</Text></View>))}</View>)}
-            {selectedContract?.personnel?.length > 0 && (<View style={styles.tableContainer}><Text style={styles.tableTitle}>Personal</Text><View style={styles.tableHeader}><Text style={styles.tableHeaderText}>Nombre</Text><Text style={styles.tableHeaderText}>Rol</Text><Text style={styles.tableHeaderText}>Horas</Text></View>{selectedContract.personnel.map((item, index) => (<View key={index} style={styles.tableRow}><Text style={styles.tableCell}>{`${item.person?.firstName} ${item.person?.lastName}`}</Text><Text style={styles.tableCell}>{item.role || 'N/A'}</Text><Text style={styles.tableCell}>{item.hours}</Text></View>))}</View>)}
-          </ScrollView></View></SafeAreaView>
-    </Modal>
-  );
+  const renderDetailsModal = () => {
+    if (!selectedContract) {
+      return null;
+    }
+
+    return (
+      <Modal animationType="slide" transparent={true} visible={isModalVisible} onRequestClose={() => setIsModalVisible(false)}>
+        <SafeAreaView style={styles.modalSafeArea}><View style={styles.modalContainer}><View style={styles.modalHeader}><Text style={styles.modalTitle}>Detalles del Contrato</Text><TouchableOpacity onPress={() => setIsModalVisible(false)}><FontAwesome5 name="times" size={24} color="#ccc" /></TouchableOpacity></View><ScrollView contentContainerStyle={styles.modalContent}><View style={styles.detailRow}><Text style={styles.detailLabel}>Nombre:</Text><Text style={styles.detailValue}>{selectedContract.name}</Text></View><View style={styles.detailRow}><Text style={styles.detailLabel}>Cliente:</Text><Text style={styles.detailValue}>{selectedContract.clientName} ({selectedContract.clientEmail} - {selectedContract.clientPhone})</Text></View><View style={styles.detailRow}><Text style={styles.detailLabel}>Fechas:</Text><Text style={styles.detailValue}>{formatDate(selectedContract.startDate || '')} a {formatDate(selectedContract.endDate || '')}</Text></View><View style={styles.detailRow}><Text style={styles.detailLabel}>Presupuesto:</Text><Text style={styles.detailValue}>{formatCurrency(selectedContract.budget || 0)}</Text></View><View style={styles.detailRow}><Text style={styles.detailLabel}>Estado:</Text><View style={[styles.statusBadge, getStatusStyle(selectedContract.status)]}><Text style={styles.statusBadgeText}>{selectedContract.status}</Text></View></View><View style={styles.detailRow}><Text style={styles.detailLabel}>Términos:</Text><Text style={styles.detailValue}>{selectedContract.terms || 'No especificados'}</Text></View>
+              
+              {/* CORRECCIÓN: (ts:18048) Se usa solo '?.length' para la comprobación (truthy/falsy) */}
+              {selectedContract.resources?.length && (<View style={styles.tableContainer}><Text style={styles.tableTitle}>Recursos</Text><View style={styles.tableHeader}><Text style={styles.tableHeaderText}>Recurso</Text><Text style={styles.tableHeaderText}>Cantidad</Text></View>{selectedContract.resources?.map((item, index) => (<View key={`res-${item.resource?.name}-${index}`} style={styles.tableRow}><Text style={styles.tableCell}>{item.resource?.name}</Text><Text style={styles.tableCell}>{item.quantity}</Text></View>))}</View>)}
+              {selectedContract.providers?.length && (<View style={styles.tableContainer}><Text style={styles.tableTitle}>Proveedores</Text><View style={styles.tableHeader}><Text style={styles.tableHeaderText}>Proveedor</Text><Text style={styles.tableHeaderText}>Servicio</Text><Text style={styles.tableHeaderText}>Costo</Text></View>{selectedContract.providers?.map((item, index) => (<View key={`prov-${item.provider?.name}-${index}`} style={styles.tableRow}><Text style={styles.tableCell}>{item.provider?.name}</Text><Text style={styles.tableCell}>{item.serviceDescription || 'N/A'}</Text><Text style={styles.tableCell}>{formatCurrency(item.cost)}</Text></View>))}</View>)}
+              {selectedContract.personnel?.length && (<View style={styles.tableContainer}><Text style={styles.tableTitle}>Personal</Text><View style={styles.tableHeader}><Text style={styles.tableHeaderText}>Nombre</Text><Text style={styles.tableHeaderText}>Rol</Text><Text style={styles.tableHeaderText}>Horas</Text></View>{selectedContract.personnel?.map((item, index) => (<View key={`pers-${item.person?.firstName}-${index}`} style={styles.tableRow}><Text style={styles.tableCell}>{`${item.person?.firstName} ${item.person?.lastName}`}</Text><Text style={styles.tableCell}>{item.role || 'N/A'}</Text><Text style={styles.tableCell}>{item.hours}</Text></View>))}</View>)}
+            
+            </ScrollView></View></SafeAreaView>
+      </Modal>
+    );
+  };
 
   /** @description Renderiza el modal de confirmación antes de eliminar un contrato. */
   const renderDeleteConfirmationModal = () => (
@@ -328,12 +350,23 @@ const ContractsScreen = () => {
             }
             data={contratosPaginados}
             renderItem={({ item }) => (
-              <View style={styles.contractCard}><View style={styles.mainInfoColumn}><Text style={styles.contractName}>{item.name}</Text><Text style={styles.clientInfo}>{item.clientName}</Text><Text style={styles.clientContact}>{item.clientEmail}</Text><Text style={styles.clientContact}>{item.clientPhone}</Text></View><View style={styles.detailsColumn}><Text style={styles.dates}>{formatDate(item.startDate)}</Text><Text style={styles.datesLabel}>hasta</Text><Text style={styles.dates}>{formatDate(item.endDate)}</Text><Text style={styles.budget}>{formatCurrency(item.budget)}</Text></View><View style={styles.actionsColumn}><Text style={[styles.statusBadgeList, styles[`status_${item.status}`]]}>{item.status}</Text><View style={styles.actionIconsRow}><TouchableOpacity style={styles.actionIcon} onPress={() => handleShowDetails(item)}><FontAwesome5 name="eye" size={18} color="#9370DB" /></TouchableOpacity>{canEdit && (<TouchableOpacity style={styles.actionIcon} onPress={() => navigation.navigate('ContractForm' as never, { contractId: item._id })}><FontAwesome5 name="edit" size={18} color="#FFA726" /></TouchableOpacity>)}{isAdmin && (<TouchableOpacity style={styles.actionIcon} onPress={() => openDeleteConfirmation(item._id)}><FontAwesome5 name="trash-alt" size={18} color="#dc3545" /></TouchableOpacity>)}</View></View></View>
+              <View style={styles.contractCard}><View style={styles.mainInfoColumn}><Text style={styles.contractName}>{item.name}</Text><Text style={styles.clientInfo}>{item.clientName}</Text><Text style={styles.clientContact}>{item.clientEmail}</Text><Text style={styles.clientContact}>{item.clientPhone}</Text></View><View style={styles.detailsColumn}><Text style={styles.dates}>{formatDate(item.startDate)}</Text><Text style={styles.datesLabel}>hasta</Text><Text style={styles.dates}>{formatDate(item.endDate)}</Text><Text style={styles.budget}>{formatCurrency(item.budget)}</Text></View><View style={styles.actionsColumn}>
+                
+                {/* (ts:7053) Usando la función helper para estilos */}
+                <Text style={[styles.statusBadgeList, getStatusStyle(item.status)]}>{item.status}</Text>
+                
+                <View style={styles.actionIconsRow}><TouchableOpacity style={styles.actionIcon} onPress={() => handleShowDetails(item)}><FontAwesome5 name="eye" size={18} color="#9370DB" /></TouchableOpacity>{canEdit && (<TouchableOpacity style={styles.actionIcon} 
+                
+                onPress={() => navigation.navigate('ContractForm', { contractId: item._id })}
+                
+                ><FontAwesome5 name="edit" size={18} color="#FFA726" /></TouchableOpacity>)}{isAdmin && (<TouchableOpacity style={styles.actionIcon} onPress={() => openDeleteConfirmation(item._id)}><FontAwesome5 name="trash-alt" size={18} color="#dc3545" /></TouchableOpacity>)}</View></View></View>
             )}
             keyExtractor={item => item._id}
             contentContainerStyle={styles.listContentContainer}
             ListFooterComponent={renderFooterComponent}
-            ListEmptyComponent={!loadingList && <Text style={styles.noResultsText}>{searchQuery || statusFilter ? "No se encontraron contratos con esos filtros." : "No hay contratos."}</Text>}
+            
+            ListEmptyComponent={loadingList ? null : <Text style={styles.noResultsText}>{searchQuery || statusFilter ? "No se encontraron contratos con esos filtros." : "No hay contratos."}</Text>}
+            
             onRefresh={fetchAllContracts}
             refreshing={loadingList}
             keyboardShouldPersistTaps="handled"
@@ -373,7 +406,7 @@ const styles = StyleSheet.create({
     },
     counterCardActive: {
       borderColor: '#FFFFFF', elevation: 8, shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.30, shadowRadius: 4.65, transform: [{ scale: 1.05 }],
+      shadowOpacity: 0.3, shadowRadius: 4.65, transform: [{ scale: 1.05 }],
     },
     counterValue: { fontSize: 32, fontWeight: 'bold', color: '#fff' },
     counterText: { color: '#fff', fontSize: 14, marginTop: 5, fontWeight: '600' },
