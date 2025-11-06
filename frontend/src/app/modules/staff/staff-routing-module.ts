@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { DashboardStaffComponent } from '../../pages/components/dashboard-staff/dashboard-staff';
 import { PersonnelTypeListComponent } from './personnel-type-list/personnel-type-list';
 import { PersonnelListComponent } from './personnel-list/personnel-list';
 

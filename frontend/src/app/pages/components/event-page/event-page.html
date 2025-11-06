@@ -4,10 +4,9 @@
   <div class="container-fluid py-4">
 
     <div *ngIf="isLoading" class="loading-overlay">
-      <div class="spinner-grow text-primary" role="status"></div>
+      <output class="spinner-grow text-primary"></output>
       <p class="mt-3">Cargando eventos...</p>
     </div>
-
     <div class="header-container">
       <h1 class="page-title">Gestión de Eventos</h1>
       <div class="d-flex gap-2">
@@ -91,21 +90,60 @@
           <div class="modal-body">
             <form [formGroup]="eventForm">
               <div class="row g-3">
-                <div class="col-md-6"><div class="mb-3"><label class="form-label">Nombre del evento <span class="text-danger">*</span></label><input type="text" class="form-control" formControlName="name"></div></div>
-                <div class="col-md-6"><div class="mb-3"><label class="form-label">Tipo de evento <span class="text-danger">*</span></label><select class="form-select" formControlName="eventType"><option [ngValue]="null" disabled>Seleccione un tipo</option><option *ngFor="let type of eventTypes" [value]="type._id">{{type.name}}</option></select></div></div>
+                <div class="col-md-6"><div class="mb-3">
+                  <label class="form-label" for="eventName">Nombre del evento <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="eventName" formControlName="name">
+                </div></div>
+                <div class="col-md-6"><div class="mb-3">
+                  <label class="form-label" for="eventType">Tipo de evento <span class="text-danger">*</span></label>
+                  <select class="form-select" id="eventType" formControlName="eventType">
+                    <option [ngValue]="null" disabled>Seleccione un tipo</option>
+                    <option *ngFor="let type of eventTypes" [value]="type._id">{{type.name}}</option>
+                  </select>
+                </div></div>
               </div>
               <div class="row g-3">
-                <div class="col-md-6"><div class="mb-3"><label class="form-label">Contrato asociado <span class="text-danger">*</span></label><select class="form-select" formControlName="contract"><option [ngValue]="null" disabled>Seleccione un contrato</option><option *ngFor="let contract of contracts" [value]="contract._id">{{contract.name}}</option></select></div></div>
-                <div class="col-md-6"><div class="mb-3"><label class="form-label">Responsable <span class="text-danger">*</span></label><select class="form-select" formControlName="responsable"><option [ngValue]="null" disabled>Seleccione un responsable</option><option *ngFor="let user of users" [value]="user._id">{{user.fullname}}</option></select></div></div>
+                <div class="col-md-6"><div class="mb-3">
+                  <label class="form-label" for="contract">Contrato asociado <span class="text-danger">*</span></label>
+                  <select class="form-select" id="contract" formControlName="contract">
+                    <option [ngValue]="null" disabled>Seleccione un contrato</option>
+                    <option *ngFor="let contract of contracts" [value]="contract._id">{{contract.name}}</option>
+                  </select>
+                </div></div>
+                <div class="col-md-6"><div class="mb-3">
+                  <label class="form-label" for="responsable">Responsable <span class="text-danger">*</span></label>
+                  <select class="form-select" id="responsable" formControlName="responsable">
+                    <option [ngValue]="null" disabled>Seleccione un responsable</option>
+                    <option *ngFor="let user of users" [value]="user._id">{{user.fullname}}</option>
+                  </select>
+                </div></div>
               </div>
-              <div class="mb-3"><label class="form-label">Descripción <span class="text-danger">*</span></label><textarea class="form-control" formControlName="description" rows="3" placeholder="Describe el evento..."></textarea><div *ngIf="eventForm.get('description')?.invalid && eventForm.get('description')?.touched" class="text-danger mt-1" style="font-size: 0.875rem;">La descripción es obligatoria.</div></div>
-              <div class="row g-3">
-                <div class="col-md-6"><div class="mb-3"><label class="form-label">Fecha de inicio <span class="text-danger">*</span></label><input type="date" class="form-control" formControlName="startDate"></div></div>
-                <div class="col-md-6"><div class="mb-3"><label class="form-label">Fecha de fin <span class="text-danger">*</span></label><input type="date" class="form-control" formControlName="endDate"></div></div>
+              <div class="mb-3">
+                <label class="form-label" for="description">Descripción <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="description" formControlName="description" rows="3" placeholder="Describe el evento..."></textarea>
+                <div *ngIf="eventForm.get('description')?.invalid && eventForm.get('description')?.touched" class="text-danger mt-1" style="font-size: 0.875rem;">La descripción es obligatoria.</div>
               </div>
               <div class="row g-3">
-                <div class="col-md-8"><div class="mb-3"><label class="form-label">Ubicación <span class="text-danger">*</span></label><input type="text" class="form-control" formControlName="location"></div></div>
-                <div class="col-md-4"><div class="mb-3"><label class="form-label">Estado <span class="text-danger">*</span></label><select class="form-select" formControlName="status"><option *ngFor="let status of statusOptions" [value]="status.value">{{status.label}}</option></select></div></div>
+                <div class="col-md-6"><div class="mb-3">
+                  <label class="form-label" for="startDate">Fecha de inicio <span class="text-danger">*</span></label>
+                  <input type="date" class="form-control" id="startDate" formControlName="startDate">
+                </div></div>
+                <div class="col-md-6"><div class="mb-3">
+                  <label class="form-label" for="endDate">Fecha de fin <span class="text-danger">*</span></label>
+                  <input type="date" class="form-control" id="endDate" formControlName="endDate">
+                </div></div>
+              </div>
+              <div class="row g-3">
+                <div class="col-md-8"><div class="mb-3">
+                  <label class="form-label" for="location">Ubicación <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="location" formControlName="location">
+                </div></div>
+                <div class="col-md-4"><div class="mb-3">
+                  <label class="form-label" for="status">Estado <span class="text-danger">*</span></label>
+                  <select class="form-select" id="status" formControlName="status">
+                    <option *ngFor="let status of statusOptions" [value]="status.value">{{status.label}}</option>
+                  </select>
+                </div></div>
               </div>
             </form>
           </div>

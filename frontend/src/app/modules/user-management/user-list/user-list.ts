@@ -1,8 +1,7 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { User } from '../../../shared/interfaces/user';
 import { UserService } from '../../../core/services/user';
 
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UserFormComponent } from '../user-form/user-form';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal';
@@ -22,8 +21,8 @@ export class UserListComponent implements OnInit {
   loading = true;
 
   constructor(
-    private userService: UserService,
-    private modalService: NgbModal
+    private readonly userService: UserService,
+    private readonly modalService: NgbModal
   ) {
     console.log('UserListComponent initialized');
   }

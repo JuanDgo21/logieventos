@@ -121,7 +121,7 @@ export class DashboardUsersComponent implements OnInit {
     
     try {
       const date = new Date(dateString);
-      return isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString('es-ES', {
+      return Number.isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString('es-ES', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'

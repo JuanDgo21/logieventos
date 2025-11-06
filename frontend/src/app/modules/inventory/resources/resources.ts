@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth';
 import { Router } from '@angular/router';
@@ -36,7 +36,7 @@ interface ResourceType {
   templateUrl: './resources.html',
   styleUrls: ['./resources.scss']
 })
-export class ResourcesComponent {
+export class ResourcesComponent implements OnInit {
   resources: Resource[] = [];
   resourceTypes: ResourceType[] = [];
   newResource: Resource = { 

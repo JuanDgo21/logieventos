@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ProviderComponent } from './provider/provider';
-import { ProviderType } from '../../shared/interfaces/provider-type';
 import { ProviderTypeComponent } from './provider-type/provider-type';
 
 const routes: Routes = [

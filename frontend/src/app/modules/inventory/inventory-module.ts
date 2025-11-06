@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { InventoryRoutingModule } from './inventory-routing-module';
 import { ResourcesComponent } from './resources/resources';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'; // Línea 7 corregida
 import { RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ResourceTypesComponent } from './resource-types/resource-types';
@@ -14,7 +14,10 @@ import { SharedModule } from '../../shared/shared-module';
 
 
 @NgModule({
-  providers: [SidebarStateService], 
+  providers: [
+    SidebarStateService,
+    provideHttpClient(withInterceptorsFromDi()) // Línea 27 corregida - agregado a providers
+  ], 
   declarations: [
     ResourcesComponent,
     ResourceTypesComponent
@@ -24,7 +27,6 @@ import { SharedModule } from '../../shared/shared-module';
     InventoryRoutingModule,
     RouterModule,
     ReactiveFormsModule,
-    HttpClientModule,
     FormsModule,
     FontAwesomeModule,
     SharedModule
