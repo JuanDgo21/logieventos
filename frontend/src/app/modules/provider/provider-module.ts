@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { ToastrModule } from 'ngx-toastr';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -22,12 +22,14 @@ import { ProviderTypeComponent } from './provider-type/provider-type';
     ProviderRoutingModule,
     RouterModule,
     ReactiveFormsModule,
-    HttpClientModule,
     FormsModule,
     FontAwesomeModule,
     SharedModule,
     ToastrModule.forRoot()
   ],
-  providers: [SidebarStateService]
+  providers: [
+    SidebarStateService,
+    provideHttpClient(withInterceptorsFromDi())
+  ]
 })
 export class ProviderModule { }

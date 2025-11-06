@@ -1,13 +1,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { PagesRoutingModule } from './pages-routing-module';
 import { ProvidersPageComponent } from './components/providers/providers';
 import { RouterModule } from '@angular/router';
 import { InventoryPageComponent } from './components/inventory-page/inventory-page';
 import { DashboardComponent } from './components/dashboard/dashboard';
-import { ContractsPage } from './components/contracts-page/contracts-page';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DashboardUsersComponent } from './components/dashboard-users/dashboard-users';
 import { SharedModule } from '../shared/shared-module';
@@ -18,6 +16,7 @@ import { UserManagementModule } from '../modules/user-management/user-management
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EventPageComponent } from './components/event-page/event-page';
 import { EventTypeComponent } from './components/event-type/event-type';
+// import { ContractsPage } from './components/contracts-page/contracts-page';
 
 
 @NgModule({
@@ -25,7 +24,7 @@ import { EventTypeComponent } from './components/event-type/event-type';
     ProvidersPageComponent,
     InventoryPageComponent,
     DashboardComponent,
-    ContractsPage,
+    // ContractsPage,
     DashboardUsersComponent,
     DashboardStaffComponent,
     EventPageComponent,
@@ -52,10 +51,11 @@ import { EventTypeComponent } from './components/event-type/event-type';
     ProvidersPageComponent,
     InventoryPageComponent,
     DashboardComponent,
-    ContractsPage,
+    // ContractsPage,
     DashboardUsersComponent,
     DashboardStaffComponent,
-    EventPageComponent
+    EventPageComponent,
+    EventTypeComponent
   ]
 })
 export class PagesModule { }
