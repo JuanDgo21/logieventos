@@ -206,7 +206,7 @@ export class ProviderComponent implements OnInit {
  getProviderTypeName(providerType: any): string {
   if (!providerType) return '---';
 
-  // 🔹 Si es un objeto con nombre (caso viejo que guarda todo el objeto)
+  // 🔹 Si es un objeto con nombre (caso viejo que guarda todos el objeto)
   if (typeof providerType === 'object' && providerType.name) {
     return providerType.name;
   }
