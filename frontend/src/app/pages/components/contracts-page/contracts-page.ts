@@ -598,7 +598,7 @@ validateEditForm(): boolean {
   }
 
   // Validar teléfono
-  const phoneRegex = /^(\+?\d{1,4}?[-.\s]?)?(\(\d{1,4}\)[-.\s]?)?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
+  const phoneRegex = /^[\d\s().+-]{7,25}$/;
   if (this.editContract.clientPhone && !phoneRegex.test(this.editContract.clientPhone)) {
     this.editErrorMessage = 'Número de teléfono inválido.';
     return false;
@@ -695,7 +695,7 @@ validatePersonnel(): boolean {
       return;
     }
 
-    const phoneRegex = /^(\+?\d{1,4}?[-.\s]?)?(\(\d{1,4}\)[-.\s]?)?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
+    const phoneRegex = /^[\d\s().+-]{7,25}$/;
     if (this.newContract.clientPhone && !phoneRegex.test(this.newContract.clientPhone)) {
       this.createErrorMessage = 'Número de teléfono inválido.';
       return;

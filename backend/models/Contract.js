@@ -22,7 +22,7 @@ const contractSchema = new mongoose.Schema({
   clientPhone: {
     type: String,
     trim: true,  // Elimina espacios en blanco
-    match: [/^(\+?\d{1,4}?[-.\s]?)?(\(\d{1,4}\)[-.\s]?)?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/, 'Teléfono no válido']
+    match: [/^[\d\s().+-]{7,25}$/, 'Teléfono no válido']
   },
 
   // Email del cliente
@@ -31,7 +31,7 @@ const contractSchema = new mongoose.Schema({
     required: true,
     trim: true,
     lowercase: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Email no valido']
+    match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Email no valido']
   },
 
   // Fecha de inicio del contrato (obligatoria)

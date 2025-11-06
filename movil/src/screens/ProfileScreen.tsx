@@ -47,7 +47,7 @@ const IS_SHORT_SCREEN = windowHeight < 720;
  * @returns {boolean} - `true` si el formato es válido, `false` en caso contrario.
  */
 const validateEmail = (email) => {
-  const re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return re.test(String(email).toLowerCase());
 };
 

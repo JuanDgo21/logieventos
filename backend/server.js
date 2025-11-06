@@ -27,6 +27,7 @@ const reportController = require('./controllers/reportControllers');
 const app = express();
 
 // Conexión directa a MongoDB para operaciones específicas
+// (FALSO POSITIVO S7785: Este IIFE es necesario en CommonJS, no lo cambies)
 const mongoClient = new MongoClient(process.env.MONGODB_URI);
 (async () => {
   try {
@@ -38,12 +39,38 @@ const mongoClient = new MongoClient(process.env.MONGODB_URI);
   }
 })();
 
+// --- Configuración de CORS ---
+
+// 1. Define tu "Lista Blanca" de dominios permitidos
+// ✅ CORRECCIÓN (S7776): Se convierte el Array en un Set para optimizar búsquedas.
+const allowedOrigins = new Set([
+  'http://localhost:4200', // Tu frontend de Angular en desarrollo
+  // 'https://logieventos.com', // ❗️ DESCOMENTA Y AÑADE TU DOMINIO DE PRODUCCIÓN
+  // 'https://www.logieventos.com' // ❗️ AÑADE www si es necesario
+]);
+
+// 2. Configura las opciones de CORS
+const corsOptions = {
+  origin: function (origin, callback) {
+    
+    // ✅ CORRECCIÓN (S7776): Se usa .has() (O(1)) en lugar de .includes() (O(n))
+    if (!origin || allowedOrigins.has(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Acceso no permitido por CORS'));
+    }
+  },
+  credentials: true // Permite que el frontend envíe cookies/tokens de autenticación
+};
+
+// --- Fin de la Corrección ---
+
+
 // Middlewares
-app.use(cors());
+app.use(cors(corsOptions)); // Aplica las opciones de CORS
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 
 // Conexión a MongoDB con Mongoose
 mongoose.connect(process.env.MONGODB_URI)
@@ -58,7 +85,7 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
-app.use('/api/contracts', contractRoutes); // <-- Aquí están las rutas básicas de contratos
+app.use('/api/contracts', contractRoutes);
 app.use('/api/resources', resourceRoutes);
 app.use('/api/providers', providerRoutes);
 app.use('/api/personnel', personnelRoutes);
@@ -74,6 +101,15 @@ app.get('/', (req, res) => {
 
 // Manejo de errores
 app.use((err, req, res, next) => {
+  // Manejo de error específico de CORS
+  if (err.message === 'Acceso no permitido por CORS') {
+    return res.status(403).json({
+      success: false,
+      message: 'Error de CORS: Este origen no tiene permiso para acceder a la API.'
+    });
+  }
+  
+  // Manejo de error genérico
   console.error(err.stack);
   res.status(500).json({ 
     success: false, 
