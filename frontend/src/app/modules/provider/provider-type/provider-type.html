@@ -52,8 +52,8 @@
 
         <div class="form-group" *ngIf="editingProviderType">
           <label>Estado:</label>
-          <div class="status-toggle">
-            <span class="status-label">{{ editingProviderType.isActive ? 'Activo' : 'Inactivo' }}</span>
+            <div class="status-toggle">
+            <span class="status-label">{{ editingProviderType.isActive ? getActiveStatusText() : getInactiveStatusText() }}</span>
             <label class="switch">
               <input type="checkbox" 
                      [checked]="editingProviderType.isActive"
@@ -95,7 +95,7 @@
             <td>{{ type.description || '--' }}</td>
             <td>
               <span class="status-badge" [class.active]="type.isActive">
-                {{ type.isActive ? 'Activo' : 'Inactivo' }}
+                {{ type.isActive ? getActiveStatusText() : getInactiveStatusText() }}
               </span>
             </td>
             <td class="actions">

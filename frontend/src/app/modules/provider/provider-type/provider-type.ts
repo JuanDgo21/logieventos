@@ -216,7 +216,12 @@
       return providerType.name.length >= 3 && providerType.name.length <= 50;
     }
 
-    getStatusText(isActive: boolean): string {
-      return isActive ? 'Activo' : 'Inactivo';
+    // Evitar usar un booleano para elegir comportamiento — proporcionar métodos explícitos
+    getActiveStatusText(): string {
+      return 'Activo';
+    }
+
+    getInactiveStatusText(): string {
+      return 'Inactivo';
     }
   }
