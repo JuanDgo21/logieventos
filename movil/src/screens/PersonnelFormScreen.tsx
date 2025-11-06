@@ -114,10 +114,10 @@ const PersonnelFormScreen: React.FC = () => {
     }
     if (!formData.email.trim()) {
       newErrors.email = 'El email es requerido';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'El formato del email es inválido';
     }
-    if (formData.phone && !/^[0-9]{10,15}$/.test(formData.phone)) {
+    if (formData.phone && !/^[\d\s().+-]{7,25}$/.test(formData.phone)) {
       newErrors.phone = 'Formato de teléfono inválido (10-15 dígitos)';
     }
     if (!formData.personnelType) {
