@@ -25,8 +25,10 @@
       <form (ngSubmit)="editingProviderType ? updateProviderType() : createProviderType()" #providerTypeForm="ngForm">
         
         <div class="form-group">
-          <label for="providerTypeName">Nombre:</label> <input type="text" 
-                 id="providerTypeName" [(ngModel)]="(editingProviderType || newProviderType).name"
+          <label for="providerTypeName">Nombre:</label> 
+          <input type="text" 
+                 id="providerTypeName" 
+                 [(ngModel)]="(editingProviderType || newProviderType).name"
                  name="name" 
                  required
                  [disabled]="isLoading"
@@ -37,16 +39,18 @@
             El nombre debe tener entre 3 y 50 caracteres
           </small>
         </div>
+        
         <div class="form-group">
-          <label for="providerTypeDesc">Descripción:</label> <textarea id="providerTypeDesc" [(ngModel)]="(editingProviderType || newProviderType).description"
+          <label for="providerTypeDesc">Descripción:</label> 
+          <textarea id="providerTypeDesc" 
+                    [(ngModel)]="(editingProviderType || newProviderType).description"
                     name="description"
                     [disabled]="isLoading"
                     rows="3"></textarea>
         </div>
+        
         <div class="form-group" *ngIf="editingProviderType">
-          <label>Estado:</label>
-            <div class="status-toggle">
-            <span class="status-label">{{ getStatusText(editingProviderType.isActive) }}</span> <!-- CORREGIDO: Cambiado a getStatusText -->
+          <div class="status-toggle">
             <label class="switch">
               <input type="checkbox" 
                      [checked]="editingProviderType.isActive"
@@ -90,8 +94,7 @@
             <td>{{ type.description || '--' }}</td>
             <td>
               <span class="status-badge" [class.active]="type.isActive">
-                {{ getStatusText(type.isActive) }} <!-- CORREGIDO: Cambiado a getStatusText -->
-              </span>
+                {{ getStatusText(type.isActive) }} </span>
             </td>
             <td class="actions">
               <button (click)="editProviderType(type)" title="Editar">
