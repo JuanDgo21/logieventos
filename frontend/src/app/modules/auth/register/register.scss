@@ -134,8 +134,8 @@
     margin: 0;
     font-size: 1.8rem;
     font-weight: 600;
-    color: white;
-    background: linear-gradient(to right, white, #e0e0e0);
+    color: #f0f0f0; /* Cambiado de white a #f0f0f0 para mejor contraste */
+    background: linear-gradient(to right, #f0f0f0, #c0c0c0); /* Cambiado de white/#e0e0e0 a #f0f0f0/#c0c0c0 */
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }

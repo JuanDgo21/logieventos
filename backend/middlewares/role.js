@@ -43,7 +43,7 @@ const checkRole = (allowedRoles) => {
       });
     }
 
-    // 6. Continuar si todo está correcto
+    // 6. Continuar si todos está correcto
     next();
   };
 };

@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { JwtModule } from '@auth0/angular-jwt';
 
 
 
@@ -8,7 +7,7 @@ import { JwtModule } from '@auth0/angular-jwt';
   selector: 'app-root',
   imports: [RouterOutlet],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  // styleUrl: './app.scss'
 })
 export class App {
   protected title = 'frontend';

@@ -15,9 +15,9 @@ interface Resource {
   providedIn: 'root'
 })
 export class ResourcesServices {
-  private apiUrl = `${environment.API_URL}`;
+  private readonly apiUrl = `${environment.API_URL}`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');

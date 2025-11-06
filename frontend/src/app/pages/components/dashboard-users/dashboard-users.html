@@ -1,11 +1,9 @@
-<!-- <div class="dashboard-layout"> -->
-  <app-navbar></app-navbar>
+<app-navbar></app-navbar>
   
   <div class="main-content-wrapper">
     <app-sidebar></app-sidebar>
     
     <main class="dashboard-content">
-      <!-- Header del Dashboard -->
       <div class="dashboard-header">
         <div class="header-content">
           <h1><i class="fas fa-users me-2"></i> Gestión de Usuarios</h1>
@@ -25,16 +23,13 @@
         <p class="daily-message">Panel de control administrativo</p>
       </div>
 
-      <!-- Decoraciones -->
       <div class="dashboard-decorations">
         <div class="decoration particle-1"></div>
         <div class="decoration particle-2"></div>
         <div class="decoration particle-3"></div>
       </div>
       
-      <!-- Tarjetas de Resumen -->
       <div class="summary-cards">
-      <!-- Tarjeta de usuarios activos -->
       <div class="summary-card" [style.background]="getGradient('activeUsers')">
         <div class="card-content">
           <div class="card-icon">
@@ -93,42 +88,41 @@
         </div>
       </div>
 
-      <!-- Contenido Principal -->
       <div class="dashboard-main">
-        <!-- Acciones Rápidas -->
         <div class="dashboard-section quick-actions-section">
           <div class="section-header">
             <h2><i class="fas fa-bolt me-2"></i> Acciones Rápidas</h2>
           </div>
           <div class="quick-actions-grid">
-            <div class="quick-action" (click)="openUserForm()">
+            
+            <button type="button" class="quick-action" (click)="openUserForm()">
               <div class="action-content">
                 <i class="fas fa-user-plus fa-2x mb-2"></i>
                 <span class="fw-bold">Agregar Usuario</span>
                 <small class="text-muted">Crear nuevo usuario</small>
               </div>
               <div class="action-wave"></div>
-            </div>
+            </button>
 
-            <div class="quick-action" [style.background]="getGradient('manageRoles')" (click)="openRoleManager()">
+            <button type="button" class="quick-action" [style.background]="getGradient('manageRoles')" (click)="openRoleManager()">
               <div class="action-content">
                 <i class="fas fa-user-shield"></i>
                 <span>Administrar Roles</span>
               </div>
               <div class="action-wave"></div>
-            </div>
+            </button>
 
-            <div class="quick-action" [style.background]="getGradient('viewReports')" (click)="viewReports()">
+            <button type="button" class="quick-action" [style.background]="getGradient('viewReports')" (click)="viewReports()">
               <div class="action-content">
                 <i class="fas fa-chart-bar"></i>
                 <span>Ver Reportes</span>
               </div>
               <div class="action-wave"></div>
+            </button>
+            
             </div>
-          </div>
         </div>
 
-        <!-- Actividad Reciente -->
         <div class="dashboard-section recent-activity">
           <div class="section-header">
             <h2><i class="fas fa-history"></i> Últimos Usuarios</h2>
@@ -159,7 +153,6 @@
         </div>
       </div>
 
-      <!-- Distribución de Roles -->
       <div class="dashboard-section role-distribution">
         <div class="section-header">
           <h2><i class="fas fa-chart-pie"></i> Distribución de Roles</h2>
@@ -179,7 +172,6 @@
         </div>
       </div>
 
-      <!-- Herramientas de Administrador -->
       <div *ngIf="userRole === 'admin'" class="dashboard-section admin-tools">
         <div class="section-header">
           <h2><i class="fas fa-shield-alt"></i> Herramientas de Administrador</h2>
@@ -214,4 +206,3 @@
   </div>
 
   <app-footer></app-footer>
-<!-- </div> -->

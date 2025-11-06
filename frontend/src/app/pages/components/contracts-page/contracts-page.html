@@ -5,15 +5,12 @@
 <main class="main-content">
   <div class="container-fluid px-4">
 
-    <!-- Encabezado -->
     <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
   <h1 class="h2 mb-0">Contratos</h1>
   <div class="d-flex align-items-center">
-    <!-- Contenedor de búsqueda -->
     <div class="search-container-left" 
          [class.active]="showSearch"
          [class.has-text]="searchTerm">
-      <!-- Barra de búsqueda -->
       <div class="search-box">
         <input #searchInput type="text" class="form-control" 
                [(ngModel)]="searchTerm" 
@@ -26,7 +23,6 @@
         </button>
       </div>
       
-      <!-- Botón de Búsqueda -->
       <button class="btn search-toggle" (click)="onSearchClick()">
       <i class="fas" 
          [class.fa-search]="!searchTerm && !isSearching"
@@ -36,14 +32,12 @@
       </button>
     </div>
     
-    <!-- Botón Nuevo Contrato -->
     <button *ngIf="canEditOrCreate()" class="btn btn-primary btn-lg ms-2" data-bs-toggle="modal" data-bs-target="#createContractModal">
       <i class="fas fa-plus me-2"></i>Nuevo Contrato
     </button>
   </div>
 </div>
 
-    <!-- Tarjetas por estado -->
     <div class="row mt-4">
       <div *ngFor="let status of statusList" class="col-md-3 mb-4">
         <div class="card border-start border-{{ statusMeta[status].color }} border-4 h-100">
@@ -55,8 +49,7 @@
       </div>
     </div>
 
-<!-- Resultados de búsqueda (reemplaza la tabla principal) -->
-    <div *ngIf="searchExecuted" class="search-results-container">
+<div *ngIf="searchExecuted" class="search-results-container">
       <div *ngIf="isSearching" class="text-lg-muted">Buscando contratos...</div>
       <div *ngIf="!isSearching && searchResults.length === 0" class="alert alert-danger border mt-3 d-flex align-items-start gap-3">
   <i class="fas fa-search-minus fa-2x text-danger"></i>
@@ -133,7 +126,6 @@
       
     </div>
 
-    <!-- Tabla principal (solo visible sin búsqueda activa) -->
     <div class="" *ngIf="contracts.length && (!searchExecuted || (searchExecuted && searchResults.length === 0 && isSearching))">
       <div class="card-header bg-dark">
         <h5 class="mb-0">Contratos Registrados</h5>
@@ -194,7 +186,6 @@
     
     
 
-    <!-- Paginación (solo visible sin búsqueda) -->
     <div *ngIf="!searchExecuted || (searchExecuted && isSearching)" class="d-flex justify-content-between align-items-center mt-3">
       <div>
         Mostrando contratos del {{ showingFrom }} al {{ showingTo }} de {{ totalContracts }}
@@ -221,7 +212,6 @@
 </main>
 
 
-<!-- Modal de Detalles -->
 <div class="modal fade" id="contractDetailsModal" tabindex="-1" aria-labelledby="contractDetailsLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
@@ -314,7 +304,6 @@
   </div>
 </div>
 
-<!-- Modal Crear Contrato -->
 <div class="modal fade" id="createContractModal" tabindex="-1" aria-labelledby="createContractLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
@@ -334,43 +323,43 @@
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">Nombre del contrato</label>
-              <input type="text" class="form-control" [(ngModel)]="newContract.name" name="name" required>
+              <label class="form-label" for="createName">Nombre del contrato</label>
+              <input type="text" class="form-control" [(ngModel)]="newContract.name" name="name" required id="createName">
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">Cliente</label>
-              <input type="text" class="form-control" [(ngModel)]="newContract.clientName" name="clientName" required>
+              <label class="form-label" for="createClientName">Cliente</label>
+              <input type="text" class="form-control" [(ngModel)]="newContract.clientName" name="clientName" required id="createClientName">
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">Teléfono</label>
-              <input type="text" class="form-control" [(ngModel)]="newContract.clientPhone" name="clientPhone">
+              <label class="form-label" for="createClientPhone">Teléfono</label>
+              <input type="text" class="form-control" [(ngModel)]="newContract.clientPhone" name="clientPhone" id="createClientPhone">
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">Correo</label>
-              <input type="email" class="form-control" [(ngModel)]="newContract.clientEmail" name="clientEmail" required>
+              <label class="form-label" for="createClientEmail">Correo</label>
+              <input type="email" class="form-control" [(ngModel)]="newContract.clientEmail" name="clientEmail" required id="createClientEmail">
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">Fecha Inicio</label>
-              <input type="date" class="form-control" [(ngModel)]="newContract.startDate" name="startDate" required>
+              <label class="form-label" for="createStartDate">Fecha Inicio</label>
+              <input type="date" class="form-control" [(ngModel)]="newContract.startDate" name="startDate" required id="createStartDate">
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">Fecha Fin</label>
-              <input type="date" class="form-control" [(ngModel)]="newContract.endDate" name="endDate" required>
+              <label class="form-label" for="createEndDate">Fecha Fin</label>
+              <input type="date" class="form-control" [(ngModel)]="newContract.endDate" name="endDate" required id="createEndDate">
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">Presupuesto</label>
-              <input type="number" class="form-control" [(ngModel)]="newContract.budget" name="budget">
+              <label class="form-label" for="createBudget">Presupuesto</label>
+              <input type="number" class="form-control" [(ngModel)]="newContract.budget" name="budget" id="createBudget">
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">Estado</label>
-              <select class="form-select" [(ngModel)]="newContract.status" name="status" [disabled]="!isAdminOrCoordinator()">
+              <label class="form-label" for="createStatus">Estado</label>
+              <select class="form-select" [(ngModel)]="newContract.status" name="status" [disabled]="!isAdminOrCoordinator()" id="createStatus">
                 <option value="borrador">Borrador</option>
                 <option value="activo">Activo</option>
                 <option value="completado">Completado</option>
@@ -379,17 +368,16 @@
             </div>
 
             <div class="col-md-12">
-              <label class="form-label">Términos</label>
-              <textarea class="form-control" rows="2" [(ngModel)]="newContract.terms" name="terms"></textarea>
+              <label class="form-label" for="createTerms">Términos</label>
+              <textarea class="form-control" rows="2" [(ngModel)]="newContract.terms" name="terms" id="createTerms"></textarea>
             </div>
 
-            <!-- Recursos -->
             <div class="col-md-12 border rounded p-3">
               <h6>
-                <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseResources" role="button" aria-expanded="false">
+                <button class="btn btn-link p-0 text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseResources" aria-expanded="false" aria-controls="collapseResources">
                   Recursos <i class="fas fa-chevron-down small"></i>
-                </a>
-              </h6>
+                </button>
+                </h6>
               <div class="collapse" id="collapseResources">
                 <div *ngFor="let r of availableResources" class="mb-2">
                   <div class="form-check">
@@ -402,23 +390,23 @@
                     </label>
                   </div>
                   <div *ngIf="isSelected(r, 'resource')" class="ms-4 mt-1">
-                    <label>Cantidad:</label>
+                    <label for="create-qty-{{r._id}}">Cantidad:</label>
                     <input type="number" class="form-control form-control-sm w-25"
                       [(ngModel)]="r.selectedQuantity"
                       [name]="'qty-' + r._id"
-                      min="1" value="1">
+                      min="1" value="1"
+                      id="create-qty-{{r._id}}">
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Proveedores -->
             <div class="col-md-12 border rounded p-3 mt-2">
               <h6>
-                <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseProviders" role="button" aria-expanded="false">
+                <button class="btn btn-link p-0 text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProviders" aria-expanded="false" aria-controls="collapseProviders">
                   Proveedores <i class="fas fa-chevron-down small"></i>
-                </a>
-              </h6>
+                </button>
+                </h6>
               <div class="collapse" id="collapseProviders">
                 <div *ngFor="let p of activeProviders" class="mb-2">
                   <div class="form-check">
@@ -432,29 +420,30 @@
                   </div>
                   <div *ngIf="isSelected(p, 'provider')" class="ms-4 mt-1 row g-2">
                     <div class="col-md-6">
-                      <label>Servicio:</label>
+                      <label for="create-desc-{{p._id}}">Servicio:</label>
                       <input type="text" class="form-control form-control-sm"
                         [(ngModel)]="p.serviceDescription"
-                        [name]="'desc-' + p._id">
+                        [name]="'desc-' + p._id"
+                        id="create-desc-{{p._id}}">
                     </div>
                     <div class="col-md-6">
-                      <label>Costo:</label>
+                      <label for="create-cost-{{p._id}}">Costo:</label>
                       <input type="number" class="form-control form-control-sm"
                         [(ngModel)]="p.cost"
-                        [name]="'cost-' + p._id" min="0">
+                        [name]="'cost-' + p._id" min="0"
+                        id="create-cost-{{p._id}}">
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Personal -->
             <div class="col-md-12 border rounded p-3 mt-2">
               <h6>
-                <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapsePersonnel" role="button" aria-expanded="false">
+                <button class="btn btn-link p-0 text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePersonnel" aria-expanded="false" aria-controls="collapsePersonnel">
                   Personal <i class="fas fa-chevron-down small"></i>
-                </a>
-              </h6>
+                </button>
+                </h6>
               <div class="collapse" id="collapsePersonnel">
                 <div *ngFor="let person of availablePersonnel" class="mb-2">
                   <div class="form-check">
@@ -468,16 +457,18 @@
                   </div>
                   <div *ngIf="isSelected(person, 'person')" class="ms-4 mt-1 row g-2">
                     <div class="col-md-6">
-                      <label>Rol:</label>
+                      <label for="create-role-{{person._id}}">Rol:</label>
                       <input type="text" class="form-control form-control-sm"
                         [(ngModel)]="person.role"
-                        [name]="'role-' + person._id">
+                        [name]="'role-' + person._id"
+                        id="create-role-{{person._id}}">
                     </div>
                     <div class="col-md-6">
-                      <label>Horas:</label>
+                      <label for="create-hours-{{person._id}}">Horas:</label>
                       <input type="number" class="form-control form-control-sm"
                         [(ngModel)]="person.hours"
-                        [name]="'hours-' + person._id" min="0">
+                        [name]="'hours-' + person._id" min="0"
+                        id="create-hours-{{person._id}}">
                     </div>
                   </div>
                 </div>
@@ -498,7 +489,6 @@
 
 
 
-<!-- Modal Editar Contrato -->
 <div class="modal fade" id="editContractModal" tabindex="-1" aria-labelledby="editContractLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
@@ -516,191 +506,3 @@
                 {{ editErrorMessage }}
               </div>
             </div>
-
-            <!-- Datos Básicos -->
-            <div class="col-md-6">
-              <label class="form-label">Nombre del contrato</label>
-              <input type="text" class="form-control" [(ngModel)]="editContract.name" name="editName" required>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Cliente</label>
-              <input type="text" class="form-control" [(ngModel)]="editContract.clientName" name="editClientName" required>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Teléfono</label>
-              <input type="text" class="form-control" [(ngModel)]="editContract.clientPhone" name="editClientPhone" >
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Correo</label>
-              <input type="email" class="form-control" [(ngModel)]="editContract.clientEmail" name="editClientEmail" required>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Fecha Inicio</label>
-              <input type="date" class="form-control" [(ngModel)]="editContract.startDate" name="StartDate" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Fecha Fin</label>
-              <input type="date" class="form-control" [(ngModel)]="editContract.endDate" name="EndDate" required>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Presupuesto</label>
-              <input type="number" class="form-control" [(ngModel)]="editContract.budget" name="editBudget">
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Estado</label>
-              <select class="form-select" [(ngModel)]="editContract.status" name="editStatus" [disabled]="!isAdminOrCoordinator()">
-                <option value="borrador">Borrador</option>
-                <option value="activo">Activo</option>
-                <option value="completado">Completado</option>
-                <option value="cancelado">Cancelado</option>
-              </select>
-            </div>
-
-            <div class="col-md-12">
-              <label class="form-label">Términos</label>
-              <textarea class="form-control" rows="2" [(ngModel)]="editContract.terms" name="editTerms"></textarea>
-            </div>
-
-            <!-- Recursos -->
-            <div class="col-md-12 border rounded p-3 mt-2"> 
-              <h6>
-                <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseEditResources" role="button" aria-expanded="false">
-                  Recursos <i class="fas fa-chevron-down small"></i>
-                </a>
-              </h6>
-              <div class="collapse" id="collapseEditResources">
-                <div *ngFor="let r of availableResources" class="mb-2">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox"
-                      (change)="toggleResource(r)"
-                      [checked]="isSelected(r, 'resource')"
-                      id="edit-resource-{{r._id}}">
-                    <label class="form-check-label" for="edit-resource-{{r._id}}">
-                      {{ r.name }} ({{ r.quantity }})
-                    </label>
-                  </div>
-                  <div *ngIf="isSelected(r, 'resource')" class="ms-4 mt-1">
-                    <div class="col-md-6">
-                      <label>Cantidad:</label>
-                      <input type="number" class="form-control form-control-sm w-25"
-                        [(ngModel)]="r.selectedQuantity"
-                        [name]="'edit-qty-' + r._id"
-                        min="1" value="1">
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Proveedores -->
-            <div class="col-md-12 border rounded p-3 mt-2">
-              <h6>
-                <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseEditProviders" role="button" aria-expanded="false">
-                  Proveedores <i class="fas fa-chevron-down small"></i>
-                </a>
-              </h6>
-              <div class="collapse" id="collapseEditProviders">
-                <div *ngFor="let p of activeProviders" class="mb-2">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox"
-                      (change)="toggleProvider(p)"
-                      [checked]="isSelected(p, 'provider')"
-                      id="edit-provider-{{p._id}}">
-                    <label class="form-check-label" for="edit-provider-{{p._id}}">
-                      {{ p.name }} ({{ p.contactPerson }})
-                    </label>
-                  </div>
-                  <div *ngIf="isSelected(p, 'provider')" class="ms-4 mt-1 row g-2">
-                    <div class="col-md-6">
-                      <label>Servicio:</label>
-                      <input type="text" class="form-control form-control-sm"
-                        [(ngModel)]="p.serviceDescription"
-                        [name]="'edit-desc-' + p._id">
-                    </div>
-                    <div class="col-md-6">
-                      <label>Costo:</label>
-                      <input type="number" class="form-control form-control-sm"
-                        [(ngModel)]="p.cost"
-                        [name]="'edit-cost-' + p._id" min="0">
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Personal -->
-            <div class="col-md-12 border rounded p-3 mt-2">
-              <h6>
-                <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseEditPersonnel" role="button" aria-expanded="false">
-                  Personal <i class="fas fa-chevron-down small"></i>
-                </a>
-              </h6>
-              <div class="collapse" id="collapseEditPersonnel">
-                <div *ngFor="let person of availablePersonnel" class="mb-2">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox"
-                      (change)="togglePerson(person)"
-                      [checked]="isSelected(person, 'person')"
-                      id="edit-person-{{person._id}}">
-                    <label class="form-check-label" for="edit-person-{{person._id}}">
-                      {{ person.firstName }} {{ person.lastName }} ({{ person.email }})
-                    </label>
-                  </div>
-                  <div *ngIf="isSelected(person, 'person')" class="ms-4 mt-1 row g-2">
-                    <div class="col-md-6">
-                      <label>Rol:</label>
-                      <input type="text" class="form-control form-control-sm"
-                        [(ngModel)]="person.role"
-                        [name]="'edit-role-' + person._id">
-                    </div>
-                    <div class="col-md-6">
-                      <label>Horas:</label>
-                      <input type="number" class="form-control form-control-sm"
-                        [(ngModel)]="person.hours"
-                        [name]="'edit-hours-' + person._id" min="0">
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-
-<!-- Modal de confirmación -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar eliminación</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body">
-        ¿Estás seguro de que deseas eliminar este contrato?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-danger" (click)="confirmDelete()">Eliminar</button>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
-
-<app-footer></app-footer>

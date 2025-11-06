@@ -1,6 +1,5 @@
 <app-sidebar></app-sidebar>
 
-
 <div class="provider-type-container">
   <div class="content" [class.sidebar-collapsed]="!sidebarState.isOpen">
     <app-navbar></app-navbar>
@@ -45,7 +44,9 @@
                     rows="3"></textarea>
         </div>
         <div class="form-group" *ngIf="editingProviderType">
-          <div class="status-toggle">
+          <label>Estado:</label>
+            <div class="status-toggle">
+            <span class="status-label">{{ getStatusText(editingProviderType.isActive) }}</span> <!-- CORREGIDO: Cambiado a getStatusText -->
             <label class="switch">
               <input type="checkbox" 
                      [checked]="editingProviderType.isActive"
@@ -89,7 +90,7 @@
             <td>{{ type.description || '--' }}</td>
             <td>
               <span class="status-badge" [class.active]="type.isActive">
-                {{ type.isActive ? 'Activo' : 'Inactivo' }}
+                {{ getStatusText(type.isActive) }} <!-- CORREGIDO: Cambiado a getStatusText -->
               </span>
             </td>
             <td class="actions">

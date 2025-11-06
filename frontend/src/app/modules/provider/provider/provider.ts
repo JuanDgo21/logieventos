@@ -44,10 +44,10 @@ export class ProviderComponent implements OnInit {
   successMessage = '';
 
   constructor(
-    private http: HttpClient,
-    private authService: AuthService,
-    private router: Router,
-    private alertService: AlertService,
+    private readonly http: HttpClient,
+    private readonly authService: AuthService,
+    private readonly router: Router,
+    private readonly alertService: AlertService,
     public sidebarState: SidebarStateService
   ) {
     this.sidebarState.isOpen = true;
@@ -206,7 +206,7 @@ export class ProviderComponent implements OnInit {
  getProviderTypeName(providerType: any): string {
   if (!providerType) return '---';
 
-  // 🔹 Si es un objeto con nombre (caso viejo que guarda todo el objeto)
+  // 🔹 Si es un objeto con nombre (caso viejo que guarda todos el objeto)
   if (typeof providerType === 'object' && providerType.name) {
     return providerType.name;
   }

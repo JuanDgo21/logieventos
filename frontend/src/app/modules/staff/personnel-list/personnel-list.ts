@@ -32,9 +32,9 @@ export class PersonnelListComponent implements OnInit {
   ];
 
   constructor(
-    private personnelService: PersonnelService,
-    private modalService: NgbModal,
-    private authService: AuthService
+    private readonly personnelService: PersonnelService, // CORREGIDO: Añadido 'readonly'
+    private readonly modalService: NgbModal, // CORREGIDO: Añadido 'readonly'
+    private readonly authService: AuthService // CORREGIDO: Añadido 'readonly'
   ) {}
 
   ngOnInit(): void {

@@ -75,8 +75,8 @@ exports.getEventById = async (req, res) => {
  */
 exports.createEvent = async (req, res) => {
   try {
-    // ... (el resto de la función no necesita cambios)
-    const { name, description, location, eventType, contract, responsable, startDate, endDate, status } = req.body;
+    // CORRECCIÓN APLICADA: Eliminada la variable 'status' de la desestructuración
+    const { name, description, location, eventType, contract, responsable, startDate, endDate } = req.body;
     if (!name || !startDate || !endDate || !eventType) {
       return res.status(400).json({ success: false, message: 'Nombre, fechas y tipo de evento son campos obligatorios' });
     }

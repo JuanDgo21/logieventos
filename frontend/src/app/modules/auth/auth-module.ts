@@ -8,7 +8,6 @@ import { PasswordRecoveryComponent } from './password-recovery/password-recovery
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
-import { ToastrModule } from 'ngx-toastr';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { SharedModule } from "../../shared/shared-module";
 
