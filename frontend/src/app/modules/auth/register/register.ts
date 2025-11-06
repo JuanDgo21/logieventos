@@ -90,7 +90,7 @@ export class RegisterComponent {
 
   onDocumentInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const value = input.value.replace(/\D/g, '');
+    const value = input.value.replaceAll(/\D/g, '');
     this.registerForm.get('document')?.setValue(value, { emitEvent: false });
   }
 

@@ -8,7 +8,6 @@
       Gestión de Proveedores
     </h2>
 
-    <!-- Mensajes -->
     <div *ngIf="successMessage" class="alert alert-success">
       {{ successMessage }}
     </div>
@@ -16,19 +15,19 @@
       {{ errorMessage }}
     </div>
 
-    <!-- Loader -->
     <div *ngIf="isLoading" class="loading-spinner">
       <i class="fas fa-spinner fa-spin"></i> Cargando...
     </div>
 
-    <!-- Formulario -->
     <div class="provider-form">
       <h3>{{ editingProvider ? 'Editar Proveedor' : 'Nuevo Proveedor' }}</h3>
       
       <form (ngSubmit)="editingProvider ? updateProvider() : createProvider()" #providerForm="ngForm">
+        
         <div class="form-group">
-          <label>Nombre:</label>
+          <label for="providerName">Nombre:</label>
           <input type="text" 
+                 id="providerName"
                  [(ngModel)]="(editingProvider || newProvider).name"
                  name="name" 
                  required
@@ -36,54 +35,58 @@
         </div>
 
         <div class="form-group">
-          <label>Persona de Contacto:</label>
+          <label for="providerContact">Persona de Contacto:</label>
           <input type="text" 
+                 id="providerContact"
                  [(ngModel)]="(editingProvider || newProvider).contactPerson"
                  name="contactPerson"
                  [disabled]="isLoading">
         </div>
 
         <div class="form-group">
-          <label>Email:</label>
+          <label for="providerEmail">Email:</label>
           <input type="email" 
+                 id="providerEmail"
                  [(ngModel)]="(editingProvider || newProvider).email"
                  name="email"
                  [disabled]="isLoading">
         </div>
 
         <div class="form-group">
-          <label>Teléfono:</label>
+          <label for="providerPhone">Teléfono:</label>
           <input type="text" 
+                 id="providerPhone"
                  [(ngModel)]="(editingProvider || newProvider).phone"
                  name="phone"
                  [disabled]="isLoading">
         </div>
 
         <div class="form-group">
-          <label>Dirección:</label>
+          <label for="providerAddress">Dirección:</label>
           <input type="text" 
+                 id="providerAddress"
                  [(ngModel)]="(editingProvider || newProvider).address"
                  name="address"
                  [disabled]="isLoading">
         </div>
 
-        <!-- 🔥 Aquí cambiamos el input por un select -->
         <div class="form-group">
-          <label>Tipo de Proveedor:</label>
+          <label for="providerType">Tipo de Proveedor:</label>
           <select [(ngModel)]="(editingProvider || newProvider).providerType"
-        name="providerType"
-        required
-        [disabled]="isLoading">
-  <option *ngFor="let type of providerTypes" [ngValue]="type._id">
-    {{ type.name }}
-  </option>
-</select>
-
+                  id="providerType"
+                  name="providerType"
+                  required
+                  [disabled]="isLoading">
+            <option *ngFor="let type of providerTypes" [ngValue]="type._id">
+              {{ type.name }}
+            </option>
+          </select>
         </div>
 
         <div class="form-group">
-          <label>Estado:</label>
+          <label for="providerStatus">Estado:</label>
           <select [(ngModel)]="(editingProvider || newProvider).status"
+                  id="providerStatus"
                   name="status"
                   [disabled]="isLoading">
             <option value="activo">Activo</option>
@@ -104,7 +107,6 @@
       </form>
     </div>
 
-    <!-- Tabla -->
     <div class="provider-table">
       <table>
         <thead>
@@ -124,7 +126,6 @@
             <td>{{ provider.contactPerson || '--' }}</td>
             <td>{{ provider.email || '--' }}</td>
             <td>{{ provider.phone || '--' }}</td>
-            <!-- 🔥 Aquí mostramos el nombre en vez del ID -->
             <td>{{ getProviderTypeName(provider.providerType) }}</td>
 
             <td>
