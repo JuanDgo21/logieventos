@@ -279,97 +279,30 @@
 /* ==========================================
    MODALES
 ============================================= */
+// CORRECCIÓN: Unificado el selector '.modal-content'
 .modal-content {
   @include glass-effect;
   border: none;
   border-radius: 12px;
   overflow: hidden;
+  background: rgba($dark-color, 0.9); // Fondo más opaco para mejor contraste
+  backdrop-filter: blur(10px);
 
+  // CORRECCIÓN: Unificado el selector '.modal-header'
   .modal-header {
     border-bottom: 1px solid rgba($light-color, 0.1);
     background: rgba($primary-color, 0.1);
-  }
-
-  .modal-body {
-    max-height: 60vh;
-    overflow-y: auto;
-  }
-
-  .form-label {
-    color: $light-color;
-    margin-bottom: 0.5rem;
-  }
-
-  .form-control, .form-select {
-    @include glass-effect;
-    border: 1px solid rgba($light-color, 0.1);
-    color: $light-color;
-
-    &:focus {
-      border-color: $primary-color;
-      box-shadow: 0 0 0 2px rgba($primary-color, 0.3);
-    }
-  }
-}
-
-/* ==========================================
-   BADGES PARA ESTADOS
-============================================= */
-.badge {
-  padding: 0.35em 0.65em;
-  font-weight: 500;
-  border-radius: 50px;
-
-  &.bg-borrador { background-color: map-get($status-colors, 'borrador'); }
-  &.bg-activo { background-color: map-get($status-colors, 'activo'); }
-  &.bg-completado { background-color: map-get($status-colors, 'completado'); }
-  &.bg-cancelado { background-color: map-get($status-colors, 'cancelado'); }
-}
-
-/* ==========================================
-   RESPONSIVIDAD
-============================================= */
-@media (max-width: 768px) {
-  .main-content {
-    padding: 1rem;
-  }
-
-  .search-container-left.active .search-box {
-    width: 180px;
-  }
-
-  .table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ==========================================
-   FORMULARIOS DE CONTRATO
-============================================= */
-.modal-content {
-  background: rgba($dark-color, 0.9); // Fondo más opaco para mejor contraste
-  backdrop-filter: blur(10px);
-  
-  .modal-header {
+    
     h5 {
       color: $light-color;
       font-weight: 600;
     }
   }
-  
+
+  // CORRECCIÓN: Unificado el selector '.modal-body'
   .modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
     color: rgba($light-color, 0.9); // Texto más claro
     
     label, .form-label {
@@ -431,7 +364,23 @@
       color: rgba($light-color, 0.7) !important;
     }
   }
-  
+
+  .form-label {
+    color: $light-color;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-control, .form-select {
+    @include glass-effect;
+    border: 1px solid rgba($light-color, 0.1);
+    color: $light-color;
+
+    &:focus {
+      border-color: $primary-color;
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.3);
+    }
+  }
+
   // Botones del footer
   .modal-footer {
     border-top: 1px solid rgba($light-color, 0.1);
@@ -455,6 +404,54 @@
     }
   }
 }
+
+/* ==========================================
+   BADGES PARA ESTADOS
+============================================= */
+.badge {
+  padding: 0.35em 0.65em;
+  font-weight: 500;
+  border-radius: 50px;
+
+  &.bg-borrador { background-color: map-get($status-colors, 'borrador'); }
+  &.bg-activo { background-color: map-get($status-colors, 'activo'); }
+  &.bg-completado { background-color: map-get($status-colors, 'completado'); }
+  &.bg-cancelado { background-color: map-get($status-colors, 'cancelado'); }
+}
+
+/* ==========================================
+   RESPONSIVIDAD
+============================================= */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
+
+  .search-container-left.active .search-box {
+    width: 180px;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================
+   FORMULARIOS DE CONTRATO
+============================================= */
+// (Las reglas duplicadas se movieron arriba, al bloque .modal-content)
 
 /* ==========================================
    MEJORAS ESPECÍFICAS PARA CHECKBOXES
