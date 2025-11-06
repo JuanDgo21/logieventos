@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native'; // <-- 'Alert' ya no es necesario
 import { useAuth } from '../contexts/AuthContext';
 import AppHeader from '../components/AppHeader';
 
@@ -10,10 +10,8 @@ const PersonnelScreen = () => {
   // Determinamos si el usuario puede crear otros usuarios (para el botón en el header)
   const canCreateUser = user?.role === 'admin';
 
-  // Placeholder para la funcionalidad de crear usuario
-  const handleCreateUser = () => {
-    Alert.alert("Funcionalidad pendiente", "Navegar a la pantalla de 'Crear Usuario'");
-  };
+  // CORRECCIÓN: (S1854) Eliminada la función 'handleCreateUser'
+  // ya que no se usa en este componente y 'AppHeader' no la espera.
 
   return (
     <ScrollView style={styles.container}>
@@ -21,6 +19,7 @@ const PersonnelScreen = () => {
       <AppHeader
         onLogout={logout}
         canCreateUser={canCreateUser}
+        // CORRECCIÓN: (ts(2322)) Eliminada la prop 'onCreateUser'
       />
       
       {/* Contenido principal de la pantalla */}

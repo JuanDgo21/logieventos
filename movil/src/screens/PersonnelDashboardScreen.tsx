@@ -6,7 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
-  Alert,
+  // CORRECCIÓN: (S1128) Eliminada la importación 'Alert' no usada
 } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -24,7 +24,7 @@ const PersonnelDashboardScreen: React.FC = () => {
     personnelList,
     personnelTypes,
     loading,
-    error,
+    // CORRECCIÓN: (S1854) Eliminada la variable 'error' no usada
     refreshData,
   } = usePersonnelService();
 
@@ -53,7 +53,7 @@ const PersonnelDashboardScreen: React.FC = () => {
   }, [personnelList, personnelTypes]);
 
   const calculateStats = () => {
-    const now = new Date();
+    // CORRECCIÓN: (S1854) Eliminada la variable 'now' no usada
     const lastMonth = new Date();
     lastMonth.setMonth(lastMonth.getMonth() - 1);
 
@@ -90,21 +90,23 @@ const PersonnelDashboardScreen: React.FC = () => {
     const total = personnelList.length;
 
     // Contar personal por tipo
-    personnelList.forEach(person => {
+    // CORRECCIÓN: (S7728) Convertido a bucle for...of
+    for (const person of personnelList) {
       const typeId = person.personnelType;
       typeCounts[typeId] = (typeCounts[typeId] || 0) + 1;
-    });
+    }
 
     const labels: string[] = [];
     const data: number[] = [];
 
     // Solo mostrar tipos que tienen personal asignado
-    personnelTypes.forEach(type => {
+    // CORRECCIÓN: (S7728) Convertido a bucle for...of
+    for (const type of personnelTypes) {
       if (typeCounts[type._id] > 0) {
         labels.push(type.name);
         data.push(typeCounts[type._id]);
       }
-    });
+    }
 
     setDepartmentDistribution({
       labels,
@@ -146,7 +148,8 @@ const PersonnelDashboardScreen: React.FC = () => {
   ];
 
   // Normalizar roles para decidir visibilidad de acciones
-  const normalize = (s?: string) => (s || '').toString().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+  // CORRECCIÓN: (S7781) Cambiado .replace() por .replaceAll()
+  const normalize = (s?: string) => (s || '').toString().toLowerCase().normalize('NFD').replaceAll(/\p{Diacritic}/gu, '');
   const isAdmin = !!user && (normalize(user.role) === 'admin' || (Array.isArray(user.roles) && user.roles.some((r: string) => normalize(r) === 'admin')));
   const visibleQuickActions = quickActions.filter(q => q.title !== 'Gestionar Categorías' || isAdmin);
 
@@ -283,9 +286,9 @@ const PersonnelDashboardScreen: React.FC = () => {
           </Text>
         </View>
         <View style={styles.quickActions}>
-          {visibleQuickActions.map((action, index) => (
+          {visibleQuickActions.map((action) => ( // CORRECCIÓN: (S6479) Eliminado 'index'
             <TouchableOpacity
-              key={index}
+              key={action.title} // CORRECCIÓN: (S6479) Usada 'action.title' como key
               style={[styles.quickAction, { backgroundColor: action.color }]}
               onPress={() => action.action()}
             >
@@ -308,7 +311,7 @@ const PersonnelDashboardScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
         <View style={styles.activityList}>
-          {personnelList.slice(0, 5).map((person, index) => (
+          {personnelList.slice(0, 5).map((person) => ( // CORRECCIÓN: (S6479) Eliminado 'index'
             <View key={person._id} style={styles.activityItem}>
               <View style={[styles.activityIcon, { backgroundColor: getGradient(person.status) }]}>
                 <FontAwesome5 name="user" size={16} color="#fff" />
@@ -345,12 +348,12 @@ const PersonnelDashboardScreen: React.FC = () => {
           </View>
           <View style={styles.departmentList}>
             {departmentDistribution.labels.map((dept, index) => (
-              <View key={index} style={styles.departmentItem}>
+              <View key={dept} style={styles.departmentItem}> {/* CORRECCIÓN: (S6479) Usado 'dept' (nombre) como key */}
                 <View style={styles.departmentInfo}>
                   <View 
                     style={[
                       styles.departmentColor,
-                      { backgroundColor: getGradient(`dept-${index}`) }
+                      { backgroundColor: getGradient(`dept-${index}`) } // (Este índice está bien, es para el color)
                     ]} 
                   />
                   <Text style={styles.departmentName}>{dept}</Text>

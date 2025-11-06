@@ -4,12 +4,15 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Alert, TextInput, Keyboard, Modal, ScrollView, SafeAreaView } from 'react-native';
+// CORRECCIÓN: Eliminados Keyboard, ScrollView, y SafeAreaView
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Alert, TextInput, Modal } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import api from '../services/api';
 import { FontAwesome5 } from '@expo/vector-icons';
 import AppHeader from '../components/AppHeader';
+// CORRECCIÓN: Importado SafeAreaView desde el paquete correcto
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // --- Tipos de Datos ---
 type EventType = { _id: string, name: string };
@@ -108,7 +111,7 @@ const EventsHeader = React.memo(({
 
   return (
     <View>
-      <AppHeader onLogout={onLogout} onCreateUser={onCreateUser} canCreateUser={canCreateUser} />
+      <AppHeader onLogout={onLogout} canCreateUser={canCreateUser} />
       <View style={styles.mainContent}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Eventos</Text>
@@ -171,7 +174,7 @@ const PAGE_SIZE = 5;
 
 const EventsScreen = () => {
   const { user, logout, token } = useAuth();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<any>>();
 
   // Estados
   const [allEvents, setAllEvents] = useState<Event[]>([]);
@@ -182,7 +185,7 @@ const EventsScreen = () => {
   
   // Estados de filtros y modales
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
+  // CORRECCIÓN: (TS2349) Eliminada la variable 'totalPages' y 'setTotalPages' (Línea 185)
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<EventStatus | null>(null);
   const [eventTypeFilter, setEventTypeFilter] = useState<string | null>(null);
@@ -237,10 +240,9 @@ const EventsScreen = () => {
     if (statusFilter) { filteredData = filteredData.filter(e => e.status === statusFilter); }
     if (eventTypeFilter) { filteredData = filteredData.filter(e => e.eventType?._id === eventTypeFilter); }
     if (searchQuery) { filteredData = filteredData.filter(e => e.name.toLowerCase().includes(searchQuery.toLowerCase())); }
-    const totalPagesCalculated = Math.ceil(filteredData.length / PAGE_SIZE);
     const paginated = filteredData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
     setPaginatedEvents(paginated);
-    setTotalPages(totalPagesCalculated);
+    // CORRECCIÓN: (TS2349) Eliminada la llamada a 'setTotalPages' (Línea 248)
   };
   
   const handleStatusFilterChange = (status: EventStatus) => { setStatusFilter(prev => (prev === status ? null : status)); };
@@ -305,7 +307,7 @@ const EventsScreen = () => {
                         <View style={styles.eventDetailRow}><FontAwesome5 name="file-contract" size={14} color="#9370DB" /><Text style={styles.eventDetailText}>Contrato: {item.contract?.name || 'No asignado'}</Text></View>
                     </View>
                     <View style={styles.eventCardFooter}>
-                        {canEdit && (<TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('EventForm' as never, { eventId: item._id })}><FontAwesome5 name="edit" size={16} color="#FFA726" /></TouchableOpacity>)}
+                        {canEdit && (<TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('EventForm', { eventId: item._id })}><FontAwesome5 name="edit" size={16} color="#FFA726" /></TouchableOpacity>)}
                         {isAdmin && (<TouchableOpacity style={styles.actionButton} onPress={() => openDeleteConfirmation(item._id)}><FontAwesome5 name="trash-alt" size={16} color="#dc3545" /></TouchableOpacity>)}
                     </View>
                 </View>

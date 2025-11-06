@@ -61,6 +61,11 @@ type SelectedProvider = { provider: string; serviceDescription: string; cost: nu
 /** @typedef {object} SelectedPersonnel - Define la estructura de personal seleccionado para el contrato. */
 type SelectedPersonnel = { person: string; role: string; hours: number };
 
+// --- Tipos para los datos anidados que vienen del 'populate' de la API ---
+type PopulatedResource = { resource: { _id: string }; quantity: number };
+type PopulatedProvider = { provider: { _id: string }; serviceDescription: string; cost: number };
+type PopulatedPersonnel = { person: { _id: string }; role: string; hours: number };
+
 /**
  * @component ContractFormScreen
  * @description Componente principal de la pantalla del formulario de contratos.
@@ -98,7 +103,7 @@ const ContractFormScreen = ({ navigation }: any) => {
   // --- ESTADOS DE DATOS ---
   const [availableResources, setAvailableResources] = useState<Resource[]>([]);     // Lista de todos los recursos disponibles.
   const [availableProviders, setAvailableProviders] = useState<Provider[]>([]);     // Lista de todos los proveedores disponibles.
-  const [availablePersonnel, setAvailablePersonnel] = useState<Personnel[]>([]);     // Lista de todo el personal disponible.
+  const [availablePersonnel, setAvailablePersonnel] = useState<Personnel[]>([]);     // Lista de  el personal disponible.
   const [selectedResources, setSelectedResources] = useState<SelectedResource[]>([]); // Recursos seleccionados para este contrato.
   const [selectedProviders, setSelectedProviders] = useState<SelectedProvider[]>([]); // Proveedores seleccionados para este contrato.
   const [selectedPersonnel, setSelectedPersonnel] = useState<SelectedPersonnel[]>([]); // Personal seleccionado para este contrato.
@@ -143,9 +148,9 @@ const ContractFormScreen = ({ navigation }: any) => {
           setEndDate(new Date(contract.endDate));
           
           // Mapea los datos anidados para que coincidan con la estructura esperada por el estado.
-          setSelectedResources(contract.resources.map((r: any) => ({ resource: r.resource._id, quantity: r.quantity })));
-          setSelectedProviders(contract.providers.map((p: any) => ({ provider: p.provider._id, serviceDescription: p.serviceDescription, cost: p.cost })));
-          setSelectedPersonnel(contract.personnel.map((p: any) => ({ person: p.person._id, role: p.role, hours: p.hours })));
+          setSelectedResources(contract.resources.map((r: PopulatedResource) => ({ resource: r.resource._id, quantity: r.quantity })));
+          setSelectedProviders(contract.providers.map((p: PopulatedProvider) => ({ provider: p.provider._id, serviceDescription: p.serviceDescription, cost: p.cost })));
+          setSelectedPersonnel(contract.personnel.map((p: PopulatedPersonnel) => ({ person: p.person._id, role: p.role, hours: p.hours })));
         }
       } catch (error) {
         console.error("Error al cargar datos:", error);
@@ -173,7 +178,7 @@ const ContractFormScreen = ({ navigation }: any) => {
     // Construye el objeto de datos del contrato a enviar.
     const contractData = {
         name, clientName, clientPhone, clientEmail, startDate, endDate,
-        budget: parseFloat(budget) || 0,
+        budget: Number.parseFloat(budget) || 0,
         terms, status, resources: selectedResources, providers: selectedProviders, personnel: selectedPersonnel,
     };
     try {
@@ -191,6 +196,7 @@ const ContractFormScreen = ({ navigation }: any) => {
       console.error("Error al guardar contrato:", error.response?.data || error);
       // Muestra errores de validación específicos del backend si están disponibles.
       if (error.response?.data?.errors) {
+        // CORRECCIÓN AQUÍ (Línea 199)
         const errorMessages = Object.values(error.response.data.errors).map((err: any) => err.message).join('\n');
         Alert.alert("Error de Validación", errorMessages);
       } else {
@@ -218,15 +224,27 @@ const ContractFormScreen = ({ navigation }: any) => {
   const toggleSelection = (id: string, type: 'resource' | 'provider' | 'personnel') => {
     // Lógica para añadir/quitar de la lista de recursos seleccionados.
     if (type === 'resource') {
-      setSelectedResources(prev => prev.some(item => item.resource === id) ? prev.filter(item => item.resource !== id) : [...prev, { resource: id, quantity: 1 }]);
+      setSelectedResources((prev: SelectedResource[]) =>
+        prev.some((item: SelectedResource) => item.resource === id)
+          ? prev.filter((item: SelectedResource) => item.resource !== id)
+          : [...prev, { resource: id, quantity: 1 }]
+      );
     } 
     // Lógica para añadir/quitar de la lista de proveedores seleccionados.
     else if (type === 'provider') {
-      setSelectedProviders(prev => prev.some(item => item.provider === id) ? prev.filter(item => item.provider !== id) : [...prev, { provider: id, serviceDescription: '', cost: 0 }]);
+      setSelectedProviders((prev: SelectedProvider[]) =>
+        prev.some((item: SelectedProvider) => item.provider === id)
+          ? prev.filter((item: SelectedProvider) => item.provider !== id)
+          : [...prev, { provider: id, serviceDescription: '', cost: 0 }]
+      );
     } 
     // Lógica para añadir/quitar de la lista de personal seleccionado.
     else if (type === 'personnel') {
-      setSelectedPersonnel(prev => prev.some(item => item.person === id) ? prev.filter(item => item.person !== id) : [...prev, { person: id, role: '', hours: 0 }]);
+      setSelectedPersonnel((prev: SelectedPersonnel[]) =>
+        prev.some((item: SelectedPersonnel) => item.person === id)
+          ? prev.filter((item: SelectedPersonnel) => item.person !== id)
+          : [...prev, { person: id, role: '', hours: 0 }]
+      );
     }
   };
 
@@ -235,19 +253,34 @@ const ContractFormScreen = ({ navigation }: any) => {
    * @function handleResourceChange
    * @description Actualiza la cantidad de un recurso seleccionado.
    */
-  const handleResourceChange = (resourceId: string, value: string) => setSelectedResources(prev => prev.map(res => res.resource === resourceId ? { ...res, quantity: parseInt(value, 10) || 0 } : res));
+  const handleResourceChange = (resourceId: string, value: string) => 
+    setSelectedResources(prev => 
+      prev.map((res: SelectedResource) => 
+        res.resource === resourceId ? { ...res, quantity: Number.parseInt(value, 10) || 0 } : res
+      )
+    );
   
   /**
    * @function handleProviderChange
    * @description Actualiza un campo (descripción o costo) de un proveedor seleccionado.
    */
-  const handleProviderChange = (providerId: string, field: 'serviceDescription' | 'cost', value: string | number) => setSelectedProviders(prev => prev.map(prov => prov.provider === providerId ? { ...prov, [field]: value } : prov));
+  const handleProviderChange = (providerId: string, field: 'serviceDescription' | 'cost', value: string | number) => 
+    setSelectedProviders(prev => 
+      prev.map((prov: SelectedProvider) => 
+        prov.provider === providerId ? { ...prov, [field]: value } : prov
+      )
+    );
   
   /**
    * @function handlePersonnelChange
    * @description Actualiza un campo (rol u horas) de una persona seleccionada.
    */
-  const handlePersonnelChange = (personId: string, field: 'role' | 'hours', value: string | number) => setSelectedPersonnel(prev => prev.map(pers => pers.person === personId ? { ...pers, [field]: value } : pers));
+  const handlePersonnelChange = (personId: string, field: 'role' | 'hours', value: string | number) => 
+    setSelectedPersonnel(prev => 
+      prev.map((pers: SelectedPersonnel) => 
+        pers.person === personId ? { ...pers, [field]: value } : pers
+      )
+    );
   
   /**
    * @function handleDateChange
@@ -292,7 +325,7 @@ const ContractFormScreen = ({ navigation }: any) => {
         <Text style={styles.label}>Presupuesto</Text><TextInput style={styles.input} placeholder="0" placeholderTextColor="#999" value={budget} onChangeText={setBudget} keyboardType="numeric" />
         <Text style={styles.label}>Términos</Text><TextInput style={[styles.input, styles.textArea]} placeholder="Términos y condiciones del contrato" placeholderTextColor="#999" value={terms} onChangeText={setTerms} multiline />
         <View style={styles.datePickerRow}><View style={styles.datePickerContainer}><Text style={styles.label}>Fecha Inicio</Text><TouchableOpacity onPress={() => setShowStartDatePicker(true)} style={styles.dateInput}><Text style={styles.dateText}>{startDate.toLocaleDateString()}</Text><FontAwesome5 name="calendar-alt" size={20} color="#999" /></TouchableOpacity>{showStartDatePicker && (<DateTimePicker value={startDate} mode="date" display="default" onChange={(e,d) => handleDateChange(e,d,'start')} />)}</View><View style={styles.datePickerContainer}><Text style={styles.label}>Fecha Fin</Text><TouchableOpacity onPress={() => setShowEndDatePicker(true)} style={styles.dateInput}><Text style={styles.dateText}>{endDate.toLocaleDateString()}</Text><FontAwesome5 name="calendar-alt" size={20} color="#999" /></TouchableOpacity>{showEndDatePicker && (<DateTimePicker value={endDate} mode="date" display="default" onChange={(e,d) => handleDateChange(e,d,'end')} />)}</View></View>
-        {canEditStatus && (<View><Text style={styles.label}>Estado del contrato</Text><View style={styles.statusPicker}>{['borrador', 'activo', 'completado', 'cancelado'].map(s => (<TouchableOpacity key={s} style={[styles.statusOption, status === s && styles.statusOptionActive]} onPress={() => setStatus(s)}><Text style={[styles.statusText, status === s && styles.statusTextActive]}>{s.charAt(0).toUpperCase() + s.slice(1)}</Text></TouchableOpacity>))}</View></View>)}
+        {canEditStatus && (<View><Text style={styles.label}>Estado del contrato</Text><View style={styles.statusPicker}>{['borrador', 'activo', 'completado', 'cancelado'].map((s: string) => (<TouchableOpacity key={s} style={[styles.statusOption, status === s && styles.statusOptionActive]} onPress={() => setStatus(s)}><Text style={[styles.statusText, status === s && styles.statusTextActive]}>{s.charAt(0).toUpperCase() + s.slice(1)}</Text></TouchableOpacity>))}</View></View>)}
       </View>
       
       {/* Sección Plegable de Recursos */}
@@ -303,9 +336,9 @@ const ContractFormScreen = ({ navigation }: any) => {
         </TouchableOpacity>
         {!collapsedSections.resources && (
           <View style={styles.listContent}>
-            {availableResources.map(res => {
+            {availableResources.map((res: Resource) => {
               const isSelected = selectedResources.some(item => item.resource === res._id);
-              return ( <View key={res._id} style={styles.listItemContainer}><TouchableOpacity style={styles.listItem} onPress={() => toggleSelection(res._id, 'resource')}><FontAwesome5 name={isSelected ? 'check-square' : 'square'} size={20} color="#9370DB" /><View style={styles.listItemContent}><Text style={styles.listItemText}>{res.name}</Text><Text style={styles.listItemDescription}>{res.description}</Text></View></TouchableOpacity>{isSelected && (<View style={styles.detailsInputContainer}><Text style={styles.detailsLabel}>Cantidad:</Text><TextInput style={styles.detailsInput} keyboardType="numeric" placeholder="1" placeholderTextColor="#999" value={selectedResources.find(r => r.resource === res._id)?.quantity.toString() || '1'} onChangeText={(text) => handleResourceChange(res._id, text)} /></View>)}</View> );
+              return ( <View key={res._id} style={styles.listItemContainer}><TouchableOpacity style={styles.listItem} onPress={() => toggleSelection(res._id, 'resource')}><FontAwesome5 name={isSelected ? 'check-square' : 'square'} size={20} color="#9370DB" /><View style={styles.listItemContent}><Text style={styles.listItemText}>{res.name}</Text><Text style={styles.listItemDescription}>{res.description}</Text></View></TouchableOpacity>{isSelected && (<View style={styles.detailsInputContainer}><Text style={styles.detailsLabel}>Cantidad:</Text><TextInput style={styles.detailsInput} keyboardType="numeric" placeholder="1" placeholderTextColor="#999" value={selectedResources.find((r: SelectedResource) => r.resource === res._id)?.quantity.toString() || '1'} onChangeText={(text) => handleResourceChange(res._id, text)} /></View>)}</View> );
             })}
           </View>
         )}
@@ -319,10 +352,14 @@ const ContractFormScreen = ({ navigation }: any) => {
         </TouchableOpacity>
         {!collapsedSections.providers && (
            <View style={styles.listContent}>
-            {availableProviders.map(prov => {
+            {availableProviders.map((prov: Provider) => {
               const isSelected = selectedProviders.some(item => item.provider === prov._id);
-              const currentProvider = selectedProviders.find(p => p.provider === prov._id);
-              return ( <View key={prov._id} style={styles.listItemContainer}><TouchableOpacity style={styles.listItem} onPress={() => toggleSelection(prov._id, 'provider')}><FontAwesome5 name={isSelected ? 'check-square' : 'square'} size={20} color="#9370DB" /><View style={styles.listItemContent}><Text style={styles.listItemText}>{prov.name}</Text><Text style={styles.listItemDescription}>{prov.contactPerson}</Text></View></TouchableOpacity>{isSelected && (<View style={styles.detailsInputContainer_Grid}><TextInput style={[styles.detailsInput, {flex: 2, marginRight: 10}]} placeholder="Descripción del Servicio" placeholderTextColor="#999" value={currentProvider?.serviceDescription} onChangeText={(text) => handleProviderChange(prov._id, 'serviceDescription', text)} /><TextInput style={[styles.detailsInput, {flex: 1}]} placeholder="Costo" placeholderTextColor="#999" value={currentProvider?.cost > 0 ? currentProvider.cost.toString() : ''} onChangeText={(text) => handleProviderChange(prov._id, 'cost', parseInt(text) || 0)} keyboardType="numeric" /></View>)}</View> );
+              const currentProvider = selectedProviders.find((p: SelectedProvider) => p.provider === prov._id);
+              return ( <View key={prov._id} style={styles.listItemContainer}><TouchableOpacity style={styles.listItem} onPress={() => toggleSelection(prov._id, 'provider')}><FontAwesome5 name={isSelected ? 'check-square' : 'square'} size={20} color="#9370DB" /><View style={styles.listItemContent}><Text style={styles.listItemText}>{prov.name}</Text><Text style={styles.listItemDescription}>{prov.contactPerson}</Text></View></TouchableOpacity>{isSelected && (<View style={styles.detailsInputContainer_Grid}><TextInput style={[styles.detailsInput, {flex: 2, marginRight: 10}]} placeholder="Descripción del Servicio" placeholderTextColor="#999" value={currentProvider?.serviceDescription} onChangeText={(text) => handleProviderChange(prov._id, 'serviceDescription', text)} /><TextInput style={[styles.detailsInput, {flex: 1}]} placeholder="Costo" placeholderTextColor="#999" 
+              
+              value={currentProvider?.cost ? currentProvider.cost.toString() : ''} 
+              
+              onChangeText={(text) => handleProviderChange(prov._id, 'cost', Number.parseInt(text) || 0)} keyboardType="numeric" /></View>)}</View> );
             })}
           </View>
         )}
@@ -336,10 +373,14 @@ const ContractFormScreen = ({ navigation }: any) => {
         </TouchableOpacity>
         {!collapsedSections.personnel && (
            <View style={styles.listContent}>
-            {availablePersonnel.map(pers => {
+            {availablePersonnel.map((pers: Personnel) => {
               const isSelected = selectedPersonnel.some(item => item.person === pers._id);
-              const currentPersonnel = selectedPersonnel.find(p => p.person === pers._id);
-              return ( <View key={pers._id} style={styles.listItemContainer}><TouchableOpacity style={styles.listItem} onPress={() => toggleSelection(pers._id, 'personnel')}><FontAwesome5 name={isSelected ? 'check-square' : 'square'} size={20} color="#9370DB" /><View style={styles.listItemContent}><Text style={styles.listItemText}>{pers.firstName} {pers.lastName}</Text><Text style={styles.listItemDescription}>{pers.email}</Text></View></TouchableOpacity>{isSelected && (<View style={styles.detailsInputContainer_Grid}><TextInput style={[styles.detailsInput, {flex: 2, marginRight: 10}]} placeholder="Rol" placeholderTextColor="#999" value={currentPersonnel?.role} onChangeText={(text) => handlePersonnelChange(pers._id, 'role', text)} /><TextInput style={[styles.detailsInput, {flex: 1}]} placeholder="Horas" placeholderTextColor="#999" value={currentPersonnel?.hours > 0 ? currentPersonnel.hours.toString() : ''} onChangeText={(text) => handlePersonnelChange(pers._id, 'hours', parseInt(text) || 0)} keyboardType="numeric" /></View>)}</View> );
+              const currentPersonnel = selectedPersonnel.find((p: SelectedPersonnel) => p.person === pers._id);
+              return ( <View key={pers._id} style={styles.listItemContainer}><TouchableOpacity style={styles.listItem} onPress={() => toggleSelection(pers._id, 'personnel')}><FontAwesome5 name={isSelected ? 'check-square' : 'square'} size={20} color="#9370DB" /><View style={styles.listItemContent}><Text style={styles.listItemText}>{pers.firstName} {pers.lastName}</Text><Text style={styles.listItemDescription}>{pers.email}</Text></View></TouchableOpacity>{isSelected && (<View style={styles.detailsInputContainer_Grid}><TextInput style={[styles.detailsInput, {flex: 2, marginRight: 10}]} placeholder="Rol" placeholderTextColor="#999" value={currentPersonnel?.role} onChangeText={(text) => handlePersonnelChange(pers._id, 'role', text)} /><TextInput style={[styles.detailsInput, {flex: 1}]} placeholder="Horas" placeholderTextColor="#999" 
+              
+              value={currentPersonnel?.hours ? currentPersonnel.hours.toString() : ''} 
+              
+              onChangeText={(text) => handlePersonnelChange(pers._id, 'hours', Number.parseInt(text) || 0)} keyboardType="numeric" /></View>)}</View> );
             })}
           </View>
         )}

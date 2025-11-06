@@ -22,7 +22,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Modal,
-  SafeAreaView,
+  // CORRECCIÓN: (S1874/S1128) 'SafeAreaView' eliminado de 'react-native'
 } from "react-native";
 import api from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
@@ -30,6 +30,8 @@ import { StackScreenProps } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+// CORRECCIÓN: (S1874) Importado 'SafeAreaView' desde el paquete correcto
+import { SafeAreaView } from "react-native-safe-area-context";
 
 /**
  * @typedef {StackScreenProps<RootStackParamList, "Login">} LoginScreenProps
@@ -41,6 +43,12 @@ type LoginScreenProps = StackScreenProps<RootStackParamList, "Login">;
 // ---           MODAL DE RECUPERACIÓN (VERSIÓN FINAL)                ---
 // ========================================================================
 
+// CORRECCIÓN: (ts:7031) Creada interfaz para las props del modal
+interface ForgotPasswordModalProps {
+  isVisible: boolean;
+  onClose: () => void;
+}
+
 /**
  * @component ForgotPasswordModal
  * @description Un modal autocontenido que maneja el flujo completo de recuperación de contraseña en varios pasos.
@@ -48,7 +56,8 @@ type LoginScreenProps = StackScreenProps<RootStackParamList, "Login">;
  * @param {boolean} props.isVisible - Controla si el modal está visible.
  * @param {() => void} props.onClose - Función para cerrar el modal.
  */
-const ForgotPasswordModal = ({ isVisible, onClose }) => {
+// CORRECCIÓN: (ts:7031) Aplicada la interfaz de props
+const ForgotPasswordModal = ({ isVisible, onClose }: ForgotPasswordModalProps) => {
   // --- ESTADOS DEL MODAL ---
   /** @description Controla el paso actual del flujo (1: Pedir email, 2: Resetear, 3: Éxito). */
   const [step, setStep] = useState(1);
@@ -104,13 +113,14 @@ const ForgotPasswordModal = ({ isVisible, onClose }) => {
     setError('');
     try {
       const response = await api.post('/auth/forgot-password', { email });
-      if (response.data && response.data.token) {
+      // CORRECCIÓN: (S6582) Usado encadenamiento opcional
+      if (response.data?.token) {
         setResetToken(response.data.token);
         setStep(2);
       } else {
         Alert.alert("Verifica tu Correo", response.data.message || "Si tu correo está registrado, hemos iniciado el proceso.");
       }
-    } catch (err) {
+    } catch (err: any) { // CORRECCIÓN: (ts:18046) Añadido ': any' a 'err'
       setError(err.response?.data?.message || "Error de conexión.");
     } finally {
       setLoading(false);
@@ -140,7 +150,7 @@ const ForgotPasswordModal = ({ isVisible, onClose }) => {
     try {
       await api.post('/auth/reset-password', { token: resetToken, newPassword });
       setStep(3);
-    } catch (err) {
+    } catch (err: any) { // CORRECCIÓN: (ts:18046) Añadido ': any' a 'err'
       setError(err.response?.data?.message || "No se pudo actualizar. El token puede ser inválido o haber expirado.");
     } finally {
       setLoading(false);
@@ -162,7 +172,8 @@ const ForgotPasswordModal = ({ isVisible, onClose }) => {
 
   return (
     <Modal animationType="fade" transparent={true} visible={isVisible} onRequestClose={handleClose}>
-      <View style={styles.modalOverlay}>
+      {/* CORRECCIÓN: (S1874) 'SafeAreaView' es ahora del paquete 'react-native-safe-area-context' */}
+      <SafeAreaView style={styles.modalOverlay}>
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalCard}>
           <LinearGradient colors={['#8A2BE2', '#4B0082']} style={styles.modalTopIconContainer}><FontAwesome5 name="lock" size={24} color="#fff" /></LinearGradient>
           <Text style={styles.modalTitle}>Recuperar <Text style={styles.modalTitleHighlight}>Contraseña</Text></Text>
@@ -172,7 +183,10 @@ const ForgotPasswordModal = ({ isVisible, onClose }) => {
           {step === 3 && (<View style={styles.formStepSuccess}><FontAwesome5 name="check-circle" size={48} color="#4CAF50" /><Text style={[styles.modalInstruction, {marginTop: 20}]}>¡Contraseña actualizada con éxito!</Text></View>)}
           {error ? <Text style={styles.errorTextModal}>{error}</Text> : null}
 
-          {step !== 3 ? (<TouchableOpacity onPress={step === 1 ? handleRequestToken : handleResetPassword} disabled={loading} style={styles.button}>{loading ? <ActivityIndicator color="#fff" /> : <LinearGradient colors={["#8A2BE2", "#4B0082"]} style={styles.gradientButton}><Text style={styles.buttonText}>{step === 1 ? 'CONTINUAR' : 'RESTABLECER'}</Text></LinearGradient>}</TouchableOpacity>) : (<TouchableOpacity onPress={handleClose} style={styles.button}><LinearGradient colors={["#6c757d", "#343a40"]} style={styles.gradientButton}><Text style={styles.buttonText}>VOLVER</Text></LinearGradient></TouchableOpacity>)}
+          {/* CORRECCIÓN: (S7735) Invertido el ternario para que la condición sea positiva */}
+          {step === 3 ? (<TouchableOpacity onPress={handleClose} style={styles.button}><LinearGradient colors={["#6c757d", "#343a40"]} style={styles.gradientButton}><Text style={styles.buttonText}>VOLVER</Text></LinearGradient></TouchableOpacity>) 
+          : (<TouchableOpacity onPress={step === 1 ? handleRequestToken : handleResetPassword} disabled={loading} style={styles.button}>{loading ? <ActivityIndicator color="#fff" /> : <LinearGradient colors={["#8A2BE2", "#4B0082"]} style={styles.gradientButton}><Text style={styles.buttonText}>{step === 1 ? 'CONTINUAR' : 'RESTABLECER'}</Text></LinearGradient>}</TouchableOpacity>)
+          }
 
           {/* El enlace inferior es dinámico: o vuelve al paso anterior o cierra el modal. */}
           {step === 2 ? (
@@ -185,7 +199,7 @@ const ForgotPasswordModal = ({ isVisible, onClose }) => {
             </TouchableOpacity>
           )}
         </KeyboardAvoidingView>
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 };
