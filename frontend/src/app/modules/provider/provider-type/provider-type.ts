@@ -216,14 +216,7 @@ import { Component } from '@angular/core';
       return providerType.name.length >= 3 && providerType.name.length <= 50;
     }
 
-    /** ===========================
-     *  Status Text Helpers
-     *  =========================== */
-    getActiveStatusText(): string {
-      return 'Activo';
-    }
-
-    getInactiveStatusText(): string {
-      return 'Inactivo';
+    getStatusText(isActive: boolean): string {
+      return isActive ? 'Activo' : 'Inactivo';
     }
   }
