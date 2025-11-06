@@ -152,7 +152,8 @@ exports.updateProviderType = async (req, res) => {
     if (description) updateData.description = description;
     
     // Validación especial para coordinadores (no pueden cambiar estado)
-    if (typeof isActive !== 'undefined') {
+    // CORRECCIÓN APLICADA: Uso directo de undefined en lugar de typeof
+    if (isActive !== undefined) {
       if (req.userRole === 'coordinador') {
         return res.status(403).json({
           success: false,

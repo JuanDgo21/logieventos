@@ -31,15 +31,15 @@ export class PersonnelFormComponent implements OnInit {
 
   constructor(
     public activeModal: NgbActiveModal,
-    private fb: FormBuilder,
-    private personnelService: PersonnelService,
-    private authService: AuthService
+    private readonly fb: FormBuilder, // CORREGIDO: Añadido 'readonly'
+    private readonly personnelService: PersonnelService, // CORREGIDO: Añadido 'readonly'
+    private readonly authService: AuthService // CORREGIDO: Añadido 'readonly'
   ) {
     this.personnelForm = this.fb.group({
       firstName: ['', [Validators.required, Validators.maxLength(50)]],
       lastName: ['', [Validators.required, Validators.maxLength(50)]],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.pattern(/^[0-9]{10,15}$/)]],
+      phone: ['', [Validators.pattern(/^\d{10,15}$/)]], // CORREGIDO: Cambiado [0-9] por \d
       personnelType: ['', Validators.required],
       status: ['disponible', Validators.required],
       skills: [[]]
@@ -69,7 +69,7 @@ export class PersonnelFormComponent implements OnInit {
         ? this.personnel.personnelType
         : (this.personnel.personnelType as PersonnelType)._id;
 
-      const type = (this.personnelTypes as PersonnelType[]).find(t => t._id === id);
+      const type = this.personnelTypes.find(t => t._id === id); // CORREGIDO: Eliminado cast redundante
       this.currentTypeName = type ? type.name : 'Sin categoría';
     }
   }
@@ -143,8 +143,9 @@ export class PersonnelFormComponent implements OnInit {
   }
 
   private markAllAsTouched(): void {
-    Object.values(this.personnelForm.controls).forEach(control => {
+    // CORREGIDO: Cambiado forEach por for...of
+    for (const control of Object.values(this.personnelForm.controls)) {
       control.markAsTouched();
-    });
+    }
   }
 }

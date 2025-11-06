@@ -18,9 +18,9 @@ export class PersonnelTypeFormComponent implements OnInit {
 
   constructor(
     public activeModal: NgbActiveModal,
-    private fb: FormBuilder,
-    private personnelService: PersonnelService,
-    private authService: AuthService
+    private readonly fb: FormBuilder, // CORREGIDO: Añadido 'readonly'
+    private readonly personnelService: PersonnelService, // CORREGIDO: Añadido 'readonly'
+    private readonly authService: AuthService // CORREGIDO: Añadido 'readonly'
   ) {
     this.typeForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(50)]],

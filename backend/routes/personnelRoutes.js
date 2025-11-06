@@ -18,7 +18,7 @@ const { authJwt, role } = require('../middlewares'); // Importa middlewares de a
  * pero con restricciones de datos según rol
  */
 
-// GET / - Obtener todo el personal
+// GET / - Obtener todos el personal
 router.get('/', 
   [authJwt.verifyToken], // Middleware: Verifica token JWT
   personnelController.getAllPersonnel // Controlador: Obtiene listado de personal

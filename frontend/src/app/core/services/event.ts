@@ -52,24 +52,24 @@ export interface PersonnelTypeApiResponse {
 })
 export class EventService {
   // Subjects para eventos y tipos de eventos
-  private eventsSubject = new BehaviorSubject<Event[]>([]);
+  private readonly eventsSubject = new BehaviorSubject<Event[]>([]);
   public events$ = this.eventsSubject.asObservable();
 
-  private eventTypesSubject = new BehaviorSubject<EventType[]>([]);
+  private readonly eventTypesSubject = new BehaviorSubject<EventType[]>([]);
   public eventTypes$ = this.eventTypesSubject.asObservable();
 
   // --- NUEVO: Subjects para usuarios y contratos ---
-  private usersSubject = new BehaviorSubject<User[]>([]);
+  private readonly usersSubject = new BehaviorSubject<User[]>([]);
   public users$ = this.usersSubject.asObservable();
 
-  private contractsSubject = new BehaviorSubject<Contract[]>([]);
+  private readonly contractsSubject = new BehaviorSubject<Contract[]>([]);
   public contracts$ = this.contractsSubject.asObservable();
 
-  private personnelTypesSubject = new BehaviorSubject<PersonnelType[]>([]);
+  private readonly personnelTypesSubject = new BehaviorSubject<PersonnelType[]>([]);
   public personnelTypes$ = this.personnelTypesSubject.asObservable();
 
 
-  constructor(private apiService: ApiService) {
+  constructor(private readonly apiService: ApiService) {
     this.loadInitialData();
   }
 
@@ -423,7 +423,7 @@ export class EventService {
     return this.eventTypes$.pipe(
       map(eventTypes => eventTypes.filter(eventType => 
         eventType.name?.toLowerCase().includes(query.toLowerCase()) ||
-        (eventType.description && eventType.description.toLowerCase().includes(query.toLowerCase()))
+        eventType.description?.toLowerCase().includes(query.toLowerCase())
       ))
     );
   }

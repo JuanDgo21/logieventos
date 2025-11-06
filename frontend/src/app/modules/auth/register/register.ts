@@ -1,10 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth';
 import { Router } from '@angular/router';
-import { UserService } from '../../../core/services/user';
 import { User } from '../../../shared/interfaces/user';
-
 
 @Component({
   selector: 'app-register',
@@ -28,12 +26,12 @@ export class RegisterComponent {
   ];
 
   constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router
+    private readonly fb: FormBuilder,
+    private readonly authService: AuthService,
+    private readonly router: Router
   ) {
     this.registerForm = this.fb.group({
-      document: ['', [Validators.required, Validators.pattern(/^[0-9]{8,12}$/)]],
+      document: ['', [Validators.required, Validators.pattern(/^\d{8,12}$/)]],
       fullname: ['', [Validators.required, Validators.minLength(5)]],
       username: ['', [Validators.required, Validators.minLength(4)]],
       email: ['', [Validators.required, Validators.email]],
@@ -46,8 +44,6 @@ export class RegisterComponent {
       active: [true]
     });
   }
-
-  ngOnInit(): void {}
 
   onSubmit(): void {
     if (this.registerForm.invalid || this.isLoading) {
@@ -90,7 +86,7 @@ export class RegisterComponent {
 
   onDocumentInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const value = input.value.replace(/\D/g, '');
+    const value = input.value.replaceAll(/\D/g, '');
     this.registerForm.get('document')?.setValue(value, { emitEvent: false });
   }
 

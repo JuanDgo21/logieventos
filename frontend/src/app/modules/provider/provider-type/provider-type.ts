@@ -1,4 +1,4 @@
-  import { Component } from '@angular/core';
+import { Component } from '@angular/core';
   import { HttpClient, HttpHeaders } from '@angular/common/http';
   import { AuthService } from '../../../core/services/auth';
   import { Router } from '@angular/router';
@@ -216,7 +216,14 @@
       return providerType.name.length >= 3 && providerType.name.length <= 50;
     }
 
-    getStatusText(isActive: boolean): string {
-      return isActive ? 'Activo' : 'Inactivo';
+    /** ===========================
+     *  Status Text Helpers
+     *  =========================== */
+    getActiveStatusText(): string {
+      return 'Activo';
+    }
+
+    getInactiveStatusText(): string {
+      return 'Inactivo';
     }
   }
