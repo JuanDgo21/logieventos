@@ -22,11 +22,11 @@ import { Router } from '@angular/router';
   showAlert: boolean = false;
 
   constructor(
-    private fb: FormBuilder,
-    private userService: UserService,
-    private authService: AuthService,
-    private router: Router,
-    private cdRef: ChangeDetectorRef
+    private readonly fb: FormBuilder,
+    private readonly userService: UserService,
+    private readonly authService: AuthService,
+    private readonly router: Router,
+    private readonly cdRef: ChangeDetectorRef
   ) {
     this.profileForm = this.fb.group({
       document: ['', [Validators.required, Validators.pattern(/^[0-9]*$/)]],
