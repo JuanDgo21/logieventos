@@ -110,10 +110,10 @@
         input, select {
           width: 100%;
           padding: 0.75rem 1rem 0.75rem 2.5rem;
-          background: rgba(255, 255, 255, 0.08);
+          background: rgba(53, 53, 53, 0.08);
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 8px;
-          color: rgba(255,255,255,0.95); // CORREGIDO: Cambiado de white a rgba con 0.95 para mejor contraste
+          color: rgba(255, 255, 255, 0.95); // CORREGIDO: Cambiado de white a rgba con 0.95 para mejor contraste
           font-size: 0.95rem;
           transition: all 0.3s ease;
           
@@ -273,7 +273,7 @@
       transition: all 0.3s ease;
       
       &-secondary {
-        background: rgba(255,255,255,0.05);
+        background: rgba(78, 78, 78, 0.05);
         color: rgba(255,255,255,0.95); // CORREGIDO: Cambiado de 0.8 a 0.95 para mejor contraste
         border: 1px solid rgba(255,255,255,0.1);
         
