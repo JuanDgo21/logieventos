@@ -216,7 +216,12 @@ import { Component } from '@angular/core';
       return providerType.name.length >= 3 && providerType.name.length <= 50;
     }
 
-    getStatusText(isActive: boolean): string {
-      return isActive ? 'Activo' : 'Inactivo';
+    // Evitar pasar booleanos para controlar flujo: exponer métodos explícitos
+    getActiveStatusText(): string {
+      return 'Activo';
+    }
+
+    getInactiveStatusText(): string {
+      return 'Inactivo';
     }
   }
