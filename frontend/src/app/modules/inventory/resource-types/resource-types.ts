@@ -23,7 +23,7 @@ export class ResourceTypesComponent {
   resourceTypes: ResourceType[] = [];
   newResourceType: ResourceType = { name: '', description: '', active: true };
   editingResourceType: ResourceType | null = null;
-  apiUrl = 'http://0.0.0.0:3000/api/resource-types';
+  apiUrl = 'https://0.0.0.0:3000/api/resource-types';
   isLoading = false;
   errorMessage = '';
   successMessage = '';
