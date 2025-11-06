@@ -171,8 +171,8 @@ exports.createResourceType = async (req, res) => {
  */
 exports.updateResourceType = async (req, res) => {
   try {
-    // Validación: Coordinadores no pueden modificar el campo 'active'
-    if (req.userRole === 'coordinador' && typeof req.body.active !== 'undefined') {
+    // CORRECCIÓN APLICADA: Uso directo de undefined en lugar de typeof
+    if (req.userRole === 'coordinador' && req.body.active !== undefined) {
       return res.status(403).json({
         success: false,
         message: 'Coordinadores no pueden desactivar tipos de recurso'
@@ -188,7 +188,8 @@ exports.updateResourceType = async (req, res) => {
     if (description) updateData.description = description;
     
     // Solo los administradores pueden cambiar el estado 'active'
-    if (typeof active !== 'undefined' && req.userRole === 'admin') {
+    // CORRECCIÓN APLICADA: Uso directo de undefined en lugar de typeof
+    if (active !== undefined && req.userRole === 'admin') {
       updateData.active = active;
     }
 

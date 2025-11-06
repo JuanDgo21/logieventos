@@ -44,10 +44,10 @@ export class ProviderComponent implements OnInit {
   successMessage = '';
 
   constructor(
-    private http: HttpClient,
-    private authService: AuthService,
-    private router: Router,
-    private alertService: AlertService,
+    private readonly http: HttpClient,
+    private readonly authService: AuthService,
+    private readonly router: Router,
+    private readonly alertService: AlertService,
     public sidebarState: SidebarStateService
   ) {
     this.sidebarState.isOpen = true;

@@ -74,7 +74,7 @@
         gap: 0.5rem;
         margin-bottom: 0.75rem;
         font-weight: 500;
-        color: rgba(255,255,255,0.9);
+        color: rgba(255,255,255,0.95); // CORREGIDO: Cambiado de 0.9 a 0.95 para mejor contraste
         
         i {
           color: $primary-color;
@@ -113,7 +113,7 @@
           background: rgba(255, 255, 255, 0.08);
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 8px;
-          color: white;
+          color: rgba(255,255,255,0.95); // CORREGIDO: Cambiado de white a rgba con 0.95 para mejor contraste
           font-size: 0.95rem;
           transition: all 0.3s ease;
           
@@ -133,7 +133,7 @@
           left: 1rem;
           top: 50%;
           transform: translateY(-50%);
-          color: rgba(255, 255, 255, 0.6);
+          color: rgba(255, 255, 255, 0.8); // CORREGIDO: Mejorado contraste de iconos
           font-size: 1rem;
           pointer-events: none;
         }
@@ -164,7 +164,7 @@
       /* Estilo para las opciones del select */
       option {
         background: rgba(26, 26, 46, 0.98);
-        color: white;
+        color: rgba(255,255,255,0.95); // CORREGIDO: Mejorado contraste en opciones
         padding: 0.5rem;
         
         &:hover {
@@ -274,7 +274,7 @@
       
       &-secondary {
         background: rgba(255,255,255,0.05);
-        color: rgba(255,255,255,0.8);
+        color: rgba(255,255,255,0.95); // CORREGIDO: Cambiado de 0.8 a 0.95 para mejor contraste
         border: 1px solid rgba(255,255,255,0.1);
         
         &:hover {

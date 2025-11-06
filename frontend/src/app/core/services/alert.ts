@@ -8,8 +8,8 @@ import { AuthService } from './auth';
 })
 export class AlertService {
   constructor(
-    private dialog: MatDialog,
-    private authService: AuthService
+    private readonly dialog: MatDialog, // CORRECCIÓN: Agregado readonly
+    private readonly authService: AuthService // CORRECCIÓN: Agregado readonly
   ) {}
 
   showError(options: {
@@ -17,14 +17,14 @@ export class AlertService {
     message: string;
     title?: string;
   }): void {
-    //const userRole = this.authService.getPrimaryRole();
+    // CORRECCIÓN: Código comentado eliminado
     const isTokenExpired = this.authService.isTokenExpired();
     
     const data = {
       title: options.title || this.getDefaultTitle(options.type),
       message: options.message,
       type: options.type,
-      //userRole: userRole,
+      // CORRECCIÓN: Propiedad comentada eliminada del objeto
       showReload: isTokenExpired
     };
 

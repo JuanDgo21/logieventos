@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
@@ -22,9 +22,9 @@ export class PasswordRecoveryComponent {
   showAlert = false;
 
   constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router
+    private readonly fb: FormBuilder,
+    private readonly authService: AuthService,
+    private readonly router: Router
   ) {
     this.recoveryForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],

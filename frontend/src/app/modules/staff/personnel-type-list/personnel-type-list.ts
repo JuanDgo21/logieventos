@@ -1,10 +1,9 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { NewPersonnelType, PersonnelType, UpdatePersonnelType } from '../../../shared/interfaces/personnel-type';
+import { Component, OnInit } from '@angular/core'; // CORREGIDO: Eliminado 'Input' no utilizado
+import { PersonnelType } from '../../../shared/interfaces/personnel-type'; // CORREGIDO: Eliminadas importaciones no utilizadas
 import { PersonnelTypeFormComponent } from '../personnel-type-form/personnel-type-form';
 import { PersonnelService } from '../../../core/services/personnel';
-import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap'; // CORREGIDO: Eliminado 'NgbActiveModal' no utilizado
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-personnel-type-list',
@@ -22,8 +21,8 @@ export class PersonnelTypeListComponent implements OnInit {
   alertType: string = '';
 
   constructor(
-    private personnelService: PersonnelService,
-    private modalService: NgbModal
+    private readonly personnelService: PersonnelService, // CORREGIDO: Añadido 'readonly'
+    private readonly modalService: NgbModal // CORREGIDO: Añadido 'readonly'
   ) {}
 
   ngOnInit(): void {

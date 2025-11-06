@@ -1,11 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // <-- Añade esta importación
+import { Component } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth';
 import { Router } from '@angular/router';
-import { MatDialogModule } from '@angular/material/dialog';
-import { AlertModalComponent } from '../../../shared/components/alert-modal/alert-modal';
 import { AlertService } from '../../../core/services/alert';
 import { SidebarStateService } from '../../../core/services/sidebar-state';
 
@@ -40,7 +36,6 @@ interface ResourceType {
   templateUrl: './resources.html',
   styleUrls: ['./resources.scss']
 })
-
 export class ResourcesComponent {
   resources: Resource[] = [];
   resourceTypes: ResourceType[] = [];
@@ -67,10 +62,10 @@ export class ResourcesComponent {
   ];
 
   constructor(
-    private http: HttpClient,
-    private authService: AuthService,
-    private router: Router,
-    private alertService: AlertService,
+    private readonly http: HttpClient,
+    private readonly authService: AuthService,
+    private readonly router: Router,
+    private readonly alertService: AlertService,
     public sidebarState: SidebarStateService
   ) {
   }
@@ -100,9 +95,7 @@ export class ResourcesComponent {
     this.http.get<any>(this.apiUrl, { headers: this.getAuthHeaders() }).subscribe({
       next: (response) => {
         // Asegúrate de que la respuesta sea un array
-        this.resources = Array.isArray(response) ? response : 
-                        response.data ? response.data : 
-                        response.resources ? response.resources : [];
+        this.resources = this.extractResourcesFromResponse(response);
         this.isLoading = false;
       },
       error: (err) => {
@@ -115,6 +108,18 @@ export class ResourcesComponent {
         }
       }
     });
+  }
+
+  private extractResourcesFromResponse(response: any): Resource[] {
+    if (Array.isArray(response)) {
+      return response;
+    } else if (response.data) {
+      return response.data;
+    } else if (response.resources) {
+      return response.resources;
+    } else {
+      return [];
+    }
   }
 
   loadActiveResourceTypes(): void {
