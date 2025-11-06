@@ -3,7 +3,7 @@ const PersonnelType = require('../models/PersonnelType');
 const Contract = require('../models/Contract');
 
 /**
- * Controlador: Obtener todo el personal
+ * Controlador: Obtener todos el personal
  * Acceso: Todos los roles (pero líderes solo ven personal activo)
  */
 exports.getAllPersonnel = async (req, res) => {
@@ -11,7 +11,7 @@ exports.getAllPersonnel = async (req, res) => {
     // Filtro especial para líderes (solo personal disponible)
     const filter = req.userRole === 'lider' ? { status: 'disponible' } : {};
     
-    // Buscar todo el personal con su tipo de personal asociado
+    // Buscar todos el personal con su tipo de personal asociado
     // Esta consulta es segura, no usa input directo del usuario en el filtro.
     const personnel = await Personnel.find(filter)
       .populate('personnelType', 'name rate') // Solo nombre y tarifa del tipo
