@@ -6,7 +6,6 @@
     Gestión de Recursos
   </h2>
   
-  <!-- Mensajes -->
   <div *ngIf="errorMessage" class="alert alert-danger">
     {{ errorMessage }}
   </div>
@@ -15,19 +14,18 @@
     {{ successMessage }}
   </div>
 
-  <!-- Spinner -->
   <div *ngIf="isLoading" class="loading-spinner">
     <i class="fas fa-spinner fa-spin"></i> Cargando...
   </div>
   
-  <!-- Formulario -->
   <div class="resource-form">
     <h3>{{ editingResource ? 'Editar Recurso' : 'Nuevo Recurso' }}</h3>
     
     <div class="form-row">
       <div class="form-group">
-        <label>Nombre:</label>
+        <label for="resourceName">Nombre:</label>
         <input type="text" 
+               id="resourceName"
                [ngModel]="editingResource ? editingResource.name : newResource.name"
                (ngModelChange)="onFieldChange('name', $event)"
                [disabled]="isLoading" 
@@ -35,8 +33,9 @@
       </div>
       
       <div class="form-group">
-        <label>Tipo de Recurso:</label>
-        <select [ngModel]="editingResource ? editingResource.resourceType : newResource.resourceType"
+        <label for="resourceType">Tipo de Recurso:</label>
+        <select id="resourceType"
+                [ngModel]="editingResource ? editingResource.resourceType : newResource.resourceType"
                 (ngModelChange)="onFieldChange('resourceType', $event)"
                 [disabled]="isLoading" 
                 required>
@@ -53,16 +52,18 @@
     </div>
     
     <div class="form-group">
-      <label>Descripción:</label>
-      <textarea [ngModel]="editingResource ? editingResource.description : newResource.description"
+      <label for="resourceDesc">Descripción:</label>
+      <textarea id="resourceDesc"
+                [ngModel]="editingResource ? editingResource.description : newResource.description"
                 (ngModelChange)="onFieldChange('description', $event)"
                 [disabled]="isLoading"></textarea>
     </div>
     
     <div class="form-row">
       <div class="form-group">
-        <label>Cantidad:</label>
+        <label for="resourceQuantity">Cantidad:</label>
         <input type="number" 
+               id="resourceQuantity"
                [ngModel]="editingResource ? editingResource.quantity : newResource.quantity"
                (ngModelChange)="onFieldChange('quantity', $event)"
                min="0" 
@@ -71,8 +72,9 @@
       </div>
       
       <div class="form-group">
-        <label>Costo Unitario:</label>
+        <label for="resourceCost">Costo Unitario:</label>
         <input type="number" 
+               id="resourceCost"
                [ngModel]="editingResource ? editingResource.cost : newResource.cost"
                (ngModelChange)="onFieldChange('cost', $event)"
                min="0" 
@@ -82,8 +84,9 @@
       </div>
       
       <div class="form-group">
-        <label>Estado:</label>
-        <select [ngModel]="editingResource ? editingResource.status : newResource.status"
+        <label for="resourceStatus">Estado:</label>
+        <select id="resourceStatus"
+                [ngModel]="editingResource ? editingResource.status : newResource.status"
                 (ngModelChange)="onFieldChange('status', $event)"
                 [disabled]="isLoading">
           <option *ngFor="let option of statusOptions" [value]="option.value">
@@ -110,7 +113,6 @@
     </div>
   </div>
   
-  <!-- Tabla -->
   <div class="resource-table">
     <table>
       <thead>

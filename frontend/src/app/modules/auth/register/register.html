@@ -13,7 +13,6 @@
       </div>
       
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
-        <!-- Alertas -->
         @if (showAlert) {
           <div class="alert alert-{{alertType}}">
             <i class="fas {{getAlertIcon()}}"></i>
@@ -23,7 +22,6 @@
           </div>
         }
         
-        <!-- Documento -->
         <div class="input-field">
           <i class="fas fa-id-card"></i>
           <input 
@@ -44,7 +42,6 @@
           </div>
         }
         
-        <!-- Nombre completo -->
         <div class="input-field">
           <i class="fas fa-user"></i>
           <input 
@@ -64,7 +61,6 @@
           </div>
         }
         
-        <!-- Nombre de usuario -->
         <div class="input-field">
           <i class="fas fa-at"></i>
           <input 
@@ -84,7 +80,6 @@
           </div>
         }
         
-        <!-- Email -->
         <div class="input-field">
           <i class="fas fa-envelope"></i>
           <input 
@@ -104,7 +99,6 @@
           </div>
         }
         
-        <!-- Contraseña -->
         <div class="input-field">
           <i class="fas fa-lock"></i>
           <input 
@@ -112,10 +106,15 @@
             formControlName="password" 
             placeholder="Contraseña"
             [class.invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
-          <i 
-            class="fas {{passwordVisible ? 'fa-eye-slash' : 'fa-eye'}} password-toggle" 
-            (click)="togglePasswordVisibility()"></i>
-        </div>
+          
+          <button 
+            type="button"
+            class="password-toggle"
+            (click)="togglePasswordVisibility()"
+            aria-label="Mostrar u ocultar contraseña">
+              <i class="fas {{passwordVisible ? 'fa-eye-slash' : 'fa-eye'}}"></i>
+          </button>
+          </div>
         @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
           <div class="error-message">
             @if (registerForm.get('password')?.errors?.['required']) {
@@ -130,7 +129,6 @@
           </div>
         }
         
-        <!-- Rol -->
         <div class="input-field select-field">
           <i class="fas fa-user-tag"></i>
           <select 
@@ -154,7 +152,6 @@
           </div>
         }
         
-        <!-- Botón de registro -->
         <button 
           type="submit" 
           class="btn btn-primary" 
@@ -170,7 +167,6 @@
           }
         </button>
         
-        <!-- Enlace a login -->
         <div class="login-link">
           <span>¿Ya tienes una cuenta?</span>
           <a routerLink="/auth/login" class="btn-text">
@@ -184,7 +180,6 @@
 
 <app-footer></app-footer>
 
-<!-- Efectos visuales -->
 <div class="effects-container">
   <div class="particle particle-1"></div>
   <div class="particle particle-2"></div>

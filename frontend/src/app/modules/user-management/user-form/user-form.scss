@@ -115,7 +115,7 @@
       /* Icono personalizado para el select de rol */
       &::before {
         content: '\f507'; /* Código del icono fa-user-tag */
-        font-family: 'Font Awesome 5 Free';
+        font-family: 'Font Awesome 5 Free' Arial, Helvetica, sans-serif;
         font-weight: 900;
         position: absolute;
         left: 1rem;
