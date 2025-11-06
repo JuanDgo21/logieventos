@@ -1,19 +1,16 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, throwError } from 'rxjs';
-import { environment } from '../../../environments/environment';
 import { apiRouters } from '../../core/constants/apiRouters';
 import { jwtDecode } from 'jwt-decode';
 import { ApiService } from './api';
 import { DecodedToken } from '../../shared/interfaces/auth';
 import { User } from '../../shared/interfaces/user';
 
-
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private apiService: ApiService) {
+  constructor(private readonly apiService: ApiService) {
     console.log('AuthService constructor llamado');
   }
 

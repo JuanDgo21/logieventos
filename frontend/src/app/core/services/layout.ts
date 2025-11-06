@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
-import { ApiService } from './api';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LayoutService {
-  private sidebarCollapsed = new BehaviorSubject<boolean>(false);
-  private activeModule = new BehaviorSubject<string>('dashboard');
-  private mobileView = new BehaviorSubject<boolean>(false);
+  private readonly sidebarCollapsed = new BehaviorSubject<boolean>(false);
+  private readonly activeModule = new BehaviorSubject<string>('dashboard');
+  private readonly mobileView = new BehaviorSubject<boolean>(false);
 
   sidebarCollapsed$ = this.sidebarCollapsed.asObservable();
   activeModule$ = this.activeModule.asObservable();

@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api';
-import { AuthService } from './auth';
-import { ApiResponse, User } from '../../shared/interfaces/user';
+import { User } from '../../shared/interfaces/user';
 import { apiRouters } from '../constants/apiRouters';
 import { BehaviorSubject, catchError, map, Observable, of, tap, throwError } from 'rxjs';
 import { DecodedToken } from '../../shared/interfaces/auth';
 import { jwtDecode } from 'jwt-decode';
-import { HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -19,10 +17,10 @@ export class UserService {
     throw new Error('Method not implemented.');
   }
 
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  private readonly currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private apiService: ApiService) {
+  constructor(private readonly apiService: ApiService) {
     console.log('[UserService] Inicializado');
     this.loadInitialUser();
   }
@@ -119,6 +117,7 @@ export class UserService {
             return of(parsed); // Convierte en observable
           } catch (e) {
             console.warn('Error parseando error response:', e);
+            return throwError(() => new Error('Error procesando la respuesta del servidor'));
           }
         }
         

@@ -38,7 +38,6 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-
 // Controlador para obtener un usuario específico por ID
 exports.getUserById = async (req, res) => {
   console.log(`Iniciando getUserById para ID: ${req.params.id}`);
@@ -141,7 +140,6 @@ exports.createUser = async (req, res) => {
       active: true            // ✅ El usuario se crea como activo por defecto
     });
 
-
     // Guarda el usuario en la base de datos
     const savedUser = await user.save();
     console.log('Usuario creado exitosamente:', savedUser._id);
@@ -182,65 +180,99 @@ exports.createUser = async (req, res) => {
   }
 };
 
-// Controlador para actualizar un usuario existente
+// Función auxiliar para validar permisos de actualización
+const validateUpdatePermissions = async (userRole, userId, targetUserId) => {
+  if (userRole === 'lider' && userId !== targetUserId) {
+    return {
+      allowed: false,
+      message: 'Solo puedes actualizar tu propio perfil'
+    };
+  }
+  return { allowed: true };
+};
+
+// Función auxiliar para validar acceso a roles
+const validateRoleAccess = async (userRole, targetUserId) => {
+  if (userRole === 'coordinador') {
+    const userToUpdate = await User.findById(targetUserId);
+    if (userToUpdate && userToUpdate.role === 'admin') {
+      return {
+        allowed: false,
+        message: 'No puedes actualizar usuarios admin'
+      };
+    }
+  }
+  return { allowed: true };
+};
+
+// Función auxiliar para preparar datos de actualización
+const prepareUserUpdateData = async (body, userRole) => {
+  const { document, fullname, username, email, password, role, active } = body;
+  const updateData = {};
+  
+  // Campos básicos
+  if (document) updateData.document = document;
+  if (fullname) updateData.fullname = fullname;
+  if (username) updateData.username = username;
+  if (email) updateData.email = email;
+  
+  // Campo active
+  if (typeof active === 'boolean') updateData.active = active;
+  
+  // Manejo especial para rol (solo admin)
+  if (role && userRole === 'admin') {
+    updateData.role = role;
+  } else if (role) {
+    return {
+      error: 'Solo administradores pueden cambiar roles'
+    };
+  }
+  
+  // Manejo de contraseña
+  if (password) {
+    updateData.password = await bcrypt.hash(password, 10);
+  }
+  
+  return { updateData };
+};
+
+// Controlador para actualizar un usuario existente (REFACTORIZADO)
 exports.updateUser = async (req, res) => {
   console.log(`Iniciando updateUser para ID: ${req.params.id} con datos:`, req.body);
   try {
-    const { document, fullname, username, email, password, role, active } = req.body;
-    const updateData = {};
-
-    console.log('Validando permisos para actualización');
-    // Validaciones de permisos:
-    
-    // Líderes solo pueden actualizar su propio perfil
-    if (req.userRole === 'lider' && req.userId !== req.params.id) {
-      console.log('Acceso denegado: Lider intentando actualizar otro perfil');
+    // Validaciones de permisos
+    const permissionCheck = await validateUpdatePermissions(req.userRole, req.userId, req.params.id);
+    if (!permissionCheck.allowed) {
+      console.log('Acceso denegado por permisos:', permissionCheck.message);
       return res.status(403).json({
         success: false,
-        message: 'Solo puedes actualizar tu propio perfil'
+        message: permissionCheck.message
       });
     }
 
-    // Coordinadores no pueden actualizar administradores
-    if (req.userRole === 'coordinador') {
-      const userToUpdate = await User.findById(req.params.id);
-      if (userToUpdate.role === 'admin') {
-        console.log('Acceso denegado: Coordinador intentando actualizar admin');
-        return res.status(403).json({
-          success: false,
-          message: 'No puedes actualizar usuarios admin'
-        });
-      }
+    // Validación de acceso a roles
+    const roleAccessCheck = await validateRoleAccess(req.userRole, req.params.id);
+    if (!roleAccessCheck.allowed) {
+      console.log('Acceso denegado por rol:', roleAccessCheck.message);
+      return res.status(403).json({
+        success: false,
+        message: roleAccessCheck.message
+      });
     }
 
-    // Construye el objeto de actualización con los campos proporcionados
-    if (document) updateData.document = document;
-    if (fullname) updateData.fullname = fullname;
-    if (username) updateData.username = username;
-    if (email) updateData.email = email;
-    if (typeof active === 'boolean') updateData.active = active;
-    
-    // Manejo especial para el campo 'role' (solo editable por admin)
-    if (role) {
-      if (req.userRole === 'admin') {
-        updateData.role = role;
-        console.log('Admin cambiando rol a:', role);
-      } else {
-        console.log('Usuario no admin intentando cambiar rol - denegado');
-        return res.status(403).json({
-          success: false,
-          message: 'Solo administradores pueden cambiar roles'
-        });
-      }
+    // Preparar datos de actualización
+    const updateResult = await prepareUserUpdateData(req.body, req.userRole);
+    if (updateResult.error) {
+      console.log('Error en preparación de datos:', updateResult.error);
+      return res.status(403).json({
+        success: false,
+        message: updateResult.error
+      });
     }
-    
-    // Si se proporciona contraseña, se hashea
-    if (password) {
-      console.log('Actualizando contraseña (hash)');
-      updateData.password = await bcrypt.hash(password, 10);
-    }
-    
+
+    const { updateData } = updateResult;
     console.log('Datos a actualizar:', updateData);
+
     // Busca y actualiza el usuario
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,

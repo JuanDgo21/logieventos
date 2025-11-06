@@ -84,8 +84,8 @@ exports.createEventType = async (req, res) => {
       });
     }
 
-    // Extraer datos del cuerpo de la solicitud
-    const { name, description, defaultResources, requiredPersonnelType, estimatedDuration, category, additionalRequirements, active } = req.body;
+    // CORRECCIÓN: Eliminada la variable 'active' no utilizada
+    const { name, description, defaultResources, requiredPersonnelType, estimatedDuration, category, additionalRequirements } = req.body;
 
     // Validar campos obligatorios
     if (!name || !category) {
@@ -145,6 +145,28 @@ exports.createEventType = async (req, res) => {
   }
 };
 
+// Función auxiliar para validar categoría
+const validateCategory = (category) => {
+  const validCategories = ['corporativo', 'social', 'cultural', 'deportivo', 'academico'];
+  return validCategories.includes(category);
+};
+
+// Función auxiliar para preparar datos de actualización
+const prepareUpdateData = (body) => {
+  const { name, description, defaultResources, requiredPersonnelType, estimatedDuration, category, additionalRequirements } = body;
+  const updateData = {};
+  
+  if (name) updateData.name = name;
+  if (description) updateData.description = description;
+  if (defaultResources) updateData.defaultResources = defaultResources;
+  if (requiredPersonnelType) updateData.requiredPersonnelType = requiredPersonnelType;
+  if (estimatedDuration) updateData.estimatedDuration = estimatedDuration;
+  if (additionalRequirements) updateData.additionalRequirements = additionalRequirements;
+  if (category) updateData.category = category;
+  
+  return updateData;
+};
+
 /**
  * Controlador: Actualizar tipo de evento
  * Acceso: Solo administradores y coordinadores
@@ -160,21 +182,13 @@ exports.updateEventType = async (req, res) => {
       });
     }
 
-    // Extraer datos del cuerpo de la solicitud
-    const { name, description, defaultResources, requiredPersonnelType, estimatedDuration, category, additionalRequirements, active } = req.body;
-    const updateData = {}; // Objeto para almacenar los campos a actualizar
-    
     // Preparar datos a actualizar
-    if (name) updateData.name = name;
-    if (description) updateData.description = description;
-    if (defaultResources) updateData.defaultResources = defaultResources;
-    if (requiredPersonnelType) updateData.requiredPersonnelType = requiredPersonnelType;
-    if (estimatedDuration) updateData.estimatedDuration = estimatedDuration;
-    if (additionalRequirements) updateData.additionalRequirements = additionalRequirements;
+    const updateData = prepareUpdateData(req.body);
     
-    // Validación especial para coordinadores (no pueden cambiar estado)
-    if (typeof active !== 'undefined') {
-      if (req.userRole === 'coordi') {
+    // Manejar campo 'active' con validación de permisos
+    const { active } = req.body;
+    if (active !== undefined) { // CORRECCIÓN: Uso directo de undefined
+      if (req.userRole === 'coordinador') {
         return res.status(403).json({
           success: false,
           message: 'Coordinadores no pueden cambiar el estado de los tipos de evento'
@@ -184,16 +198,12 @@ exports.updateEventType = async (req, res) => {
     }
 
     // Validar categoría si se está actualizando
-    if (category) {
-      const validCategories = ['corporativo', 'social', 'cultural', 'deportivo', 'academico'];
-      if (!validCategories.includes(category)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Categoría no válida',
-          validCategories
-        });
-      }
-      updateData.category = category;
+    if (updateData.category && !validateCategory(updateData.category)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Categoría no válida',
+        validCategories: ['corporativo', 'social', 'cultural', 'deportivo', 'academico']
+      });
     }
 
     // Buscar y actualizar el tipo de evento

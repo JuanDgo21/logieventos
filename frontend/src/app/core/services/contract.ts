@@ -64,12 +64,12 @@ export interface Contract {
   providedIn: 'root'
 })
 export class ContractService {
-  private apiUrl = `${environment.API_URL}/api/contracts`;
-  private resourceUrl = `${environment.API_URL}/api/resources`;
-  private providerUrl = `${environment.API_URL}/api/providers`;
-  private personnelUrl = `${environment.API_URL}/api/personnel`;
+  private readonly apiUrl = `${environment.API_URL}/api/contracts`;
+  private readonly resourceUrl = `${environment.API_URL}/api/resources`;
+  private readonly providerUrl = `${environment.API_URL}/api/providers`;
+  private readonly personnelUrl = `${environment.API_URL}/api/personnel`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
@@ -219,4 +219,3 @@ export class ContractService {
     );
   }
 }
-

@@ -146,6 +146,46 @@ exports.createPersonnel = async (req, res) => {
   }
 };
 
+// Función auxiliar para validar permisos de actualización
+const validateUpdatePermissions = (userRole, status) => {
+  if (status && userRole === 'coordinador') {
+    return {
+      allowed: false,
+      message: 'Coordinadores no pueden cambiar el estado del personal'
+    };
+  }
+  return { allowed: true };
+};
+
+// Función auxiliar para preparar datos de actualización
+const preparePersonnelUpdateData = (body) => {
+  const { firstName, lastName, email, phone, skills, status } = body;
+  const updateData = {};
+  
+  if (firstName) updateData.firstName = firstName;
+  if (lastName) updateData.lastName = lastName;
+  if (email) updateData.email = email;
+  if (phone) updateData.phone = phone;
+  if (skills) updateData.skills = skills;
+  if (status) updateData.status = status;
+  
+  return updateData;
+};
+
+// Función auxiliar para validar tipo de personal
+const validatePersonnelType = async (personnelType) => {
+  if (!personnelType) return { valid: true };
+  
+  const personnelTypeExists = await PersonnelType.findById(String(personnelType));
+  if (!personnelTypeExists) {
+    return {
+      valid: false,
+      message: 'El tipo de personal especificado no existe'
+    };
+  }
+  return { valid: true };
+};
+
 /**
  * Controlador: Actualizar personal
  * Acceso: Solo administradores y coordinadores
@@ -161,39 +201,29 @@ exports.updatePersonnel = async (req, res) => {
       });
     }
 
-    // Extraer datos del cuerpo de la solicitud
-    const { firstName, lastName, email, phone, personnelType, skills, status } = req.body;
-    const updateData = {}; // Objeto para almacenar los campos a actualizar
-
-    // Preparar datos a actualizar
-    if (firstName) updateData.firstName = firstName;
-    if (lastName) updateData.lastName = lastName;
-    if (email) updateData.email = email;
-    if (phone) updateData.phone = phone;
-    if (skills) updateData.skills = skills;
-    
-    // Validación especial para coordinadores (no pueden cambiar estado)
-    if (status) {
-      if (req.userRole === 'coordinador') {
-        return res.status(403).json({
-          success: false,
-          message: 'Coordinadores no pueden cambiar el estado del personal'
-        });
-      }
-      updateData.status = status;
+    // Validar permisos para cambio de estado
+    const permissionCheck = validateUpdatePermissions(req.userRole, req.body.status);
+    if (!permissionCheck.allowed) {
+      return res.status(403).json({
+        success: false,
+        message: permissionCheck.message
+      });
     }
 
+    // Preparar datos a actualizar
+    const updateData = preparePersonnelUpdateData(req.body);
+
     // Validar tipo de personal si se quiere cambiar
-    if (personnelType) {
-      // ✅ CORRECCIÓN: Forzamos el ID 'personnelType' a string
-      const personnelTypeExists = await PersonnelType.findById(String(personnelType));
-      if (!personnelTypeExists) {
-        return res.status(404).json({
-          success: false,
-          message: 'El tipo de personal especificado no existe'
-        });
-      }
-      updateData.personnelType = personnelType;
+    const personnelTypeValidation = await validatePersonnelType(req.body.personnelType);
+    if (!personnelTypeValidation.valid) {
+      return res.status(404).json({
+        success: false,
+        message: personnelTypeValidation.message
+      });
+    }
+    
+    if (req.body.personnelType) {
+      updateData.personnelType = req.body.personnelType;
     }
 
     // Buscar y actualizar el personal

@@ -1,4 +1,4 @@
-  import { Component } from '@angular/core';
+import { Component } from '@angular/core';
   import { HttpClient, HttpHeaders } from '@angular/common/http';
   import { AuthService } from '../../../core/services/auth';
   import { Router } from '@angular/router';
@@ -216,12 +216,7 @@
       return providerType.name.length >= 3 && providerType.name.length <= 50;
     }
 
-    // Evitar usar un booleano para elegir comportamiento — proporcionar métodos explícitos
-    getActiveStatusText(): string {
-      return 'Activo';
-    }
-
-    getInactiveStatusText(): string {
-      return 'Inactivo';
+    getStatusText(isActive: boolean): string {
+      return isActive ? 'Activo' : 'Inactivo';
     }
   }

@@ -37,7 +37,7 @@
     h1 {
       margin: 0;
       font-size: 1.8rem;
-      color: white;
+      color: rgba(255,255,255,0.98); // CORREGIDO: Cambiado white por rgba con 0.98
       display: flex;
       align-items: center;
       
@@ -126,7 +126,7 @@
       background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 10px;
-      color: white;
+      color: rgba(255,255,255,0.98); // CORREGIDO: Cambiado white por rgba con 0.98
       font-size: 1rem;
       transition: all 0.3s ease;
       
@@ -147,13 +147,13 @@
       left: 1rem;
       top: 50%;
       transform: translateY(-50%);
-      color: rgba(255,255,255,0.7);
+      color: rgba(255,255,255,0.8); // CORREGIDO: Mejorado contraste de iconos
     }
   }
   
   .btn-text {
     background: transparent;
-    color: rgba(255,255,255,0.7);
+    color: rgba(255,255,255,0.8); // CORREGIDO: Mejorado contraste del texto
     border: none;
     display: inline-flex;
     align-items: center;
@@ -181,7 +181,7 @@
       align-items: center;
       margin-bottom: 0.75rem;
       font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.9);
+      color: rgba(255, 255, 255, 0.95); // CORREGIDO: Mejorado contraste de etiquetas
       font-weight: 500;
       
       i {
@@ -197,12 +197,12 @@
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
-      color: white;
+      color: rgba(255,255,255,0.98); // CORREGIDO: Cambiado white por rgba con 0.98
       font-size: 0.95rem;
       transition: all 0.3s ease;
       cursor: pointer;
       appearance: none;
-      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='rgba(255,255,255,0.6)'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='rgba(255,255,255,0.8)'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e"); // CORREGIDO: Mejorado contraste del ícono
       background-repeat: no-repeat;
       background-position: right 0.75rem center;
       background-size: 1rem;
@@ -215,8 +215,8 @@
       }
       
       option {
-        background: rgba(26, 26, 46, 0.95);
-        color: white;
+        background: rgba(26, 26, 46, 0.98);
+        color: rgba(255,255,255,0.98); // CORREGIDO: Mejorado contraste en opciones
         padding: 0.5rem;
         
         &:hover {
@@ -259,7 +259,7 @@
   
   p {
     font-size: 1.2rem;
-    color: rgba(255,255,255,0.8);
+    color: rgba(255,255,255,0.9); // CORREGIDO: Mejorado contraste del texto
     margin-bottom: 1.5rem;
   }
 }
@@ -267,17 +267,17 @@
 .empty-state {
   i {
     font-size: 3rem;
-    color: rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.5); // CORREGIDO: Mejorado contraste del ícono
     margin-bottom: 1.5rem;
   }
   
   h3 {
-    color: white;
+    color: rgba(255,255,255,0.98); // CORREGIDO: Cambiado white por rgba con 0.98
     margin-bottom: 0.5rem;
   }
   
   p {
-    color: rgba(255,255,255,0.6);
+    color: rgba(255,255,255,0.8); // CORREGIDO: Mejorado contraste del texto
   }
   
   .btn-text {
@@ -312,7 +312,7 @@
           content: attr(data-label);
           font-weight: 600;
           margin-right: 1rem;
-          color: rgba(255,255,255,0.7);
+          color: rgba(255,255,255,0.8); // CORREGIDO: Mejorado contraste de labels
         }
         
         &:first-child, &:last-child {
@@ -326,7 +326,7 @@
     padding: 1rem;
     text-align: left;
     font-weight: 600;
-    color: rgba(255,255,255,0.8);
+    color: rgba(255,255,255,0.9); // CORREGIDO: Mejorado contraste de headers
     border-bottom: 2px solid rgba(255,255,255,0.1);
   }
   
