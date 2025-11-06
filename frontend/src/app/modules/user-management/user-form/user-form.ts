@@ -1,9 +1,8 @@
   import { Component, Input, OnInit } from '@angular/core';
   import { User } from '../../../shared/interfaces/user';
   import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-  import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+  import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
   import { UserService } from '../../../core/services/user';
-import { catchError, finalize, of } from 'rxjs';
 
   @Component({
     selector: 'app-user-form',
@@ -22,8 +21,8 @@ import { catchError, finalize, of } from 'rxjs';
 
   constructor(
     public activeModal: NgbActiveModal,
-    private fb: FormBuilder,
-    private userService: UserService
+    private readonly fb: FormBuilder,
+    private readonly userService: UserService
   ) {}
 
   ngOnInit(): void {
