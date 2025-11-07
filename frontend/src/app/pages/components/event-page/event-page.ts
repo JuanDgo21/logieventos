@@ -8,7 +8,7 @@ import { AuthService } from '../../../../app/core/services/auth';
 
 @Component({
   selector: 'app-event-page',
-  // ✅ CORRECCIÓN (S7648): Se elimina 'standalone: false'
+  standalone: false,
   templateUrl: './event-page.html',
   styleUrl: './event-page.scss'
 })
@@ -206,7 +206,7 @@ export class EventPageComponent implements OnInit, OnDestroy {
     if (this.editingEvent && this.currentEventId) {
       const updateData: UpdateEvent = { _id: this.currentEventId, ...formData };
       this.eventService.updateEvent(this.currentEventId, updateData).subscribe({
-  G      next: () => { alert('Evento actualizado correctamente'); this.closeModal(); },
+        next: () => { alert('Evento actualizado correctamente'); this.closeModal(); },
         error: (error) => alert('Error al actualizar el evento: ' + error.message)
       });
     } else {
@@ -235,7 +235,7 @@ export class EventPageComponent implements OnInit, OnDestroy {
   getCategoryName(eventType: any): string {
     if (!eventType) return 'Sin categoría';
     if (typeof eventType === 'object') return eventType.name;
-  f   const category = this.eventTypes.find(cat => cat._id === eventType);
+     const category = this.eventTypes.find(cat => cat._id === eventType);
     return category ? category.name : 'Sin categoría';
   }
 
@@ -247,7 +247,7 @@ export class EventPageComponent implements OnInit, OnDestroy {
     return this.statusOptions.find(s => s.value === status)?.icon || 'fas fa-question-circle';
   }
 
-D formatDisplayDate(dateString: string | Date): string {
+ formatDisplayDate(dateString: string | Date): string {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -269,7 +269,7 @@ D formatDisplayDate(dateString: string | Date): string {
 
   getContractName(contractData: any): string {
     if (!contractData) return 'No asignado';
-  Boolean   if (typeof contractData === 'object' && contractData.name) return contractData.name;
+    if (typeof contractData === 'object' && contractData.name) return contractData.name;
     const contractId = typeof contractData === 'object' ? contractData._id : contractData;
     const contract = this.contracts.find(c => c._id === contractId);
     return contract ? contract.name : `ID: ${contractId}`;

@@ -60,7 +60,7 @@
                 <input class="form-check-input" type="checkbox" role="switch" 
                        [id]="'toggle-' + type._id"
                        [checked]="type.active"
-                       [aria-checked]="type.active"
+                       [attr.aria-checked]="type.active"
                        (change)="onStatusChange(type)">
                 
                 <label class="form-check-label" [for]="'toggle-' + type._id">
@@ -135,7 +135,7 @@
                     
                     <input class="form-check-input" type="checkbox" role="switch" id="eventTypeActive" 
                            formControlName="active"
-                           [aria-checked]="eventTypeForm.get('active')?.value">
+                           [attr.aria-checked]="eventTypeForm.get('active')?.value">
                     
                     <label class="form-check-label" for="eventTypeActive">
                       {{ eventTypeForm.get('active')?.value ? 'Activo' : 'Inactivo' }}

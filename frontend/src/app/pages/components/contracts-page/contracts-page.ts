@@ -38,6 +38,7 @@ declare const bootstrap: any;
 
 @Component({
   selector: 'app-contracts-page',
+  standalone: false,
   templateUrl: './contracts-page.html',
   styleUrl: './contracts-page.scss'
 })
