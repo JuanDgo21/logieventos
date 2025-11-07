@@ -16,7 +16,7 @@ import { UserManagementModule } from '../modules/user-management/user-management
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EventPageComponent } from './components/event-page/event-page';
 import { EventTypeComponent } from './components/event-type/event-type';
-// import { ContractsPage } from './components/contracts-page/contracts-page';
+import { ContractsPage } from './components/contracts-page/contracts-page';
 
 
 @NgModule({
@@ -24,7 +24,7 @@ import { EventTypeComponent } from './components/event-type/event-type';
     ProvidersPageComponent,
     InventoryPageComponent,
     DashboardComponent,
-    // ContractsPage,
+    ContractsPage,
     DashboardUsersComponent,
     DashboardStaffComponent,
     EventPageComponent,
@@ -51,7 +51,7 @@ import { EventTypeComponent } from './components/event-type/event-type';
     ProvidersPageComponent,
     InventoryPageComponent,
     DashboardComponent,
-    // ContractsPage,
+    ContractsPage,
     DashboardUsersComponent,
     DashboardStaffComponent,
     EventPageComponent,

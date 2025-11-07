@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+  import { Component } from '@angular/core';
   import { HttpClient, HttpHeaders } from '@angular/common/http';
   import { AuthService } from '../../../core/services/auth';
   import { Router } from '@angular/router';
@@ -36,10 +36,10 @@ import { Component } from '@angular/core';
     successMessage = '';
 
     constructor(
-      private readonly http: HttpClient,
-      private readonly authService: AuthService,
-      private readonly router: Router,
-      private readonly alertService: AlertService,
+      private http: HttpClient,
+      private authService: AuthService,
+      private router: Router,
+      private alertService: AlertService,
       public sidebarState: SidebarStateService
     ) {
       this.sidebarState.isOpen = true;
@@ -120,8 +120,7 @@ import { Component } from '@angular/core';
     }
 
     updateProviderType(): void {
-      // Usar optional chaining para una comprobación más concisa
-      if (!this.editingProviderType?._id) return;
+      if (!this.editingProviderType || !this.editingProviderType._id) return;
       this.isLoading = true;
 
       const url = `${this.apiUrl}/${this.editingProviderType._id}`;
@@ -223,5 +222,9 @@ import { Component } from '@angular/core';
 
     getInactiveStatusText(): string {
       return 'Inactivo';
+    }
+
+    getStatusClass(isActive: boolean): string {
+      return isActive ? 'badge-success' : 'badge-secondary';
     }
   }

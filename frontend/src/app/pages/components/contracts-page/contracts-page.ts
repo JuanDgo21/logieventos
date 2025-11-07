@@ -402,32 +402,36 @@ onSearchClick(): void {
 
     // Cargar recursos seleccionados con sus cantidades
     (this.selectedContract?.resources ?? []).forEach(r => {
-      const resourceId = typeof r.resource === 'object' ? r.resource._id : r.resource;
-      if (resourceId) {
-        this.selectedResources.add(resourceId);
-        // Buscar el recurso en availableResources y asignar la cantidad
-        const resource = this.availableResources.find(res => res._id === resourceId);
-        if (resource) {
-          resource.selectedQuantity = r.quantity;
+      if (r && r.resource) {
+        const resourceId = typeof r.resource === 'object' ? r.resource._id : r.resource;
+        if (resourceId) {
+          this.selectedResources.add(resourceId);
+          const resource = this.availableResources.find(res => res._id === resourceId);
+          if (resource) {
+            resource.selectedQuantity = r.quantity;
+          }
         }
       }
     });
 
     // Cargar proveedores seleccionados con sus datos
     (this.selectedContract?.providers ?? []).forEach(p => {
-      const providerId = typeof p.provider === 'object' ? p.provider._id : p.provider;
-      if (providerId) {
-        this.selectedProviders.add(providerId);
-        const provider = this.activeProviders.find(prov => prov._id === providerId);
-        if (provider) {
-          provider.serviceDescription = p.serviceDescription;
-          provider.cost = p.cost;
+      if (p && p.provider) {
+        const providerId = typeof p.provider === 'object' ? p.provider._id : p.provider;
+        if (providerId) {
+          this.selectedProviders.add(providerId);
+          const provider = this.activeProviders.find(prov => prov._id === providerId);
+          if (provider) {
+            provider.serviceDescription = p.serviceDescription;
+            provider.cost = p.cost;
+          }
         }
       }
     });
 
     // Cargar personal seleccionado con sus datos
     (this.selectedContract?.personnel ?? []).forEach(p => {
+    if (p && p.person) {
       const personId = typeof p.person === 'object' ? p.person._id : p.person;
       if (personId) {
         this.selectedPersonnel.add(personId);
@@ -437,7 +441,8 @@ onSearchClick(): void {
           person.hours = p.hours;
         }
       }
-    });
+    }
+  });
 
     const modalElement = document.getElementById('editContractModal');
     if (modalElement) {
@@ -450,6 +455,22 @@ onSearchClick(): void {
   closeEditModal(): void {
     this.showEditModal = false;
     this.selectedContract = null;
+    this.cleanupAvailableItems();
+  }
+
+  cleanupAvailableItems(): void {
+    // Elimina las propiedades temporales de las listas maestras
+    this.availableResources.forEach(r => {
+      delete r.selectedQuantity;
+    });
+    this.activeProviders.forEach(p => {
+      delete p.serviceDescription;
+      delete p.cost;
+    });
+    this.availablePersonnel.forEach(p => {
+      delete p.role;
+      delete p.hours;
+    });
   }
 
   saveChanges(): void {
@@ -598,7 +619,7 @@ validateEditForm(): boolean {
   }
 
   // Validar teléfono
-  const phoneRegex = /^[\d\s().+-]{7,25}$/;
+  const phoneRegex = /^(\+?\d{1,4}?[-.\s]?)?(\(\d{1,4}\)[-.\s]?)?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
   if (this.editContract.clientPhone && !phoneRegex.test(this.editContract.clientPhone)) {
     this.editErrorMessage = 'Número de teléfono inválido.';
     return false;
@@ -695,7 +716,7 @@ validatePersonnel(): boolean {
       return;
     }
 
-    const phoneRegex = /^[\d\s().+-]{7,25}$/;
+    const phoneRegex = /^(\+?\d{1,4}?[-.\s]?)?(\(\d{1,4}\)[-.\s]?)?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
     if (this.newContract.clientPhone && !phoneRegex.test(this.newContract.clientPhone)) {
       this.createErrorMessage = 'Número de teléfono inválido.';
       return;
@@ -855,6 +876,7 @@ validatePersonnel(): boolean {
     this.selectedResources.clear();
     this.selectedProviders.clear();
     this.selectedPersonnel.clear();
+    this.cleanupAvailableItems();
   }
   
   // Método para cerrar modales
@@ -863,6 +885,14 @@ validatePersonnel(): boolean {
     if (modal) {
       const bsModal = bootstrap.Modal.getInstance(modal);
       bsModal?.hide();
+    }
+    // Si se cierra el modal de creación, también limpiar
+    if (modalId === 'createContractModal') {
+      this.resetForm();
+    }
+    // Si se cierra el de edición, limpiar
+    if (modalId === 'editContractModal') {
+      this.closeEditModal();
     }
   }
   updateContract(): void {

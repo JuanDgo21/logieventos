@@ -25,9 +25,10 @@
       <form (ngSubmit)="editingProviderType ? updateProviderType() : createProviderType()" #providerTypeForm="ngForm">
         
         <div class="form-group">
-          <label for="providerTypeName">Nombre:</label>
+          <label for="providerTypeName" for="providerTypeName">Nombre:</label> 
           <input type="text" 
                  id="providerTypeName"
+                 id="providerTypeName" 
                  [(ngModel)]="(editingProviderType || newProviderType).name"
                  name="name" 
                  required
@@ -39,14 +40,16 @@
             El nombre debe tener entre 3 y 50 caracteres
           </small>
         </div>
+        
         <div class="form-group">
-          <label for="providerTypeDesc">Descripción:</label>
-          <textarea id="providerTypeDesc"
+          <label for="providerTypeDesc">Descripción:</label> 
+          <textarea id="providerTypeDesc" 
                     [(ngModel)]="(editingProviderType || newProviderType).description"
                     name="description"
                     [disabled]="isLoading"
                     rows="3"></textarea>
         </div>
+        
         <div class="form-group" *ngIf="editingProviderType">
           <div class="status-toggle">
             <label class="switch">
@@ -92,8 +95,7 @@
             <td>{{ type.description || '--' }}</td>
             <td>
               <span class="status-badge" [class.active]="type.isActive">
-                {{ type.isActive ? getActiveStatusText() : getInactiveStatusText() }}
-              </span>
+                {{ type.isActive ? 'Activo' : 'Inactivo' }} </span>
             </td>
             <td class="actions">
               <button (click)="editProviderType(type)" title="Editar">
