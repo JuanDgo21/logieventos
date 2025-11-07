@@ -25,7 +25,7 @@ interface LegalLink {
 
 @Component({
   selector: 'app-footer',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   // imports: [CommonModule, RouterModule],
   templateUrl: './footer.html',
   styleUrls: ['./footer.scss']

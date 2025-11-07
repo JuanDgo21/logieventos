@@ -6,7 +6,7 @@ import { EventType, NewEventType, UpdateEventType } from '../../../shared/interf
 
 @Component({
   selector: 'app-event-type', // <-- CORREGIDO
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './event-type.html', // <-- CORREGIDO
   styleUrls: ['./event-type.scss'] // <-- CORREGIDO
 })

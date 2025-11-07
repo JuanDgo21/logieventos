@@ -6,7 +6,7 @@
 
   @Component({
     selector: 'app-user-form',
-    standalone: false,
+    standalone: false, // NOSONAR (typescript:S7648)
     templateUrl: './user-form.html',
     styleUrl: './user-form.scss'
   })

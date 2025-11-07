@@ -4,7 +4,7 @@ import { LayoutService } from '../../../core/services/layout';
 
 @Component({
   selector: 'app-dashboard',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })

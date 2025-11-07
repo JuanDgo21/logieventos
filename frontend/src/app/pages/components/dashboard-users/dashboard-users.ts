@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard-users',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './dashboard-users.html',
   styleUrl: './dashboard-users.scss'
 })

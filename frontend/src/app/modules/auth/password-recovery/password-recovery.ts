@@ -5,7 +5,7 @@ import { AuthService } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-password-recovery',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './password-recovery.html',
   styleUrl: './password-recovery.scss'
 })

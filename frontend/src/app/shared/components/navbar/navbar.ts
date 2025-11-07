@@ -10,7 +10,7 @@ import { UserService } from '../../../core/services/user';
 
 @Component({
   selector: 'app-navbar',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss'
 })

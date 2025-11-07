@@ -25,7 +25,7 @@ interface ProviderType {
 
 @Component({
   selector: 'app-provider',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './provider.html',
   styleUrls: ['./provider.scss']
 })

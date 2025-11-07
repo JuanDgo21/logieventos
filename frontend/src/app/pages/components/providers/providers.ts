@@ -4,7 +4,7 @@ import { SidebarStateService } from '../../../core/services/sidebar-state';
 
 @Component({
   selector: 'app-providers-page',
-  standalone: false, // 👈 igual que tu compa
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './providers.html',
   styleUrls: ['./providers.scss']
 })

@@ -8,7 +8,7 @@ import { AuthService } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-personnel-form',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './personnel-form.html',
   styleUrl: './personnel-form.scss'
 })

@@ -7,7 +7,7 @@ import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/
 
 @Component({
   selector: 'app-personnel-type-list',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './personnel-type-list.html',
   styleUrl: './personnel-type-list.scss'
 })

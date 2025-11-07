@@ -5,7 +5,7 @@ import { LayoutService } from '../../../core/services/layout';
 
 @Component({
   selector: 'app-sidebar',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss'
 }) 

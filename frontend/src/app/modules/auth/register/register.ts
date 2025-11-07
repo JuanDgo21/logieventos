@@ -6,7 +6,7 @@ import { User } from '../../../shared/interfaces/user';
 
 @Component({
   selector: 'app-register',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './register.html',
   styleUrl: './register.scss'
 })

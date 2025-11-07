@@ -19,7 +19,7 @@ import { Component } from '@angular/core';
 
   @Component({
     selector: 'app-provider-type',
-    standalone: false,
+    standalone: false, // NOSONAR (typescript:S7648)
     templateUrl: './provider-type.html',
     styleUrl: './provider-type.scss'
   })

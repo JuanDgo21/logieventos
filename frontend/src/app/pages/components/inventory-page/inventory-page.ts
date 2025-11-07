@@ -4,7 +4,7 @@ import { SidebarStateService } from '../../../core/services/sidebar-state';
 
 @Component({
   selector: 'app-inventory-page',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   // imports: [],
   templateUrl: './inventory-page.html',
   styleUrl: './inventory-page.scss'

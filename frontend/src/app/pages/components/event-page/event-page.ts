@@ -8,7 +8,7 @@ import { AuthService } from '../../../../app/core/services/auth';
 
 @Component({
   selector: 'app-event-page',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './event-page.html',
   styleUrl: './event-page.scss'
 })

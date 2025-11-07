@@ -15,7 +15,7 @@ interface ResourceType {
 
 @Component({
   selector: 'app-resource-types',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './resource-types.html',
   styleUrl: './resource-types.scss'
 })

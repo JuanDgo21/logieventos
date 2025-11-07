@@ -5,7 +5,7 @@ import { AuthService } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-login',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './login.html',
   styleUrl: './login.scss'
 })

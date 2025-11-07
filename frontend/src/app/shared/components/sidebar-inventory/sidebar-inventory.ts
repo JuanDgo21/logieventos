@@ -5,7 +5,7 @@ import { SidebarStateService } from '../../../core/services/sidebar-state';
 
 @Component({
   selector: 'app-sidebar-inventory',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './sidebar-inventory.html',
   styleUrl: './sidebar-inventory.scss'
 })

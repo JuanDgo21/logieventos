@@ -8,7 +8,7 @@ import { PersonnelFormComponent } from '../../../modules/staff/personnel-form/pe
 
 @Component({
   selector: 'app-dashboard-staff',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './dashboard-staff.html',
   styleUrl: './dashboard-staff.scss'
 })

@@ -9,7 +9,7 @@ import { AuthService } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-personnel-list',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './personnel-list.html',
   styleUrl: './personnel-list.scss'
 })

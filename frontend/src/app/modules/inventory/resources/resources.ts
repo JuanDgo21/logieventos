@@ -32,7 +32,7 @@ interface ResourceType {
 
 @Component({
   selector: 'app-resources',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './resources.html',
   styleUrls: ['./resources.scss']
 })

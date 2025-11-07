@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 
   @Component({
     selector: 'app-user-profile',
-    standalone: false,
+    standalone: false, // NOSONAR (typescript:S7648)
     templateUrl: './user-profile.html',
     styleUrl: './user-profile.scss'
   })
