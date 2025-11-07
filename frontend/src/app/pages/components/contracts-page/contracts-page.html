@@ -506,3 +506,191 @@
                 {{ editErrorMessage }}
               </div>
             </div>
+
+            <!-- Datos Básicos -->
+            <div class="col-md-6">
+              <label class="form-label" for="editName">Nombre del contrato</label>
+              <input type="text" class="form-control" [(ngModel)]="editContract.name" name="editName" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="editClientName">Cliente</label>
+              <input type="text" class="form-control" [(ngModel)]="editContract.clientName" name="editClientName" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="editClientPhone">Teléfono</label>
+              <input type="text" class="form-control" [(ngModel)]="editContract.clientPhone" name="editClientPhone" >
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="editClientEmail">Correo</label>
+              <input type="email" class="form-control" [(ngModel)]="editContract.clientEmail" name="editClientEmail" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="StartDate">Fecha Inicio</label>
+              <input type="date" class="form-control" [(ngModel)]="editContract.startDate" name="StartDate" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="EndDate">Fecha Fin</label>
+              <input type="date" class="form-control" [(ngModel)]="editContract.endDate" name="EndDate" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="editBudget">Presupuesto</label>
+              <input type="number" class="form-control" [(ngModel)]="editContract.budget" name="editBudget">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="editStatus">Estado</label>
+              <select class="form-select" [(ngModel)]="editContract.status" name="editStatus" [disabled]="!isAdminOrCoordinator()">
+                <option value="borrador">Borrador</option>
+                <option value="activo">Activo</option>
+                <option value="completado">Completado</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label" for="editTerms">Términos</label>
+              <textarea class="form-control" rows="2" [(ngModel)]="editContract.terms" name="editTerms"></textarea>
+            </div>
+
+            <!-- Recursos -->
+            <div class="col-md-12 border rounded p-3 mt-2"> 
+              <h6>
+                <button class="btn btn-link p-0 text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEditResources" aria-expanded="false">
+                  Recursos <i class="fas fa-chevron-down small"></i>
+                </button>
+              </h6>
+              <div class="collapse" id="collapseEditResources">
+                <div *ngFor="let r of availableResources" class="mb-2">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox"
+                      (change)="toggleResource(r)"
+                      [checked]="isSelected(r, 'resource')"
+                      id="edit-resource-{{r._id}}">
+                    <label class="form-check-label" for="edit-resource-{{r._id}}">
+                      {{ r.name }} ({{ r.quantity }})
+                    </label>
+                  </div>
+                  <div *ngIf="isSelected(r, 'resource')" class="ms-4 mt-1">
+                    <div class="col-md-6">
+                      <label for="edit-qty-{{r._id}}">Cantidad:</label>
+                      <input type="number" class="form-control form-control-sm w-25"
+                        [(ngModel)]="r.selectedQuantity"
+                        [name]="'edit-qty-' + r._id"
+                        min="1" value="1">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Proveedores -->
+            <div class="col-md-12 border rounded p-3 mt-2">
+              <h6>
+                <button class="btn btn-link p-0 text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEditProviders" aria-expanded="false">
+                  Proveedores <i class="fas fa-chevron-down small"></i>
+                </button>
+              </h6>
+              <div class="collapse" id="collapseEditProviders">
+                <div *ngFor="let p of activeProviders" class="mb-2">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox"
+                      (change)="toggleProvider(p)"
+                      [checked]="isSelected(p, 'provider')"
+                      id="edit-provider-{{p._id}}">
+                    <label class="form-check-label" for="edit-provider-{{p._id}}">
+                      {{ p.name }} ({{ p.contactPerson }})
+                    </label>
+                  </div>
+                  <div *ngIf="isSelected(p, 'provider')" class="ms-4 mt-1 row g-2">
+                    <div class="col-md-6">
+                      <label for="edit-desc-{{p._id}}">Servicio:</label>
+                      <input type="text" class="form-control form-control-sm"
+                        [(ngModel)]="p.serviceDescription"
+                        [name]="'edit-desc-' + p._id">
+                    </div>
+                    <div class="col-md-6">
+                      <label for="edit-cost-{{p._id}}">Costo:</label>
+                      <input type="number" class="form-control form-control-sm"
+                        [(ngModel)]="p.cost"
+                        [name]="'edit-cost-' + p._id" min="0">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Personal -->
+            <div class="col-md-12 border rounded p-3 mt-2">
+              <h6>
+                <button class="btn btn-link p-0 text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEditPersonnel" aria-expanded="false">
+                  Personal <i class="fas fa-chevron-down small"></i>
+                </button>
+              </h6>
+              <div class="collapse" id="collapseEditPersonnel">
+                <div *ngFor="let person of availablePersonnel" class="mb-2">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox"
+                      (change)="togglePerson(person)"
+                      [checked]="isSelected(person, 'person')"
+                      id="edit-person-{{person._id}}">
+                    <label class="form-check-label" for="edit-person-{{person._id}}">
+                      {{ person.firstName }} {{ person.lastName }} ({{ person.email }})
+                    </label>
+                  </div>
+                  <div *ngIf="isSelected(person, 'person')" class="ms-4 mt-1 row g-2">
+                    <div class="col-md-6">
+                      <label for="edit-role-{{person._id}}">Rol:</label>
+                      <input type="text" class="form-control form-control-sm"
+                        [(ngModel)]="person.role"
+                        [name]="'edit-role-' + person._id">
+                    </div>
+                    <div class="col-md-6">
+                      <label for="edit-hours-{{person._id}}">Horas:</label>
+                      <input type="number" class="form-control form-control-sm"
+                        [(ngModel)]="person.hours"
+                        [name]="'edit-hours-' + person._id" min="0">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal de confirmación -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar eliminación</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        ¿Estás seguro de que deseas eliminar este contrato?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" (click)="confirmDelete()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<app-footer></app-footer>

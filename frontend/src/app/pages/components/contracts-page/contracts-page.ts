@@ -38,7 +38,7 @@ declare const bootstrap: any;
 
 @Component({
   selector: 'app-contracts-page',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './contracts-page.html',
   styleUrl: './contracts-page.scss'
 })
@@ -851,7 +851,7 @@ validatePersonnel(): boolean {
   
   updateContract(): void {
     console.log('[DEBUG] Enviando a actualizar:', this.editContract);
-    if (!this.editContract || !this.editContract._id) return;
+    if (!this.editContract?._id) return;
 
     // Ejecutar todas las validaciones
     if (!this.validateEditForm()) return;

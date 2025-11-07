@@ -8,7 +8,7 @@ import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/
 
 @Component({
   selector: 'app-user-list',
-  standalone: false,
+  standalone: false, // NOSONAR (typescript:S7648)
   templateUrl: './user-list.html',
   styleUrl: './user-list.scss'
 })
