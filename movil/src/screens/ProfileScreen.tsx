@@ -140,7 +140,7 @@ const ProfileScreen = () => {
     
     setIsLoading(true);
     const dataToSend = { ...formData, document: Number(document) };
-    if (isNaN(dataToSend.document)) {
+    if (Number.isNaN(dataToSend.document)) {
         setIsLoading(false);
         return Alert.alert("Error", "El número de documento no es válido.");
     }

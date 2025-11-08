@@ -31,7 +31,7 @@ export const usePersonnelService = () => {
       .toString()
       .toLowerCase()
       .normalize('NFD')
-      .replace(/\p{Diacritic}/gu, '');
+      .replaceAll(/\p{Diacritic}/gu, '');
 
   const roleEquivalents: { [key: string]: string[] } = {
     admin: ['admin', 'administrator'],

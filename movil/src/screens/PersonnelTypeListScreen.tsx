@@ -39,7 +39,7 @@ const PersonnelTypeListScreen: React.FC = () => {
 
   const hasRole = (required: string) => {
     if (!user) return false;
-    const normalize = (s?: string) => (s || '').toString().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+    const normalize = (s?: string) => (s || '').toString().toLowerCase().normalize('NFD').replaceAll(/\p{Diacritic}/gu, '');
     const roleEquivalents: { [key: string]: string[] } = {
       admin: ['admin', 'administrator'],
       coordinador: ['coordinador', 'coordinator'],

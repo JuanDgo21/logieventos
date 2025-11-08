@@ -55,7 +55,7 @@
       </button>
       <button *ngIf="editingResourceType" 
               (click)="updateResourceType()" 
-              [disabled]="isLoading || !editingResourceType?.name">
+              [disabled]="isLoading || !editingResourceType.name">
         {{ isLoading ? 'Actualizando...' : 'Actualizar' }}
       </button>
       <button *ngIf="editingResourceType" (click)="cancelEdit()" [disabled]="isLoading">

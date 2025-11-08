@@ -24,7 +24,7 @@ const Stack = createStackNavigator<PersonnelStackParamList>();
 const PersonnelStack: React.FC = () => {
   const { user } = require('../contexts/AuthContext').useAuth();
   // Normalize role check similar to service
-  const normalize = (s?: string) => (s || '').toString().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+  const normalize = (s?: string) => (s || '').toString().toLowerCase().normalize('NFD').replaceAll(/\p{Diacritic}/gu, '');
   const isAdmin = !!user && (normalize(user.role) === 'admin' || (Array.isArray(user.roles) && user.roles.some((r: string) => normalize(r) === 'admin')));
 
   return (
