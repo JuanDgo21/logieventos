@@ -26,7 +26,7 @@ const PersonnelTypeListScreen: React.FC = () => {
   const {
     personnelTypes,
     loading,
-    error,
+    // CORRECCIÓN: (S1854) Eliminada 'error' no usada
     deletePersonnelType,
     refreshData,
     updatePersonnelType,
@@ -69,9 +69,9 @@ const PersonnelTypeListScreen: React.FC = () => {
   // Solo el admin puede acceder y ver este módulo
   const isAdmin = hasRole('admin');
   const canCreate = () => isAdmin;
-  const canEdit = () => isAdmin;
+  // CORRECCIÓN: (S1854) Eliminada 'canEdit' no usada
   const canDelete = () => isAdmin;
-  const canShowActions = () => isAdmin;
+  // CORRECCIÓN: (S1854) Eliminada 'canShowActions' no usada
 
   useEffect(() => {
     filterData();
@@ -95,7 +95,21 @@ const PersonnelTypeListScreen: React.FC = () => {
     setRefreshing(false);
   };
 
-  const handleDelete = async (id: string) => {
+  // --- INICIO DE LA CORRECCIÓN (S6544 / S2004) ---
+  const executeDelete = async (id: string) => {
+    try {
+      await deletePersonnelType(id);
+      // Actualizamos estado local automáticamente
+      setFilteredTypes(prev => prev.filter(type => type._id !== id));
+      Alert.alert('Éxito', 'Categoría eliminada correctamente');
+    } catch (error) {
+      // CORRECCIÓN: (S2486) Añadido console.error
+      console.error("Error al eliminar categoría:", error);
+      Alert.alert('Error', 'No se pudo eliminar la categoría');
+    }
+  };
+  
+  const handleDelete = (id: string) => {
     Alert.alert(
       'Confirmar eliminación',
       '¿Estás seguro de eliminar esta categoría?',
@@ -104,20 +118,14 @@ const PersonnelTypeListScreen: React.FC = () => {
         { 
           text: 'Eliminar', 
           style: 'destructive',
-          onPress: async () => {
-            try {
-              await deletePersonnelType(id);
-              // Actualizamos estado local automáticamente
-              setFilteredTypes(prev => prev.filter(type => type._id !== id));
-              Alert.alert('Éxito', 'Categoría eliminada correctamente');
-            } catch (error) {
-              Alert.alert('Error', 'No se pudo eliminar la categoría');
-            }
+          onPress: () => {
+            executeDelete(id);
           }
         },
       ]
     );
   };
+  // --- FIN DE LA CORRECCIÓN ---
 
   const handleToggleStatus = async (type: PersonnelType) => {
     try {
@@ -135,34 +143,32 @@ const PersonnelTypeListScreen: React.FC = () => {
         )
       );
 
-      Alert.alert('Éxito', `Categoría ${!type.isActive ? 'activada' : 'desactivada'} correctamente`);
+      Alert.alert('Éxito', `Categoría ${type.isActive ? 'desactivada' : 'activada'} correctamente`);
     } catch (error) {
+      // CORRECCIÓN: (S2486) Añadido console.error
+      console.error("Error al cambiar estado:", error);
       Alert.alert('Error', 'No se pudo cambiar el estado de la categoría');
     }
   };
 
-  // const canCreate = (): boolean => {
-  //   return user?.roles?.includes('admin') || user?.roles?.includes('coordinador') || false;
-  // };
+  // CORRECCIÓN: (S125) Eliminado bloque de código comentado
 
-  // const canDelete = (): boolean => {
-  //   return user?.roles?.includes('admin') || false;
-  // };
-
+  // CORRECCIÓN: (S7735) Invertida la lógica del 'if'
   // Si no es admin, no muestra nada
-  if (!isAdmin) {
+  if (isAdmin) {
+    if (loading && !refreshing) {
+      return (
+        <View style={styles.loadingContainer}>
+          <FontAwesome5 name="spinner" size={40} color="#9370DB" />
+          <Text style={styles.loadingText}>Cargando categorías...</Text>
+        </View>
+      );
+    }
+  } else {
     return (
       <View style={styles.loadingContainer}>
         <FontAwesome5 name="exclamation-triangle" size={40} color="#ff416c" />
         <Text style={styles.loadingText}>Acceso restringido: solo el administrador puede ver este módulo.</Text>
-      </View>
-    );
-  }
-  if (loading && !refreshing) {
-    return (
-      <View style={styles.loadingContainer}>
-        <FontAwesome5 name="spinner" size={40} color="#9370DB" />
-        <Text style={styles.loadingText}>Cargando categorías...</Text>
       </View>
     );
   }

@@ -26,7 +26,6 @@ const PersonnelListScreen: React.FC = () => {
     personnelList,
     personnelTypes,
     loading,
-    error,
     deletePersonnel,
     refreshData,
     updatePersonnel,
@@ -101,7 +100,26 @@ const PersonnelListScreen: React.FC = () => {
     setRefreshing(false);
   };
 
-  const handleDelete = async (id: string) => {
+  // --- INICIO DE LA CORRECCIÓN (S2004) ---
+  
+  /**
+   * @description Ejecuta la lógica asíncrona de borrado.
+   * Se define a este nivel para evitar anidamiento excesivo (S2004).
+   */
+  const executeDelete = async (id: string) => {
+    try {
+      await deletePersonnel(id);
+      setFilteredList(prev => prev.filter(p => p._id !== id));
+      Alert.alert('Éxito', 'Personal eliminado correctamente');
+    } catch (error: any) {
+      Alert.alert('Error', error?.message || 'No se pudo eliminar el personal');
+    }
+  };
+
+  /**
+   * @description Muestra el modal de confirmación antes de borrar.
+   */
+  const handleDelete = (id: string) => {
     Alert.alert(
       'Confirmar eliminación',
       '¿Estás seguro de eliminar este miembro del personal?',
@@ -110,19 +128,16 @@ const PersonnelListScreen: React.FC = () => {
         { 
           text: 'Eliminar', 
           style: 'destructive',
-          onPress: async () => {
-            try {
-              await deletePersonnel(id);
-              setFilteredList(prev => prev.filter(p => p._id !== id));
-              Alert.alert('Éxito', 'Personal eliminado correctamente');
-            } catch (error: any) {
-              Alert.alert('Error', error?.message || 'No se pudo eliminar el personal');
-            }
+          // Llama a la función helper en lugar de definir una nueva función async anidada
+          onPress: () => { 
+            executeDelete(id);
           }
         },
       ]
     );
   };
+
+  // --- FIN DE LA CORRECCIÓN ---
 
   const handleToggleStatus = async (personnel: Personnel) => {
     try {
@@ -183,12 +198,12 @@ const PersonnelListScreen: React.FC = () => {
     return colors[status] || '#6c757d';
   };
 
-  // admin: todo, coordinador: solo crear/editar, líder: solo visualiza
+  //  coordinador: solo crear/editar, líder: solo visualiza
   const canCreate = () => hasRole('admin') || hasRole('coordinador');
   const canEdit = () => hasRole('admin') || hasRole('coordinador');
   const canDelete = () => hasRole('admin');
   const canToggleStatus = () => hasRole('admin');
-  // Solo muestra acciones si el usuario puede al menos una acción
+  // Solo muestra acciones si el usuario puede al menos una acción (S1135)
   const canShowActions = () => canEdit() || canDelete() || canToggleStatus();
 
   // Manejo de creación y edición para actualización instantánea
@@ -394,8 +409,8 @@ const PersonnelListScreen: React.FC = () => {
 
                 {personnel.skills && personnel.skills.length > 0 && (
                   <View style={styles.skillsContainer}>
-                    {personnel.skills.slice(0, 2).map((skill, index) => (
-                      <View key={index} style={styles.skillBadge}>
+                    {personnel.skills.slice(0, 2).map((skill) => (
+                      <View key={skill} style={styles.skillBadge}>
                         <Text style={styles.skillText}>{skill}</Text>
                       </View>
                     ))}
@@ -408,7 +423,7 @@ const PersonnelListScreen: React.FC = () => {
                 )}
 
                 <View style={styles.actions}>
-                  {/* Solo muestra acciones si el usuario tiene permisos (admin: todo, coordinador: solo editar, líder: nada) */}
+                  {/*Solo muestra acciones si el usuario tiene permisos */}
                   {canShowActions() && (
                     <>
                       {canEdit() && (

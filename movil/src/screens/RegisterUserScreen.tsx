@@ -20,14 +20,15 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
-  SafeAreaView,
-  Platform,
+  // CORRECCIÓN: (S1874) 'SafeAreaView' eliminado de 'react-native'
 } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import RNPickerSelect from 'react-native-picker-select';
+// CORRECCIÓN: (S1874) Importado 'SafeAreaView' desde el paquete correcto
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 /**
  * @component RegisterUserScreen
@@ -144,7 +145,7 @@ const RegisterUserScreen = () => {
                 {/* Componente táctil personalizado que abre el selector de roles. */}
                 <TouchableOpacity 
                     style={styles.inputContainer} 
-                    onPress={() => pickerRef.current?.togglePicker(true)}
+                    onPress={() => (pickerRef.current as any)?.togglePicker(true)}
                 >
                     <FontAwesome5 name="user-tag" size={18} color="#ccc" style={styles.inputIcon} />
                     <Text style={role ? styles.pickerText : styles.pickerPlaceholder}>

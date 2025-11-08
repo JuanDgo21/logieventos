@@ -6,238 +6,342 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
+  RefreshControl,
   Alert,
-  ActivityIndicator,
-  Switch,
 } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { PersonnelStackParamList } from '../navigation/PersonnelStack';
 import usePersonnelService from '../services/personnel-service';
-import { PersonnelType, NewPersonnelType, UpdatePersonnelType } from '../types/personnel';
+import { PersonnelType } from '../types/personnel';
+import { useAuth } from '../contexts/AuthContext';
+import { UpdatePersonnelType } from '../types/personnel-type';
 
-type PersonnelTypeFormNavigationProp = StackNavigationProp<PersonnelStackParamList, 'PersonnelTypeForm'>;
-type PersonnelTypeFormRouteProp = RouteProp<PersonnelStackParamList, 'PersonnelTypeForm'>;
+type PersonnelTypeListNavigationProp = StackNavigationProp<PersonnelStackParamList, 'PersonnelTypeList'>;
 
-const PersonnelTypeFormScreen: React.FC = () => {
-  const navigation = useNavigation<PersonnelTypeFormNavigationProp>();
-  const route = useRoute<PersonnelTypeFormRouteProp>();
-  const { typeId } = route.params || {};
-
+const PersonnelTypeListScreen: React.FC = () => {
+  const navigation = useNavigation<PersonnelTypeListNavigationProp>();
+  const { user } = useAuth();
   const {
     personnelTypes,
-    getPersonnelTypeById,
-    createPersonnelType,
+    loading,
+    // CORRECCIÓN: (S1854) Eliminada 'error' no usada
+    deletePersonnelType,
+    refreshData,
     updatePersonnelType,
-    refreshData,   // 👈 agrega esto
   } = usePersonnelService();
 
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    isActive: true,
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [filteredTypes, setFilteredTypes] = useState<PersonnelType[]>([]);
+
+  const hasRole = (required: string) => {
+    if (!user) return false;
+    const normalize = (s?: string) => (s || '').toString().toLowerCase().normalize('NFD').replaceAll(/\p{Diacritic}/gu, '');
+    const roleEquivalents: { [key: string]: string[] } = {
+      admin: ['admin', 'administrator'],
+      coordinador: ['coordinador', 'coordinator'],
+      lider: ['lider', 'líder', 'leader'],
+    };
+
+    const req = normalize(required);
+    const matches = (r?: string) => {
+      if (!r) return false;
+      const n = normalize(r);
+      if (n === req) return true;
+      const equivalents = roleEquivalents[req] || [req];
+      return equivalents.includes(n);
+    };
+
+    if (Array.isArray(user.roles) && user.roles.length > 0) {
+      return user.roles.some((r: string) => matches(r));
+    }
+
+    if (user.role) {
+      return matches(user.role);
+    }
+
+    return false;
+  };
+
+  // Solo el admin puede acceder y ver este módulo
+  const isAdmin = hasRole('admin');
+  const canCreate = () => isAdmin;
+  // CORRECCIÓN: (S1854) Eliminada 'canEdit' no usada
+  const canDelete = () => isAdmin;
+  // CORRECCIÓN: (S1854) Eliminada 'canShowActions' no usada
 
   useEffect(() => {
-    if (typeId) {
-      loadTypeData();
-    }
-  }, [typeId]);
+    filterData();
+  }, [personnelTypes, searchTerm, statusFilter]);
 
-  const loadTypeData = async () => {
+  const filterData = () => {
+    const filtered = personnelTypes.filter(type => {
+      const matchesSearch = type.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || 
+                          (statusFilter === 'active' && type.isActive) || 
+                          (statusFilter === 'inactive' && !type.isActive);
+      
+      return matchesSearch && matchesStatus;
+    });
+    setFilteredTypes(filtered);
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refreshData();
+    setRefreshing(false);
+  };
+
+  // --- INICIO DE LA CORRECCIÓN (S6544 / S2004) ---
+  const executeDelete = async (id: string) => {
     try {
-      setIsLoading(true);
-      const type = await getPersonnelTypeById(typeId!);
-      setFormData({
-        name: type.name,
-        description: type.description || '',
-        isActive: type.isActive,
-      });
+      await deletePersonnelType(id);
+      // Actualizamos estado local automáticamente
+      setFilteredTypes(prev => prev.filter(type => type._id !== id));
+      Alert.alert('Éxito', 'Categoría eliminada correctamente');
     } catch (error) {
-      Alert.alert('Error', 'No se pudo cargar los datos de la categoría');
-    } finally {
-      setIsLoading(false);
+      // CORRECCIÓN: (S2486) Añadido console.error
+      console.error("Error al eliminar categoría:", error);
+      Alert.alert('Error', 'No se pudo eliminar la categoría');
     }
   };
-
-  const validateForm = (): boolean => {
-    const newErrors: { [key: string]: string } = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'El nombre es requerido';
-    } else if (formData.name.length > 50) {
-      newErrors.name = 'Máximo 50 caracteres';
-    }
-
-    if (formData.description.length > 200) {
-      newErrors.description = 'Máximo 200 caracteres';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  
+  const handleDelete = (id: string) => {
+    Alert.alert(
+      'Confirmar eliminación',
+      '¿Estás seguro de eliminar esta categoría?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Eliminar', 
+          style: 'destructive',
+          onPress: () => {
+            executeDelete(id);
+          }
+        },
+      ]
+    );
   };
+  // --- FIN DE LA CORRECCIÓN ---
 
-  const handleSave = async () => {
-    if (!validateForm()) return;
-
-    setIsLoading(true);
+  const handleToggleStatus = async (type: PersonnelType) => {
     try {
-      if (typeId) {
-        const updateData: UpdatePersonnelType = {
-          _id: typeId,
-          ...formData,
-        };
-        await updatePersonnelType(typeId, updateData);
-        Alert.alert('Éxito', 'Categoría actualizada correctamente');
-      } else {
-        const newType: NewPersonnelType = {
-          ...formData,
-          createdBy: 'current-user-id',
-        };
-        await createPersonnelType(newType);
-        Alert.alert('Éxito', 'Categoría creada correctamente');
-      }
-      navigation.goBack();
-    } catch (error: any) {
-      Alert.alert('Error', error?.message || 'No se pudo guardar la categoría');
-    } finally {
-      setIsLoading(false);
+      const updateData: UpdatePersonnelType = {
+        _id: type._id,
+        isActive: !type.isActive
+      };
+      
+      await updatePersonnelType(type._id, updateData);
+
+      // Actualizamos estado local automáticamente
+      setFilteredTypes(prev =>
+        prev.map(t =>
+          t._id === type._id ? { ...t, isActive: !t.isActive } : t
+        )
+      );
+
+      Alert.alert('Éxito', `Categoría ${type.isActive ? 'desactivada' : 'activada'} correctamente`);
+    } catch (error) {
+      // CORRECCIÓN: (S2486) Añadido console.error
+      console.error("Error al cambiar estado:", error);
+      Alert.alert('Error', 'No se pudo cambiar el estado de la categoría');
     }
   };
 
-  if (isLoading && typeId) {
+  // CORRECCIÓN: (S125) Eliminado bloque de código comentado
+
+  // Si no es admin, no muestra nada
+  // CORRECCIÓN: (S7735) Invertida la lógica del 'if'
+  if (isAdmin) {
+    if (loading && !refreshing) {
+      return (
+        <View style={styles.loadingContainer}>
+          <FontAwesome5 name="spinner" size={40} color="#9370DB" />
+          <Text style={styles.loadingText}>Cargando categorías...</Text>
+        </View>
+      );
+    }
+  } else {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#9370DB" />
-        <Text style={styles.loadingText}>Cargando datos...</Text>
+        <FontAwesome5 name="exclamation-triangle" size={40} color="#ff416c" />
+        <Text style={styles.loadingText}>Acceso restringido: solo el administrador puede ver este módulo.</Text>
       </View>
     );
   }
-
+  
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <View style={styles.titleContainer}>
-            <View style={styles.titleIcon}>
-              <FontAwesome5 name="tag" size={20} color="#fff" />
-            </View>
-            <Text style={styles.headerTitle}>
-              {typeId ? 'Editar Categoría' : 'Nueva Categoría'}
-            </Text>
-          </View>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <FontAwesome5 name="times" size={20} color="#fff" />
-          </TouchableOpacity>
+          <Text style={styles.headerTitle}>
+            <FontAwesome5 name="tags" size={24} color="#9370DB" /> Categorías de Personal
+          </Text>
+          {canCreate() && (
+            <TouchableOpacity 
+              style={styles.addButton}
+              onPress={() => navigation.navigate('PersonnelTypeForm' as never)}
+            >
+              <FontAwesome5 name="plus" size={16} color="#fff" />
+              <Text style={styles.addButtonText}>Nueva</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
-      {/* Form */}
-      <View style={styles.form}>
-        <View style={styles.formGrid}>
-          {/* Name */}
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>
-              <FontAwesome5 name="tag" size={14} color="#9370DB" /> Nombre*
-            </Text>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={[
-                  styles.input,
-                  errors.name && styles.inputError
-                ]}
-                placeholder="Nombre de la categoría"
-                placeholderTextColor="rgba(255,255,255,0.5)"
-                value={formData.name}
-                onChangeText={(text) => setFormData(prev => ({ ...prev, name: text }))}
-                maxLength={50}
-              />
-            </View>
-            {errors.name && (
-              <Text style={styles.errorText}>
-                <FontAwesome5 name="exclamation-circle" size={12} color="#ff416c" /> {errors.name}
-              </Text>
-            )}
+      {/* Search and Filters */}
+      <View style={styles.searchSection}>
+        <View style={styles.searchCard}>
+          <View style={styles.searchInputContainer}>
+            <FontAwesome5 name="search" size={16} color="rgba(255,255,255,0.7)" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Buscar categorías..."
+              placeholderTextColor="rgba(255,255,255,0.5)"
+              value={searchTerm}
+              onChangeText={setSearchTerm}
+            />
           </View>
+          <TouchableOpacity 
+            style={styles.clearButton}
+            onPress={() => {
+              setSearchTerm('');
+              setStatusFilter('all');
+            }}
+          >
+            <FontAwesome5 name="undo" size={16} color="#9370DB" />
+            <Text style={styles.clearButtonText}>Limpiar</Text>
+          </TouchableOpacity>
+        </View>
 
-          {/* Description */}
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>
-              <FontAwesome5 name="align-left" size={14} color="#9370DB" /> Descripción
-            </Text>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={[
-                  styles.textArea,
-                  errors.description && styles.inputError
-                ]}
-                placeholder="Descripción opcional (máx. 200 caracteres)"
-                placeholderTextColor="rgba(255,255,255,0.5)"
-                value={formData.description}
-                onChangeText={(text) => setFormData(prev => ({ ...prev, description: text }))}
-                multiline
-                numberOfLines={3}
-                maxLength={200}
-              />
-            </View>
-            {errors.description && (
-              <Text style={styles.errorText}>
-                <FontAwesome5 name="exclamation-circle" size={12} color="#ff416c" /> {errors.description}
-              </Text>
-            )}
-          </View>
-
-          {/* Status */}
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>
+        <View style={styles.filterCards}>
+          <View style={styles.filterCard}>
+            <Text style={styles.filterLabel}>
               <FontAwesome5 name="power-off" size={14} color="#9370DB" /> Estado
             </Text>
-            <View style={styles.switchContainer}>
-              <Text style={styles.switchLabel}>
-                {formData.isActive ? 'Activo' : 'Inactivo'}
-              </Text>
-              <Switch
-                value={formData.isActive}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, isActive: value }))}
-                trackColor={{ false: '#767577', true: '#9370DB' }}
-                thumbColor={formData.isActive ? '#fff' : '#f4f3f4'}
-              />
-            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View style={styles.filterOptions}>
+                <TouchableOpacity
+                  style={[
+                    styles.filterOption,
+                    statusFilter === 'all' && styles.filterOptionActive
+                  ]}
+                  onPress={() => setStatusFilter('all')}
+                >
+                  <Text style={[
+                    styles.filterOptionText,
+                    statusFilter === 'all' && styles.filterOptionTextActive
+                  ]}>Todos</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.filterOption,
+                    statusFilter === 'active' && styles.filterOptionActive
+                  ]}
+                  onPress={() => setStatusFilter('active')}
+                >
+                  <Text style={[
+                    styles.filterOptionText,
+                    statusFilter === 'active' && styles.filterOptionTextActive
+                  ]}>Activos</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.filterOption,
+                    statusFilter === 'inactive' && styles.filterOptionActive
+                  ]}
+                  onPress={() => setStatusFilter('inactive')}
+                >
+                  <Text style={[
+                    styles.filterOptionText,
+                    statusFilter === 'inactive' && styles.filterOptionTextActive
+                  ]}>Inactivos</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
           </View>
         </View>
+      </View>
 
-        {/* Form Actions */}
-        <View style={styles.formActions}>
-          <TouchableOpacity 
-            style={styles.cancelButton}
-            onPress={() => navigation.goBack()}
-          >
-            <FontAwesome5 name="times" size={16} color="#fff" />
-            <Text style={styles.cancelButtonText}>Cancelar</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[
-              styles.saveButton,
-              isLoading && styles.saveButtonDisabled
-            ]}
-            onPress={handleSave}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <FontAwesome5 name="save" size={16} color="#fff" />
-            )}
-            <Text style={styles.saveButtonText}>
-              {isLoading ? 'Guardando...' : typeId ? 'Actualizar' : 'Guardar'}
-            </Text>
-          </TouchableOpacity>
-        </View>
+      {/* Types List */}
+      <View style={styles.listSection}>
+        {filteredTypes.length === 0 ? (
+          <View style={styles.emptyState}>
+            <FontAwesome5 name="tag" size={48} color="rgba(255,255,255,0.3)" />
+            <Text style={styles.emptyTitle}>No se encontraron categorías</Text>
+            <Text style={styles.emptyText}>Intenta ajustar tus filtros de búsqueda</Text>
+          </View>
+        ) : (
+          <View style={styles.typesList}>
+            {filteredTypes.map(type => (
+              <View key={type._id} style={styles.typeCard}>
+                <View style={styles.typeHeader}>
+                  <View style={styles.typeIcon}>
+                    <FontAwesome5 name="tag" size={16} color="#9370DB" />
+                  </View>
+                  <View style={styles.typeInfo}>
+                    <Text style={styles.typeName}>{type.name}</Text>
+                    <Text style={styles.typeDescription}>
+                      {type.description || 'Sin descripción'}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.typeMeta}>
+                  <View style={[
+                    styles.statusBadge,
+                    type.isActive ? styles.statusActive : styles.statusInactive
+                  ]}>
+                    <FontAwesome5 
+                      name={type.isActive ? 'check-circle' : 'times-circle'} 
+                      size={12} 
+                      color="#fff" 
+                    />
+                    <Text style={styles.statusText}>
+                      {type.isActive ? 'Activo' : 'Inactivo'}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.actions}>
+                  <TouchableOpacity 
+                    style={styles.actionButton}
+                    onPress={() => navigation.navigate('PersonnelTypeForm', { typeId: type._id })}
+                  >
+                    <FontAwesome5 name="edit" size={14} color="#9370DB" />
+                  </TouchableOpacity>
+                  {canDelete() && (
+                    <TouchableOpacity 
+                      style={styles.actionButton}
+                      onPress={() => handleDelete(type._id)}
+                    >
+                      <FontAwesome5 name="trash-alt" size={14} color="#ff416c" />
+                    </TouchableOpacity>
+                  )}
+                  <TouchableOpacity 
+                    style={styles.actionButton}
+                    onPress={() => handleToggleStatus(type)}
+                  >
+                    <FontAwesome5 
+                      name={type.isActive ? 'toggle-on' : 'toggle-off'} 
+                      size={14} 
+                      color="#38ef7d" 
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
       </View>
     </ScrollView>
   );
@@ -261,130 +365,193 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 20,
-    backgroundColor: 'rgba(106, 17, 203, 0.8)',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
   },
   headerContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  titleIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#fff',
   },
-  form: {
-    padding: 20,
-  },
-  formGrid: {
-    gap: 20,
-  },
-  formGroup: {
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
+    backgroundColor: '#9370DB',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
   },
-  label: {
+  addButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  searchSection: {
+    padding: 20,
+    gap: 16,
+  },
+  searchCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    padding: 16,
+    borderRadius: 12,
+  },
+  searchInputContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  searchInput: {
+    flex: 1,
+    color: '#fff',
+    fontSize: 16,
+  },
+  clearButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    padding: 8,
+  },
+  clearButtonText: {
+    color: '#9370DB',
+    fontSize: 14,
+  },
+  filterCards: {
+    gap: 12,
+  },
+  filterCard: {
+    backgroundColor: 'rgba(26, 26, 46, 0.95)',
+    padding: 12,
+    borderRadius: 8,
+  },
+  filterLabel: {
     color: '#fff',
     fontSize: 14,
     fontWeight: '500',
+    marginBottom: 8,
   },
-  inputContainer: {
-    position: 'relative',
+  filterOptions: {
+    flexDirection: 'row',
+    gap: 8,
   },
-  input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 8,
-    padding: 12,
-    paddingLeft: 40,
-    color: '#fff',
-    fontSize: 16,
+  filterOption: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 16,
   },
-  textArea: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 8,
-    padding: 12,
-    paddingLeft: 40,
-    color: '#fff',
-    fontSize: 16,
-    minHeight: 100,
-    textAlignVertical: 'top',
+  filterOptionActive: {
+    backgroundColor: '#9370DB',
   },
-  inputError: {
-    borderColor: '#ff416c',
-  },
-  errorText: {
-    color: '#ff416c',
+  filterOptionText: {
+    color: 'rgba(255, 255, 255, 0.7)',
     fontSize: 12,
+  },
+  filterOptionTextActive: {
+    color: '#fff',
+    fontWeight: '500',
+  },
+  listSection: {
+    padding: 20,
+    paddingTop: 0,
+  },
+  emptyState: {
+    alignItems: 'center',
+    padding: 40,
+  },
+  emptyTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
+    marginTop: 16,
+  },
+  emptyText: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 14,
     marginTop: 4,
   },
-  switchContainer: {
+  typesList: {
+    gap: 16,
+  },
+  typeCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    padding: 16,
+    borderRadius: 12,
+  },
+  typeHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 8,
+    gap: 12,
+    marginBottom: 12,
   },
-  switchLabel: {
+  typeIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(147, 112, 219, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  typeInfo: {
+    flex: 1,
+  },
+  typeName: {
     color: '#fff',
     fontSize: 16,
+    fontWeight: '600',
   },
-  formActions: {
+  typeDescription: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 14,
+    marginTop: 2,
+  },
+  typeMeta: {
+    marginBottom: 12,
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  statusActive: {
+    backgroundColor: 'rgba(56, 239, 125, 0.2)',
+  },
+  statusInactive: {
+    backgroundColor: 'rgba(255, 65, 108, 0.2)',
+  },
+  statusText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  actions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: 12,
-    marginTop: 24,
-    paddingTop: 20,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
   },
-  cancelButton: {
-    flexDirection: 'row',
+  actionButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  cancelButtonText: {
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontWeight: '500',
-  },
-  saveButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: '#9370DB',
-    borderRadius: 8,
-  },
-  saveButtonDisabled: {
-    opacity: 0.7,
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontWeight: '500',
   },
 });
 
-export default PersonnelTypeFormScreen;
+export default PersonnelTypeListScreen;
