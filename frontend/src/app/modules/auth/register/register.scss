@@ -218,12 +218,16 @@
       cursor: pointer;
       
       option {
-        background: $dark-color;
-        color: #f8f9fa; // CORREGIDO: Mejor contraste que white
+        // --- CORRECCIÓN ---
+        // Se eliminaron 'background: $dark-color;' (L174)
+        // y 'color: #f8f9fa;' (L175)
+        // para permitir el estilo nativo accesible del navegador.
       }
       
       option[disabled] {
-        color: rgba(255, 255, 255, 0.6); // CORREGIDO: Mejor contraste
+        // --- CORRECCIÓN ---
+        // Se eliminó 'color: rgba(255, 255, 255, 0.6);' (L179)
+        // para permitir el estilo nativo.
       }
     }
     

@@ -358,13 +358,10 @@ select {
   }
 
   option {
-    background: #1a1a2e;
-    color: #ffffff; // CORREGIDO: Blanco puro para máximo contraste
-    padding: 0.5rem;
-    
-    &:hover {
-      background: #a855f7; // CORREGIDO: Color más vibrante
-    }
+    // --- CORRECCIÓN ---
+    // Se eliminaron 'background' (L328), 'color' (L329), 'padding' (L330)
+    // y el 'hover' (L332-L334) para permitir el estilo nativo accesible
+    // del navegador.
   }
 }
 
@@ -372,27 +369,10 @@ select {
 .status-select {
   min-width: 200px;
   
-  option {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    
-    &[value="disponible"] {
-      color: #10b981; // CORREGIDO: Verde más oscuro y accesible
-    }
-    
-    &[value="en_uso"] {
-      color: #f59e0b; // CORREGIDO: Naranja más oscuro y accesible
-    }
-    
-    &[value="mantenimiento"] {
-      color: #3b82f6; // CORREGIDO: Azul más oscuro y accesible
-    }
-    
-    &[value="descartado"] {
-      color: #ef4444; // CORREGIDO: Rojo más oscuro y accesible
-    }
-  }
+  // --- CORRECCIÓN ---
+  // Se eliminó todo el bloque 'option' anidado (L338-L353)
+  // que contenía la L339, ya que estos estilos de color
+  // no son accesibles en los dropdowns nativos.
 }
 
 // Estilo para el contenedor del select con descripción
