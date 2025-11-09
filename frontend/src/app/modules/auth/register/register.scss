@@ -126,7 +126,7 @@
     align-items: center;
     justify-content: center;
     font-size: 2rem;
-    color: #f8f9fa; // CORREGIDO: Mejor contraste que white
+    color: #ffffff; // Cambiado a blanco puro para máximo contraste
     box-shadow: 0 5px 15px rgba($primary-color, 0.3);
   }
   
@@ -134,8 +134,8 @@
     margin: 0;
     font-size: 1.8rem;
     font-weight: 600;
-    color: #f8f9fa; // CORREGIDO: Mejor contraste
-    background: linear-gradient(to right, #f8f9fa, #e9ecef); // CORREGIDO: Mejor contraste que #f0f0f0/#c0c0c0
+    color: #ffffff; // Cambiado a blanco puro para máximo contraste
+    background: linear-gradient(to right, #ffffff, #ffffff); // Cambiado a blanco sólido para máximo contraste
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -172,7 +172,7 @@
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
-    color: #f8f9fa; // CORREGIDO: Mejor contraste que white
+    color: #ffffff; // Cambiado a blanco puro para máximo contraste
     font-size: 1rem;
     transition: all 0.3s ease;
     
@@ -218,16 +218,12 @@
       cursor: pointer;
       
       option {
-        // --- CORRECCIÓN ---
-        // Se eliminaron 'background: $dark-color;' (L174)
-        // y 'color: #f8f9fa;' (L175)
-        // para permitir el estilo nativo accesible del navegador.
+        background: $dark-color;
+        color: #ffffff; // Cambiado a blanco puro para máximo contraste
       }
       
       option[disabled] {
-        // --- CORRECCIÓN ---
-        // Se eliminó 'color: rgba(255, 255, 255, 0.6);' (L179)
-        // para permitir el estilo nativo.
+        color: rgba(255, 255, 255, 0.6); // CORREGIDO: Mejor contraste
       }
     }
     

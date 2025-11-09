@@ -35,7 +35,7 @@
     }
 
     h2 {
-      color: #a855f7; // CORREGIDO: Color más vibrante y con mejor contraste
+      color: #C084FC; // Ajustado para mejor contraste (más claro)
       display: flex;
       align-items: center;
       gap: 1rem;
@@ -90,7 +90,7 @@
       
       h3 {
         margin-top: 0;
-        color: #ffffff; // CORREGIDO: Blanco puro para máximo contraste
+        color: #F8FAFC; // Ajustado para mejor contraste (más claro)
         font-size: 1.5rem;
         margin-bottom: 1.5rem;
       }
@@ -217,23 +217,23 @@
           font-weight: 500;
           
           &.status-disponible {
-            background: rgba(16, 185, 129, 0.2); // CORREGIDO: Color más oscuro
-            color: #10b981; // CORREGIDO: Verde más oscuro y accesible
+            background: rgba(16, 185, 129, 0.1);
+            color: #6EE7B7; // Verde más brillante con mejor contraste
           }
           
           &.status-en_uso {
-            background: rgba(245, 158, 11, 0.2); // CORREGIDO: Color más oscuro
-            color: #f59e0b; // CORREGIDO: Naranja más oscuro y accesible
+            background: rgba(245, 158, 11, 0.1);
+            color: #FBBF24; // Amarillo más brillante con mejor contraste
           }
           
           &.status-mantenimiento {
-            background: rgba(59, 130, 246, 0.2); // CORREGIDO: Color más oscuro
-            color: #3b82f6; // CORREGIDO: Azul más oscuro y accesible
+            background: rgba(59, 130, 246, 0.1);
+            color: #93C5FD; // Azul más brillante con mejor contraste
           }
           
           &.status-descartado {
-            background: rgba(239, 68, 68, 0.2); // CORREGIDO: Color más oscuro
-            color: #ef4444; // CORREGIDO: Rojo más oscuro y accesible
+            background: rgba(239, 68, 68, 0.1);
+            color: #FCA5A5; // Rojo más brillante con mejor contraste
           }
         }
         
@@ -358,10 +358,13 @@ select {
   }
 
   option {
-    // --- CORRECCIÓN ---
-    // Se eliminaron 'background' (L328), 'color' (L329), 'padding' (L330)
-    // y el 'hover' (L332-L334) para permitir el estilo nativo accesible
-    // del navegador.
+    background: #1a1a2e;
+    color: #ffffff; // CORREGIDO: Blanco puro para máximo contraste
+    padding: 0.5rem;
+    
+    &:hover {
+      background: #a855f7; // CORREGIDO: Color más vibrante
+    }
   }
 }
 
@@ -369,10 +372,27 @@ select {
 .status-select {
   min-width: 200px;
   
-  // --- CORRECCIÓN ---
-  // Se eliminó todo el bloque 'option' anidado (L338-L353)
-  // que contenía la L339, ya que estos estilos de color
-  // no son accesibles en los dropdowns nativos.
+  option {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    
+    &[value="disponible"] {
+      color: #10b981; // CORREGIDO: Verde más oscuro y accesible
+    }
+    
+    &[value="en_uso"] {
+      color: #f59e0b; // CORREGIDO: Naranja más oscuro y accesible
+    }
+    
+    &[value="mantenimiento"] {
+      color: #3b82f6; // CORREGIDO: Azul más oscuro y accesible
+    }
+    
+    &[value="descartado"] {
+      color: #ef4444; // CORREGIDO: Rojo más oscuro y accesible
+    }
+  }
 }
 
 // Estilo para el contenedor del select con descripción

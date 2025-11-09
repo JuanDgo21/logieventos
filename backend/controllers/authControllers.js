@@ -28,17 +28,7 @@ const signup = async (req, res) => {
     }
 
     // Validar que el documento sea numérico
-    
-    // ✅ CORRECCIÓN (S7773): 
-    // Se reemplaza la función global isNaN() por Number.isNaN()
-    // Nota: Dado que req.body.document puede ser un string, 
-    // es mejor negar Number.isFinite() o validar que la conversión sea exitosa.
-    // Sin embargo, para mantener la lógica original del bug (revisar si NO es número):
-    // Primero intentamos convertirlo a número
-    const documentAsNumber = Number(req.body.document);
-    
-    // Ahora sí, usamos Number.isNaN() sobre el resultado convertido
-    if (Number.isNaN(documentAsNumber)) {
+    if (isNaN(req.body.document)) {
       return res.status(400).json({
         success: false,
         message: "El documento debe ser un número",
@@ -48,7 +38,7 @@ const signup = async (req, res) => {
 
     // Creación de nuevo usuario con datos del request
     const user = new User({
-      document: req.body.document, // Mongoose lo convertirá según el Schema
+      document: req.body.document,
       fullname: req.body.fullname,
       username: req.body.username.trim(), // Elimina espacios
       email: req.body.email.toLowerCase().trim(), // Normaliza email
@@ -123,9 +113,7 @@ const signin = async (req, res) => {
     }
 
     // Buscar usuario incluyendo el password (normalmente excluido)
-    
-    // Corrección S5147 (NoSQL Injection)
-    const user = await User.findOne({ email: String(email) }).select('+password');
+    const user = await User.findOne({ email }).select('+password');
     
     // Usuario no encontrado
     if (!user) {
@@ -194,9 +182,7 @@ const forgotPassword = async (req, res) => {
     }
 
     // Solo verificamos que el usuario existe
-    
-    // Corrección S5147 (NoSQL Injection)
-    const user = await User.findOne({ email: String(email) });
+    const user = await User.findOne({ email });
     
     if (!user) {
       // Por seguridad, no revelamos si el email existe o no

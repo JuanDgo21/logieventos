@@ -89,7 +89,7 @@
         
         i {
           font-size: 2rem;
-          color: #f8f9fa; // CORREGIDO: Mejor contraste que #ffffff
+          color: #ffffff; // Cambiado a blanco puro para máximo contraste
         }
       }
       
@@ -271,8 +271,7 @@
           
           i {
             font-size: 1.8rem;
-            // La declaración 'color: #f8f9fa;' se eliminó de aquí (L133 original)
-            // porque es redundante y ya se hereda de la regla base.
+            color: #ffffff; // Cambiado a blanco puro para máximo contraste y consistencia
           }
         }
         
