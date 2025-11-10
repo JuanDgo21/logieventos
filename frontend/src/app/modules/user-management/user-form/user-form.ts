@@ -31,7 +31,7 @@
 
   initForm(): void {
     this.userForm = this.fb.group({
-      document: [this.user?.document || '', [Validators.required, Validators.pattern(/^[0-9]*$/)]],
+      document: [this.user?.document || '', [Validators.required, Validators.pattern(/^\d*$/)]],  
       fullname: [this.user?.fullname || '', Validators.required],
       username: [this.user?.username || '', Validators.required],
       email: [this.user?.email || '', [Validators.required, Validators.email]],

@@ -58,7 +58,7 @@ export const usePersonnelService = () => {
     return false;
   };
 
-  // Permisos compuestos
+  // Permisos compuestos  
   // admin: completo
   // coordinador: solo crear/editar
   // líder: solo visualiza
