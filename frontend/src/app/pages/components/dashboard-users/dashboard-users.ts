@@ -130,7 +130,7 @@ export class DashboardUsersComponent implements OnInit {
       return 'N/A';
     }
   }
-
+  
   getGradient(type: string): string {
     switch(type) {
       case 'activeUsers':

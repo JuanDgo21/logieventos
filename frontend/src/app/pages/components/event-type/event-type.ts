@@ -131,12 +131,16 @@ export class EventTypeComponent implements OnInit, OnDestroy {
       this.currentEventTypeId = eventType._id;
       this.eventTypeForm.patchValue(eventType);
       
-      eventType.defaultResources?.forEach(res => {
-        this.defaultResources.push(this.fb.group(res));
-      });
-      eventType.additionalRequirements?.forEach(req => {
-        this.additionalRequirements.push(this.fb.control(req));
-      });
+      if (eventType.defaultResources) {
+        for (const res of eventType.defaultResources) {
+          this.defaultResources.push(this.fb.group(res));
+        }
+      }
+      if (eventType.additionalRequirements) {
+        for (const req of eventType.additionalRequirements) {
+          this.additionalRequirements.push(this.fb.control(req));
+        }
+      }
 
     } else {
       this.currentEventTypeId = null;
