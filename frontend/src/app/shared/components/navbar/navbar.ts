@@ -1,7 +1,5 @@
-import { Component, HostListener, Input, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
-import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
 import { User } from '../../interfaces/user';
 import { LayoutService } from '../../../core/services/layout';
