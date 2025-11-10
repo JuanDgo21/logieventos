@@ -44,11 +44,11 @@ import { Router } from '@angular/router';
   }
 
   private passwordMatchValidator(form: FormGroup) {
-    if (form.get('newPassword')?.value !== form.get('confirmPassword')?.value) {
-      form.get('confirmPassword')?.setErrors({ mismatch: true });
-    } else {
-      form.get('confirmPassword')?.setErrors(null);
-    }
+    if (form.get('newPassword')?.value === form.get('confirmPassword')?.value) {
+  form.get('confirmPassword')?.setErrors(null);
+} else {
+  form.get('confirmPassword')?.setErrors({ mismatch: true });
+}
   }
 
   private showBootstrapAlert(type: string, message: string): void {
