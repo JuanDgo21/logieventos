@@ -29,7 +29,7 @@ import { Router } from '@angular/router';
     private readonly cdRef: ChangeDetectorRef
   ) {
     this.profileForm = this.fb.group({
-      document: ['', [Validators.required, Validators.pattern(/^[0-9]*$/)]],
+      document: ['', [Validators.required, Validators.pattern(/^\d*$/)]],
       fullname: ['', [Validators.required, Validators.minLength(3)]],
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
