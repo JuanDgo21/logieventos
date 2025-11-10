@@ -106,20 +106,20 @@ export class DashboardStaffComponent  implements OnInit {
 
     const typeCounts: {[key: string]: number} = {};
 
-    this.personnelList.forEach(person => {
-      const typeId = typeof person.personnelType === 'string' ? 
-        person.personnelType : 
-        (person.personnelType as PersonnelType)._id;
-      
-      typeCounts[typeId] = (typeCounts[typeId] || 0) + 1;
-    });
+    for (const person of this.personnelList) {
+  const typeId = typeof person.personnelType === 'string'
+    ? person.personnelType
+    : (person.personnelType as PersonnelType)._id;
 
-    this.personnelTypes.forEach((type, index) => {
-      if (typeCounts[type._id]) {
-        this.departmentDistribution.labels.push(type.name);
-        this.departmentDistribution.data.push(typeCounts[type._id]);
-      }
-    });
+  typeCounts[typeId] = (typeCounts[typeId] || 0) + 1;
+} 
+
+    for (const type of this.personnelTypes) {
+  if (typeCounts[type._id]) {
+    this.departmentDistribution.labels.push(type.name);
+    this.departmentDistribution.data.push(typeCounts[type._id]);
+  }
+}
   }
 
   calculatePercentage(value: number): number {
