@@ -1,5 +1,4 @@
 import React from 'react';
-import { View, Text } from 'react-native'; // Asegúrate de tener estas importaciones básicas
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import EventsScreen from '../screens/EventsScreen';
 import EventFormScreen from '../screens/EventFormScreen';

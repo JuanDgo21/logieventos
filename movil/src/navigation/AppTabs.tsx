@@ -5,7 +5,6 @@ import HomeScreen from '../screens/HomeScreen';
 import ContractsStack from './ContractsStack';
 import EventsStack from '../navigation/EventsStack';
 import ProfileScreen from '../screens/ProfileScreen';
-import PersonnelDashboardScreen from '../screens/PersonnelDashboardScreen';
 import PersonnelStack from './PersonnelStack';
 
 export type AppTabsParamList = {

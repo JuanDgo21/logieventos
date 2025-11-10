@@ -1,5 +1,3 @@
-import { PersonnelType } from "./personnel-type";
-
 export interface Personnel {
   _id: string;
   firstName: string;
