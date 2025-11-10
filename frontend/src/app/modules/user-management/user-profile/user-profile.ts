@@ -1,4 +1,4 @@
-  import { ChangeDetectorRef, Component } from '@angular/core';
+  import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { User } from '../../../shared/interfaces/user';
 import { UserService } from '../../../core/services/user';
@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
     templateUrl: './user-profile.html',
     styleUrl: './user-profile.scss'
   })
-  export class UserProfileComponent {
+  export class UserProfileComponent implements OnInit {
   profileForm: FormGroup;
   isLoading = false;
   currentUser: User | null = null;
