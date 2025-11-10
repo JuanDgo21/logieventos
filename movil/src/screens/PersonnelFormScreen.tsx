@@ -264,7 +264,7 @@ const PersonnelFormScreen: React.FC = () => {
   const loadPersonnelData = async () => {
     try {
       setIsLoading(true);
-      const personnel = await getPersonnelById(personnelId!);
+      const personnel = await getPersonnelById(personnelId);
       setFormData({
         firstName: personnel.firstName,
         lastName: personnel.lastName,
