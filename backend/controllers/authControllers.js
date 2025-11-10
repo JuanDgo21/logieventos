@@ -28,7 +28,7 @@ const signup = async (req, res) => {
     }
 
     // Validar que el documento sea numérico
-    if (isNaN(req.body.document)) {
+    if (Number.isNaN(Number(req.body.document))) {
       return res.status(400).json({
         success: false,
         message: "El documento debe ser un número",
