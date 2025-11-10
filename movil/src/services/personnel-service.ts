@@ -59,7 +59,7 @@ export const usePersonnelService = () => {
   };
 
   // Permisos compuestos
-  // admin: todo
+  // admin: completo
   // coordinador: solo crear/editar
   // líder: solo visualiza
   const canCreate = () => hasRole('admin') || hasRole('coordinador');
