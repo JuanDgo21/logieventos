@@ -113,7 +113,7 @@
         input, select, textarea {
           width: 100%;
           padding: 0.75rem;
-          background: rgba(255, 255, 255, 0.1);
+          background: rgba(48, 48, 48, 0.1);
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 6px;
           font-size: 1rem;
@@ -165,7 +165,7 @@
           }
           
           &[disabled] {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(39, 39, 39, 0.1);
             color: rgba(232, 233, 255, 0.7); /* Aumentada opacidad de 0.5 a 0.7 */
             cursor: not-allowed;
           }
@@ -193,9 +193,9 @@
         }
         
         th {
-          background: rgba(122, 34, 219, 0.1); /* Ajustado color */
+          background: rgba(33, 8, 59, 0.1); /* Ajustado color */
           font-weight: 600;
-          color: #7a22db; /* Cambiado de #6a11cb a #7a22db para mejor contraste */
+          color: #a653ff; /* Cambiado de #6a11cb a #7a22db para mejor contraste */
         }
         
         tr:hover {
@@ -206,8 +206,8 @@
           display: inline-block;
           padding: 0.35rem 0.75rem;
           border-radius: 50px;
-          background: rgba(122, 34, 219, 0.2); /* Ajustado color */
-          color: #7a22db; /* Cambiado de #6a11cb a #7a22db para mejor contraste */
+          background: rgba(33, 8, 59, 0.1); /* Ajustado color */
+          color: #a653ff; /* Cambiado de #6a11cb a #7a22db para mejor contraste */
         }
         
         .status-badge {
@@ -217,22 +217,22 @@
           font-weight: 500;
           
           &.status-disponible {
-            background: rgba(40, 223, 117, 0.2); /* Ajustado color */
+            background: rgba(13, 65, 34, 0.2); /* Ajustado color */
             color: #28df75; /* Cambiado de #38ef7d a #28df75 para mejor contraste */
           }
           
           &.status-en_uso {
-            background: rgba(249, 196, 19, 0.2); /* Ajustado color */
+            background: rgba(61, 49, 8, 0.2); /* Ajustado color */
             color: #f9c413; /* Cambiado de #f9d423 a #f9c413 para mejor contraste */
           }
           
           &.status-mantenimiento {
-            background: rgba(53, 117, 252, 0.2); /* Ajustado color */
-            color: #3575fc; /* Cambiado de #2575fc a #3575fc para mejor contraste */
+            background: rgba(9, 23, 53, 0.2); /* Ajustado color */
+            color: #437fff; /* Cambiado de #2575fc a #3575fc para mejor contraste */
           }
           
           &.status-descartado {
-            background: rgba(255, 42, 92, 0.2); /* Ajustado color */
+            background: rgba(49, 6, 16, 0.2); /* Ajustado color */
             color: #ff2a5c; /* Cambiado de #ff416c a #ff2a5c para mejor contraste */
           }
         }
@@ -251,8 +251,8 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s;
-            background: rgba(122, 34, 219, 0.2); /* Ajustado color */
-            color: #7a22db; /* Cambiado de #6a11cb a #7a22db para mejor contraste */
+            background: rgba(33, 8, 59, 0.1); /* Ajustado color */
+            color: #a653ff; /* Cambiado de #6a11cb a #7a22db para mejor contraste */
             
             i {
               font-size: 0.9rem;
@@ -264,8 +264,8 @@
             }
             
             &.danger {
-              background: rgba(255, 42, 92, 0.2); /* Ajustado color */
-              color: #ff2a5c; /* Cambiado de #ff416c a #ff2a5c para mejor contraste */
+              background: rgba(68, 10, 24, 0.2); /* Ajustado color */
+              color: #ff3564; /* Cambiado de #ff416c a #ff2a5c para mejor contraste */
               
               &:hover {
                 background: rgba(255, 42, 92, 0.3); /* Ajustado color */
@@ -333,7 +333,7 @@ select {
   -moz-appearance: none;
   width: 100%;
   padding: 0.75rem 2.5rem 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(36, 36, 36, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   color: #e8e9ff; /* Cambiado de #f8f9ff a #e8e9ff para mejor contraste */

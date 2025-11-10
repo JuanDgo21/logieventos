@@ -5,9 +5,6 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UserFormComponent } from '../../../modules/user-management/user-form/user-form';
 import { AuthService } from '../../../core/services/auth';
 
-// import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
-// import { BaseChartDirective } from 'ng2-charts';
-
 @Component({
   selector: 'app-dashboard-users',
   standalone: false, // NOSONAR (typescript:S7648)
@@ -34,9 +31,9 @@ export class DashboardUsersComponent implements OnInit {
   math = Math;
 
   constructor(
-    private authService: AuthService,
-    private userService: UserService,
-    private modalService: NgbModal
+    private readonly authService: AuthService,
+    private readonly userService: UserService,
+    private readonly modalService: NgbModal
   ) {}
 
   ngOnInit(): void {

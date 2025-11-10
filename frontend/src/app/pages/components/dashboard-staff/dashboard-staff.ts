@@ -55,8 +55,8 @@ export class DashboardStaffComponent  implements OnInit {
 
   constructor(
     public authService: AuthService,
-    private personnelService: PersonnelService,
-    private modalService: NgbModal
+    private readonly personnelService: PersonnelService,
+    private readonly modalService: NgbModal
   ) {}
 
   ngOnInit(): void {  
@@ -83,7 +83,6 @@ export class DashboardStaffComponent  implements OnInit {
   }
 
   calculateStats(): void {
-    const now = new Date();
     const lastMonth = new Date();
     lastMonth.setMonth(lastMonth.getMonth() - 1);
 

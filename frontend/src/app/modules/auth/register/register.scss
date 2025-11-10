@@ -135,8 +135,8 @@
     font-size: 1.8rem;
     font-weight: 600;
     color: #ffffff; // Cambiado a blanco puro para máximo contraste
-    background: linear-gradient(to right, #ffffff, #ffffff); // Cambiado a blanco sólido para máximo contraste
-    -webkit-background-clip: text;
+    background: linear-gradient(to right, #2c2c2c1c, #ffffff); // Cambiado a blanco sólido para máximo contraste
+    background-clip: text;
     -webkit-text-fill-color: transparent;
   }
   
@@ -169,7 +169,7 @@
   input, select {
     width: 100%;
     padding: 15px 15px 15px 45px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(36, 36, 36, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     color: #ffffff; // Cambiado a blanco puro para máximo contraste

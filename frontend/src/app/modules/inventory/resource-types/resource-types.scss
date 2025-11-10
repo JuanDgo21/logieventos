@@ -113,7 +113,7 @@
         input, select, textarea {
           width: 100%;
           padding: 0.75rem;
-          background: rgba(255, 255, 255, 0.1);
+          background: rgba(41, 41, 41, 0.1);
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 6px;
           font-size: 1rem;
@@ -156,7 +156,7 @@
           font-weight: 500;
           cursor: pointer;
           transition: all 0.3s;
-          background: linear-gradient(135deg, #a855f7, #3b82f6); // CORREGIDO: Colores más vibrantes
+          background: linear-gradient(135deg, #501c808f, #3b82f6); // CORREGIDO: Colores más vibrantes
           color: white;
           
           &:not([disabled]):hover {
@@ -165,7 +165,7 @@
           }
           
           &[disabled] {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(41, 41, 41, 0.1);
             color: rgba(255, 255, 255, 0.8); // CORREGIDO: Texto más visible
             cursor: not-allowed;
           }
@@ -193,9 +193,9 @@
         }
         
         th {
-          background: rgba(168, 85, 247, 0.1); // CORREGIDO: Color más vibrante
+          background: rgba(50, 10, 87, 0.1); // CORREGIDO: Color más vibrante
           font-weight: 600;
-          color: #a855f7; // CORREGIDO: Color más vibrante
+          color: #b260ff; // CORREGIDO: Color más vibrante
         }
         
         tr:hover {
@@ -206,8 +206,8 @@
           display: inline-block;
           padding: 0.35rem 0.75rem;
           border-radius: 50px;
-          background: rgba(168, 85, 247, 0.2); // CORREGIDO: Color más vibrante
-          color: #a855f7; // CORREGIDO: Color más vibrante
+          background: rgba(40, 3, 75, 0.2); // CORREGIDO: Color más vibrante
+          color: #b260ff; // CORREGIDO: Color más vibrante
         }
         
         .status-badge {
@@ -217,22 +217,22 @@
           font-weight: 500;
           
           &.status-disponible {
-            background: rgba(16, 185, 129, 0.1);
+            background: rgba(7, 68, 48, 0.1);
             color: #6EE7B7; // Verde más brillante con mejor contraste
           }
           
           &.status-en_uso {
-            background: rgba(245, 158, 11, 0.1);
+            background: rgba(83, 55, 7, 0.1);
             color: #FBBF24; // Amarillo más brillante con mejor contraste
           }
           
           &.status-mantenimiento {
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(13, 39, 80, 0.384);
             color: #93C5FD; // Azul más brillante con mejor contraste
           }
           
           &.status-descartado {
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(104, 32, 32, 0.1);
             color: #FCA5A5; // Rojo más brillante con mejor contraste
           }
         }
@@ -251,8 +251,8 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s;
-            background: rgba(168, 85, 247, 0.2); // CORREGIDO: Color más vibrante
-            color: #a855f7; // CORREGIDO: Color más vibrante
+            background: rgba(41, 2, 80, 0.2); // CORREGIDO: Color más vibrante
+            color: #b05efd; // CORREGIDO: Color más vibrante
             
             i {
               font-size: 0.9rem;
@@ -264,7 +264,7 @@
             }
             
             &.danger {
-              background: rgba(239, 68, 68, 0.2); // CORREGIDO: Color más oscuro
+              background: rgba(53, 4, 4, 0.308); // CORREGIDO: Color más oscuro
               color: #ef4444; // CORREGIDO: Rojo más oscuro y accesible
               
               &:hover {
@@ -333,7 +333,7 @@ select {
   -moz-appearance: none;
   width: 100%;
   padding: 0.75rem 2.5rem 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(51, 51, 51, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   color: #ffffff; // CORREGIDO: Blanco puro para máximo contraste

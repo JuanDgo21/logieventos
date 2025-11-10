@@ -73,7 +73,7 @@
     input {
       width: 100%;
       padding: 0.75rem 1rem 0.75rem 3rem;
-      background: rgba(255,255,255,0.1);
+      background: rgba(41, 41, 41, 0.1);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 10px;
       color: white;
@@ -105,7 +105,7 @@
     select {
       width: 100%;
       padding: 0.75rem 1rem;
-      background: rgba(255,255,255,0.1);
+      background: rgba(48, 48, 48, 0.1);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 10px;
       color: white;
@@ -229,7 +229,7 @@
       color: rgba($light-color, 0.8);
       margin: 0;
       display: -webkit-box;
-      -webkit-line-clamp: 3;
+      line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -565,7 +565,7 @@
 // Texto truncado
 .text-truncate-3 {
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -682,49 +682,8 @@
 /* ============================================= */
 /* ===== ESTILOS PARA EL MODAL DE DETALLES ===== */
 /* ============================================= */
-.view-details-body {
-  background-color: #212529; color: #f8f9fa; padding: 2rem;
-  .detail-title { font-size: 2.25rem; font-weight: 300; margin-bottom: 0.5rem; }
-  .detail-description { font-size: 1.1rem; color: #adb5bd; max-width: 700px; margin: 0 auto; }
-  .details-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
-  .detail-item { background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.75rem; padding: 1rem; display: flex; align-items: center; gap: 1rem; }
-  .detail-icon-wrapper { flex-shrink: 0; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: white;
-    &.bg-purple { background-color: #6f42c1; }
-  }
-  .detail-content { display: flex; flex-direction: column;
-    strong { font-weight: 600; color: #adb5bd; font-size: 0.875rem; text-transform: uppercase; margin-bottom: 0.25rem; }
-    span, code { font-size: 1rem; }
-    code { font-family: monospace; background-color: rgba(0, 0, 0, 0.2); padding: 0.2rem 0.4rem; border-radius: 0.25rem; }
-  }
-  .badge { padding: 0.4em 0.8em; font-size: 0.85rem; font-weight: 600;
-    &.status-badge-planificado { background-color: #0d6efd; color: white; }
-    &.status-badge-en_progreso { background-color: #ffc107; color: black; }
-    &.status-badge-completado { background-color: #198754; color: white; }
-    &.status-badge-cancelado { background-color: #6c757d; color: white; }
-  }
-}
-.modal-footer { background-color: #212529; border-top: 1px solid rgba(255, 255, 255, 0.1); }
 
-/* ... (Tus estilos existentes para la página) ... */
 
-/* ESTILOS PARA EL MODAL DE DETALLES */
-.view-details-body { background-color: #212529; color: #f8f9fa; padding: 2rem; .detail-title { font-size: 2.25rem; font-weight: 300; margin-bottom: 0.5rem; } .detail-description { font-size: 1.1rem; color: #adb5bd; max-width: 700px; margin: 0 auto; } .details-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; } .detail-item { background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.75rem; padding: 1rem; display: flex; align-items: center; gap: 1rem; } .detail-icon-wrapper { flex-shrink: 0; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: white; &.bg-purple { background-color: #6f42c1; } } .detail-content { display: flex; flex-direction: column; strong { font-weight: 600; color: #adb5bd; font-size: 0.875rem; text-transform: uppercase; margin-bottom: 0.25rem; } span, code { font-size: 1rem; } code { font-family: monospace; background-color: rgba(0, 0, 0, 0.2); padding: 0.2rem 0.4rem; border-radius: 0.25rem; } } .badge { padding: 0.4em 0.8em; font-size: 0.85rem; font-weight: 600; &.status-badge-planificado { background-color: #0d6efd; color: white; } &.status-badge-en_progreso { background-color: #ffc107; color: black; } &.status-badge-completado { background-color: #198754; color: white; } &.status-badge-cancelado { background-color: #6c757d; color: white; } } }
-.modal-footer { background-color: #212529; border-top: 1px solid rgba(255, 255, 255, 0.1); }
-
-/* ... (Tus estilos existentes para la página) ... */
-
-/* ESTILOS PARA EL MODAL DE DETALLES */
-.view-details-body { background-color: #212529; color: #f8f9fa; padding: 2rem; .detail-title { font-size: 2.25rem; font-weight: 300; margin-bottom: 0.5rem; } .detail-description { font-size: 1.1rem; color: #adb5bd; max-width: 700px; margin: 0 auto; } .details-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; } .detail-item { background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.75rem; padding: 1rem; display: flex; align-items: center; gap: 1rem; } .detail-icon-wrapper { flex-shrink: 0; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: white; &.bg-purple { background-color: #6f42c1; } } .detail-content { display: flex; flex-direction: column; strong { font-weight: 600; color: #adb5bd; font-size: 0.875rem; text-transform: uppercase; margin-bottom: 0.25rem; } span, code { font-size: 1rem; } code { font-family: monospace; background-color: rgba(0, 0, 0, 0.2); padding: 0.2rem 0.4rem; border-radius: 0.25rem; } } .badge { padding: 0.4em 0.8em; font-size: 0.85rem; font-weight: 600; &.status-badge-planificado { background-color: #0d6efd; color: white; } &.status-badge-en_progreso { background-color: #ffc107; color: black; } &.status-badge-completado { background-color: #198754; color: white; } &.status-badge-cancelado { background-color: #6c757d; color: white; } } }
-.modal-footer { background-color: #212529; border-top: 1px solid rgba(255, 255, 255, 0.1); }
-
-/* ESTILOS PARA EL ÍCONO DE DETALLES (VERSIÓN FLEXBOX) */
-.event-card {
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-  }
   .event-title {
     margin-right: auto;
   }
@@ -745,11 +704,10 @@
     transition: all 0.2s ease-in-out;
     &:hover {
       color: #ffffff;
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(32, 32, 32, 0.1);
       transform: scale(1.1);
     }
   }
-}
 
 /* CORRECCIÓN FINAL: Z-INDEX DE MODALES */
 .modal.fade.show {
