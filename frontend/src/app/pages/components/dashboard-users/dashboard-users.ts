@@ -1,11 +1,10 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { User } from '../../../shared/interfaces/user';
 import { UserService } from '../../../core/services/user';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal';
 import { UserFormComponent } from '../../../modules/user-management/user-form/user-form';
 import { AuthService } from '../../../core/services/auth';
-import { Router } from '@angular/router';
+
 // import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 // import { BaseChartDirective } from 'ng2-charts';
 
@@ -126,7 +125,8 @@ export class DashboardUsersComponent implements OnInit {
         month: '2-digit',
         year: 'numeric'
       });
-    } catch (e) {
+    } catch (e) { 
+      console.error('Error formatting date:', e);
       return 'N/A';
     }
   }
