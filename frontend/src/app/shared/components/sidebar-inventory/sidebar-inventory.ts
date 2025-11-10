@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { CommonModule, AsyncPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { SidebarStateService } from '../../../core/services/sidebar-state';
 
