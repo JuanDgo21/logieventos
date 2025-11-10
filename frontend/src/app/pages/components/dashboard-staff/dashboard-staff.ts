@@ -59,7 +59,7 @@ export class DashboardStaffComponent  implements OnInit {
     private modalService: NgbModal
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit(): void {  
     this.loadData();
   }
 
