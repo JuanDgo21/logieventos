@@ -35,6 +35,6 @@ export class AlertModalComponent {
   }
 
   redirectToLogin(): void {
-    window.location.href = '/login';
+    globalThis.location.href = '/login';
   }
 }
