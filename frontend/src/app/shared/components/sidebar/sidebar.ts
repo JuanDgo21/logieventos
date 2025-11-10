@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
 import { LayoutService } from '../../../core/services/layout';
@@ -31,11 +31,11 @@ export class SidebarComponent implements OnInit {
     if (role) {
       this.modules = this.layoutService.getModulesForRole(role);
       // Inicializar estado de los menús
-      this.modules.forEach(module => {
+      for (const module of this.modules) {
         if (module.children) {
           this.expandedMenus[module.name] = false;
         }
-      });
+      }
     } else {
       this.router.navigate(['/auth/login']);
     }
