@@ -1,4 +1,4 @@
-import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { ContractService, Contract } from '../../../core/services/contract';
 import { AuthService } from '../../../core/services/auth';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -42,7 +42,7 @@ declare const bootstrap: any;
   templateUrl: './contracts-page.html',
   styleUrl: './contracts-page.scss'
 })
-export class ContractsPage {
+export class ContractsPage implements OnInit {
 
   isAdmin(): boolean {
   return this.authService.hasRole('admin');
