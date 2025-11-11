@@ -4,6 +4,7 @@ import { AuthService } from '../../../core/services/auth';
 import { Router } from '@angular/router';
 import { AlertService } from '../../../core/services/alert';
 import { SidebarStateService } from '../../../core/services/sidebar-state';
+import { environment } from '../../../../environments/environment';
 
 interface Resource {
   _id?: string;
@@ -48,8 +49,8 @@ export class ResourcesComponent implements OnInit {
     status: 'disponible'
   };
   editingResource: Resource | null = null;
-  apiUrl = 'http://localhost:3000/api/resources';
-  apiResourceTypesUrl = 'http://localhost:3000/api/resource-types/active';
+  private readonly apiUrl = `${environment.API_URL}/api/resources`;
+  private readonly apiResourceTypesUrl = `${environment.API_URL}/api/resource-types/active`;
   isLoading = false;
   errorMessage = '';
   successMessage = '';

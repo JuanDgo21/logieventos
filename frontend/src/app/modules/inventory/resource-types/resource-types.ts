@@ -4,6 +4,7 @@ import { AuthService } from '../../../core/services/auth';
 import { Router } from '@angular/router';
 import { AlertService } from '../../../core/services/alert';
 import { SidebarStateService } from '../../../core/services/sidebar-state';
+import { environment } from '../../../../environments/environment';
 
 interface ResourceType {
   _id?: string;
@@ -23,7 +24,7 @@ export class ResourceTypesComponent {
   resourceTypes: ResourceType[] = [];
   newResourceType: ResourceType = { name: '', description: '', active: true };
   editingResourceType: ResourceType | null = null;
-  apiUrl = 'https://0.0.0.0:3000/api/resource-types';
+  private readonly apiUrl = `${environment.API_URL}/api/resource-types`;
   isLoading = false;
   errorMessage = '';
   successMessage = '';

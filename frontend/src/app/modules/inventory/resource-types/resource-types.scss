@@ -1,4 +1,6 @@
-.resources-container {
+@use '../../../../styles.scss' as *;
+
+.resource-types-container {
   display: flex;
   min-height: 100vh;
   width: 100%;
@@ -79,7 +81,7 @@
       }
     }
 
-    .resource-form {
+    .resource-type-form {
       background: rgba(26, 26, 46, 0.7);
       border-radius: 12px;
       padding: 2rem;
@@ -173,7 +175,7 @@
       }
     }
 
-    .resource-table {
+    .resource-type-table {
       width: 100%;
       overflow-x: auto;
       background: rgba(26, 26, 46, 0.7);
@@ -297,13 +299,13 @@
 }
 
 @media (max-width: 1200px) {
-  .resources-container .content {
+  .resource-types-container .content {
     padding: 1.5rem;
   }
 }
 
 @media (max-width: 992px) {
-  .resources-container .content {
+  .resource-types-container .content {
     margin-left: 70px;
     width: calc(100vw - 70px);
     padding: 1rem;
@@ -316,7 +318,7 @@
 }
 
 @media (max-width: 768px) {
-  .resources-container {
+  .resource-types-container {
     flex-direction: column;
     
     .content {
