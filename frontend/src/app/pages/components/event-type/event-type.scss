@@ -126,15 +126,15 @@
     select {
       width: 100%;
       padding: 0.75rem 1rem;
-      background: rgba(255, 255, 255, 0.15); // más oscuro (mejor contraste)
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.1);
       border-radius: 10px;
-      color: rgba(255, 255, 255, 0.95); // texto más opaco
+      color: $light-color;
       font-size: 1rem;
-
+      
       option {
-        background: rgba(10, 10, 30, 0.95);
-        color: #ffffff; // texto blanco sólido
+        background: rgba(26, 26, 46, 0.95);
+        color: $light-color;
       }
     }
   }
