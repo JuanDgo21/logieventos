@@ -115,7 +115,7 @@
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 6px;
           font-size: 1rem;
-            color: #ffffff; /* Aclarado: color más claro para mejor legibilidad */
+          color: #f0f2ff; /* Ajustado a blanco (#ffffff) para cumplir requisito de contraste */
           transition: all 0.3s ease;
           
           &:focus {
