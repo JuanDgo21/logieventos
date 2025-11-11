@@ -48,7 +48,7 @@ const PersonnelTypeFormScreen: React.FC = () => {
   const loadTypeData = async () => {
     try {
       setIsLoading(true);
-      const type = await getPersonnelTypeById(typeId!);
+      const type = await getPersonnelTypeById(typeId);
       setFormData({
         name: type.name,
         description: type.description || '',
