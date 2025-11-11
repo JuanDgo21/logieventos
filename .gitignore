@@ -1,1 +1,2 @@
-node_modules/
+# Ignorar node_modules en cualquier subcarpeta
+**/node_modules/

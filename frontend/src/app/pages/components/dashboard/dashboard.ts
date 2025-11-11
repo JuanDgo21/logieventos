@@ -23,7 +23,7 @@ export class DashboardComponent implements OnInit {
     { icon: 'file-contract', label: 'Contratos', action: 'viewContracts', key: 'contracts' },
     { icon: 'users', label: 'Personal', action: 'viewStaff', key: 'staff' },
     { icon: 'truck', label: 'Proveedores', action: 'viewProviders', key: 'resources' },
-    { icon: 'file-export', label: 'Reportes', action: 'generateReports', roles: ['admin', 'coordinador'], key: 'contracts' }
+    // { icon: 'file-export', label: 'Reportes', action: 'generateReports', roles: ['admin', 'coordinador'], key: 'contracts' }
   ];
 
   recentActivities = [
