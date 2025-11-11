@@ -15,7 +15,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { PersonnelStackParamList } from '../navigation/PersonnelStack';
 import usePersonnelService from '../services/personnel-service';
-import { PersonnelType, NewPersonnelType, UpdatePersonnelType } from '../types/personnel';
+import { NewPersonnelType, UpdatePersonnelType } from '../types/personnel';
 
 type PersonnelTypeFormNavigationProp = StackNavigationProp<PersonnelStackParamList, 'PersonnelTypeForm'>;
 type PersonnelTypeFormRouteProp = RouteProp<PersonnelStackParamList, 'PersonnelTypeForm'>;
@@ -26,11 +26,9 @@ const PersonnelTypeFormScreen: React.FC = () => {
   const { typeId } = route.params || {};
 
   const {
-    personnelTypes,
     getPersonnelTypeById,
     createPersonnelType,
     updatePersonnelType,
-    refreshData,   // 👈 agrega esto
   } = usePersonnelService();
 
   const [formData, setFormData] = useState({
@@ -57,6 +55,7 @@ const PersonnelTypeFormScreen: React.FC = () => {
         isActive: type.isActive,
       });
     } catch (error) {
+      console.error('Error al guardar categoría:', error);
       Alert.alert('Error', 'No se pudo cargar los datos de la categoría');
     } finally {
       setIsLoading(false);
@@ -157,7 +156,7 @@ const PersonnelTypeFormScreen: React.FC = () => {
                 maxLength={50}
               />
             </View>
-            {errors.name && (
+            {Boolean(errors.name) && (
               <Text style={styles.errorText}>
                 <FontAwesome5 name="exclamation-circle" size={12} color="#ff416c" /> {errors.name}
               </Text>
@@ -184,7 +183,7 @@ const PersonnelTypeFormScreen: React.FC = () => {
                 maxLength={200}
               />
             </View>
-            {errors.description && (
+            {Boolean(errors.description) && (
               <Text style={styles.errorText}>
                 <FontAwesome5 name="exclamation-circle" size={12} color="#ff416c" /> {errors.description}
               </Text>
@@ -234,7 +233,8 @@ const PersonnelTypeFormScreen: React.FC = () => {
               <FontAwesome5 name="save" size={16} color="#fff" />
             )}
             <Text style={styles.saveButtonText}>
-              {isLoading ? 'Guardando...' : typeId ? 'Actualizar' : 'Guardar'}
+              {isLoading && 'Guardando...'}
+              {!isLoading && (typeId ? 'Actualizar' : 'Guardar')}
             </Text>
           </TouchableOpacity>
         </View>
