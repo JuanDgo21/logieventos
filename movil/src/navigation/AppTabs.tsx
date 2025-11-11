@@ -15,6 +15,36 @@ export type AppTabsParamList = {
   Perfil: undefined;
 };
 
+// ✅ INICIO CORRECCIÓN (S6478)
+// Se mueven las funciones de renderizado de iconos fuera del componente
+// para darles una identidad estable y evitar re-renders.
+
+type TabBarIconProps = {
+  color: string;
+  size: number;
+};
+
+const renderHomeIcon = ({ color, size }: TabBarIconProps) => (
+  <FontAwesome5 name="home" color={color} size={size} />
+);
+
+const renderContractsIcon = ({ color, size }: TabBarIconProps) => (
+  <FontAwesome5 name="file-contract" color={color} size={size} />
+);
+
+const renderEventsIcon = ({ color, size }: TabBarIconProps) => (
+  <FontAwesome5 name="calendar-alt" color={color} size={size} />
+);
+
+const renderPersonnelIcon = ({ color, size }: TabBarIconProps) => (
+  <FontAwesome5 name="users" color={color} size={size} />
+);
+
+const renderProfileIcon = ({ color, size }: TabBarIconProps) => (
+  <FontAwesome5 name="user-circle" color={color} size={size} />
+);
+// ✅ FIN CORRECCIÓN
+
 const Tab = createBottomTabNavigator<AppTabsParamList>();
 
 export default function AppTabs() {
@@ -35,9 +65,7 @@ export default function AppTabs() {
         component={HomeScreen}
         options={{
           tabBarLabel: 'Inicio',
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="home" color={color} size={size} />
-          ),
+          tabBarIcon: renderHomeIcon, // ✅ Usamos la función estable
         }}
       />
       <Tab.Screen
@@ -45,9 +73,7 @@ export default function AppTabs() {
         component={ContractsStack}
         options={{
           tabBarLabel: 'Contratos',
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="file-contract" color={color} size={size} />
-          ),
+          tabBarIcon: renderContractsIcon, // ✅ Usamos la función estable
         }}
       />
       <Tab.Screen
@@ -55,30 +81,23 @@ export default function AppTabs() {
         component={EventsStack}
         options={{
           tabBarLabel: 'Eventos',
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="calendar-alt" color={color} size={size} />
-          ),
+          tabBarIcon: renderEventsIcon, // ✅ Usamos la función estable
         }}
       />
-      {/* Cambiar "Personnel" por "Personal" para que coincida con el tipo */}
       <Tab.Screen
           name="Personal"
           component={PersonnelStack}
           options={{
             tabBarLabel: 'Personal',
-            tabBarIcon: ({ color, size }) => (
-              <FontAwesome5 name="users" color={color} size={size} />
-            ),
+            tabBarIcon: renderPersonnelIcon, // ✅ Usamos la función estable
           }}
         />
       <Tab.Screen
-        name="Profile"
+        name="Perfil" // ✅ CORRECCIÓN (BUG): "Profile" cambiado a "Perfil" para coincidir con el tipo
         component={ProfileScreen}
         options={{
           tabBarLabel: 'Mi Perfil',
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="user-circle" color={color} size={size} />
-          ),
+          tabBarIcon: renderProfileIcon, // ✅ Usamos la función estable
         }}
       />
     </Tab.Navigator>

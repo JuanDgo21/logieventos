@@ -65,7 +65,6 @@ export const usePersonnelService = () => {
   const canCreate = () => hasRole('admin') || hasRole('coordinador');
   const canEdit = () => hasRole('admin') || hasRole('coordinador');
   const canDelete = () => hasRole('admin');
-  const canToggleStatus = () => hasRole('admin');
   const canManageTypes = () => hasRole('admin');
 
   // ============ MÉTODOS UTILITARIOS ACTUALIZADOS ============

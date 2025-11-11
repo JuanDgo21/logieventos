@@ -1,4 +1,4 @@
-import React, { createContext, useState, ReactNode, useContext } from "react";
+import React, { createContext, useState, ReactNode, useContext, useMemo, useCallback } from "react";
 
 type User = {
   id: string;
@@ -23,20 +23,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
 
-  const login = (jwtToken: string, userData: User) => {
+  const login = useCallback((jwtToken: string, userData: User) => {
     setToken(jwtToken);
     setUser(userData);
     setIsAuthenticated(true);
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setToken(null);
     setUser(null);
     setIsAuthenticated(false);
-  };
+  }, []);
+
+  const value = useMemo(() => ({
+    isAuthenticated, token, user, login, logout
+  }), [isAuthenticated, token, user, login, logout]); // El objeto solo se recrea si estos valores cambian
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, token, user, login, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
