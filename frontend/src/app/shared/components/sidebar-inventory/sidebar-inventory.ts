@@ -11,7 +11,7 @@ import { SidebarStateService } from '../../../core/services/sidebar-state';
 export class SidebarInventoryComponent {
   constructor(
     public sidebarState: SidebarStateService,
-    private router: Router
+    private readonly router: Router
   ) {
     this.sidebarState.isOpen = true;
   }

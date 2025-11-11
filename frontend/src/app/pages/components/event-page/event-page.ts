@@ -233,11 +233,18 @@ export class EventPageComponent implements OnInit, OnDestroy {
   }
 
   getCategoryName(eventType: any): string {
-    if (!eventType) return 'Sin categoría';
-    if (typeof eventType === 'object') return eventType.name;
-     const category = this.eventTypes.find(cat => cat._id === eventType);
-    return category ? category.name : 'Sin categoría';
-  }
+    if (!eventType) {
+        return 'Sin categoría';
+    }
+
+    if (typeof eventType === 'object') {
+        return eventType.name;
+    }
+
+    const category = this.eventTypes.find(cat => cat._id === eventType);
+    return category ? category.name : 'Sin categoría';
+    }
+
 
   getStatusLabel(status: string): string {
     return this.statusOptions.find(s => s.value === status)?.label || 'Desconocido';

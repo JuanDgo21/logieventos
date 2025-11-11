@@ -132,6 +132,14 @@
 // Olas animadas en las tarjetas
 .card-wave {
   animation: waveMove 8s infinite linear;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  z-index: 1;
 }
 
 @keyframes waveMove {
@@ -167,16 +175,7 @@
       font-size: 2.2rem;
       font-weight: 700;
     }
-
-    p {
-      margin: 0.25rem 0 0;
-      opacity: 0.9;
-      font-size: 0.95rem;
-    }
-  }
-
-  .card-wave {
-    position: absolute;
+  /* .card-wave styles merged into the top-level .card-wave to avoid duplicate selector */
     bottom: 0;
     right: 0;
     width: 100px;

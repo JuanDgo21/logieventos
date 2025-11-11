@@ -12,7 +12,7 @@ import { SidebarStateService } from '../../../core/services/sidebar-state';
 export class InventoryPageComponent {
   hoverState: string = '';
 
-  constructor(private router: Router, public sidebarState: SidebarStateService) {}
+  constructor(private readonly router: Router, public sidebarState: SidebarStateService) {}
 
   navigateTo(path: string): void {
     this.router.navigate([`/inventory/${path}`]);

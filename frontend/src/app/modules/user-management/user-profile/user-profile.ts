@@ -192,7 +192,7 @@ import { Router } from '@angular/router';
         console.error('Error en la actualización:', err);
         
         // Verifica si el error es por respuesta no parseada
-        if (err.error && err.error.text) {
+        if (err.error?.text) {
           try {
             const parsedResponse = JSON.parse(err.error.text);
             if (parsedResponse.success) {

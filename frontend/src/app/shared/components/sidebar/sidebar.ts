@@ -16,8 +16,8 @@ export class SidebarComponent implements OnInit {
 
   constructor(
     public layoutService: LayoutService,
-    private authService: AuthService,
-    private router: Router
+    private readonly authService: AuthService,
+    private readonly router: Router
   ) {
     this.layoutService.sidebarCollapsed$.subscribe(collapsed => {
       this.collapsed = collapsed;

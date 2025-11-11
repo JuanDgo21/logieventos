@@ -34,7 +34,7 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     public authService: AuthService,
-    private layoutService: LayoutService
+    private readonly layoutService: LayoutService
   ) {}
 
   ngOnInit(): void {

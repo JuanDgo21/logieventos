@@ -150,7 +150,7 @@
 
     .dropdown-header {
       padding: 0.5rem 1.5rem;
-      color: white;
+      color: rgba(255, 255, 255, 0.95);
 
       small {
         color: rgba(255, 255, 255, 0.6) !important;
@@ -191,15 +191,15 @@
   }
 
   .btn-user {
-    background: rgba(255, 255, 255, 0.08);
-    color: white;
+    background: rgba(255, 255, 255, 0.16);
+    color: rgba(0, 0, 0, 0.9);
     border: none;
     border-radius: 50px;
     padding: 0.5rem 1rem;
     transition: all 0.3s ease;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.26);
     }
 
     i {

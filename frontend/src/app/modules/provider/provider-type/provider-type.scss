@@ -109,25 +109,27 @@
         }
         
         input, textarea {
-          width: 100%;
-          padding: 0.75rem;
-          background: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 6px;
-          font-size: 1rem;
-          color: #e8e9ff; /* Cambiado de #f8f9ff a #e8e9ff para mejor contraste */
-          transition: all 0.3s ease;
-          
-          &:focus {
-            outline: none;
-            border-color: #7a22db; /* Cambiado de #6a11cb a #7a22db para mejor contraste */
-            box-shadow: 0 0 0 2px rgba(122, 34, 219, 0.3); /* Ajustado color */
-          }
-          
-          &:disabled {
-            background: rgba(255, 255, 255, 0.05);
-          }
+        width: 100%;
+        padding: 0.75rem;
+        background: rgba(20, 20, 40, 0.9); /* fondo más oscuro y menos transparente */
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 6px;
+        font-size: 1rem;
+        color: #f9f9ff; /* blanco más visible */
+        transition: all 0.3s ease;
+
+        &:focus {
+          outline: none;
+          border-color: #7a22db;
+          box-shadow: 0 0 0 2px rgba(122, 34, 219, 0.3);
         }
+
+        &:disabled {
+          background: rgba(40, 40, 60, 0.8);
+          color: rgba(232, 233, 255, 0.7);
+        }
+      }
+
         
         textarea {
           min-height: 80px;
@@ -225,10 +227,11 @@
           }
           
           &[disabled] {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(232, 233, 255, 0.7); /* Aumentada opacidad de 0.5 a 0.7 */
-            cursor: not-allowed;
-          }
+          background: rgba(40, 40, 60, 0.9); /* fondo más oscuro */
+          color: #f5f5ff; /* texto más claro para mejor contraste */
+          cursor: not-allowed;
+        }
+
         }
       }
     }
@@ -255,7 +258,7 @@
         th {
           background: rgba(122, 34, 219, 0.1); /* Ajustado color */
           font-weight: 600;
-          color: #7a22db; /* Cambiado de #6a11cb a #7a22db para mejor contraste */
+          color: #e8e9ff; /* Cambiado a un color más claro para cumplir requisitos de contraste */
         }
         
         tr:hover {
