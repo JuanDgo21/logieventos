@@ -32,7 +32,7 @@ interface ProviderType {
 })
 export class ProviderComponent implements OnInit {
   apiTypesUrl = 'http://localhost:3000/api/provider-types';
-  private readonly apiUrl = `${environment.API_URL}/api/resources`; // 
+  private readonly apiUrl = `${environment.API_URL}/api/providers`; // 
   private readonly apiResourceTypesUrl = `${environment.API_URL}/api/resource-types/active`;
 
   providers: Provider[] = [];
