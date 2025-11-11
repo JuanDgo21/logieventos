@@ -227,10 +227,11 @@
           }
           
           &[disabled] {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(232, 233, 255, 0.95); /* Aumentada opacidad para cumplir contraste mínimo */
-            cursor: not-allowed;
-          }
+          background: rgba(40, 40, 60, 0.9); /* fondo más oscuro */
+          color: #f5f5ff; /* texto más claro para mejor contraste */
+          cursor: not-allowed;
+        }
+
         }
       }
     }
@@ -338,7 +339,7 @@
             margin-bottom: 0.5rem;
             display: block;
             /* Icono con contraste razonable pero menos prominente que el texto */
-            color: rgba(232, 233, 255, 0.9); /* Ajustado color y opacidad para cumplir contraste mínimo */
+            color: rgba(232, 233, 255, 0.7); /* Ajustado color y opacidad */
           }
         }
       }
