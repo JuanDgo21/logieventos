@@ -101,10 +101,10 @@
     input {
       width: 100%;
       padding: 0.75rem 1rem 0.75rem 3rem;
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 10px;
-      color: #f5f5f5;
+      color: white;
       font-size: 1rem;
       transition: all 0.3s ease;
       
@@ -115,9 +115,7 @@
         box-shadow: 0 0 0 2px rgba($primary-color, 0.3);
       }
       
-      &::placeholder {
-    color: rgba(255, 255, 255, 0.6); // aumenta contraste del placeholder
-  }
+      &::placeholder { color: rgba(255,255,255,0.5); }
     }
   }
   
@@ -131,12 +129,12 @@
       background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 10px;
-      color: $light-color;
+      color: rgba(255,255,255,0.95);
       font-size: 1rem;
       
       option {
         background: rgba(26, 26, 46, 0.95);
-        color: $light-color;
+        color: rgba(255,255,255,0.95);
       }
     }
   }
