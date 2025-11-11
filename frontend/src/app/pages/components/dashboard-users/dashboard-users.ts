@@ -75,13 +75,13 @@ export class DashboardUsersComponent implements OnInit {
     ];
     this.roleDistribution.total = users.length;
 
-    this.recentUsers = users
-      .sort((a, b) => {
-        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        return dateB - dateA;
-      })
-      .slice(0, 5);
+    // sort a copy so we don't mutate the original users array
+    const sortedUsers = users.slice().sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
+    this.recentUsers = sortedUsers.slice(0, 5);
   }
 
   calculatePercentage(value: number): number {
