@@ -25,14 +25,14 @@ export class EventTypeComponent implements OnInit, OnDestroy {
 
   personnelTypes: PersonnelType[] = [];
   
-  private subscriptions = new Subscription();
+  private readonly subscriptions = new Subscription();
 
   categoryOptions = ['corporativo', 'social', 'cultural', 'deportivo', 'academico'];
   resourceTypeOptions = ['sonido', 'mobiliario', 'catering', 'iluminacion', 'otros'];
 
   constructor(
-    private eventService: EventService,
-    private fb: FormBuilder
+    private readonly eventService: EventService,
+    private readonly fb: FormBuilder
   ) {}
 
   ngOnInit(): void {
@@ -113,7 +113,7 @@ export class EventTypeComponent implements OnInit, OnDestroy {
     this.filteredEventTypes = this.eventTypes.filter(type => {
       const matchesSearch = this.searchTerm === '' ||
         type.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        (type.description && type.description.toLowerCase().includes(this.searchTerm.toLowerCase()));
+        (type.description?.toLowerCase())?.includes(this.searchTerm.toLowerCase());
       
       const matchesCategory = this.selectedCategory === 'all' || type.category === this.selectedCategory;
 
