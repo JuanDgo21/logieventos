@@ -256,10 +256,11 @@
         }
         
         th {
-          background: rgba(122, 34, 219, 0.1); /* Ajustado color */
+          background: rgba(122, 34, 219, 0.25); /* Más oscuro para mejor contraste */
           font-weight: 600;
-          color: #7a22db; /* Cambiado de #6a11cb a #7a22db para mejor contraste */
+          color: #d6b7ff; /* Texto más claro */
         }
+
         
         tr:hover {
           background: rgba(255, 255, 255, 0.05);
