@@ -11,7 +11,7 @@ import { SidebarStateService } from '../../../core/services/sidebar-state';
 export class ProvidersPageComponent {
   hoverState: string = '';
 
-  constructor(private router: Router, public sidebarState: SidebarStateService) {}
+  constructor(private readonly router: Router, public sidebarState: SidebarStateService) {}
 
   navigateTo(path: string): void {
     this.router.navigate([`/providers/${path}`]);
