@@ -104,7 +104,7 @@
       background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 10px;
-      color: white;
+      color: rgba(0, 0, 0, 0.85);
       font-size: 1rem;
       transition: all 0.3s ease;
       
@@ -115,7 +115,7 @@
         box-shadow: 0 0 0 2px rgba($primary-color, 0.3);
       }
       
-      &::placeholder { color: rgba(255,255,255,0.5); }
+      &::placeholder { color: rgba(0, 0, 0, 0.45); }
     }
   }
   
@@ -129,7 +129,7 @@
       background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 10px;
-      color: rgba(255,255,255,0.95);
+      color: rgba(0, 0, 0, 0.85);
       font-size: 1rem;
       
       option {
@@ -181,7 +181,7 @@
   }
 
   .category-badge {
-    color: white;
+    color: $light-color;
     &.category-corporativo { background-color: rgba($primary-color, 0.8); }
     &.category-social { background-color: rgba($secondary-color, 0.8); }
     &.category-cultural { background-color: rgba(156, 39, 176, 0.8); }
