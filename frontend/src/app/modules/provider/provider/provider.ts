@@ -116,7 +116,7 @@ export class ProviderComponent implements OnInit {
   }
 
   loadProviderTypes(): void {
-    this.http.get<{ data: ProviderType[] }>(this.apiTypesUrl, { headers: this.getAuthHeaders() })
+    this.http.get<{ data: ProviderType[] }>(`${environment.API_URL}/api/provider-types`, { headers: this.getAuthHeaders() })
       .subscribe({
         next: (res) => {
           this.providerTypes = res.data.filter(type => type.isActive);

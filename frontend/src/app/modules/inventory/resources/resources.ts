@@ -124,7 +124,7 @@ export class ResourcesComponent implements OnInit {
   }
 
   loadActiveResourceTypes(): void {
-    this.http.get<{data: ResourceType[]}>(`http://localhost:3000/api/resource-types/active`, { 
+    this.http.get<{data: ResourceType[]}>(`${environment.API_URL}/api/resource-types/active`, { 
       headers: this.getAuthHeaders() 
     }).subscribe({
       next: (response) => {

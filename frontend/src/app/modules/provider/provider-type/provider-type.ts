@@ -4,6 +4,7 @@ import { Component } from '@angular/core';
   import { Router } from '@angular/router';
   import { AlertService } from '../../../core/services/alert';
   import { SidebarStateService } from '../../../core/services/sidebar-state';
+  import { environment } from '../../../../environments/environment';
 
   // ✅ Exporta la interfaz
   export interface ProviderType {
@@ -25,7 +26,7 @@ import { Component } from '@angular/core';
   })
   // ✅ Cambia el nombre de la clase para evitar conflicto
   export class ProviderTypeComponent {
-    apiUrl = 'http://localhost:3000/api/provider-types';
+    private readonly apiUrl = `${environment.API_URL}/api/provider-types`;
 
     providerTypes: ProviderType[] = [];
     newProviderType: ProviderType = this.getEmptyProviderType();

@@ -18,6 +18,15 @@ const validateResourceUpdate = async (req, res) => {
     return false; // No es válido
   }
 
+  // Evitar crash si req.body es undefined (p. ej. Content-Type faltante o middleware no aplicado)
+  if (!req.body) {
+    res.status(400).json({
+      success: false,
+      message: 'El cuerpo de la petición está vacío o no se envió como JSON. Asegúrate de enviar Content-Type: application/json.'
+    });
+    return false;
+  }
+
   const { resourceType, status } = req.body;
 
   // Validación 2: Restricción de 'status' para coordinadores
