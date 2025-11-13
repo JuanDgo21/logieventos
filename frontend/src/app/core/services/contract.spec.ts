@@ -1,16 +1,425 @@
 import { TestBed } from '@angular/core/testing';
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from '@angular/common/http/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 
-import { ContractService } from './contract';
+import { ContractService, Contract } from './contract';
+import { environment } from '../../../environments/environment';
 
 describe('ContractService', () => {
-  let service: ContractService  ;
+  let service: ContractService;
+  let httpMock: HttpTestingController;
+
+  const apiUrl = `${environment.API_URL}/api/contracts`;
+  const resourceUrl = `${environment.API_URL}/api/resources`;
+  const providerUrl = `${environment.API_URL}/api/providers`;
+  const personnelUrl = `${environment.API_URL}/api/personnel`;
+
+  const mockContract: Contract = {
+    _id: 'contract1',
+    name: 'Test Contract',
+    clientName: 'Test Client',
+    clientPhone: '123456789',
+    clientEmail: 'client@test.com',
+    startDate: new Date('2025-01-01'),
+    endDate: new Date('2025-01-31'),
+    status: 'activo',
+    resources: [],
+    providers: [],
+    personnel: [],
+  };
+
+  const mockContractArray: Contract[] = [
+    mockContract,
+    { ...mockContract, _id: 'contract2', name: 'Test Contract 2' },
+  ];
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [ContractService],
+    });
+
     service = TestBed.inject(ContractService);
+    httpMock = TestBed.inject(HttpTestingController);
+
+    let store: { [key: string]: string } = {};
+    spyOn(localStorage, 'getItem').and.callFake((key: string) => {
+      return store[key] || null;
+    });
+    spyOn(localStorage, 'setItem').and.callFake(
+      (key: string, value: string) => {
+        return (store[key] = value + '');
+      }
+    );
+    spyOn(localStorage, 'clear').and.callFake(() => {
+      store = {};
+    });
+
+    localStorage.setItem('token', 'test-token');
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+    localStorage.clear();
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
+  });
+
+  // --- Pruebas de Métodos Privados ---
+
+  describe('private#getHeaders', () => {
+    it('should return headers with Authorization', () => {
+      const headers = service['getHeaders']();
+      expect(headers.has('Authorization')).toBeTrue();
+      expect(headers.get('Authorization')).toBe('Bearer test-token');
+      expect(headers.get('Content-Type')).toBe('application/json');
+    });
+
+    it('should throw error if no token is found', () => {
+      localStorage.clear();
+      expect(() => service['getHeaders']()).toThrowError(
+        'No token found in localStorage'
+      );
+    });
+  });
+
+  // --- Pruebas de Métodos CRUD ---
+
+  it('getContracts() should fetch contracts and map the response', (done) => {
+    const mockResponse = { success: true, data: mockContractArray };
+    service.getContracts().subscribe((contracts) => {
+      expect(contracts).toEqual(mockContractArray);
+      expect(contracts.length).toBe(2);
+      done();
+    });
+    const req = httpMock.expectOne(apiUrl);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockResponse);
+  });
+
+  it('getContract(id) should fetch a single contract', (done) => {
+    const contractId = 'contract1';
+    service.getContract(contractId).subscribe((contract) => {
+      expect(contract).toEqual(mockContract);
+      done();
+    });
+    const req = httpMock.expectOne(`${apiUrl}/${contractId}`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockContract);
+  });
+
+  // =======================================================
+  // PRUEBA AÑADIDA (Cubre 1 Rama 'catchError' faltante)
+  // =======================================================
+  it('getContract(id) should handle errors', (done) => {
+    const contractId = 'contract1';
+    const mockError = new HttpErrorResponse({
+      error: { message: 'Not Found' },
+      status: 404,
+      statusText: 'Not Found',
+    });
+
+    service.getContract(contractId).subscribe({
+      next: () => fail('Debería haber fallado'),
+      error: (error: Error) => {
+        expect(error.message).toContain('Not Found'); // Error de handleError
+        done();
+      },
+    });
+
+    const req = httpMock.expectOne(`${apiUrl}/${contractId}`);
+    expect(req.request.method).toBe('GET');
+    req.flush({ message: 'Not Found' }, mockError);
+  });
+
+  it('searchContractsByName(name) should fetch contracts and map response', (done) => {
+    const name = 'Test';
+    const mockResponse = { success: true, data: mockContractArray };
+    service.searchContractsByName(name).subscribe((contracts) => {
+      expect(contracts).toEqual(mockContractArray);
+      done();
+    });
+    const req = httpMock.expectOne(
+      `${apiUrl}/search?name=${encodeURIComponent(name)}`
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(mockResponse);
+  });
+
+  it('createContract(contract) should POST a new contract', (done) => {
+    service.createContract(mockContract).subscribe((contract) => {
+      expect(contract).toEqual(mockContract);
+      done();
+    });
+    const req = httpMock.expectOne(apiUrl);
+    expect(req.request.method).toBe('POST');
+    req.flush(mockContract);
+  });
+
+  it('createContract(contract) should handle errors using its specific catchError', (done) => {
+    const mockErrorStatus = { status: 500, statusText: 'Server Error' };
+    const consoleErrorSpy = spyOn(console, 'error');
+
+    service.createContract(mockContract).subscribe({
+      next: () => fail('Debería haber fallado'),
+      error: (err: HttpErrorResponse) => { 
+        expect(err).toBeInstanceOf(HttpErrorResponse);
+        expect(err.status).toBe(500);
+        expect(consoleErrorSpy).toHaveBeenCalledWith('ContractService error:', err);
+        done();
+      },
+    });
+
+    const req = httpMock.expectOne(apiUrl);
+    req.flush(null, mockErrorStatus);
+  });
+
+
+  it('updateContract(id, contract) should PUT and map the response', (done) => {
+    const contractId = 'contract1';
+    const updatedContract = { ...mockContract, name: 'Updated Name' };
+    const mockResponse = {
+      success: true,
+      message: 'Actualizado',
+      data: updatedContract,
+    };
+
+    service.updateContract(contractId, updatedContract).subscribe((contract) => {
+      expect(contract).toEqual(updatedContract);
+      done();
+    });
+
+    const req = httpMock.expectOne(`${apiUrl}/${contractId}`);
+    expect(req.request.method).toBe('PUT');
+    req.flush(mockResponse);
+  });
+
+  it('deleteContract(id) should DELETE a contract', (done) => {
+    const contractId = 'contract1';
+    service.deleteContract(contractId).subscribe((response) => {
+      expect(response).toBeNull();
+      done();
+    });
+    const req = httpMock.expectOne(`${apiUrl}/${contractId}`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null, { status: 204, statusText: 'No Content' });
+  });
+
+  // --- Pruebas de Métodos Adicionales ---
+
+  it('getLastContract() should fetch the last contract', (done) => {
+    service.getLastContract().subscribe((contract) => {
+      expect(contract).toEqual(mockContract);
+      done();
+    });
+    const req = httpMock.expectOne(`${apiUrl}/last`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockContract);
+  });
+
+  // =======================================================
+  // PRUEBAS CORREGIDAS (Cubren 4 Ramas '||' faltantes)
+  // =======================================================
+  describe('getCountByStatus()', () => {
+    it('should use defaults (|| 0) if properties are missing', (done) => {
+      // Probamos que el map() rellena con 0 los status que falten
+      const mockApiData = { borrador: 5, activo: 10 }; // Faltan 'completado' y 'cancelado'
+      const mockResponse = { success: true, data: mockApiData };
+
+      const expectedData = {
+        borrador: 5,   // Path 'truthy'
+        activo: 10,  // Path 'truthy'
+        completado: 0, // Path 'falsy' (|| 0)
+        cancelado: 0,  // Path 'falsy' (|| 0)
+      };
+
+      service.getCountByStatus().subscribe((counts) => {
+        expect(counts).toEqual(expectedData);
+        done();
+      });
+
+      const req = httpMock.expectOne(`${apiUrl}/count-by-status`);
+      req.flush(mockResponse);
+    });
+
+    it('should use defaults (|| 0) if all properties are missing', (done) => {
+      // Probamos el caso donde la API devuelve data vacía
+      const mockApiData = {}; // Objeto vacío
+      const mockResponse = { success: true, data: mockApiData };
+
+      const expectedData = {
+        borrador: 0,   // Path 'falsy' (|| 0)
+        activo: 0,    // Path 'falsy' (|| 0)
+        completado: 0, // Path 'falsy' (|| 0)
+        cancelado: 0,  // Path 'falsy' (|| 0)
+      };
+
+      service.getCountByStatus().subscribe((counts) => {
+        expect(counts).toEqual(expectedData);
+        done();
+      });
+
+      const req = httpMock.expectOne(`${apiUrl}/count-by-status`);
+      req.flush(mockResponse);
+    });
+
+    it('should fetch counts and map response (with all properties)', (done) => {
+      // Probamos que el map() usa los valores reales si existen
+      const mockApiData = { borrador: 5, activo: 10, completado: 2, cancelado: 1 };
+      const mockResponse = { success: true, data: mockApiData };
+
+      const expectedData = {
+        borrador: 5,   // Path 'truthy'
+        activo: 10,  // Path 'truthy'
+        completado: 2, // Path 'truthy'
+        cancelado: 1,  // Path 'truthy'
+      };
+
+      service.getCountByStatus().subscribe((counts) => {
+        expect(counts).toEqual(expectedData);
+        done();
+      });
+
+      const req = httpMock.expectOne(`${apiUrl}/count-by-status`);
+      req.flush(mockResponse);
+    });
+  });
+
+  it('getContractsPaginated() should fetch paginated data', (done) => {
+    const mockPaginatedResponse = {
+      data: mockContractArray,
+      total: 2,
+      page: 1,
+      pages: 1,
+    };
+    service.getContractsPaginated(1, 2).subscribe((response) => {
+      expect(response).toEqual(mockPaginatedResponse);
+      done();
+    });
+    const req = httpMock.expectOne(`${apiUrl}?page=1&limit=2`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockPaginatedResponse);
+  });
+  // --- Pruebas de Métodos de Sub-recursos (con filtro) ---
+
+  it('getResourcesByStatus() should fetch and filter by status "disponible"', (done) => {
+    const mockResources = [
+      { _id: 'r1', status: 'disponible' },
+      { _id: 'r2', status: 'en uso' },
+      { _id: 'r3', status: 'disponible' },
+    ];
+    const mockResponse = { success: true, data: mockResources };
+    const expectedFiltered = [
+      { _id: 'r1', status: 'disponible' },
+      { _id: 'r3', status: 'disponible' },
+    ];
+    service.getResourcesByStatus().subscribe((resources) => {
+      expect(resources).toEqual(expectedFiltered);
+      done();
+    });
+    const req = httpMock.expectOne(resourceUrl);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockResponse);
+  });
+
+  it('getProvidersByStatus() should fetch and filter by status "activo"', (done) => {
+    const mockProviders = [
+      { _id: 'p1', status: 'activo' },
+      { _id: 'p2', status: 'inactivo' },
+    ];
+    const mockResponse = { success: true, data: mockProviders };
+    const expectedFiltered = [{ _id: 'p1', status: 'activo' }];
+    service.getProvidersByStatus().subscribe((providers) => {
+      expect(providers).toEqual(expectedFiltered);
+      done();
+    });
+    const req = httpMock.expectOne(providerUrl);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockResponse);
+  });
+
+  it('getPersonnelByStatus() should fetch and filter by status "disponible"', (done) => {
+    const mockPersonnel = [
+      { _id: 'ps1', status: 'disponible' },
+      { _id: 'ps2', status: 'asignado' },
+    ];
+    const mockResponse = { success: true, data: mockPersonnel };
+    const expectedFiltered = [{ _id: 'ps1', status: 'disponible' }];
+    service.getPersonnelByStatus('disponible').subscribe((personnel) => {
+      expect(personnel).toEqual(expectedFiltered);
+      done();
+    });
+    const req = httpMock.expectOne(personnelUrl);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockResponse);
+  });
+
+  // --- Prueba de Manejo de Errores (handleError) ---
+
+  describe('private#handleError', () => {
+
+    it('should use error.error.message if available', (done) => {
+      const mockErrorMessage = 'Error de servidor específico';
+      const mockError = new HttpErrorResponse({
+        error: { message: mockErrorMessage },
+        status: 500,
+        statusText: 'Server Error',
+      });
+
+      service.getContracts().subscribe({
+        next: () => fail('Debería haber fallado'),
+        error: (error: Error) => {
+          expect(error.message).toBe(mockErrorMessage);
+          done();
+        },
+      });
+
+      const req = httpMock.expectOne(apiUrl);
+      req.flush({ message: mockErrorMessage }, mockError);
+    });
+
+    it('should use fallback message if error.error.message is missing', (done) => {
+      const fallbackMessage = 'Error en ContractService; inténtalo más tarde.';
+      const mockError = new HttpErrorResponse({
+        error: { details: 'Otro tipo de error' },
+        status: 500,
+        statusText: 'Server Error',
+      });
+
+      service.getContracts().subscribe({
+        next: () => fail('Debería haber fallado'),
+        error: (error: Error) => {
+          expect(error.message).toBe(fallbackMessage);
+          done();
+        },
+      });
+
+      const req = httpMock.expectOne(apiUrl);
+      req.flush({ details: 'Otro tipo de error' }, mockError);
+    });
+
+    it('should use fallback message if error.error is missing', (done) => {
+      const fallbackMessage = 'Error en ContractService; inténtalo más tarde.';
+      const mockError = new HttpErrorResponse({
+        status: 404,
+        statusText: 'Not Found',
+      });
+
+      service.getContracts().subscribe({
+        next: () => fail('Debería haber fallado'),
+        error: (error: Error) => {
+          expect(error.message).toBe(fallbackMessage);
+          done();
+        },
+      });
+
+      const req = httpMock.expectOne(apiUrl);
+      req.flush(null, mockError);
+    });
   });
 });
