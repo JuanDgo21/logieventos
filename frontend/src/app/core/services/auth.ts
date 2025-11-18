@@ -364,7 +364,6 @@ export class AuthService {
         return this.handleError('Error actualizando perfil:', error);
       })
     );
-  }
-  
+  } 
 
 }
