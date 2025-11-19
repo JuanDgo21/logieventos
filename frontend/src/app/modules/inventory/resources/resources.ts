@@ -128,7 +128,7 @@ export class ResourcesComponent implements OnInit {
       headers: this.getAuthHeaders() 
     }).subscribe({
       next: (response) => {
-        this.resourceTypes = response.data || [];
+        this.resourceTypes = response.data 
       },
       error: (err) => {
         console.error('Error loading active resource types:', err);
