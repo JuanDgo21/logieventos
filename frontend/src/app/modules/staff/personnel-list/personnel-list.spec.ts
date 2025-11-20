@@ -1,8 +1,9 @@
+// Importamos las herramientas necesarias para testing en Angular
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms'; // Necesario para [(ngModel)]
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { BehaviorSubject, of, throwError } from 'rxjs';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'; // SOLUCIÓN PARA NG0304
+import { FormsModule } from '@angular/forms'; // Necesario para [(ngModel)] - two-way data binding
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap'; // Para modales de Bootstrap
+import { BehaviorSubject, of, throwError } from 'rxjs'; // Para crear observables y simular respuestas
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'; // Para ignorar elementos personalizados en tests
 
 // Componente que vamos a probar
 import { PersonnelListComponent } from './personnel-list';
@@ -17,28 +18,31 @@ import { PersonnelType } from '../../../shared/interfaces/personnel-type';
 import { PersonnelFormComponent } from '../personnel-form/personnel-form';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal';
 
-// Bloque principal de pruebas para el componente PersonnelListComponent
+// La función 'describe' agrupa todas las pruebas relacionadas con el PersonnelListComponent
 describe('PersonnelListComponent', () => {
-  // Variables fundamentales para las pruebas
-  let component: PersonnelListComponent; // Instancia del componente a probar
-  let fixture: ComponentFixture<PersonnelListComponent>; // Entorno de prueba del componente
+  let component: PersonnelListComponent;  // Instancia del componente que vamos a probar
+  let fixture: ComponentFixture<PersonnelListComponent>;  // Contenedor del componente para testing
+  
+  // Spies (Espías) - Objetos que simulan servicios reales
+  let personnelServiceSpy: jasmine.SpyObj<PersonnelService>;
+  let modalServiceSpy: jasmine.SpyObj<NgbModal>;
+  let authServiceSpy: jasmine.SpyObj<AuthService>;
 
-  // Objetos simulados (spies) que nos permiten controlar y verificar el comportamiento de los servicios
-  let personnelServiceSpy: jasmine.SpyObj<PersonnelService>; // Servicio para gestionar personal
-  let modalServiceSpy: jasmine.SpyObj<NgbModal>; // Servicio para abrir modales
-  let authServiceSpy: jasmine.SpyObj<AuthService>; // Servicio de autenticación y permisos
+  // Subjects para simular los streams de datos observables del servicio
+  let personnelListSubject: BehaviorSubject<Personnel[]>;
+  let personnelTypesSubject: BehaviorSubject<PersonnelType[]>;
 
-  // Subjects para simular streams de datos reactivos (Observables)
-  let personnelListSubject: BehaviorSubject<Personnel[]>; // Stream para lista de personal
-  let personnelTypesSubject: BehaviorSubject<PersonnelType[]>; // Stream para tipos de personal
+  // ==========================================
+  // DATOS DE PRUEBA SIMULADOS (MOCKS)
+  // ==========================================
 
-  // Datos de prueba simulados - representan tipos de personal disponibles
+  // Mock de tipos de personal (categorías)
   const mockTypes: PersonnelType[] = [
     { _id: 't1', name: 'Chef', isActive: true, createdBy: 'admin', createdAt: '', updatedAt_: '' },
     { _id: 't2', name: 'Mesero', isActive: true, createdBy: 'admin', createdAt: '', updatedAt_: '' }
   ];
 
-  // Datos de prueba simulados - representan personas del personal
+  // Mock de lista de personal (empleados)
   const mockPersonnelList: Personnel[] = [
     {
       _id: 'p1',
@@ -72,9 +76,9 @@ describe('PersonnelListComponent', () => {
     }
   ];
 
-  // Configuración que se ejecuta antes de cada prueba individual
+  // 'beforeEach' se ejecuta ANTES de cada prueba individual
   beforeEach(async () => {
-    // 1. Crear objetos simulados (spies) para los servicios
+    // Creamos objetos espía para los servicios
     const pSpy = jasmine.createSpyObj('PersonnelService', [
       'getAllPersonnel', 
       'getAllPersonnelTypes', 
@@ -84,394 +88,351 @@ describe('PersonnelListComponent', () => {
     const mSpy = jasmine.createSpyObj('NgbModal', ['open']);
     const aSpy = jasmine.createSpyObj('AuthService', ['hasAnyRole', 'hasRole']);
 
-    // 2. Configurar Subjects para simular los Observables públicos del servicio
-    // BehaviorSubject mantiene el último valor emitido y lo envía a nuevos suscriptores
+    // Inicializamos los BehaviorSubjects con datos mock
     personnelListSubject = new BehaviorSubject<Personnel[]>(mockPersonnelList);
     personnelTypesSubject = new BehaviorSubject<PersonnelType[]>(mockTypes);
 
-    // Asignar los observables al spy usando getters - esto simula las propiedades $ del servicio real
+    // Configuramos las propiedades observables del servicio usando Object.defineProperty
     Object.defineProperty(pSpy, 'personnelList$', { get: () => personnelListSubject.asObservable() });
     Object.defineProperty(pSpy, 'personnelTypes$', { get: () => personnelTypesSubject.asObservable() });
 
-    // Configurar el módulo de testing de Angular con todas las dependencias necesarias
+    // Configuramos el módulo de testing de Angular
     await TestBed.configureTestingModule({
-      declarations: [PersonnelListComponent], // Componente bajo prueba
-      imports: [FormsModule], // Importante para los filtros del HTML que usan [(ngModel)]
+      declarations: [PersonnelListComponent],  // Componente a probar
+      imports: [FormsModule],  // Necesario para ngModel en el template
       providers: [
-        // Proporcionar los servicios simulados en lugar de los reales
+        // Inyectamos los servicios simulados
         { provide: PersonnelService, useValue: pSpy },
         { provide: NgbModal, useValue: mSpy },
         { provide: AuthService, useValue: aSpy }
       ],
-      // SOLUCIÓN AL ERROR NG0304: Ignorar elementos HTML personalizados no reconocidos
-      schemas: [CUSTOM_ELEMENTS_SCHEMA] 
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]  // Ignora elementos HTML personalizados no reconocidos
     })
-    .compileComponents(); // Compilar el componente y su template
+    .compileComponents();
 
-    // Obtener las instancias de los servicios simulados después de configurar el módulo
+    // Obtenemos las instancias de los servicios simulados
     personnelServiceSpy = TestBed.inject(PersonnelService) as jasmine.SpyObj<PersonnelService>;
     modalServiceSpy = TestBed.inject(NgbModal) as jasmine.SpyObj<NgbModal>;
     authServiceSpy = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
 
-    // Configurar comportamiento por defecto de los servicios
+    // Configuración por defecto para los métodos de los servicios
     personnelServiceSpy.getAllPersonnel.and.returnValue(of(mockPersonnelList));
     personnelServiceSpy.getAllPersonnelTypes.and.returnValue(of(mockTypes));
-    authServiceSpy.hasAnyRole.and.returnValue(true); // Permisos por defecto: tiene acceso
+    authServiceSpy.hasAnyRole.and.returnValue(true);  // Simula que el usuario tiene permisos
 
-    // Crear el componente dentro del entorno de prueba
+    // Creamos una instancia del componente
     fixture = TestBed.createComponent(PersonnelListComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges(); // Dispara ngOnInit -> loadData -> subscribe a los Observables
+    fixture.detectChanges(); // Ejecuta ngOnInit - inicialización del componente
   });
 
-  // Prueba básica: verificar que el componente se crea exitosamente
+  // PRUEBA BÁSICA: Verifica que el componente se crea exitosamente
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
   // =================================================
-  // 1. PRUEBAS DE INICIALIZACIÓN Y CARGA DE DATOS
+  // 1. PRUEBAS DE INICIALIZACIÓN
   // =================================================
   describe('Initialization', () => {
-    // Prueba: el componente debe cargar datos y tipos al inicializarse
     it('should load data and types on init', () => {
-      // Verificar que se llamaron a los métodos de carga
+      // Verifica que durante la inicialización se cargan los datos correctamente
       expect(personnelServiceSpy.getAllPersonnel).toHaveBeenCalled();
       expect(personnelServiceSpy.getAllPersonnelTypes).toHaveBeenCalled();
-      // Verificar que los datos se cargaron correctamente
-      expect(component.personnelList.length).toBe(3);
-      expect(component.personnelTypes.length).toBe(2);
-      // Verificar que el indicador de carga se desactiva
-      expect(component.isLoading).toBeFalse();
+      expect(component.personnelList.length).toBe(3);  // 3 empleados en mock
+      expect(component.personnelTypes.length).toBe(2); // 2 tipos en mock
+      expect(component.isLoading).toBeFalse();  // El loading debe desactivarse al terminar
     });
 
-    // Prueba: manejo de error al cargar la lista de personal
     it('should handle error when loading personnel', () => {
-      // Configurar el servicio para devolver un error al cargar personal
+      // Verifica el manejo de errores al cargar la lista de personal
       personnelServiceSpy.getAllPersonnel.and.returnValue(throwError(() => new Error('Error')));
-      // Ejecutar la carga de datos (que fallará)
-      component.loadData(); 
-      // Verificar que se muestra el mensaje de error correcto
+      component.loadData();  // Llamamos manualmente al método
       expect(component.alertMessage).toBe('Error al cargar el personal');
-      expect(component.alertType).toBe('danger');
+      expect(component.alertType).toBe('danger');  // Tipo de alerta para errores
     });
 
-    // Prueba: manejo de error al cargar los tipos de personal
     it('should handle error when loading types', () => {
-      // Configurar el servicio para devolver un error al cargar tipos
+      // Verifica el manejo de errores al cargar los tipos de personal
       personnelServiceSpy.getAllPersonnelTypes.and.returnValue(throwError(() => new Error('Error')));
-      // Ejecutar la carga de datos (que fallará)
       component.loadData();
-      // Verificar que se muestra el mensaje de error correcto
       expect(component.alertMessage).toBe('Error al cargar las categorías');
       expect(component.alertType).toBe('danger');
     });
   });
 
   // =================================================
-  // 2. PRUEBAS DE FILTRADO DE DATOS
+  // 2. PRUEBAS DE FILTRADO
   // =================================================
   describe('Filtering Logic', () => {
-    // Prueba: filtrar por término de búsqueda en nombre
     it('should filter by search term (name)', () => {
-      // Establecer término de búsqueda
+      // Verifica que filtra correctamente por nombre
       component.searchTerm = 'Ana';
-      // Aplicar filtros
       component.filterData();
-      // Verificar que solo se encontró 1 usuario
-      expect(component.filteredList.length).toBe(1);
-      // Verificar que es el usuario correcto
+      expect(component.filteredList.length).toBe(1);  // Solo debe encontrar a Ana
       expect(component.filteredList[0].firstName).toBe('Ana');
     });
 
-    // Prueba: filtrar por término de búsqueda en email
     it('should filter by search term (email)', () => {
-      // Establecer término de búsqueda por email
+      // Verifica que filtra correctamente por email
       component.searchTerm = 'pedro@test.com';
-      // Aplicar filtros
       component.filterData();
-      // Verificar que solo se encontró 1 usuario
       expect(component.filteredList.length).toBe(1);
-      // Verificar que es el usuario correcto
       expect(component.filteredList[0].email).toBe('pedro@test.com');
     });
 
-    // Prueba: filtrar por estado
     it('should filter by status', () => {
-      // Establecer filtro de estado
+      // Verifica que filtra correctamente por estado
       component.statusFilter = 'inactivo';
-      // Aplicar filtros
       component.filterData();
-      // Verificar que solo se encontró 1 usuario inactivo
       expect(component.filteredList.length).toBe(1);
-      // Verificar que tiene el estado correcto
       expect(component.filteredList[0].status).toBe('inactivo');
     });
 
-    // Prueba: filtrar por tipo de personal
     it('should filter by type', () => {
-      // Establecer filtro por tipo (Mesero)
+      // Verifica que filtra correctamente por tipo de personal
       component.typeFilter = 't2';
-      // Aplicar filtros
       component.filterData();
-      // Verificar que solo se encontró 1 usuario de tipo Mesero
       expect(component.filteredList.length).toBe(1);
-      // Verificar que tiene el tipo correcto
-      expect(component.filteredList[0].personnelType).toBe('t2');
+      expect(component.filteredList[0].personnelType).toBe('t2');  // Mesero
     });
 
-    // Prueba: combinar múltiples filtros (AND lógico)
     it('should combine filters', () => {
-      // Configurar múltiples filtros que deberían coincidir con Juan
-      component.searchTerm = 'Juan'; // Busca por nombre
-      component.statusFilter = 'disponible'; // Filtra por estado disponible
-      component.typeFilter = 't1'; // Filtra por tipo Chef
-      // Aplicar filtros
+      // Verifica que funciona correctamente con múltiples filtros aplicados
+      component.searchTerm = 'Juan';
+      component.statusFilter = 'disponible';
+      component.typeFilter = 't1';
       component.filterData();
-      // Verificar que solo se encontró 1 usuario que cumple todas las condiciones
       expect(component.filteredList.length).toBe(1);
-      // Verificar que es el usuario correcto
       expect(component.filteredList[0].firstName).toBe('Juan');
     });
 
-    // Prueba: cuando no hay coincidencias debe devolver lista vacía
     it('should return empty if no matches', () => {
-      // Configurar término de búsqueda que no existe
+      // Verifica que devuelve lista vacía cuando no hay coincidencias
       component.searchTerm = 'Xyz';
-      // Aplicar filtros
       component.filterData();
-      // Verificar que no se encontraron usuarios
       expect(component.filteredList.length).toBe(0);
     });
 
-    // Prueba: reinicio de filtros debe limpiar todos los filtros
     it('resetFilters should clear filters and reload list', () => {
-      // Establecer filtros con valores específicos
+      // Verifica que resetFilters limpia todos los filtros
       component.searchTerm = 'Algo';
       component.statusFilter = 'inactivo';
       component.typeFilter = 't1';
-      
-      // Ejecutar reinicio de filtros
       component.resetFilters();
-
-      // Verificar que los filtros volvieron a sus valores por defecto
       expect(component.searchTerm).toBe('');
-      expect(component.statusFilter).toBe('all');
-      expect(component.typeFilter).toBe('all');
-      // Verificar que se muestran todos los usuarios nuevamente
-      expect(component.filteredList.length).toBe(3); 
+      expect(component.statusFilter).toBe('all');  // Valor por defecto
+      expect(component.typeFilter).toBe('all');    // Valor por defecto
+      expect(component.filteredList.length).toBe(3);  // Todos los elementos sin filtrar
     });
   });
 
   // =================================================
-  // 3. PRUEBAS DE INTERACCIONES CON MODALES (Crear/Editar)
+  // 3. PRUEBAS DE MODALES (Create/Edit)
   // =================================================
   describe('Modal Interactions (Create/Edit)', () => {
     let mockModalRef: any;
 
-    // Configuración que se ejecuta antes de cada prueba en este bloque
+    // Configuración común para pruebas de modales
     beforeEach(() => {
-      // Simular referencia de modal con comportamiento por defecto exitoso
       mockModalRef = {
-        componentInstance: {}, // Instancia del componente del modal
-        result: Promise.resolve('saved') // Comportamiento por defecto: guardado exitoso
+        componentInstance: {},  // Instancia del componente modal
+        result: Promise.resolve('saved')  // Simula que el modal se cerró con 'saved'
       };
-      // Configurar el servicio de modales para devolver nuestro modal simulado
       modalServiceSpy.open.and.returnValue(mockModalRef);
     });
 
-    // Prueba: abrir modal para crear y recargar datos en caso de éxito
     it('should open modal for Create and reload data on success', fakeAsync(() => {
-      // Configurar el modal para resolver con 'saved' (éxito)
+      // Verifica la apertura del modal para crear nuevo personal
       mockModalRef.result = Promise.resolve('saved');
+      component.openPersonnelForm();  // Sin parámetros = crear nuevo
+      tick();  // Avanza el tiempo virtual para resolver la promesa
       
-      // Abrir formulario en modo creación (sin pasar datos)
-      component.openPersonnelForm();
-      tick(); // Avanzar el tiempo para resolver la promesa
-
-      // Verificar que se abrió el modal correcto con la configuración adecuada
       expect(modalServiceSpy.open).toHaveBeenCalledWith(PersonnelFormComponent, { size: 'lg' });
-      // Verificar que no se pasó datos de personal (modo creación)
-      expect(mockModalRef.componentInstance.personnel).toBeUndefined();
-      // Verificar que se recargaron los datos después del guardado exitoso
-      expect(personnelServiceSpy.getAllPersonnel).toHaveBeenCalled();
-      // Verificar que se muestra mensaje de éxito para creación
-      expect(component.alertMessage).toContain('creado');
+      expect(mockModalRef.componentInstance.personnel).toBeUndefined();  // No debe tener datos de personal
+      expect(personnelServiceSpy.getAllPersonnel).toHaveBeenCalled();  // Debe recargar datos
+      expect(component.alertMessage).toContain('creado');  // Mensaje de éxito
     }));
 
-    // Prueba: abrir modal para editar y pasar datos existentes
     it('should open modal for Edit and pass personnel data', fakeAsync(() => {
-      // Seleccionar persona a editar
+      // Verifica la apertura del modal para editar personal existente
       const personToEdit = mockPersonnelList[0];
-      // Abrir formulario en modo edición (pasando datos)
-      component.openPersonnelForm(personToEdit);
-      tick(); // Avanzar el tiempo
-
-      // Verificar que se pasaron los datos correctos al modal
-      expect(mockModalRef.componentInstance.personnel).toEqual(personToEdit);
-      // Verificar que se muestra mensaje de éxito para actualización
-      expect(component.alertMessage).toContain('actualizado');
+      component.openPersonnelForm(personToEdit);  // Con parámetro = editar
+      tick();
+      
+      expect(mockModalRef.componentInstance.personnel).toEqual(personToEdit);  // Debe pasar los datos
+      expect(component.alertMessage).toContain('actualizado');  // Mensaje de actualización
     }));
 
-    // Prueba: no hacer nada si el modal es cancelado o descartado
-    it('should do nothing if modal is dismissed or result is not saved', fakeAsync(() => {
-      // Configurar el modal para resolver con 'dismissed' (cancelado)
+    it('should do nothing if modal is dismissed', fakeAsync(() => {
+      // Verifica que no hace nada cuando el modal se cancela
       mockModalRef.result = Promise.resolve('dismissed');
-      
-      // Resetear contador de llamadas para verificar que NO se llama de nuevo
-      personnelServiceSpy.getAllPersonnel.calls.reset();
-      
-      // Abrir formulario
+      personnelServiceSpy.getAllPersonnel.calls.reset();  // Reiniciamos el contador de llamadas
       component.openPersonnelForm();
-      tick(); // Avanzar el tiempo
+      tick();
+      
+      expect(personnelServiceSpy.getAllPersonnel).not.toHaveBeenCalled();  // No debe recargar datos
+    }));
 
-      // Verificar que NO se recargaron los datos (porque se canceló)
-      expect(personnelServiceSpy.getAllPersonnel).not.toHaveBeenCalled();
+    // [COVERAGE FIX] Cubre el bloque .catch() del modal
+    it('should handle modal rejection (catch block)', fakeAsync(() => {
+      // Verifica que maneja correctamente el rechazo de la promesa del modal
+      mockModalRef.result = Promise.reject('error');
+      component.openPersonnelForm();
+      tick();
+      
+      // Simplemente verificamos que no explotó y que se llamó al servicio para abrir el modal
+      expect(modalServiceSpy.open).toHaveBeenCalled();
     }));
   });
 
   // =================================================
-  // 4. PRUEBAS DE ACCIONES (Eliminar y Cambiar Estado)
+  // 4. PRUEBAS DE ACCIONES (Delete/Status)
   // =================================================
   describe('Actions (Delete/Status)', () => {
     
-    // Prueba: cambiar estado exitosamente
-    it('should toggle status successfully', () => {
-      const person = mockPersonnelList[0]; // Estado inicial: disponible
-      // Configurar servicio para actualizar exitosamente
+    it('should toggle status from "disponible" to "inactivo"', () => {
+      // Verifica el cambio de estado de "disponible" a "inactivo"
+      const person = mockPersonnelList[0]; // status: disponible
       personnelServiceSpy.updatePersonnel.and.returnValue(of({ ...person, status: 'inactivo' }));
-
-      // Ejecutar cambio de estado
+      
       component.toggleStatus(person);
-
-      // Verificar que se llamó al servicio con los parámetros correctos
+      
+      // Verifica que se llamó al servicio con los parámetros correctos
       expect(personnelServiceSpy.updatePersonnel).toHaveBeenCalledWith(
         person._id, 
-        jasmine.objectContaining({ status: 'inactivo' }) // Se cambia a inactivo
+        jasmine.objectContaining({ status: 'inactivo' })  // El nuevo estado
       );
-      // Verificar que se muestra mensaje de éxito
       expect(component.alertMessage).toBe('Estado actualizado');
     });
 
-    // Prueba: manejo de error al cambiar estado
-    it('should handle error when toggling status', () => {
-      const person = mockPersonnelList[0];
-      // Configurar servicio para devolver error
-      personnelServiceSpy.updatePersonnel.and.returnValue(throwError(() => new Error('Fail')));
-
-      // Ejecutar cambio de estado (que fallará)
+    // [COVERAGE FIX] Cubre la rama "else" del ternario (status !== 'disponible')
+    it('should toggle status from "inactivo" to "disponible"', () => {
+      // Verifica el cambio de estado de "inactivo" a "disponible"
+      const person = mockPersonnelList[1]; // status: inactivo
+      personnelServiceSpy.updatePersonnel.and.returnValue(of({ ...person, status: 'disponible' }));
+      
       component.toggleStatus(person);
+      
+      expect(personnelServiceSpy.updatePersonnel).toHaveBeenCalledWith(
+        person._id, 
+        jasmine.objectContaining({ status: 'disponible' })
+      );
+      expect(component.alertMessage).toBe('Estado actualizado');
+    });
 
-      // Verificar que se muestra mensaje de error
+    it('should handle error when toggling status', () => {
+      // Verifica el manejo de errores al cambiar estado
+      const person = mockPersonnelList[0];
+      personnelServiceSpy.updatePersonnel.and.returnValue(throwError(() => new Error('Fail')));
+      component.toggleStatus(person);
       expect(component.alertMessage).toBe('Error al actualizar estado');
     });
 
-    // Prueba: eliminar personal después de confirmación
     it('should delete personnel after confirmation', fakeAsync(() => {
-      // Simular modal de confirmación que el usuario acepta
+      // Verifica la eliminación de personal después de confirmación
       const mockConfirmRef = {
         componentInstance: { title: '', message: '', confirmText: '', confirmClass: '' },
-        result: Promise.resolve(true) // Usuario confirma la eliminación
+        result: Promise.resolve(true)  // Usuario confirma la eliminación
       };
       modalServiceSpy.open.and.returnValue(mockConfirmRef as any);
-      // Configurar servicio para eliminar exitosamente
       personnelServiceSpy.deletePersonnel.and.returnValue(of(void 0));
-
-      // Ejecutar confirmación de eliminación
+      
       component.confirmDelete('p1');
-      tick(); // Avanzar el tiempo para resolver la promesa
-
-      // Verificar que se abrió el modal de confirmación
+      tick();  // Procesa la promesa de confirmación
+      
       expect(modalServiceSpy.open).toHaveBeenCalledWith(ConfirmModalComponent);
-      // Verificar que se llamó al servicio de eliminación con el ID correcto
       expect(personnelServiceSpy.deletePersonnel).toHaveBeenCalledWith('p1');
-      // Verificar que se muestra mensaje de éxito
       expect(component.alertMessage).toBe('Personal eliminado');
     }));
 
-    // Prueba: NO eliminar si el usuario cancela la confirmación
     it('should NOT delete if user cancels confirmation', fakeAsync(() => {
-      // Simular modal de confirmación que el usuario cancela
+      // Verifica que NO elimina cuando el usuario cancela
       const mockConfirmRef = {
         componentInstance: {},
-        result: Promise.resolve(false) // Usuario cancela
+        result: Promise.resolve(false)  // Usuario cancela la eliminación
       };
       modalServiceSpy.open.and.returnValue(mockConfirmRef as any);
-
-      // Ejecutar confirmación de eliminación
+      
       component.confirmDelete('p1');
-      tick(); // Avanzar el tiempo
-
-      // Verificar que NO se llamó al servicio de eliminación
-      expect(personnelServiceSpy.deletePersonnel).not.toHaveBeenCalled();
+      tick();
+      
+      expect(personnelServiceSpy.deletePersonnel).not.toHaveBeenCalled();  // No debe eliminar
     }));
 
-    // Prueba: manejo de error al eliminar
-    it('should handle error when deleting', fakeAsync(() => {
-      // Simular modal de confirmación que el usuario acepta
+    // [COVERAGE FIX] Cubre el bloque .catch() de confirmDelete
+    it('should handle confirmation modal rejection (catch block)', fakeAsync(() => {
+      // Verifica el manejo de errores en el modal de confirmación
       const mockConfirmRef = {
         componentInstance: {},
-        result: Promise.resolve(true)
+        result: Promise.reject('error')  // El modal falla/rechaza
       };
       modalServiceSpy.open.and.returnValue(mockConfirmRef as any);
-      // Configurar servicio para devolver error al eliminar
-      personnelServiceSpy.deletePersonnel.and.returnValue(throwError(() => new Error('Fail')));
-
-      // Ejecutar eliminación (que fallará)
+      
       component.confirmDelete('p1');
-      tick(); // Avanzar el tiempo
+      tick();
+      
+      expect(personnelServiceSpy.deletePersonnel).not.toHaveBeenCalled();  // No debe eliminar
+    }));
 
-      // Verificar que se muestra mensaje de error
+    it('should handle error when deleting', fakeAsync(() => {
+      // Verifica el manejo de errores durante la eliminación
+      const mockConfirmRef = {
+        componentInstance: {},
+        result: Promise.resolve(true)  // Usuario confirma
+      };
+      modalServiceSpy.open.and.returnValue(mockConfirmRef as any);
+      personnelServiceSpy.deletePersonnel.and.returnValue(throwError(() => new Error('Fail')));
+      
+      component.confirmDelete('p1');
+      tick();
+      
       expect(component.alertMessage).toBe('Error al eliminar');
     }));
   });
 
   // =================================================
-  // 5. PRUEBAS DE FUNCIONES AUXILIARES Y PERMISOS
+  // 5. PRUEBAS DE HELPERS Y PERMISOS
   // =================================================
   describe('Helpers & Permissions', () => {
-    // Prueba: obtener etiqueta correcta para cada estado
     it('getStatusLabel should return correct label', () => {
-      // Verificar que devuelve la etiqueta correcta para estado conocido
+      // Verifica que traduce correctamente los estados a etiquetas legibles
       expect(component.getStatusLabel('disponible')).toBe('Disponible');
-      // Verificar que devuelve "Desconocido" para estado no reconocido
-      expect(component.getStatusLabel('unknown')).toBe('Desconocido');
+      expect(component.getStatusLabel('unknown')).toBe('Desconocido');  // Estado por defecto
     });
 
-    // Prueba: obtener nombre correcto para cada tipo
     it('getTypeName should return correct name', () => {
-      // Verificar que devuelve el nombre correcto para tipo conocido
+      // Verifica que obtiene el nombre del tipo a partir del ID
       expect(component.getTypeName('t1')).toBe('Chef');
-      // Verificar que devuelve "Sin categoría" para tipo no encontrado
-      expect(component.getTypeName('invalid')).toBe('Sin categoría');
+      expect(component.getTypeName('invalid')).toBe('Sin categoría');  // Tipo por defecto
     });
 
-    // Prueba: permisos delegan correctamente al servicio de autenticación
     it('permissions should delegate to authService', () => {
-      // Verificar que canCreate llama al servicio con los roles correctos
+      // Verifica que los métodos de permisos delegan correctamente al servicio de autenticación
       component.canCreate();
       expect(authServiceSpy.hasAnyRole).toHaveBeenCalledWith(['admin', 'coordinador']);
       
-      // Verificar que canDelete llama al servicio con el rol correcto
       component.canDelete();
       expect(authServiceSpy.hasRole).toHaveBeenCalledWith('admin');
+
+      component.canEdit(mockPersonnelList[0]);
+      expect(authServiceSpy.hasAnyRole).toHaveBeenCalledWith(['admin', 'coordinador']);
+
+      component.canToggleStatus();
+      expect(authServiceSpy.hasAnyRole).toHaveBeenCalledWith(['admin', 'coordinador']);
     });
   });
 
   // =================================================
-  // 6. PRUEBAS DE LÓGICA DE ALERTAS Y TIMEOUT
+  // 6. LÓGICA DE ALERTAS
   // =================================================
   describe('Alert Logic', () => {
-    // Prueba: el mensaje de alerta debe limpiarse después de 5 segundos
     it('should clear alert message after 5 seconds', fakeAsync(() => {
-      // Mostrar alerta de prueba
+      // Verifica que las alertas se auto-limpián después de 5 segundos
       (component as any).showAlert('Test', 'success');
-      // Verificar que el mensaje se estableció correctamente
       expect(component.alertMessage).toBe('Test');
-      // Avanzar el tiempo 5 segundos (simula que pasó el tiempo)
-      tick(5000);
-      // Verificar que el mensaje se limpió automáticamente
-      expect(component.alertMessage).toBe('');
+      tick(5000);  // Avanza 5 segundos en el tiempo virtual
+      expect(component.alertMessage).toBe('');  // El mensaje debe haberse limpiado
     }));
   });
 });

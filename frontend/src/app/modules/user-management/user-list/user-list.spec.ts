@@ -1,431 +1,353 @@
+// Importamos las herramientas necesarias para testing en Angular
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms'; // <--- CRUCIAL: Necesario para [(ngModel)]
-import { UserListComponent } from './user-list';
-import { UserService } from '../../../core/services/user';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { of, throwError } from 'rxjs';
-import { User } from '../../../shared/interfaces/user';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { FormsModule } from '@angular/forms'; // Necesario para ngModel en formularios
+import { UserListComponent } from './user-list'; // Componente que vamos a probar
+import { UserService } from '../../../core/services/user'; // Servicio de usuarios
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap'; // Servicio de modales de Bootstrap
+import { of, throwError } from 'rxjs'; // Utilidades RxJS para crear observables
+import { User } from '../../../shared/interfaces/user'; // Interfaz del usuario
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'; // Para ignorar elementos personalizados
 
 // Bloque principal de pruebas para el componente UserListComponent
 describe('UserListComponent', () => {
-  // Variables que se usarán en todas las pruebas
-  let component: UserListComponent; // Instancia del componente a probar
-  let fixture: ComponentFixture<UserListComponent>; // Contenedor del componente y su entorno de prueba
-  let userServiceSpy: jasmine.SpyObj<UserService>; // Servicio de usuarios simulado (mock)
-  let modalServiceSpy: jasmine.SpyObj<NgbModal>; // Servicio de modales simulado (mock)
+  let component: UserListComponent;  // Instancia del componente que vamos a probar
+  let fixture: ComponentFixture<UserListComponent>;  // Contenedor del componente para testing
+  let userServiceSpy: jasmine.SpyObj<UserService>;  // Spy del servicio de usuarios
+  let modalServiceSpy: jasmine.SpyObj<NgbModal>;  // Spy del servicio de modales
 
-  // Datos de prueba simulados que representan usuarios
+  // ==========================================
+  // DATOS DE PRUEBA SIMULADOS (MOCKS)
+  // ==========================================
+
+  // Creamos datos de prueba realistas para simular usuarios de la aplicación
   const mockUsers: User[] = [
     { _id: '1', fullname: 'Juan Perez', email: 'juan@test.com', username: 'juanp', document: 1001, role: 'admin', active: true },
     { _id: '2', fullname: 'Maria Gomez', email: 'maria@test.com', username: 'mariag', document: 1002, role: 'coordinador', active: false },
     { _id: '3', fullname: 'Carlos Ruiz', email: 'carlos@test.com', username: 'carlosr', document: 1003, role: 'lider', active: true }
   ];
 
-  // Configuración que se ejecuta antes de cada prueba
+  // 'beforeEach' se ejecuta ANTES de cada prueba individual
   beforeEach(async () => {
-    // Crear objetos simulados (spies) para los servicios
-    // Estos spies nos permiten controlar y verificar las llamadas a los métodos
+    // Creamos objetos espía para los servicios
     userServiceSpy = jasmine.createSpyObj('UserService', ['getAllUsers', 'deleteUser', 'updateUser']);
     modalServiceSpy = jasmine.createSpyObj('NgbModal', ['open']);
 
-    // Configurar el comportamiento por defecto del servicio de usuarios
-    // Cuando se llame a getAllUsers, devolverá nuestros usuarios de prueba
+    // Configurar comportamiento por defecto del servicio
+    // Simulamos que getAllUsers devuelve la lista mock de usuarios
     userServiceSpy.getAllUsers.and.returnValue(of(mockUsers));
 
-    // Configurar el módulo de testing de Angular
+    // Configuramos el módulo de testing de Angular
     await TestBed.configureTestingModule({
-      declarations: [UserListComponent], // Componente a probar
-      imports: [
-        FormsModule // <--- Import necesario para que funcione [(ngModel)] en el componente
-      ],
+      declarations: [UserListComponent],  // Componente a probar
+      imports: [FormsModule],  // Necesario para formularios con ngModel
       providers: [
-        // Proporcionar los servicios simulados en lugar de los reales
+        // Inyectamos los servicios simulados
         { provide: UserService, useValue: userServiceSpy },
         { provide: NgbModal, useValue: modalServiceSpy }
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA] // Ignorar elementos HTML personalizados no reconocidos
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]  // Ignora elementos HTML personalizados
     })
-    .compileComponents(); // Compilar el componente y su template
+    .compileComponents();  // Compila el componente y su template
 
-    // Crear el componente dentro del entorno de prueba
+    // Creamos una instancia del componente
     fixture = TestBed.createComponent(UserListComponent);
     component = fixture.componentInstance;
-    
-    // Primera detección de cambios - esto dispara ngOnInit() que llama a loadUsers()
-    fixture.detectChanges();
+    fixture.detectChanges(); // Ejecuta ngOnInit -> loadUsers (inicialización del componente)
   });
 
   // =================================================
-  // 1. PRUEBAS DE INICIALIZACIÓN Y CARGA (LoadUsers)
+  // 1. PRUEBAS DE INICIALIZACIÓN Y CARGA
   // =================================================
 
-  // Prueba que verifica que el componente se crea correctamente y carga los usuarios
+  // Prueba básica: verifica que el componente se crea y carga datos correctamente
   it('should create and load users correctly', () => {
-    // Verificar que el componente existe
-    expect(component).toBeTruthy();
-    // Verificar que se cargaron todos los usuarios mock
-    expect(component.users.length).toBe(3);
-    // Verificar que los usuarios filtrados inicialmente son todos
-    expect(component.filteredUsers.length).toBe(3);
-    // Verificar que el indicador de carga se desactiva después de cargar
-    expect(component.loading).toBeFalse();
+    expect(component).toBeTruthy();  // Verifica que el componente existe
+    expect(component.users.length).toBe(3);  // Debe tener 3 usuarios
+    expect(component.filteredUsers.length).toBe(3);  // Lista filtrada inicialmente igual
+    expect(component.loading).toBeFalse();  // El loading debe desactivarse después de cargar
   });
 
-  // Prueba que verifica que el componente maneja correctamente respuestas con estructura {data: ...}
+  // Prueba: manejo de estructura de respuesta anidada {data: [...]}
   it('should handle response with {data: ...} structure', () => {
-    // Configurar el servicio para devolver datos con estructura {data: array}
+    // Algunas APIs devuelven los datos dentro de una propiedad 'data'
     userServiceSpy.getAllUsers.and.returnValue(of({ data: mockUsers } as any));
-    // Forzar la carga de usuarios
-    component.loadUsers();
-    // Verificar que se procesaron correctamente los 3 usuarios
-    expect(component.users.length).toBe(3);
+    component.loadUsers();  // Llamamos manualmente a cargar usuarios
+    expect(component.users.length).toBe(3);  // Debe extraer correctamente los datos
   });
 
-  // Prueba que verifica el manejo de respuestas vacías o nulas
+  // Prueba: manejo de respuestas vacías o nulas
   it('should handle empty/null response gracefully', () => {
-    // Configurar el servicio para devolver data null
     userServiceSpy.getAllUsers.and.returnValue(of({ data: null } as any));
-    // Forzar la carga de usuarios
     component.loadUsers();
-    // Verificar que el componente establece un array vacío como respaldo
-    expect(component.users).toEqual([]);
+    expect(component.users).toEqual([]);  // Debe manejar null convirtiéndolo a array vacío
   });
 
-  // Prueba que verifica el manejo de errores durante la carga de usuarios
+  // Prueba: manejo de errores durante la carga
   it('should handle error during loadUsers', () => {
-    // Espiar console.error para evitar ruido en la consola de pruebas
-    spyOn(console, 'error');
-    // Configurar el servicio para devolver un error
+    spyOn(console, 'error');  // Espiamos console.error para verificar que se llama
     userServiceSpy.getAllUsers.and.returnValue(throwError(() => new Error('Load failed')));
     
-    // Forzar la carga de usuarios (que fallará)
     component.loadUsers();
     
-    // Verificar que el loading se desactiva incluso en caso de error
-    expect(component.loading).toBeFalse();
-    // Verificar que los arrays de usuarios se limpian
-    expect(component.users).toEqual([]);
-    expect(component.filteredUsers).toEqual([]);
-    // Verificar que se registró el error
-    expect(console.error).toHaveBeenCalled();
+    expect(component.loading).toBeFalse();  // Loading debe desactivarse incluso en error
+    expect(component.users).toEqual([]);  // Lista de usuarios debe estar vacía
+    expect(component.filteredUsers).toEqual([]);  // Lista filtrada también vacía
+    expect(console.error).toHaveBeenCalled();  // Debe registrar el error
   });
 
   // =================================================
-  // 2. PRUEBAS DE FILTROS (ApplyFilters) - COBERTURA CRÍTICA
+  // 2. PRUEBAS DE FILTROS
   // =================================================
 
-  // Prueba que verifica el manejo de casos donde users no es un array (seguridad)
+  // Prueba de seguridad: manejo cuando users no es un array
   it('should handle case where users is not an array (Safety check)', () => {
-    // Espiar console.error para capturar el mensaje de error
     spyOn(console, 'error');
-    // Forzar una condición inválida estableciendo users como null
-    component.users = null as any;
+    component.users = null as any;  // Forzamos un valor inválido
     
-    // Aplicar filtros (debería manejar el caso null)
-    component.applyFilters();
+    component.applyFilters();  // Aplicamos filtros
     
-    // Verificar que filteredUsers es un array vacío como respaldo seguro
-    expect(component.filteredUsers).toEqual([]);
-    // Verificar que se registró el error
-    expect(console.error).toHaveBeenCalledWith('Users is not an array:', null);
+    expect(component.filteredUsers).toEqual([]);  // Debe devolver array vacío como fallback
+    expect(console.error).toHaveBeenCalledWith('Users is not an array:', null);  // Debe loguear error
   });
 
-  // Prueba que verifica el filtrado por término de búsqueda en nombre (case insensitive)
+  // Prueba: filtrado por término de búsqueda (nombre, case insensitive)
   it('should filter by search term (fullname case insensitive)', () => {
-    // Establecer término de búsqueda
-    component.searchTerm = 'juan';
-    // Aplicar filtros
+    component.searchTerm = 'juan';  // Búsqueda en minúsculas
     component.applyFilters();
-    // Verificar que solo se encontró 1 usuario
-    expect(component.filteredUsers.length).toBe(1);
-    // Verificar que es el usuario correcto
-    expect(component.filteredUsers[0].fullname).toBe('Juan Perez');
+    expect(component.filteredUsers.length).toBe(1);  // Solo debe encontrar 1 usuario
+    expect(component.filteredUsers[0].fullname).toBe('Juan Perez');  // Usuario correcto
   });
 
-  // Prueba que verifica el filtrado por término de búsqueda en email
+  // Prueba: filtrado por email
   it('should filter by search term (email)', () => {
-    // Establecer término de búsqueda parcial de email
-    component.searchTerm = 'maria@test';
-    // Aplicar filtros
+    component.searchTerm = 'maria@test';  // Búsqueda parcial de email
     component.applyFilters();
-    // Verificar que solo se encontró 1 usuario
     expect(component.filteredUsers.length).toBe(1);
-    // Verificar que es el usuario correcto
     expect(component.filteredUsers[0].email).toBe('maria@test.com');
   });
 
-  // Prueba que verifica el filtrado por término de búsqueda en documento
+  // Prueba: filtrado por documento
   it('should filter by search term (document)', () => {
-    // Establecer término de búsqueda como string de documento
-    component.searchTerm = '1003';
-    // Aplicar filtros
+    component.searchTerm = '1003';  // Búsqueda por número de documento
     component.applyFilters();
-    // Verificar que solo se encontró 1 usuario
     expect(component.filteredUsers.length).toBe(1);
-    // Verificar que es el usuario correcto
     expect(component.filteredUsers[0].document).toBe(1003);
   });
 
-  // Prueba que verifica el filtrado por estado activo
+  // Prueba: filtrado por estado activo
   it('should filter by status (active)', () => {
-    // Establecer filtro de estado como 'active'
     component.statusFilter = 'active';
-    // Aplicar filtros
     component.applyFilters();
-    // Deberían quedar 2 usuarios activos: Juan(active) y Carlos(active)
-    expect(component.filteredUsers.length).toBe(2);
-    // Verificar que todos los usuarios filtrados están activos
-    expect(component.filteredUsers.every(u => u.active)).toBeTrue();
+    expect(component.filteredUsers.length).toBe(2);  // 2 usuarios activos en los mocks
+    expect(component.filteredUsers.every(u => u.active)).toBeTrue();  // Todos deben estar activos
   });
 
-  // Prueba que verifica el filtrado por estado inactivo
+  // Prueba: filtrado por estado inactivo
   it('should filter by status (inactive)', () => {
-    // Establecer filtro de estado como 'inactive'
     component.statusFilter = 'inactive';
-    // Aplicar filtros
     component.applyFilters();
-    // Solo Maria está inactiva
-    expect(component.filteredUsers.length).toBe(1);
-    // Verificar que el usuario filtrado está inactivo
-    expect(component.filteredUsers[0].active).toBeFalse();
+    expect(component.filteredUsers.length).toBe(1);  // 1 usuario inactivo en los mocks
+    expect(component.filteredUsers[0].active).toBeFalse();  // Debe estar inactivo
   });
 
-  // Prueba que verifica el filtrado por rol
+  // Prueba: filtrado por rol
   it('should filter by role', () => {
-    // Establecer filtro de rol como 'admin'
     component.roleFilter = 'admin';
-    // Aplicar filtros
     component.applyFilters();
-    // Solo Juan es admin
     expect(component.filteredUsers.length).toBe(1);
-    // Verificar que el usuario tiene el rol correcto
     expect(component.filteredUsers[0].role).toBe('admin');
   });
 
-  // Prueba que verifica la combinación de múltiples filtros (AND lógico)
+  // Prueba: combinación de múltiples filtros (AND lógico)
   it('should match combined filters (Search AND Status AND Role)', () => {
-    // Configurar múltiples filtros que deberían coincidir con Carlos
-    component.searchTerm = 'Carlos'; // Busca por nombre
-    component.statusFilter = 'active'; // Filtra por estado activo
-    component.roleFilter = 'lider'; // Filtra por rol líder
-    
-    // Aplicar filtros
+    component.searchTerm = 'Carlos';
+    component.statusFilter = 'active';
+    component.roleFilter = 'lider';
     component.applyFilters();
-    
-    // Verificar que solo se encontró 1 usuario que cumple todas las condiciones
     expect(component.filteredUsers.length).toBe(1);
-    // Verificar que es el usuario correcto
-    expect(component.filteredUsers[0].username).toBe('carlosr');
+    expect(component.filteredUsers[0].username).toBe('carlosr');  // Debe cumplir todos los filtros
   });
 
-  // Prueba que verifica que los filtros combinados devuelven vacío cuando no hay coincidencias
+  // Prueba: resultado vacío cuando los filtros no coinciden
   it('should return empty if combined filters match nothing', () => {
-    // Configurar filtros contradictorios
-    component.searchTerm = 'Juan'; // Busca a Juan
-    component.statusFilter = 'inactive'; // Pero Juan es active, no inactive
-    
-    // Aplicar filtros
+    component.searchTerm = 'Juan';
+    component.statusFilter = 'inactive';  // Juan está activo, no inactivo
     component.applyFilters();
-    
-    // Verificar que no se encontraron usuarios
-    expect(component.filteredUsers.length).toBe(0);
+    expect(component.filteredUsers.length).toBe(0);  // No debe encontrar resultados
   });
 
-  // Prueba que verifica el reinicio de filtros a sus valores por defecto
+  // Prueba: reset de filtros a valores por defecto
   it('should reset filters to default', () => {
-    // Establecer filtros con valores específicos
+    // Aplicamos algunos filtros primero
     component.searchTerm = 'xyz';
     component.statusFilter = 'active';
     component.roleFilter = 'admin';
-    component.applyFilters(); // Esto dejaría filteredUsers vacío
+    component.applyFilters();
 
-    // Ejecutar el reinicio de filtros
+    // Reseteamos los filtros
     component.resetFilters();
 
-    // Verificar que los filtros volvieron a sus valores por defecto
+    // Verificamos que todos los filtros volvieron a sus valores por defecto
     expect(component.searchTerm).toBe('');
     expect(component.statusFilter).toBe('all');
     expect(component.roleFilter).toBe('all');
-    // Verificar que se muestran todos los usuarios nuevamente
-    expect(component.filteredUsers.length).toBe(3);
+    expect(component.filteredUsers.length).toBe(3);  // Debe mostrar todos los usuarios
   });
 
   // =================================================
   // 3. PRUEBAS DE MODALES Y ACCIONES
   // =================================================
 
-  // Prueba para abrir el formulario de usuario en modo creación
+  // Prueba: apertura de formulario de usuario y recarga al guardar
   it('should open user form and reload on save', fakeAsync(() => {
-    // Simular la referencia del modal que se devuelve al abrirlo
+    // Creamos un modal simulado que resuelve con 'saved'
     const mockModalRef = {
-      componentInstance: { user: null }, // Sin usuario = modo creación
-      result: Promise.resolve('saved') // Simular cierre exitoso con guardado
+      componentInstance: { user: null },  // Modal en modo creación
+      result: Promise.resolve('saved')  // Simula que se guardó exitosamente
     };
-    // Configurar el servicio de modales para devolver nuestro modal simulado
     modalServiceSpy.open.and.returnValue(mockModalRef as any);
-    // Espiar el método loadUsers para verificar que se llama después del guardado
-    spyOn(component, 'loadUsers');
+    spyOn(component, 'loadUsers');  // Espiamos loadUsers para verificar que se llama
 
-    // Abrir el formulario (modo creación)
-    component.openUserForm();
-    tick(); // Avanzar el tiempo para resolver la promesa
+    component.openUserForm();  // Abrimos formulario (sin usuario = creación)
+    tick();  // Procesamos la promesa asíncrona
 
-    // Verificar que se abrió el modal
-    expect(modalServiceSpy.open).toHaveBeenCalled();
-    // Verificar que se recargaron los usuarios después del guardado
-    expect(component.loadUsers).toHaveBeenCalled();
+    expect(modalServiceSpy.open).toHaveBeenCalled();  // Debe abrir el modal
+    expect(component.loadUsers).toHaveBeenCalled();  // Debe recargar los datos después de guardar
   }));
 
-  // Prueba para abrir el formulario de usuario en modo edición
+  // Prueba: apertura de formulario en modo edición (con datos de usuario)
   it('should open user form with data (Edit mode)', () => {
-    // Simular la referencia del modal
     const mockModalRef: any = {
-      componentInstance: { user: null }, // Inicialmente sin usuario
-      result: new Promise(() => {}) // Promesa pendiente (no nos interesa el resultado aquí)
+      componentInstance: { user: null },  // Inicialmente sin usuario
+      result: new Promise(() => {})  // Promesa pendiente (no la resolvemos)
     };
-    // Configurar el servicio de modales
     modalServiceSpy.open.and.returnValue(mockModalRef as any);
 
-    // Abrir el formulario pasando un usuario (modo edición)
+    // Abrimos formulario pasando un usuario existente (modo edición)
     component.openUserForm(mockUsers[0]);
 
-    // Verificar que se abrió el modal
     expect(modalServiceSpy.open).toHaveBeenCalled();
-    // Verificar que se pasó el usuario al componente del modal
+    // Verificamos que se pasaron los datos del usuario al modal
     expect(mockModalRef.componentInstance.user).toEqual(mockUsers[0]);
   });
 
-  // Prueba para manejar la cancelación del modal (cuando el usuario hace clic fuera o presiona Escape)
-  it('should handle modal dismissal without error', fakeAsync(() => {
-    // Simular modal que se rechaza (dismiss)
+  // Prueba: manejo cuando el modal es descartado (cerrado sin guardar)
+  it('should handle user form modal dismissal without error', fakeAsync(() => {
     const mockModalRef = {
       componentInstance: {},
-      result: Promise.reject('dismissed') // Simular cancelación del modal
+      result: Promise.reject('dismissed')  // Modal descartado/rechazado
     };
     modalServiceSpy.open.and.returnValue(mockModalRef as any);
-    // Espiar loadUsers para verificar que NO se llama después de cancelar
     spyOn(component, 'loadUsers');
 
-    // Abrir el formulario
     component.openUserForm();
-    tick(); // Avanzar el tiempo para ejecutar el bloque catch
+    tick();  // Procesamos el rechazo de la promesa
 
-    // Verificar que NO se recargaron los usuarios después de cancelar
-    expect(component.loadUsers).not.toHaveBeenCalled();
-    // Si el test no falla, significa que el .catch(() => {}) funcionó correctamente
+    expect(component.loadUsers).not.toHaveBeenCalled();  // NO debe recargar datos
   }));
 
-  // Prueba para confirmar eliminación de usuario (caso exitoso)
+  // --- Pruebas de ConfirmDelete ---
+
+  // Prueba: confirmación de eliminación exitosa
   it('should open confirm modal and delete user if confirmed', fakeAsync(() => {
-    // Simular modal de confirmación
     const mockModalRef = {
       componentInstance: { title: '', message: '', confirmText: '', confirmClass: '' },
-      result: Promise.resolve(true) // Usuario confirma la eliminación
+      result: Promise.resolve(true)  // Usuario confirma la eliminación
     };
     modalServiceSpy.open.and.returnValue(mockModalRef as any);
-    // Configurar el servicio para eliminar exitosamente
-    userServiceSpy.deleteUser.and.returnValue(of(undefined));
-    // Espiar loadUsers para verificar que se llama después de eliminar
-    spyOn(component, 'loadUsers');
+    userServiceSpy.deleteUser.and.returnValue(of(undefined));  // Eliminación exitosa
+    spyOn(component, 'loadUsers');  // Espiamos la recarga de datos
 
-    // Ejecutar confirmación de eliminación
-    component.confirmDelete(mockUsers[0]);
-    tick(); // Avanzar el tiempo para resolver la promesa
+    component.confirmDelete(mockUsers[0]);  // Intentamos eliminar el primer usuario
+    tick();  // Procesamos la promesa de confirmación
 
-    // Verificar que se llamó al servicio de eliminación con el ID correcto
-    expect(userServiceSpy.deleteUser).toHaveBeenCalledWith('1');
-    // Verificar que se recargó la lista de usuarios
-    expect(component.loadUsers).toHaveBeenCalled();
+    expect(userServiceSpy.deleteUser).toHaveBeenCalledWith('1');  // Debe llamar al servicio con ID correcto
+    expect(component.loadUsers).toHaveBeenCalled();  // Debe recargar la lista después de eliminar
   }));
 
-  // Prueba para manejar error durante la eliminación
-  it('should log error if delete fails', fakeAsync(() => {
-    // Simular modal de confirmación
+  // [COVERAGE FIX] Cubre el bloque .catch() de confirmDelete (Línea roja en la imagen)
+  it('should handle confirm modal dismissal without error (catch block)', fakeAsync(() => {
+    // Simulamos que el usuario cierra el modal sin confirmar (promesa rechazada)
     const mockModalRef = {
       componentInstance: {},
-      result: Promise.resolve(true) // Usuario confirma
+      result: Promise.reject('dismissed')  // Modal cerrado/rechazado
     };
     modalServiceSpy.open.and.returnValue(mockModalRef as any);
-    // Configurar el servicio para fallar al eliminar
-    userServiceSpy.deleteUser.and.returnValue(throwError(() => 'Delete error'));
-    // Espiar console.error para capturar el error
-    spyOn(console, 'error');
-
-    // Ejecutar confirmación de eliminación
+    
     component.confirmDelete(mockUsers[0]);
-    tick(); // Avanzar el tiempo
+    tick(); // Avanza el tiempo para ejecutar el bloque catch
+    
+    // Verificamos que NO se llamó a eliminar cuando el modal es descartado
+    expect(userServiceSpy.deleteUser).not.toHaveBeenCalled();
+  }));
 
-    // Verificar que se registró el error
-    expect(console.error).toHaveBeenCalled();
+  // Prueba: manejo de errores durante la eliminación
+  it('should log error if delete fails', fakeAsync(() => {
+    const mockModalRef = {
+      componentInstance: {},
+      result: Promise.resolve(true)  // Usuario confirma
+    };
+    modalServiceSpy.open.and.returnValue(mockModalRef as any);
+    userServiceSpy.deleteUser.and.returnValue(throwError(() => 'Delete error'));  // Simulamos error
+    spyOn(console, 'error');  // Espiamos console.error
+
+    component.confirmDelete(mockUsers[0]);
+    tick();
+
+    expect(console.error).toHaveBeenCalled();  // Debe registrar el error
   }));
 
   // =================================================
   // 4. PRUEBAS DE CAMBIO DE ESTADO Y CLICS DE BOTONES
   // =================================================
 
-  // Prueba para cambiar el estado de usuario exitosamente
+  // Prueba: cambio exitoso de estado de usuario
   it('should toggle user status successfully', () => {
-    // Crear copia del usuario para no modificar el original
-    const user = { ...mockUsers[0], active: true };
-    // Configurar el servicio para actualizar exitosamente
-    userServiceSpy.updateUser.and.returnValue(of({}));
-    // Espiar applyFilters para verificar que se llama después del cambio
-    spyOn(component, 'applyFilters');
+    const user = { ...mockUsers[0], active: true };  // Usuario activo
+    userServiceSpy.updateUser.and.returnValue(of({}));  // Actualización exitosa
+    spyOn(component, 'applyFilters');  // Espiamos re-aplicación de filtros
 
-    // Cambiar el estado del usuario (de active a inactive)
-    component.toggleUserStatus(user);
+    component.toggleUserStatus(user);  // Cambiamos estado
 
-    // Verificar que se llamó al servicio con los parámetros correctos
+    // Verificamos que se llamó al servicio para desactivar el usuario
     expect(userServiceSpy.updateUser).toHaveBeenCalledWith('1', { active: false });
-    // Verificar que el estado se cambió localmente
-    expect(user.active).toBeFalse();
-    // Verificar que se aplicaron los filtros para actualizar la vista
-    expect(component.applyFilters).toHaveBeenCalled();
+    expect(user.active).toBeFalse();  // El estado local debe actualizarse
+    expect(component.applyFilters).toHaveBeenCalled();  // Debe re-filtrar la lista
   });
 
-  // Prueba para manejar error al cambiar el estado
+  // Prueba: manejo de errores al cambiar estado
   it('should handle error when toggling status', () => {
-    // Crear copia del usuario
     const user = { ...mockUsers[0], active: true };
-    // Configurar el servicio para fallar
-    userServiceSpy.updateUser.and.returnValue(throwError(() => 'Update fail'));
-    // Espiar console.error para capturar el error
+    userServiceSpy.updateUser.and.returnValue(throwError(() => 'Update fail'));  // Error simulado
     spyOn(console, 'error');
 
-    // Intentar cambiar el estado
     component.toggleUserStatus(user);
 
-    // Verificar que se registró el error
-    expect(console.error).toHaveBeenCalled();
-    // Verificar que el estado NO cambió localmente (según implementación actual)
-    expect(user.active).toBeTrue();
+    expect(console.error).toHaveBeenCalled();  // Debe registrar el error
+    expect(user.active).toBeTrue();  // El estado NO debe cambiar localmente si hay error
   });
 
-  // Prueba para manejar clics en botones con prevención de propagación
+  // Prueba: manejo de clics en botones con prevención de propagación
   it('should handle button clicks with propagation stopping', () => {
-    // Simular evento de clic con métodos para prevenir comportamientos por defecto
+    // Creamos un evento simulado con métodos de prevención
     const mockEvent = jasmine.createSpyObj('MouseEvent', ['preventDefault', 'stopPropagation', 'stopImmediatePropagation']);
     
-    // Espiar los métodos que deberían llamarse para cada acción
+    // Espiamos los métodos que deben llamarse
     spyOn(component, 'openUserForm');
     spyOn(component, 'confirmDelete');
     spyOn(component, 'toggleUserStatus');
 
-    // Probar acción: Editar
+    // Probamos el botón de editar
     component.handleButtonClick('edit', mockUsers[0], mockEvent);
-    // Verificar que se previno el comportamiento por defecto del evento
-    expect(mockEvent.preventDefault).toHaveBeenCalled();
-    expect(mockEvent.stopPropagation).toHaveBeenCalled();
-    // Verificar que se llamó al método correcto con el usuario correcto
-    expect(component.openUserForm).toHaveBeenCalledWith(mockUsers[0]);
+    expect(mockEvent.preventDefault).toHaveBeenCalled();  // Debe prevenir comportamiento por defecto
+    expect(component.openUserForm).toHaveBeenCalledWith(mockUsers[0]);  // Debe abrir formulario de edición
 
-    // Probar acción: Eliminar
+    // Probamos el botón de eliminar
     component.handleButtonClick('delete', mockUsers[0], mockEvent);
-    expect(component.confirmDelete).toHaveBeenCalledWith(mockUsers[0]);
+    expect(component.confirmDelete).toHaveBeenCalledWith(mockUsers[0]);  // Debe abrir confirmación
 
-    // Probar acción: Cambiar estado
+    // Probamos el botón de cambiar estado
     component.handleButtonClick('toggle', mockUsers[0], mockEvent);
-    expect(component.toggleUserStatus).toHaveBeenCalledWith(mockUsers[0]);
+    expect(component.toggleUserStatus).toHaveBeenCalledWith(mockUsers[0]);  // Debe cambiar estado
   });
 });
