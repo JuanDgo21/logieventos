@@ -776,9 +776,9 @@ validatePersonnel(): boolean {
       endDate: new Date(this.newContract.endDate).toISOString(),
       budget: this.newContract.budget || 0,
       terms: this.newContract.terms || 'Sin términos especificados',
-      resources: this.newContract.resources || [], 
-      providers: this.newContract.providers || [],
-      personnel: this.newContract.personnel || []
+      resources: this.newContract.resources , 
+      providers: this.newContract.providers ,
+      personnel: this.newContract.personnel 
     };
 
     console.log('Contrato a enviar:', contractToSend);
@@ -879,8 +879,8 @@ validatePersonnel(): boolean {
       .filter(p => this.selectedPersonnel.has(p._id))
       .map(p => ({
         person: p._id,
-        role: p.role || 'Sin rol definido',
-        hours: p.hours || 0
+        role: p.role ,
+        hours: p.hours
       }));
 
     this.contractService.updateContract(this.editContract._id, this.editContract).subscribe({
