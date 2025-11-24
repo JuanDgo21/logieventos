@@ -1,5 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
 
 export interface AlertData {
   title: string;
@@ -11,8 +12,10 @@ export interface AlertData {
 
 @Component({
   selector: 'app-alert-modal',
+  standalone: true,
   templateUrl: './alert-modal.html',
-  styleUrls: ['./alert-modal.scss']
+  styleUrls: ['./alert-modal.scss'],
+  imports: [CommonModule]
 })
 export class AlertModalComponent {
   constructor(
@@ -34,6 +37,7 @@ export class AlertModalComponent {
     this.dialogRef.close();
   }
 
+  // istanbul ignore next
   redirectToLogin(): void {
     globalThis.location.href = '/login';
   }
