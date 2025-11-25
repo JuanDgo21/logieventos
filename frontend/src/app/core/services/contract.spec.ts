@@ -1,23 +1,24 @@
+// Importamos las herramientas necesarias para testing en Angular
 import { TestBed } from '@angular/core/testing';
 import {
   HttpClientTestingModule,
   HttpTestingController,
-} from '@angular/common/http/testing';
-import { HttpErrorResponse } from '@angular/common/http';
+} from '@angular/common/http/testing';  // Módulo especial para probar HTTP sin servidor real
+import { HttpErrorResponse } from '@angular/common/http';  // Para simular errores HTTP
 
-import { ContractService, Contract } from './contract';
-import { environment } from '../../../environments/environment';
+import { ContractService, Contract } from './contract';  // Servicio e interfaz que vamos a probar
+import { environment } from '../../../environments/environment';  // Variables de entorno
 
 // Suite de pruebas para el ContractService
 describe('ContractService', () => {
-  let service: ContractService;
-  let httpMock: HttpTestingController;
+  let service: ContractService;  // Instancia del servicio que vamos a probar
+  let httpMock: HttpTestingController;  // Controlador para simular y verificar requests HTTP
 
   // URLs base para las APIs que vamos a testear
-  const apiUrl = `${environment.API_URL}/api/contracts`;
-  const resourceUrl = `${environment.API_URL}/api/resources`;
-  const providerUrl = `${environment.API_URL}/api/providers`;
-  const personnelUrl = `${environment.API_URL}/api/personnel`;
+  const apiUrl = `${environment.API_URL}/api/contracts`;  // Endpoint principal de contratos
+  const resourceUrl = `${environment.API_URL}/api/resources`;  // Endpoint de recursos
+  const providerUrl = `${environment.API_URL}/api/providers`;  // Endpoint de proveedores
+  const personnelUrl = `${environment.API_URL}/api/personnel`;  // Endpoint de personal
 
   // CONTRATO MOCK: Creamos datos de prueba que simulan un contrato real
   // CORREGIDO: Basado en tu 'contract.ts' (startDate/endDate son string | Date)
@@ -38,14 +39,14 @@ describe('ContractService', () => {
   // ARRAY DE CONTRATOS MOCK: Para pruebas que necesitan múltiples contratos
   const mockContractArray: Contract[] = [
     mockContract,
-    { ...mockContract, _id: 'contract2', name: 'Test Contract 2' },
+    { ...mockContract, _id: 'contract2', name: 'Test Contract 2' },  // Segundo contrato con ID diferente
   ];
 
   // Configuración que se ejecuta ANTES de cada prueba individual
   beforeEach(() => {
     // Configuramos el módulo de testing de Angular
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule], // Módulo especial para probar HTTP
+      imports: [HttpClientTestingModule], // Módulo especial para probar HTTP sin hacer requests reales
       providers: [ContractService],       // El servicio que vamos a probar
     });
 
@@ -54,32 +55,33 @@ describe('ContractService', () => {
     httpMock = TestBed.inject(HttpTestingController);
 
     // MOCK DE LOCALSTORAGE: Simulamos el almacenamiento local para pruebas
-    let store: { [key: string]: string } = {};
+    let store: { [key: string]: string } = {};  // Objeto que simula el localStorage
     spyOn(localStorage, 'getItem').and.callFake((key: string) => {
-      return store[key] || null;
+      return store[key] || null;  // Devuelve el valor almacenado o null
     });
     spyOn(localStorage, 'setItem').and.callFake(
       (key: string, value: string) => {
-        return (store[key] = value + '');
+        return (store[key] = value + '');  // Almacena el valor como string
       }
     );
     spyOn(localStorage, 'clear').and.callFake(() => {
-      store = {};
+      store = {};  // Limpia todo el almacenamiento
     });
 
     // Establecemos un token de prueba en localStorage
+    // Esto simula que un usuario está loggeado en la aplicación
     localStorage.setItem('token', 'test-token');
   });
 
   // Limpieza que se ejecuta DESPUÉS de cada prueba
   afterEach(() => {
-    httpMock.verify(); // Verificamos que no hayan requests HTTP pendientes
-    localStorage.clear(); // Limpiamos el localStorage mock
+    httpMock.verify(); // Verificamos que no hayan requests HTTP pendientes sin procesar
+    localStorage.clear(); // Limpiamos el localStorage mock para aislar las pruebas
   });
 
   // PRUEBA BÁSICA: Verificar que el servicio se crea correctamente
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    expect(service).toBeTruthy();  // Verifica que el servicio se instanció sin errores
   });
 
   // ==========================================
@@ -88,15 +90,15 @@ describe('ContractService', () => {
   describe('private#getHeaders', () => {
     // Prueba: Los headers deben incluir Authorization con el token
     it('should return headers with Authorization', () => {
-      const headers = service['getHeaders'](); // Accedemos al método privado
-      expect(headers.has('Authorization')).toBeTrue();
+      const headers = service['getHeaders'](); // Accedemos al método privado usando notación de array
+      expect(headers.has('Authorization')).toBeTrue();  // Verifica que el header Authorization existe
     });
 
     // Prueba: Debe lanzar error si no hay token en localStorage
     it('should throw error if no token is found', () => {
-      localStorage.clear(); // Limpiamos el token
+      localStorage.clear(); // Limpiamos el token para simular usuario no autenticado
       expect(() => service['getHeaders']()).toThrowError(
-        'No token found in localStorage'
+        'No token found in localStorage'  // Verifica que lanza el error esperado
       );
     });
   });
@@ -111,13 +113,13 @@ describe('ContractService', () => {
     
     // Suscribimos al método y verificamos el resultado
     service.getContracts().subscribe((contracts) => {
-      expect(contracts).toEqual(mockContractArray);
+      expect(contracts).toEqual(mockContractArray);  // Verifica que recibimos los contratos mock
       done(); // Indicamos que la prueba async finalizó
     });
     
     // Verificamos que se hizo un request GET a la URL correcta
     const req = httpMock.expectOne(apiUrl);
-    // Simulamos una respuesta exitosa del servidor
+    // Simulamos una respuesta exitosa del servidor con los datos mock
     req.flush(mockResponse);
   });
 
@@ -126,13 +128,13 @@ describe('ContractService', () => {
     const contractId = 'contract1';
     
     service.getContract(contractId).subscribe((contract) => {
-      expect(contract).toEqual(mockContract);
+      expect(contract).toEqual(mockContract);  // Verifica que recibimos el contrato específico
       done();
     });
     
     // Verificamos que se llamó a la URL específica del contrato
     const req = httpMock.expectOne(`${apiUrl}/${contractId}`);
-    req.flush(mockContract);
+    req.flush(mockContract);  // Simulamos respuesta con el contrato mock
   });
 
   // PRUEBA: Manejo de errores al obtener un contrato
@@ -142,13 +144,13 @@ describe('ContractService', () => {
     
     service.getContract(contractId).subscribe({
       error: (error: Error) => {
-        expect(error.message).toContain('Error en ContractService');
+        expect(error.message).toContain('Error en ContractService');  // Verifica el mensaje de error
         done();
       },
     });
     
     const req = httpMock.expectOne(`${apiUrl}/${contractId}`);
-    // Simulamos un error del servidor
+    // Simulamos un error del servidor (404 Not Found)
     req.flush(null, mockError);
   });
 
@@ -158,13 +160,13 @@ describe('ContractService', () => {
     const mockResponse = { success: true, data: mockContractArray };
     
     service.searchContractsByName(name).subscribe((contracts) => {
-      expect(contracts).toEqual(mockContractArray);
+      expect(contracts).toEqual(mockContractArray);  // Verifica que recibimos los contratos filtrados
       done();
     });
     
     // Verificamos que se llamó a la URL de búsqueda con parámetros
     const req = httpMock.expectOne(
-      `${apiUrl}/search?name=${encodeURIComponent(name)}`
+      `${apiUrl}/search?name=${encodeURIComponent(name)}`  // URL con parámetro de búsqueda codificado
     );
     req.flush(mockResponse);
   });
@@ -172,20 +174,20 @@ describe('ContractService', () => {
   // PRUEBA: Crear un nuevo contrato
   it('createContract(contract) should POST a new contract', (done) => {
     service.createContract(mockContract).subscribe((contract) => {
-      expect(contract).toEqual(mockContract);
+      expect(contract).toEqual(mockContract);  // Verifica que recibimos el contrato creado
       done();
     });
     
     const req = httpMock.expectOne(apiUrl);
-    // Verificamos que sea un método POST
+    // Verificamos que sea un método POST (para crear recursos)
     expect(req.request.method).toBe('POST');
-    req.flush(mockContract);
+    req.flush(mockContract);  // Simulamos respuesta exitosa
   });
 
   // PRUEBA: Manejo de errores al crear contrato
   it('createContract(contract) should handle errors using its specific catchError', (done) => {
     const mockErrorStatus = { status: 500, statusText: 'Server Error' };
-    const consoleErrorSpy = spyOn(console, 'error');
+    const consoleErrorSpy = spyOn(console, 'error');  // Espiamos console.error
     
     service.createContract(mockContract).subscribe({
       error: (err: HttpErrorResponse) => { 
@@ -196,22 +198,22 @@ describe('ContractService', () => {
     });
     
     const req = httpMock.expectOne(apiUrl);
-    req.flush(null, mockErrorStatus);
+    req.flush(null, mockErrorStatus);  // Simulamos error del servidor
   });
 
   // PRUEBA: Actualizar un contrato existente
   it('updateContract(id, contract) should PUT and map the response', (done) => {
     const contractId = 'contract1';
-    const updatedContract = { ...mockContract, name: 'Updated Name' };
+    const updatedContract = { ...mockContract, name: 'Updated Name' };  // Contrato con cambios
     const mockResponse = { success: true, data: updatedContract };
     
     service.updateContract(contractId, updatedContract).subscribe((contract) => {
-      expect(contract).toEqual(updatedContract);
+      expect(contract).toEqual(updatedContract);  // Verifica que recibimos el contrato actualizado
       done();
     });
     
     const req = httpMock.expectOne(`${apiUrl}/${contractId}`);
-    // Verificamos que sea un método PUT
+    // Verificamos que sea un método PUT (para actualizar recursos)
     expect(req.request.method).toBe('PUT');
     req.flush(mockResponse);
   });
@@ -223,13 +225,13 @@ describe('ContractService', () => {
     
     service.updateContract(contractId, mockContract).subscribe({
       error: (error: Error) => {
-        expect(error.message).toContain('Error en ContractService');
+        expect(error.message).toContain('Error en ContractService');  // Verifica mensaje de error
         done();
       },
     });
     
     const req = httpMock.expectOne(`${apiUrl}/${contractId}`);
-    req.flush(null, mockError);
+    req.flush(null, mockError);  // Simulamos error del servidor
   });
 
   // PRUEBA: Eliminar un contrato
@@ -237,14 +239,14 @@ describe('ContractService', () => {
     const contractId = 'contract1';
     
     service.deleteContract(contractId).subscribe((response) => {
-      expect(response).toBeNull(); // DELETE exitoso normalmente no retorna contenido
+      expect(response).toBeNull(); // DELETE exitoso normalmente no retorna contenido (204 No Content)
       done();
     });
     
     const req = httpMock.expectOne(`${apiUrl}/${contractId}`);
     // Verificamos que sea un método DELETE
     expect(req.request.method).toBe('DELETE');
-    // Simulamos respuesta 204 No Content
+    // Simulamos respuesta 204 No Content (eliminación exitosa sin cuerpo)
     req.flush(null, { status: 204, statusText: 'No Content' });
   });
 
@@ -271,11 +273,11 @@ describe('ContractService', () => {
   // PRUEBA: Obtener el último contrato
   it('getLastContract() should fetch the last contract', (done) => {
     service.getLastContract().subscribe((contract) => {
-      expect(contract).toEqual(mockContract);
+      expect(contract).toEqual(mockContract);  // Verifica que recibimos el último contrato
       done();
     });
     
-    const req = httpMock.expectOne(`${apiUrl}/last`);
+    const req = httpMock.expectOne(`${apiUrl}/last`);  // Endpoint específico para último contrato
     req.flush(mockContract);
   });
 
@@ -283,9 +285,9 @@ describe('ContractService', () => {
   describe('getCountByStatus()', () => {
     // Prueba: Valores por defecto cuando faltan propiedades
     it('should use defaults (|| 0) if properties are missing', (done) => {
-      const mockApiData = { borrador: 5, activo: 10 };
+      const mockApiData = { borrador: 5, activo: 10 };  // Faltan 'completado' y 'cancelado'
       const mockResponse = { success: true, data: mockApiData };
-      // Esperamos que los estados faltantes tengan valor 0
+      // Esperamos que los estados faltantes tengan valor 0 (por defecto)
       const expectedData = { borrador: 5, activo: 10, completado: 0, cancelado: 0 };
       
       service.getCountByStatus().subscribe((counts) => {
@@ -299,7 +301,7 @@ describe('ContractService', () => {
 
     // Prueba: Todos los valores por defecto cuando no hay datos
     it('should use defaults (|| 0) if all properties are missing', (done) => {
-      const mockApiData = {};
+      const mockApiData = {};  // Objeto vacío - ningún estado tiene conteo
       const mockResponse = { success: true, data: mockApiData };
       const expectedData = { borrador: 0, activo: 0, completado: 0, cancelado: 0 };
       
@@ -333,11 +335,11 @@ describe('ContractService', () => {
     const mockPaginatedResponse = { data: mockContractArray, total: 2, page: 1, pages: 1 };
     
     service.getContractsPaginated(1, 2).subscribe((response) => {
-      expect(response).toEqual(mockPaginatedResponse);
+      expect(response).toEqual(mockPaginatedResponse);  // Verifica respuesta paginada completa
       done();
     });
     
-    // Verifica que se usan los parámetros explícitos 1 y 2
+    // Verifica que se usan los parámetros explícitos 1 y 2 (página 1, límite 2)
     const req = httpMock.expectOne(`${apiUrl}?page=1&limit=2`);
     req.flush(mockPaginatedResponse);
   });
@@ -361,15 +363,15 @@ describe('ContractService', () => {
 
   // PRUEBA: Generar reporte de contrato
   it('generateReport(id) should fetch a report', (done) => {
-    const mockReport = { html: '<h1>Reporte</h1>' };
+    const mockReport = { html: '<h1>Reporte</h1>' };  // Reporte HTML mock
     const contractId = 'contract1';
     
     service.generateReport(contractId).subscribe((report) => {
-      expect(report).toEqual(mockReport);
+      expect(report).toEqual(mockReport);  // Verifica que recibimos el reporte
       done();
     });
     
-    const req = httpMock.expectOne(`${apiUrl}/${contractId}/report`);
+    const req = httpMock.expectOne(`${apiUrl}/${contractId}/report`);  // Endpoint de reporte
     req.flush(mockReport);
   });
 
@@ -381,7 +383,7 @@ describe('ContractService', () => {
   it('getResourcesByStatus() should filter by default status "disponible"', (done) => {
     const mockResources = [{ _id: 'r1', status: 'disponible' }, { _id: 'r2', status: 'en uso' }];
     const mockResponse = { success: true, data: mockResources };
-    // Esperamos solo los recursos con estado "disponible"
+    // Esperamos solo los recursos con estado "disponible" (filtro por defecto)
     const expectedFiltered = [{ _id: 'r1', status: 'disponible' }];
     
     service.getResourcesByStatus().subscribe((resources) => {
@@ -412,7 +414,7 @@ describe('ContractService', () => {
   it('getProvidersByStatus() should filter by default status "activo"', (done) => {
     const mockProviders = [{ _id: 'p1', status: 'activo' }, { _id: 'p2', status: 'inactivo' }];
     const mockResponse = { success: true, data: mockProviders };
-    const expectedFiltered = [{ _id: 'p1', status: 'activo' }];
+    const expectedFiltered = [{ _id: 'p1', status: 'activo' }];  // Solo proveedores activos
     
     service.getProvidersByStatus().subscribe((providers) => {
       expect(providers).toEqual(expectedFiltered);
@@ -426,7 +428,7 @@ describe('ContractService', () => {
   it('getProvidersByStatus() should filter by a non-default status', (done) => {
     const mockProviders = [{ _id: 'p1', status: 'activo' }, { _id: 'p2', status: 'inactivo' }];
     const mockResponse = { success: true, data: mockProviders };
-    const expectedFiltered = [{ _id: 'p2', status: 'inactivo' }];
+    const expectedFiltered = [{ _id: 'p2', status: 'inactivo' }];  // Solo proveedores inactivos
     
     service.getProvidersByStatus('inactivo').subscribe((providers) => {
       expect(providers).toEqual(expectedFiltered);
@@ -441,7 +443,7 @@ describe('ContractService', () => {
   it('getPersonnelByStatus() should filter by default status "disponible"', (done) => {
     const mockPersonnel = [{ _id: 'ps1', status: 'disponible' }, { _id: 'ps2', status: 'asignado' }];
     const mockResponse = { success: true, data: mockPersonnel };
-    const expectedFiltered = [{ _id: 'ps1', status: 'disponible' }];
+    const expectedFiltered = [{ _id: 'ps1', status: 'disponible' }];  // Solo personal disponible
     
     service.getPersonnelByStatus().subscribe((personnel) => {
       expect(personnel).toEqual(expectedFiltered);
@@ -455,7 +457,7 @@ describe('ContractService', () => {
   it('getPersonnelByStatus() should filter by a non-default status', (done) => {
     const mockPersonnel = [{ _id: 'ps1', status: 'disponible' }, { _id: 'ps2', status: 'asignado' }];
     const mockResponse = { success: true, data: mockPersonnel };
-    const expectedFiltered = [{ _id: 'ps2', status: 'asignado' }];
+    const expectedFiltered = [{ _id: 'ps2', status: 'asignado' }];  // Solo personal asignado
     
     service.getPersonnelByStatus('asignado').subscribe((personnel) => {
       expect(personnel).toEqual(expectedFiltered);
@@ -473,11 +475,14 @@ describe('ContractService', () => {
     // Prueba: Usar mensaje específico del backend si está disponible
     it('should use error.error.message if available', (done) => {
       const mockErrorMessage = 'Error de servidor específico';
-      const mockError = new HttpErrorResponse({ status: 500, error: { message: mockErrorMessage } });
+      const mockError = new HttpErrorResponse({ 
+        status: 500, 
+        error: { message: mockErrorMessage }  // Error con mensaje específico
+      });
       
       service.getContracts().subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe(mockErrorMessage);
+          expect(error.message).toBe(mockErrorMessage);  // Debe usar el mensaje específico
           done();
         },
       });
@@ -489,11 +494,14 @@ describe('ContractService', () => {
     // Prueba: Usar mensaje por defecto si error.error.message no existe
     it('should use fallback message if error.error.message is missing', (done) => {
       const fallbackMessage = 'Error en ContractService; inténtalo más tarde.';
-      const mockError = new HttpErrorResponse({ status: 500, error: { details: 'Otro' } });
+      const mockError = new HttpErrorResponse({ 
+        status: 500, 
+        error: { details: 'Otro' }  // Error sin propiedad 'message'
+      });
       
       service.getContracts().subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe(fallbackMessage);
+          expect(error.message).toBe(fallbackMessage);  // Debe usar mensaje por defecto
           done();
         },
       });
@@ -505,17 +513,17 @@ describe('ContractService', () => {
     // Prueba: Usar mensaje por defecto si error.error no existe
     it('should use fallback message if error.error is missing', (done) => {
       const fallbackMessage = 'Error en ContractService; inténtalo más tarde.';
-      const mockError = new HttpErrorResponse({ status: 404 });
+      const mockError = new HttpErrorResponse({ status: 404 });  // Error sin cuerpo
       
       service.getContracts().subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe(fallbackMessage);
+          expect(error.message).toBe(fallbackMessage);  // Debe usar mensaje por defecto
           done();
         },
       });
       
       const req = httpMock.expectOne(apiUrl);
-      req.flush(null, mockError);
+      req.flush(null, mockError);  // Error sin cuerpo de respuesta
     });
   });
 });
