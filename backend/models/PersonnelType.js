@@ -25,6 +25,11 @@ const personnelTypeSchema = new mongoose.Schema({
     maxlength: [200, 'La descripción no puede exceder 200 caracteres'] // Longitud máxima
   },
 
+  rate: {
+    type: Number,
+    required: false // O true, según tu lógica
+  },
+  
   // Campo isActive: Estado del tipo de personal (activo/inactivo)
   isActive: {
     type: Boolean, // Tipo de dato Boolean
@@ -56,14 +61,14 @@ const personnelTypeSchema = new mongoose.Schema({
  * Intercepta errores de duplicado (nombre único) después de guardar
  * y transforma el error en un mensaje más amigable.
  */
-personnelTypeSchema.post('save', function(error, doc, next) {
+/*personnelTypeSchema.post('save', function(error, doc, next) {
   // Verifica si el error es de duplicado (código 11000 de MongoDB)
   if (error.name === 'MongoServerError' && error.code === 11000) {
     next(new Error('Ya existe un tipo de personal con ese nombre')); // Mensaje personalizado
   } else {
     next(error); // Pasa otros errores sin modificar
   }
-});
+});*/
 
 // Exporta el modelo para su uso en otros archivos
 module.exports = mongoose.model('PersonnelType', personnelTypeSchema);

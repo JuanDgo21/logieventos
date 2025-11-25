@@ -65,6 +65,11 @@ const contractSchema = new mongoose.Schema({
     trim: true  // Elimina espacios en blanco
   },
 
+  event: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Event'
+  },
+
   // Array de recursos asociados al contrato
   resources: [{
     resource: {

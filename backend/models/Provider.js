@@ -25,7 +25,8 @@ const providerSchema = new mongoose.Schema({
   email: {
     type: String, // Tipo String
     trim: true, // Elimina espacios en blanco
-    lowercase: true // Convierte a minúsculas automáticamente
+    lowercase: true, // Convierte a minúsculas automáticamente
+    unique: true 
   },
 
   // Teléfono de contacto

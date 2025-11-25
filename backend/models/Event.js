@@ -12,6 +12,7 @@ const eventSchema = new mongoose.Schema({
   name: {
     type: String, // Tipo String
     required: [true, 'El nombre es obligatorio'], // Campo obligatorio con mensaje de error
+    unique: true,
     trim: true // Elimina espacios en blanco al inicio/final
   },
 

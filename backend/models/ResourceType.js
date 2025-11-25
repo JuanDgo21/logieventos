@@ -12,6 +12,7 @@ const resourceTypeSchema = new mongoose.Schema({
   name: {
     type: String, // Tipo de dato String
     required: [true, 'El nombre es obligatorio'], // Obligatorio con mensaje personalizado
+    unique: true,
     trim: true // Elimina espacios en blanco al inicio y final
   },
   
@@ -46,14 +47,14 @@ const resourceTypeSchema = new mongoose.Schema({
  * Intercepta errores de duplicado (código 11000) después de un save()
  * y los transforma en mensajes más amigables.
  */
-resourceTypeSchema.post('save', function(error, doc, next) {
+/*resourceTypeSchema.post('save', function(error, doc, next) {
   // Verifica si el error es de duplicado (nombre único)
   if (error.name === 'MongoServerError' && error.code === 11000) {
     next(new Error('Ya existe un tipo de recurso con ese nombre')); // Mensaje personalizado
   } else {
     next(error); // Pasa otros errores sin modificar
   }
-});
+});*/
 
 // Exporta el modelo para su uso en otros archivos
 module.exports = mongoose.model('ResourceType', resourceTypeSchema);

@@ -56,14 +56,14 @@ const providerTypeSchema = new mongoose.Schema({
  * Intercepta errores de duplicado (nombre único) después de guardar
  * y transforma el error en un mensaje más amigable.
  */
-providerTypeSchema.post('save', function(error, doc, next) {
+/*providerTypeSchema.post('save', function(error, doc, next) {
   // Verifica si el error es de duplicado (código 11000 de MongoDB)
   if (error.name === 'MongoServerError' && error.code === 11000) {
     next(new Error('Ya existe un tipo de proveedor con ese nombre')); // Mensaje personalizado
   } else {
     next(error); // Pasa otros errores sin modificar
   }
-});
+});*/
 
 // Exporta el modelo para su uso en otros archivos
 module.exports = mongoose.model('ProviderType', providerTypeSchema);
