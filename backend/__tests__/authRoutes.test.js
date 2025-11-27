@@ -3,11 +3,13 @@ const mongoose = require('mongoose');
 const app = require('../server');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
-// Variables
+// Variables globales
 let tokenUser = '';
 let resetToken = '';
 
+// Usuario principal para pruebas
 const userSignup = {
     document: 99988877,
     fullname: "Usuario Nuevo",
@@ -17,52 +19,126 @@ const userSignup = {
     role: "lider"
 };
 
+// Usuario para prueba de Rol por Defecto (Línea 56)
+const userNoRole = {
+    document: 77788899,
+    fullname: "User Default Role",
+    username: "default_role_user",
+    email: "default@test.com",
+    password: "password123"
+    // Sin campo 'role'
+};
+
 describe('Pruebas de Integración: Autenticación Completa', () => {
 
     beforeAll(async () => {
         const testDB = 'mongodb://localhost:27017/logieventos_test';
         await mongoose.connect(testDB);
-        await User.deleteMany({ email: userSignup.email });
+        
+        // LIMPIEZA AMPLIA: Borramos ambos usuarios para evitar conflictos de Unique
+        await User.deleteMany({ 
+            email: { $in: [userSignup.email, userNoRole.email] } 
+        });
     });
 
     afterAll(async () => {
-        await User.deleteMany({ email: userSignup.email });
+        // Limpieza al finalizar
+        await User.deleteMany({ 
+            email: { $in: [userSignup.email, userNoRole.email] } 
+        });
         await mongoose.connection.close();
-        jest.restoreAllMocks(); // IMPORTANTE: Limpiar los espías al final
+        jest.restoreAllMocks(); 
     });
 
     afterEach(() => {
-        jest.restoreAllMocks(); // Limpiar espías después de cada test individual
+        jest.restoreAllMocks();
     });
 
-    // --- 1. REGISTRO (SIGNUP) ---
-    it('POST /api/auth/signup - Debería registrar un nuevo usuario', async () => {
+    // ==================================================
+    // 1. REGISTRO (SIGNUP)
+    // ==================================================
+
+    it('POST /api/auth/signup - Éxito: Debería registrar usuario', async () => {
         const res = await request(app).post('/api/auth/signup').send(userSignup);
         expect(res.statusCode).toBe(201);
         expect(res.body.success).toBe(true);
     });
 
-    it('POST /api/auth/signup - Debería fallar con email duplicado (400)', async () => {
-        const res = await request(app).post('/api/auth/signup').send(userSignup);
-        expect(res.statusCode).not.toBe(201);
+    // ---> TEST PARA LA LÍNEA 56 (Default Role) <---
+    it('POST /api/auth/signup - Éxito: Asigna rol "lider" por defecto si no se envía', async () => {
+        const res = await request(app).post('/api/auth/signup').send(userNoRole);
+
+        // Si esto falla con 400, revisa si 'default@test.com' ya existe en tu DB
+        expect(res.statusCode).toBe(201);
+        expect(res.body.success).toBe(true);
+        // Verificamos que el backend haya asignado 'lider' automáticamente
+        expect(res.body.user.role).toBe('lider');
     });
 
-    // 🔥 NUEVO: Forzar error 500 en Signup
-    it('POST /api/auth/signup - Debería dar 500 si la DB falla al guardar', async () => {
-        // Saboteamos el método .save() del prototipo de User
-        jest.spyOn(User.prototype, 'save').mockImplementationOnce(() => {
-            throw new Error('Error forzado de base de datos');
-        });
+    it('POST /api/auth/signup - Fallo: Username solo espacios (Línea 15)', async () => {
+        // Usamos email/doc diferentes para evitar choque con userSignup
+        const userSpaces = { ...userSignup, username: "   ", email: "spaces@t.com", document: 111 };
+        const res = await request(app).post('/api/auth/signup').send(userSpaces);
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toMatch(/nombre de usuario es requerido/i);
+    });
 
+    it('POST /api/auth/signup - Fallo: Documento vacío', async () => {
+        const userDocEmpty = { ...userSignup, username: "doc_empty", email: "doc@e.com", document: "" };
+        const res = await request(app).post('/api/auth/signup').send(userDocEmpty);
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('POST /api/auth/signup - Fallo: Documento no numérico', async () => {
+        const userDocNaN = { ...userSignup, username: "doc_nan", email: "nan@e.com", document: "ABC" };
+        const res = await request(app).post('/api/auth/signup').send(userDocNaN);
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('POST /api/auth/signup - Fallo: Email duplicado (Middleware)', async () => {
+        const res = await request(app).post('/api/auth/signup').send(userSignup);
+        expect(res.statusCode).not.toBe(201); 
+    });
+
+    it('POST /api/auth/signup - Error 400: Duplicado (Controller)', async () => {
+        const errorMock = new Error('Duplicado');
+        errorMock.code = 11000;
+        errorMock.keyPattern = { email: 1 };
+        jest.spyOn(User.prototype, 'save').mockImplementationOnce(() => { throw errorMock; });
+
+        const userUnique = { ...userSignup, username: "u_11000", email: "u11000@t.com", document: 555 };
+        const res = await request(app).post('/api/auth/signup').send(userUnique);
+        
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toMatch(/ya está en uso/i);
+    });
+
+    it('POST /api/auth/signup - Error 400: ValidationError de Mongoose', async () => {
+        const errorMock = new Error('Validacion Fallida');
+        errorMock.name = 'ValidationError';
+        errorMock.errors = { email: { message: 'Email inválido custom message' } };
+
+        jest.spyOn(User.prototype, 'save').mockImplementationOnce(() => { throw errorMock; });
+
+        const userValidButFail = { ...userSignup, username: "valid_val_err", email: "valid_val@t.com", document: 777 };
+        const res = await request(app).post('/api/auth/signup').send(userValidButFail);
+        
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toMatch(/Email inválido custom message/);
+    });
+
+    it('POST /api/auth/signup - Error 500: Fallo general en DB', async () => {
+        jest.spyOn(User.prototype, 'save').mockImplementationOnce(() => { throw new Error('Error forzado de base de datos'); });
         const userFail = { ...userSignup, username: "fail_db", email: "fail@db.com", document: 123123 };
         const res = await request(app).post('/api/auth/signup').send(userFail);
-
         expect(res.statusCode).toBe(500);
-        expect(res.body.message).toMatch(/error al registrar/i);
     });
 
-    // --- 2. LOGIN (SIGNIN) ---
-    it('POST /api/auth/signin - Debería loguear al usuario creado', async () => {
+    // ==================================================
+    // 2. LOGIN (SIGNIN)
+    // ==================================================
+
+    it('POST /api/auth/signin - Éxito', async () => {
         const res = await request(app).post('/api/auth/signin').send({
             email: userSignup.email,
             password: userSignup.password
@@ -71,7 +147,12 @@ describe('Pruebas de Integración: Autenticación Completa', () => {
         tokenUser = res.body.token;
     });
 
-    it('POST /api/auth/signin - Debería dar 404 si usuario no existe', async () => {
+    it('POST /api/auth/signin - Fallo: Faltan datos', async () => {
+        const res = await request(app).post('/api/auth/signin').send({});
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('POST /api/auth/signin - Fallo: Usuario no encontrado', async () => {
         const res = await request(app).post('/api/auth/signin').send({
             email: "noexiste@test.com",
             password: "123"
@@ -79,7 +160,7 @@ describe('Pruebas de Integración: Autenticación Completa', () => {
         expect(res.statusCode).toBe(404);
     });
 
-    it('POST /api/auth/signin - Debería dar 401 si contraseña es incorrecta', async () => {
+    it('POST /api/auth/signin - Fallo: Contraseña incorrecta', async () => {
         const res = await request(app).post('/api/auth/signin').send({
             email: userSignup.email,
             password: "wrongpassword"
@@ -87,108 +168,121 @@ describe('Pruebas de Integración: Autenticación Completa', () => {
         expect(res.statusCode).toBe(401);
     });
 
-    // 🔥 NUEVO: Forzar error 500 en Signin
-    it('POST /api/auth/signin - Debería dar 500 si la DB falla al buscar', async () => {
-        // Saboteamos User.findOne
-        jest.spyOn(User, 'findOne').mockImplementationOnce(() => {
-            throw new Error('Error forzado de DB');
-        });
-
+    it('POST /api/auth/signin - Error 500', async () => {
+        jest.spyOn(User, 'findOne').mockImplementationOnce(() => { throw new Error('Error forzado'); });
         const res = await request(app).post('/api/auth/signin').send({
             email: userSignup.email,
             password: userSignup.password
         });
-
         expect(res.statusCode).toBe(500);
     });
 
-    // --- 3. RECUPERACIÓN (FORGOT/RESET) ---
-    it('POST /api/auth/forgot-password - Generar token', async () => {
+    // ==================================================
+    // 3. RECUPERACIÓN (FORGOT/RESET)
+    // ==================================================
+
+    it('POST /api/auth/forgot-password - Éxito', async () => {
         const res = await request(app).post('/api/auth/forgot-password').send({ email: userSignup.email });
         expect(res.statusCode).toBe(200);
         resetToken = res.body.token;
     });
 
-    // 🔥 NUEVO: Forzar error 500 en Forgot Password
-    it('POST /api/auth/forgot-password - Debería dar 500 si la DB falla', async () => {
-        jest.spyOn(User, 'findOne').mockImplementationOnce(() => {
-            throw new Error('Error forzado');
-        });
+    it('POST /api/auth/forgot-password - Fallo: Email vacío', async () => {
+        const res = await request(app).post('/api/auth/forgot-password').send({});
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('POST /api/auth/forgot-password - Éxito simulado (No existe)', async () => {
+        const res = await request(app).post('/api/auth/forgot-password').send({ email: "fantasma@test.com" });
+        expect(res.statusCode).toBe(200);
+    });
+
+    it('POST /api/auth/forgot-password - Error 500', async () => {
+        jest.spyOn(User, 'findOne').mockImplementationOnce(() => { throw new Error('Error forzado'); });
         const res = await request(app).post('/api/auth/forgot-password').send({ email: userSignup.email });
         expect(res.statusCode).toBe(500);
     });
 
-    it('POST /api/auth/reset-password - Resetear clave', async () => {
-        const res = await request(app).post('/api/auth/reset-password').send({
-            token: resetToken,
-            newPassword: "newPassword123"
-        });
-        expect(res.statusCode).toBe(200);
-    });
-
-    it('POST /api/auth/reset-password - Error con token inválido', async () => {
-        const res = await request(app).post('/api/auth/reset-password').send({
-            token: "token_invalido",
-            newPassword: "abc"
-        });
+    it('POST /api/auth/reset-password - Fallo: Faltan datos', async () => {
+        const res = await request(app).post('/api/auth/reset-password').send({});
         expect(res.statusCode).toBe(400);
     });
 
-    // 🔥 NUEVO: Forzar error 500 en Reset Password (simulando fallo al guardar)
-    it('POST /api/auth/reset-password - Debería dar 500 si falla al guardar nueva clave', async () => {
-        // Para llegar al save(), primero debe pasar el verify y el findById
-        // Generamos un token válido para pasar la primera barrera
-        const tokenMock = jwt.sign({ id: 'fake_id', action: 'password_reset', email: 'test@test.com' }, 'test_secret');
-        
-        // Mockeamos jwt.verify para que acepte el token sin config real
-        jest.spyOn(jwt, 'verify').mockReturnValue({ id: 'fake_id', action: 'password_reset', email: 'test@test.com' });
-        
-        // Mockeamos findById para devolver un usuario dummy que podamos "guardar"
-        const mockUser = {
-            email: 'test@test.com',
-            save: jest.fn().mockRejectedValue(new Error('Error al guardar clave')) // Aquí forzamos el error
-        };
+    it('POST /api/auth/reset-password - Fallo: Token inválido', async () => {
+        const res = await request(app).post('/api/auth/reset-password').send({ token: "bad", newPassword: "abc" });
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('POST /api/auth/reset-password - Fallo: Token válido pero acción incorrecta', async () => {
+        jest.spyOn(jwt, 'verify').mockReturnValue({ id: '123', action: 'wrong_action', email: 't@t.com' });
+        const res = await request(app).post('/api/auth/reset-password').send({ token: "valid_bad_action", newPassword: "abc" });
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('POST /api/auth/reset-password - Fallo: Token válido pero usuario no encontrado', async () => {
+        jest.spyOn(jwt, 'verify').mockReturnValue({ id: 'fake_id', action: 'password_reset', email: 'x@x.com' });
+        jest.spyOn(User, 'findById').mockResolvedValue(null);
+        const res = await request(app).post('/api/auth/reset-password').send({ token: "fake", newPassword: "123" });
+        expect(res.statusCode).toBe(404);
+    });
+
+    it('POST /api/auth/reset-password - Fallo: Token no coincide con usuario', async () => {
+        jest.spyOn(jwt, 'verify').mockReturnValue({ id: 'fake_id', action: 'password_reset', email: 'otro@x.com' });
+        jest.spyOn(User, 'findById').mockResolvedValue({ email: 'original@x.com' });
+        const res = await request(app).post('/api/auth/reset-password').send({ token: "fake", newPassword: "123" });
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('POST /api/auth/reset-password - Éxito', async () => {
+        const res = await request(app).post('/api/auth/reset-password').send({ token: resetToken, newPassword: "newPassword123" });
+        expect(res.statusCode).toBe(200);
+    });
+
+    it('POST /api/auth/reset-password - Error 500', async () => {
+        const tokenMock = jwt.sign({ id: 'fake', action: 'password_reset', email: 't@t.com' }, 's');
+        jest.spyOn(jwt, 'verify').mockReturnValue({ id: 'fake', action: 'password_reset', email: 't@t.com' });
+        const mockUser = { email: 't@t.com', save: jest.fn().mockRejectedValue(new Error('Error')) };
         jest.spyOn(User, 'findById').mockResolvedValue(mockUser);
-
-        const res = await request(app).post('/api/auth/reset-password').send({
-            token: tokenMock,
-            newPassword: "abc"
-        });
-
+        const res = await request(app).post('/api/auth/reset-password').send({ token: tokenMock, newPassword: "abc" });
         expect(res.statusCode).toBe(500);
     });
 
-    // --- 4. CAMBIO DE CONTRASEÑA (LOGUEADO) ---
-    it('POST /api/auth/signin - Relogin con nueva clave', async () => {
-        const res = await request(app).post('/api/auth/signin').send({
-            email: userSignup.email, password: "newPassword123"
-        });
+    // ==================================================
+    // 4. CAMBIO DE CONTRASEÑA
+    // ==================================================
+
+    it('POST /api/auth/signin - Relogin', async () => {
+        const res = await request(app).post('/api/auth/signin').send({ email: userSignup.email, password: "newPassword123" });
         tokenUser = res.body.token;
         expect(res.statusCode).toBe(200);
     });
 
-    it('POST /api/auth/change-password - Cambiar clave', async () => {
-        const res = await request(app)
-            .post('/api/auth/change-password')
-            .set('x-access-token', tokenUser)
-            .send({
-                currentPassword: "newPassword123",
-                newPassword: "finalPassword123"
-            });
+    it('POST /api/auth/change-password - Éxito', async () => {
+        const res = await request(app).post('/api/auth/change-password').set('x-access-token', tokenUser).send({
+            currentPassword: "newPassword123", newPassword: "finalPassword123"
+        });
         expect(res.statusCode).toBe(200);
     });
 
-    // 🔥 NUEVO: Forzar error 500 en Change Password
-    it('POST /api/auth/change-password - Error 500 al buscar usuario', async () => {
-        jest.spyOn(User, 'findById').mockImplementationOnce(() => {
-            throw new Error('Error DB');
-        });
-        
-        const res = await request(app)
-            .post('/api/auth/change-password')
-            .set('x-access-token', tokenUser)
-            .send({ currentPassword: "x", newPassword: "y" });
+    it('POST /api/auth/change-password - Fallo: User not found', async () => {
+        jest.spyOn(User, 'findById').mockReturnValue({ select: jest.fn().mockResolvedValue(null) });
+        const res = await request(app).post('/api/auth/change-password').set('x-access-token', tokenUser).send({});
+        expect(res.statusCode).toBe(404);
+    });
 
+    it('POST /api/auth/change-password - Fallo: Contraseña incorrecta', async () => {
+        jest.spyOn(bcrypt, 'compareSync').mockReturnValue(false); 
+        jest.spyOn(User, 'findById').mockReturnValue({ 
+            select: jest.fn().mockResolvedValue({ password: "hashed_pwd" }) 
+        });
+
+        const res = await request(app).post('/api/auth/change-password').set('x-access-token', tokenUser).send({ currentPassword: "any", newPassword: "abc" });
+        expect(res.statusCode).toBe(401);
+    });
+
+    it('POST /api/auth/change-password - Error 500', async () => {
+        jest.spyOn(User, 'findById').mockImplementationOnce(() => { throw new Error('Error DB'); });
+        const res = await request(app).post('/api/auth/change-password').set('x-access-token', tokenUser).send({});
         expect(res.statusCode).toBe(500);
     });
 

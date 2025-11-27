@@ -1,2 +1,7 @@
 # Ignorar node_modules en cualquier subcarpeta
 **/node_modules/
+backend/node_modules/
+backend/.env
+backend/.DS_Store
+backend/coverage/
+backend/v8-coverage/

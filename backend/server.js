@@ -5,7 +5,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const { MongoClient } = require('mongodb');
 
-// Importar rutas (Fíjate que usamos require)
+// Importar rutas
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes');
@@ -17,7 +17,7 @@ const eventTypeRoutes = require('./routes/eventTypeRoutes');
 const providerTypeRoutes = require('./routes/providerTypeRoutes');
 const personnelTypeRoutes = require('./routes/personnelTypeRoutes');
 const resourceTypeRoutes = require('./routes/resourceTypeRoutes');
-const reportRoutes = require('./routes/report.routes'); // Verifica si el nombre es correcto
+const reportRoutes = require('./routes/report.routes');
 
 const app = express();
 
@@ -45,33 +45,39 @@ app.get('/', (req, res) => {
     res.json({ message: 'API de Gestión de Eventos y Logística' });
 });
 
-// Manejo de errores
+// ========================================================
+// ⚠️ CORRECCIÓN: RUTA DE PRUEBA ANTES DEL ERROR HANDLER
+// ========================================================
+/* istanbul ignore next */
+if (process.env.NODE_ENV === 'test') {
+    app.get('/_force_error_test', (req, res, next) => {
+        const error = new Error('Error Simulado');
+        next(error);
+    });
+}
+
+// Manejo de errores (DEBE SER LO ÚLTIMO EN RUTAS)
 app.use((err, req, res, next) => {
-    console.error(err.stack);
+    // Si no es test, imprimimos el error (para no ensuciar la consola en tests)
+    /* istanbul ignore next */
+    if (process.env.NODE_ENV !== 'test') console.error(err.stack);
+    
     res.status(500).json({ 
       success: false, 
       message: 'Error interno del servidor'
     });
 });
 
-// ==========================================
-// ESTA ES LA PARTE IMPORTANTE PARA LOS TESTS
-// ==========================================
+// ========================================================
+// ARRANQUE DEL SERVIDOR (Ignorado en coverage)
+// ========================================================
 
-// Solo conectamos la DB y escuchamos puerto si NO estamos en test
+/* istanbul ignore if */
 if (process.env.NODE_ENV !== 'test') {
-    
-    // Función asíncrona para conectar y arrancar
     const startServer = async () => {
         try {
             await mongoose.connect(process.env.MONGODB_URI);
             console.log('Conexión a MongoDB exitosa');
-            
-            // Opcional: Tu conexión directa mongoClient si la usas
-            // const mongoClient = new MongoClient(process.env.MONGODB_URI);
-            // await mongoClient.connect();
-            // app.set('mongoDb', mongoClient.db());
-
             const PORT = process.env.PORT || 3000;
             app.listen(PORT, () => {
                 console.log(`Servidor en ejecución en http://localhost:${PORT}`);
@@ -80,9 +86,7 @@ if (process.env.NODE_ENV !== 'test') {
             console.error(error);
         }
     };
-    
     startServer();
 }
 
-// Exportamos app usando module.exports (Estilo clásico)
 module.exports = app;
