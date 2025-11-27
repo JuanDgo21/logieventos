@@ -98,17 +98,17 @@ const handleResourceUpdateError = (error, res) => {
  * Middleware reusable para verificar roles
  * @param {Array} roles - Lista de roles permitidos
  */
-const checkRole = (roles) => {
-  return (req, res, next) => {
-    if (!roles.includes(req.userRole)) {
-      return res.status(403).json({
-        success: false,
-        message: `Acceso denegado. Rol requerido: ${roles.join(' o ')}`
-      });
-    }
-    next();
-  };
-};
+// const checkRole = (roles) => {
+//   return (req, res, next) => {
+//     if (!roles.includes(req.userRole)) {
+//       return res.status(403).json({
+//         success: false,
+//         message: `Acceso denegado. Rol requerido: ${roles.join(' o ')}`
+//       });
+//     }
+//     next();
+//   };
+// };
 
 /**
  * Controlador: Obtener todos los recursos
