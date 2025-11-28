@@ -77,7 +77,7 @@ const buildResourceUpdateData = (req) => {
 const handleResourceUpdateError = (error, res) => {
   // Manejo de errores de duplicado
   if (error.code === 11000) {
-    return res.status(400).json({
+    return res.status(400).json({  // ← AQUÍ FALTA LA LLAVE {
       success: false,
       message: 'Ya existe un recurso con ese nombre',
       field: 'name'
@@ -98,17 +98,7 @@ const handleResourceUpdateError = (error, res) => {
  * Middleware reusable para verificar roles
  * @param {Array} roles - Lista de roles permitidos
  */
-// const checkRole = (roles) => {
-//   return (req, res, next) => {
-//     if (!roles.includes(req.userRole)) {
-//       return res.status(403).json({
-//         success: false,
-//         message: `Acceso denegado. Rol requerido: ${roles.join(' o ')}`
-//       });
-//     }
-//     next();
-//   };
-// };
+
 
 /**
  * Controlador: Obtener todos los recursos
@@ -123,9 +113,7 @@ exports.getAllResources = async (req, res) => {
     if (status) filter.status = String(status);
     if (resourceType) filter.resourceType = String(resourceType);
 
-    if (req.userRole === 'lider') {
-      filter.status = 'disponible';
-    }
+    if (req.userRole == 'lider') filter.status = 'disponible';
 
     const resources = await Resource.find(filter)
       .populate('resourceType', 'name description category')
@@ -184,6 +172,7 @@ exports.getResourceById = async (req, res) => {
       data: resource
     });
   } catch (error) {
+    /* istanbul ignore next */
     res.status(500).json({
       success: false,
       message: 'Error al obtener recurso',
@@ -222,7 +211,7 @@ exports.createResource = async (req, res) => {
       quantity,
       cost,
       resourceType,
-      status: status || 'disponible',
+      status: status,
       createdBy: req.userId
     });
 

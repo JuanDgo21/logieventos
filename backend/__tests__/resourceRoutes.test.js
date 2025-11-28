@@ -140,7 +140,7 @@ describe('Pruebas de Integración y Unitarias: Gestión de Recursos (100%)', () 
     });
 
     // =========================================================================
-    // BLOQUE 3: OBTENER POR ID (GET /:id) - ¡ESTE FALTABA!
+    // BLOQUE 3: OBTENER POR ID (GET /:id)
     // =========================================================================
 
     it('GET /api/resources/:id - Admin ve recurso disponible', async () => {
@@ -300,7 +300,6 @@ describe('Pruebas de Integración y Unitarias: Gestión de Recursos (100%)', () 
         });
 
         // --- COBERTURA LÍNEAS 169 y 187 (RAMAS) ---
-        // Este test asegura que la línea 169 (await Resource.findById) se marque cubierta
         it('getResourceById: Éxito Admin (Unitario)', async () => {
             const req = mockRequest({}, 'admin', { id: '507f1f77bcf86cd799439011' });
             const res = mockResponse();
@@ -357,44 +356,566 @@ describe('Pruebas de Integración y Unitarias: Gestión de Recursos (100%)', () 
             expect(Resource.findByIdAndUpdate).toHaveBeenCalled();
             expect(res.status).toHaveBeenCalledWith(200);
         });
-    });
+
+        // --- TESTS ADICIONALES PARA BRANCH COVERAGE ---
+        it('updateResource: Coordinador actualiza sin status - Éxito', async () => {
+            const req = mockRequest(
+                { name: "Solo nombre", description: "Nueva descripción" }, // Sin status
+                'coordinador', 
+                { id: '507f1f77bcf86cd799439011' }
+            );
+            const res = mockResponse();
+            const mockUpdated = { _id: '507f1f77bcf86cd799439011', name: "Solo nombre" };
+
+            jest.spyOn(Resource, 'findByIdAndUpdate').mockImplementation(() => mockQuery(mockUpdated));
+
+            await controller.updateResource(req, res);
+
+            expect(Resource.findByIdAndUpdate).toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+        it('updateResource: Admin actualiza sin resourceType - Éxito', async () => {
+            const req = mockRequest(
+                { name: "Update sin tipo", quantity: 50 }, // Sin resourceType
+                'admin', 
+                { id: '507f1f77bcf86cd799439011' }
+            );
+            const res = mockResponse();
+            const mockUpdated = { _id: '507f1f77bcf86cd799439011', name: "Update sin tipo" };
+
+            jest.spyOn(Resource, 'findByIdAndUpdate').mockImplementation(() => mockQuery(mockUpdated));
+
+            await controller.updateResource(req, res);
+
+            expect(Resource.findByIdAndUpdate).toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+        it('updateResource: Body vacío objeto pero sin campos', async () => {
+            const req = mockRequest({}, 'admin', { id: '507f1f77bcf86cd799439011' }); // Body = {}
+            const res = mockResponse();
+            const mockUpdated = { _id: '507f1f77bcf86cd799439011' };
+
+            jest.spyOn(Resource, 'findByIdAndUpdate').mockImplementation(() => mockQuery(mockUpdated));
+
+            await controller.updateResource(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+        // --- TESTS PARA 100% COVERAGE ---
+        it('updateResource: Error 500 que NO es duplicado', async () => {
+            const req = mockRequest(
+                { name: "ErrorTest" }, 
+                'admin', 
+                { id: '507f1f77bcf86cd799439011' }
+            );
+            const res = mockResponse();
+
+            // Mock para validación exitosa
+            jest.spyOn(ResourceType, 'findById').mockResolvedValue({ _id: 'type1' });
+            
+            // Mock error que NO es duplicado (código diferente de 11000)
+            const generalError = new Error('General Database Error');
+            generalError.code = 500; // Cualquier código que no sea 11000
+            jest.spyOn(Resource, 'findByIdAndUpdate').mockImplementation(() => {
+                throw generalError;
+            });
+
+            await controller.updateResource(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                message: 'Error al actualizar recurso'
+            }));
+        });
+
+        it('updateResource: Construye con todos los campos', async () => {
+            const req = mockRequest(
+                {
+                    name: "Test Name",
+                    description: "Test Description", 
+                    quantity: 10,
+                    cost: 100,
+                    resourceType: "type123",
+                    status: "mantenimiento"
+                }, 
+                'admin', 
+                { id: '507f1f77bcf86cd799439011' }
+            );
+            const res = mockResponse();
+            const mockUpdated = { 
+                _id: '507f1f77bcf86cd799439011', 
+                name: "Test Name",
+                description: "Test Description",
+                quantity: 10,
+                cost: 100,
+                resourceType: "type123", 
+                status: "mantenimiento"
+            };
+
+            jest.spyOn(ResourceType, 'findById').mockResolvedValue({ _id: 'type123' });
+            jest.spyOn(Resource, 'findByIdAndUpdate').mockImplementation(() => mockQuery(mockUpdated));
+
+            await controller.updateResource(req, res);
+
+            expect(Resource.findByIdAndUpdate).toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+        it('searchResources: Líder aplica filtro disponible', async () => {
+            const req = mockRequest(
+                {}, 
+                'lider', 
+                {}, 
+                { query: 'test' }
+            );
+            const res = mockResponse();
+
+            const mockResources = [
+                { _id: '1', name: 'Test Resource 1', status: 'disponible' },
+                { _id: '2', name: 'Test Resource 2', status: 'disponible' }
+            ];
+
+            jest.spyOn(Resource, 'find').mockImplementation((filter) => {
+                // Verificar que el filtro incluya status: 'disponible' para líder
+                expect(filter.status).toBe('disponible');
+                return mockQuery(mockResources);
+            });
+
+            await controller.searchResources(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+        it('searchResources: Admin NO aplica filtro disponible', async () => {
+            const req = mockRequest(
+                {}, 
+                'admin', 
+                {}, 
+                { query: 'test' }
+            );
+            const res = mockResponse();
+
+            const mockResources = [
+                { _id: '1', name: 'Test Resource 1', status: 'mantenimiento' },
+                { _id: '2', name: 'Test Resource 2', status: 'disponible' }
+            ];
+
+            jest.spyOn(Resource, 'find').mockImplementation((filter) => {
+                // Verificar que el filtro NO incluya status para admin
+                expect(filter.status).toBeUndefined();
+                return mockQuery(mockResources);
+            });
+
+            await controller.searchResources(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+        it('getAllResources: Coordinador NO aplica filtro disponible', async () => {
+            const req = mockRequest(
+                {}, 
+                'coordinador', 
+                {}, 
+                { page: 1, limit: 10 }
+            );
+            const res = mockResponse();
+
+            const mockResources = [
+                { _id: '1', name: 'Resource 1', status: 'mantenimiento' },
+                { _id: '2', name: 'Resource 2', status: 'disponible' }
+            ];
+
+            jest.spyOn(Resource, 'find').mockImplementation((filter) => {
+                // Verificar que el filtro NO incluya status para coordinador
+                expect(filter.status).toBeUndefined();
+                return mockQuery(mockResources);
+            });
+
+            jest.spyOn(Resource, 'countDocuments').mockResolvedValue(2);
+
+            await controller.getAllResources(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+        it('createResource: Error 500 general (no duplicado)', async () => {
+            const req = mockRequest(
+                {
+                    name: "Test Error",
+                    description: "Test Description",
+                    quantity: 10,
+                    cost: 100,
+                    resourceType: "type123"
+                },
+                'admin'
+            );
+            const res = mockResponse();
+
+            jest.spyOn(ResourceType, 'findById').mockResolvedValue({ _id: 'type123' });
+            
+            const generalError = new Error('General Save Error');
+            generalError.code = 500;
+            jest.spyOn(Resource.prototype, 'save').mockImplementation(() => {
+                throw generalError;
+            });
+
+            await controller.createResource(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+        });
+
+                // === TESTS ESPECÍFICOS PARA LÍNEAS NO CUBIERTAS ===
+        
+        it('handleResourceUpdateError: Ejecuta res.status(500) para error general', async () => {
+            const req = mockRequest(
+                { name: "GeneralErrorTest" }, 
+                'admin', 
+                { id: '507f1f77bcf86cd799439011' }
+            );
+            const res = mockResponse();
+
+            // Mock para validación exitosa
+            jest.spyOn(ResourceType, 'findById').mockResolvedValue({ _id: 'type1' });
+            
+            // Mock error general (sin código 11000)
+            const generalError = new Error('General Database Connection Error');
+            // NO establecer error.code para que sea un error general
+            jest.spyOn(Resource, 'findByIdAndUpdate').mockImplementation(() => {
+                throw generalError;
+            });
+
+            await controller.updateResource(req, res);
+
+            // Verificar que se llamó a res.status(500) - esta es la línea 71
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                success: false,
+                message: 'Error al actualizar recurso'
+            }));
+        });
+
+        it('getAllResources: Líder aplica filtro disponible en unit test', async () => {
+            const req = mockRequest(
+                {}, 
+                'lider', 
+                {}, 
+                { page: 1, limit: 10 }
+            );
+            const res = mockResponse();
+
+            const mockResources = [
+                { _id: '1', name: 'Resource 1', status: 'disponible' },
+                { _id: '2', name: 'Resource 2', status: 'disponible' }
+            ];
+
+            let capturedFilter = {};
+            jest.spyOn(Resource, 'find').mockImplementation((filter) => {
+                capturedFilter = filter; // Capturamos el filtro aplicado
+                return mockQuery(mockResources);
+            });
+
+            jest.spyOn(Resource, 'countDocuments').mockResolvedValue(2);
+
+            await controller.getAllResources(req, res);
+
+            // Verificar que el filtro incluya status: 'disponible' para líder
+            expect(capturedFilter.status).toBe('disponible');
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+        it('getAllResources: Admin NO aplica filtro disponible en unit test', async () => {
+            const req = mockRequest(
+                {}, 
+                'admin', 
+                {}, 
+                { page: 1, limit: 10, status: 'mantenimiento' }
+            );
+            const res = mockResponse();
+
+            const mockResources = [
+                { _id: '1', name: 'Resource 1', status: 'mantenimiento' },
+                { _id: '2', name: 'Resource 2', status: 'disponible' }
+            ];
+
+            let capturedFilter = {};
+            jest.spyOn(Resource, 'find').mockImplementation((filter) => {
+                capturedFilter = filter;
+                return mockQuery(mockResources);
+            });
+
+            jest.spyOn(Resource, 'countDocuments').mockResolvedValue(2);
+
+            await controller.getAllResources(req, res);
+
+            // Verificar que el filtro NO sobreescribe el status para admin
+            expect(capturedFilter.status).toBe('mantenimiento'); // Mantiene el filtro original
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+                // =========================================================================
+        // TESTS ESPECÍFICOS PARA LÍNEAS EXACTAS NO CUBIERTAS
+        // =========================================================================
+
+        it('updateResource: Error general (NO duplicado) ejecuta res.status(500)', async () => {
+            const req = mockRequest(
+                { name: "TestError" }, 
+                'admin', 
+                { id: '507f1f77bcf86cd799439011' }
+            );
+            const res = mockResponse();
+
+            // Mock para que pase la validación
+            jest.spyOn(ResourceType, 'findById').mockResolvedValue({ _id: 'type1' });
+            
+            // Mock error que NO es duplicado (sin código 11000)
+            const generalError = new Error('Random database failure');
+            // IMPORTANTE: NO establecer error.code para forzar el camino del error general
+            jest.spyOn(Resource, 'findByIdAndUpdate').mockImplementation(() => {
+                throw generalError;
+            });
+
+            await controller.updateResource(req, res);
+
+            // Esto prueba específicamente la línea 71: res.status(500).json({
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({
+                success: false,
+                message: 'Error al actualizar recurso',
+                error: 'Random database failure'
+            });
+        });
+
+        it('getAllResources: Verifica que líder SI aplica filter.status = disponible', async () => {
+            const req = mockRequest(
+                {}, 
+                'lider',  // Rol LIDER - esto activa la condición
+                {}, 
+                { page: 1, limit: 5 }
+            );
+            const res = mockResponse();
+
+            const mockResources = [
+                { _id: '1', name: 'Recurso 1', status: 'disponible' }
+            ];
+
+            let capturedFilter = {};
+            jest.spyOn(Resource, 'find').mockImplementation((filter) => {
+                capturedFilter = filter; // Capturamos el filtro que se aplica
+                return mockQuery(mockResources);
+            });
+
+            jest.spyOn(Resource, 'countDocuments').mockResolvedValue(1);
+
+            await controller.getAllResources(req, res);
+
+            // Esto prueba específicamente la línea 89: if (req.userRole === 'lider')
+            // Y la línea 90: filter.status = 'disponible';
+            expect(capturedFilter.status).toBe('disponible');
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+        it('getAllResources: Verifica que coordinador NO aplica filter.status = disponible', async () => {
+            const req = mockRequest(
+                {}, 
+                'coordinador',  // Rol COORDINADOR - NO debe aplicar filtro
+                {}, 
+                { page: 1, limit: 5, status: 'mantenimiento' }
+            );
+            const res = mockResponse();
+
+            const mockResources = [
+                { _id: '1', name: 'Recurso 1', status: 'mantenimiento' }
+            ];
+
+            let capturedFilter = {};
+            jest.spyOn(Resource, 'find').mockImplementation((filter) => {
+                capturedFilter = filter;
+                return mockQuery(mockResources);
+            });
+
+            jest.spyOn(Resource, 'countDocuments').mockResolvedValue(1);
+
+            await controller.getAllResources(req, res);
+
+            // Coordinador debe mantener el filtro original, NO aplicar 'disponible'
+            expect(capturedFilter.status).toBe('mantenimiento');
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+                // =========================================================================
+        // TEST PARA handleResourceUpdateError (LÍNEA 77)
+        // =========================================================================
+
+        it('updateResource: Error duplicado ejecuta handleResourceUpdateError', async () => {
+            const req = mockRequest(
+                { name: "TestDuplicate" }, 
+                'admin', 
+                { id: '507f1f77bcf86cd799439011' }
+            );
+            const res = mockResponse();
+
+            // Mock para que pase la validación
+            jest.spyOn(ResourceType, 'findById').mockResolvedValue({ _id: 'type1' });
+            
+            // Mock error de DUPLICADO (código 11000)
+            const duplicateError = new Error('Duplicate key error');
+            duplicateError.code = 11000;
+            jest.spyOn(Resource, 'findByIdAndUpdate').mockImplementation(() => {
+                throw duplicateError;
+            });
+
+            await controller.updateResource(req, res);
+
+            // Esto prueba que handleResourceUpdateError se ejecuta (línea 77)
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({
+                success: false,
+                message: 'Ya existe un recurso con ese nombre',
+                field: 'name'
+            });
+        });
 
     // =========================================================================
-    // ERRORES 500 (MOCKS)
+    // ERRORES 500 (MOCKS) - VERSIÓN CORREGIDA
     // =========================================================================
     describe('Errores 500', () => {
         afterEach(() => jest.restoreAllMocks());
 
         it('GET /api/resources - Error 500', async () => {
-            jest.spyOn(Resource, 'find').mockImplementation(() => { throw new Error('DB Error'); });
+            jest.spyOn(Resource, 'find').mockImplementation(() => { 
+                throw new Error('DB Error'); 
+            });
             const res = await request(app).get('/api/resources').set('x-access-token', tokenAdmin);
             expect(res.statusCode).toBe(500);
         });
 
         it('POST /api/resources - Error 500', async () => {
-            jest.spyOn(Resource.prototype, 'save').mockImplementation(() => { throw new Error('Save Error'); });
+            jest.spyOn(Resource.prototype, 'save').mockImplementation(() => { 
+                throw new Error('Save Error'); 
+            });
             const res = await request(app).post('/api/resources').set('x-access-token', tokenAdmin).send({ ...resourcePrueba, name: "Crash", resourceType: resourceTypeId });
             expect(res.statusCode).toBe(500);
         });
 
         it('PUT /api/resources/:id - Error 500', async () => {
             const dummyId = new mongoose.Types.ObjectId();
-            jest.spyOn(Resource, 'findByIdAndUpdate').mockImplementation(() => { throw new Error('Update Error'); });
+            jest.spyOn(Resource, 'findByIdAndUpdate').mockImplementation(() => { 
+                throw new Error('Update Error'); 
+            });
             const res = await request(app).put(`/api/resources/${dummyId}`).set('x-access-token', tokenAdmin).send({ name: "Fail" });
             expect(res.statusCode).toBe(500);
         });
 
         it('DELETE /api/resources/:id - Error 500', async () => {
             jest.spyOn(Contract, 'findOne').mockResolvedValue(null);
-            jest.spyOn(Resource, 'findByIdAndDelete').mockImplementation(() => { throw new Error('Delete Error'); });
+            jest.spyOn(Resource, 'findByIdAndDelete').mockImplementation(() => { 
+                throw new Error('Delete Error'); 
+            });
             const res = await request(app).delete(`/api/resources/${new mongoose.Types.ObjectId()}`).set('x-access-token', tokenAdmin);
             expect(res.statusCode).toBe(500);
         });
 
         it('GET /api/resources/search - Error 500', async () => {
-            jest.spyOn(Resource, 'find').mockImplementation(() => { throw new Error('Search Error'); });
+            jest.spyOn(Resource, 'find').mockImplementation(() => { 
+                throw new Error('Search Error'); 
+            });
             const res = await request(app).get('/api/resources/search?query=Test').set('x-access-token', tokenAdmin);
             expect(res.statusCode).toBe(500);
         });
     });
+
+            // =========================================================================
+        // TESTS PARA LÍNEAS ESPECÍFICAS NO CUBIERTAS
+        // =========================================================================
+
+        it('updateResource: Error duplicado - cubre handleResourceUpdateError declaration', async () => {
+            const req = mockRequest(
+                { name: "DuplicateTest" }, 
+                'admin', 
+                { id: '507f1f77bcf86cd799439011' }
+            );
+            const res = mockResponse();
+
+            // Mock para que pase la validación
+            jest.spyOn(ResourceType, 'findById').mockResolvedValue({ _id: 'type1' });
+            
+            // Mock error de DUPLICADO (código 11000) - esto ejecuta handleResourceUpdateError
+            const duplicateError = new Error('E11000 duplicate key error');
+            duplicateError.code = 11000; // Esto activa el if (error.code === 11000)
+            jest.spyOn(Resource, 'findByIdAndUpdate').mockImplementation(() => {
+                throw duplicateError;
+            });
+
+            await controller.updateResource(req, res);
+
+            // Esto prueba que handleResourceUpdateError se ejecuta (línea 77)
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                success: false,
+                message: 'Ya existe un recurso con ese nombre',
+                field: 'name'
+            }));
+        });
+
+        it('getAllResources: Líder fuerza filter.status = disponible', async () => {
+            const req = mockRequest(
+                {}, 
+                'lider', // Esto activa if (req.userRole === 'lider')
+                {}, 
+                { page: 1, limit: 10 }
+            );
+            const res = mockResponse();
+
+            const mockResources = [
+                { _id: '1', name: 'Test Resource', status: 'disponible' }
+            ];
+
+            // Capturamos el filtro que se pasa a Resource.find
+            let actualFilter = {};
+            jest.spyOn(Resource, 'find').mockImplementation((filter) => {
+                actualFilter = { ...filter }; // Guardamos una copia del filtro
+                return mockQuery(mockResources);
+            });
+
+            jest.spyOn(Resource, 'countDocuments').mockResolvedValue(1);
+
+            await controller.getAllResources(req, res);
+
+            // Verificar que la línea 89 se ejecutó: filter.status = 'disponible'
+            expect(actualFilter.status).toBe('disponible');
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+        it('getAllResources: Admin NO ejecuta filter.status para líder', async () => {
+            const req = mockRequest(
+                {}, 
+                'admin', // Esto NO activa if (req.userRole === 'lider')
+                {}, 
+                { page: 1, limit: 10, status: 'mantenimiento' }
+            );
+            const res = mockResponse();
+
+            const mockResources = [
+                { _id: '1', name: 'Test Resource', status: 'mantenimiento' }
+            ];
+
+            let actualFilter = {};
+            jest.spyOn(Resource, 'find').mockImplementation((filter) => {
+                actualFilter = { ...filter };
+                return mockQuery(mockResources);
+            });
+
+            jest.spyOn(Resource, 'countDocuments').mockResolvedValue(1);
+
+            await controller.getAllResources(req, res);
+
+            // Admin debe mantener el status original, NO 'disponible'
+            expect(actualFilter.status).toBe('mantenimiento');
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+});
+
 });
