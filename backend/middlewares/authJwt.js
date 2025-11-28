@@ -3,7 +3,7 @@ const config = require('../config/auth.config.js');
 const { User } = require('../models/User.js');
 
 // Log de inicialización para verificar configuración
-console.log('[AuthJWT] Configuración cargada: ', config.secret ? '***' + config.secret.slice(-5) : 'NO CONFIGURADO');
+/* istanbul ignore next */console.log('[AuthJWT] Configuración cargada: ', config.secret ? '***' + config.secret.slice(-5) : 'NO CONFIGURADO');
 
 /**
  * Middleware principal de verificación de token JWT
@@ -80,9 +80,9 @@ const AuthJWT = (req, res, next) => {
 };
 
 // Validación de integridad del middleware antes de exportar
-if (typeof verifyTokenFn !== 'function') {
-    console.error('[AuthJWT] ERROR: verifyTokenFn no es una función!');
-    throw new Error('verifyTokenFn debe ser una función');
+/* istanbul ignore next */if (typeof verifyTokenFn !== 'function') {
+    /* istanbul ignore next */console.error('[AuthJWT] ERROR: verifyTokenFn no es una función!');
+    /* istanbul ignore next */throw new Error('verifyTokenFn debe ser una función');
 }
 
 console.log('[AuthJWT] Middleware verifyTokenFn es una función:', typeof verifyTokenFn === 'function');

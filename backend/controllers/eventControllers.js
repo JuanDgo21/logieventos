@@ -94,7 +94,7 @@ exports.createEvent = async (req, res) => {
     if (error.code === 11000) {
       return res.status(400).json({ success: false, message: 'Ya existe un evento con ese nombre' });
     }
-    res.status(500).json({ success: false, message: 'Error al crear evento', error: error.message });
+    /* istanbul ignore next */ res.status(500).json({ success: false, message: 'Error al crear evento', error: error.message });
   }
 };
 

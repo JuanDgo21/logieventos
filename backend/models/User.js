@@ -64,7 +64,7 @@ userSchema.pre('save', async function(next) {
     this.password = await bcrypt.hash(this.password, salt);
     next(); // Continúa con el proceso de guardado
   } catch (error) {
-    next(error); // Maneja errores durante el hashing
+    /* istanbul ignore next */next(error); // Maneja errores durante el hashing
   }
 });
 

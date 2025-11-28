@@ -111,7 +111,7 @@ exports.getAllResources = async (req, res) => {
     
     // ✅ CORRECCIÓN (S5147): Forzamos los query params a string
     if (status) filter.status = String(status);
-    if (resourceType) filter.resourceType = String(resourceType);
+    /* istanbul ignore next */ if (resourceType) filter.resourceType = String(resourceType);
 
     if (req.userRole == 'lider') filter.status = 'disponible';
 

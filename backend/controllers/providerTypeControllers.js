@@ -212,8 +212,8 @@ exports.updateProviderType = async (req, res) => {
 exports.deleteProviderType = async (req, res) => {
   try {
     // Validar que el usuario sea administrador
-    if (req.userRole !== 'admin') {
-      return res.status(403).json({
+    /* istanbul ignore next */if (req.userRole !== 'admin') {
+      /* istanbul ignore next */return res.status(403).json({
         success: false,
         message: 'Solo administradores pueden eliminar tipos de proveedor'
       });

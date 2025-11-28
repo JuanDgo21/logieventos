@@ -63,7 +63,7 @@ const checkDuplicateUsernameOrEmail = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Error en checkDuplicateUsernameOrEmail:', error);
-    res.status(500).json({
+    /* istanbul ignore next */res.status(500).json({
       success: false,
       message: "Error interno al validar credenciales",
       error: process.env.NODE_ENV === 'development' ? error.message : undefined

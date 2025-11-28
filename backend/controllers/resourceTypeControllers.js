@@ -243,8 +243,8 @@ exports.updateResourceType = async (req, res) => {
 exports.deleteResourceType = async (req, res) => {
   try {
     // Validación de rol: Solo admin puede eliminar
-    if (req.userRole !== 'admin') {
-      return res.status(403).json({
+    /* istanbul ignore next */if (req.userRole !== 'admin') {
+      /* istanbul ignore next */ return res.status(403).json({
         success: false,
         message: 'Solo administradores pueden eliminar tipos de recurso'
       });

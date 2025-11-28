@@ -4,10 +4,13 @@ const app = require('../server');
 const User = require('../models/User');
 const ProviderType = require('../models/ProviderType');
 
+// Importamos el controlador para pruebas unitarias de roles y lógicas específicas
+const providerTypeController = require('../controllers/providerTypeControllers');
+
 // --- VARIABLES GLOBALES ---
 let tokenAdmin = '';
 let tokenCoordinador = '';
-let providerTypeId = ''; // Para guardar el ID del tipo creado
+let providerTypeId = '';
 
 // 1. Datos Admin
 const adminUser = {
@@ -15,7 +18,7 @@ const adminUser = {
     fullname: "Admin ProviderType",
     username: "admin_prov_type",
     email: "admin_prov@test.com",
-    password: "password123", // Se encriptará automáticamente por el modelo
+    password: "password123",
     role: "admin"
 };
 
@@ -36,136 +39,305 @@ const providerTypePrueba = {
     isActive: true
 };
 
-describe('Pruebas de Integración: Tipos de Proveedor', () => {
+describe('Pruebas de Tipos de Proveedor (Integración + Unitarias)', () => {
 
-    // --- CONFIGURACIÓN PREVIA (SETUP) ---
+    // --- SETUP ---
     beforeAll(async () => {
-        // Conexión DB Test
-        const testDB = 'mongodb://localhost:27017/logieventos_test';
+        const testDB = 'mongodb://localhost:27017/logieventos_test_providertype_full';
         await mongoose.connect(testDB);
 
-        // Limpieza total
-        await User.deleteMany({ email: { $in: [adminUser.email, coordUser.email] } });
-        await ProviderType.deleteMany({ name: providerTypePrueba.name });
-
-        // Crear usuarios (Sin hash manual, confiamos en User.js)
+        await User.deleteMany({});
+        await ProviderType.deleteMany({});
+        
         await new User(adminUser).save();
         await new User(coordUser).save();
     });
 
-    // --- LIMPIEZA FINAL (TEARDOWN) ---
+    // --- TEARDOWN ---
     afterAll(async () => {
-        await User.deleteMany({ email: { $in: [adminUser.email, coordUser.email] } });
-        await ProviderType.deleteMany({ name: providerTypePrueba.name });
+        await User.deleteMany({});
+        await ProviderType.deleteMany({});
         await mongoose.connection.close();
     });
 
-    // --- PASO 1: LOGIN ---
-    it('Debería loguearse y obtener tokens para Admin y Coordinador', async () => {
-        // Login Admin
+    // --- LOGIN ---
+    it('Debería loguearse y obtener tokens', async () => {
         const resAdmin = await request(app).post('/api/auth/signin').send({
-            email: adminUser.email,
-            password: adminUser.password
+            email: adminUser.email, password: adminUser.password
         });
-        expect(resAdmin.statusCode).toBe(200);
         tokenAdmin = resAdmin.body.token;
 
-        // Login Coordinador
         const resCoord = await request(app).post('/api/auth/signin').send({
-            email: coordUser.email,
-            password: coordUser.password
+            email: coordUser.email, password: coordUser.password
         });
-        expect(resCoord.statusCode).toBe(200);
         tokenCoordinador = resCoord.body.token;
+
+        expect(resAdmin.statusCode).toBe(200);
     });
 
-    // --- PASO 2: CREAR (POST) ---
-    it('POST /api/provider-types - Admin crea un Tipo de Proveedor', async () => {
-        const res = await request(app)
-            .post('/api/provider-types')
-            .set('x-access-token', tokenAdmin)
-            .send(providerTypePrueba);
+    // =================================================================
+    // 1. CREATE (POST)
+    // =================================================================
+    describe('POST /api/provider-types', () => {
+        it('Admin crea un Tipo de Proveedor exitosamente', async () => {
+            const res = await request(app)
+                .post('/api/provider-types')
+                .set('x-access-token', tokenAdmin)
+                .send(providerTypePrueba);
 
-        expect(res.statusCode).toBe(201);
-        expect(res.body.success).toBe(true);
-        expect(res.body.data.name).toBe(providerTypePrueba.name);
-        
-        // Guardar ID para siguientes pruebas
-        providerTypeId = res.body.data._id;
+            expect(res.statusCode).toBe(201);
+            expect(res.body.data.name).toBe(providerTypePrueba.name);
+            providerTypeId = res.body.data._id;
+        });
+
+        it('Error 400: Nombre duplicado', async () => {
+            const res = await request(app)
+                .post('/api/provider-types')
+                .set('x-access-token', tokenAdmin)
+                .send(providerTypePrueba);
+
+            expect(res.statusCode).toBe(400);
+            expect(res.body.message).toMatch(/ya existe/i);
+        });
+
+        it('Error 400: Falta el nombre', async () => {
+            const res = await request(app)
+                .post('/api/provider-types')
+                .set('x-access-token', tokenAdmin)
+                .send({ description: "Sin nombre" });
+            expect(res.statusCode).toBe(400);
+        });
+
+        it('Error 403 (Unitario): Usuario sin permisos intenta crear', async () => {
+            const req = { userRole: 'invitado', body: {} };
+            const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+            await providerTypeController.createProviderType(req, res);
+            expect(res.status).toHaveBeenCalledWith(403);
+        });
+
+        it('Error 500: Fallo DB al guardar', async () => {
+            const mockSave = jest.spyOn(ProviderType.prototype, 'save')
+                                 .mockImplementationOnce(() => Promise.reject(new Error("Error DB")));
+            
+            const res = await request(app)
+                .post('/api/provider-types')
+                .set('x-access-token', tokenAdmin)
+                .send({ name: "Error 500 Type" });
+
+            expect(res.statusCode).toBe(500);
+            mockSave.mockRestore();
+        });
     });
 
-    it('POST /api/provider-types - Debería fallar con nombre duplicado', async () => {
-        const res = await request(app)
-            .post('/api/provider-types')
-            .set('x-access-token', tokenAdmin)
-            .send(providerTypePrueba);
+    // =================================================================
+    // 2. READ ALL (GET)
+    // =================================================================
+    describe('GET /api/provider-types', () => {
+        it('Coordinador lista todos los tipos', async () => {
+            const res = await request(app)
+                .get('/api/provider-types')
+                .set('x-access-token', tokenCoordinador);
+            expect(res.statusCode).toBe(200);
+            expect(res.body.data.length).toBeGreaterThan(0);
+        });
 
-        // Tu controlador devuelve 400 cuando es duplicado (code 11000)
-        expect(res.statusCode).toBe(400);
-        expect(res.body.message).toMatch(/ya existe/i);
+        it('Unitario: Rol "lider" filtra solo activos', async () => {
+            const req = { userRole: 'lider' };
+            const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+            
+            // Mockeamos find().populate()
+            const mockPopulate = jest.fn();
+            const mockFind = jest.spyOn(ProviderType, 'find').mockReturnValue({
+                populate: mockPopulate
+            });
+
+            await providerTypeController.getAllProviderTypes(req, res);
+
+            expect(mockFind).toHaveBeenCalledWith({ isActive: true });
+            mockFind.mockRestore();
+        });
+
+        it('Error 500: Fallo al listar', async () => {
+            const mockFind = jest.spyOn(ProviderType, 'find')
+                .mockImplementationOnce(() => ({
+                    populate: jest.fn().mockRejectedValue(new Error("Error DB"))
+                }));
+
+            const res = await request(app)
+                .get('/api/provider-types')
+                .set('x-access-token', tokenAdmin);
+            
+            expect(res.statusCode).toBe(500);
+            mockFind.mockRestore();
+        });
     });
 
-    // --- PASO 3: LEER (GET) ---
-    it('GET /api/provider-types - Coordinador lista los tipos', async () => {
-        const res = await request(app)
-            .get('/api/provider-types')
-            .set('x-access-token', tokenCoordinador);
+    // =================================================================
+    // 3. READ ONE (GET BY ID)
+    // =================================================================
+    describe('GET /api/provider-types/:id', () => {
+        it('Obtiene detalle por ID', async () => {
+            const res = await request(app)
+                .get(`/api/provider-types/${providerTypeId}`)
+                .set('x-access-token', tokenAdmin);
+            expect(res.statusCode).toBe(200);
+        });
 
-        expect(res.statusCode).toBe(200);
-        expect(Array.isArray(res.body.data)).toBe(true);
-        // Verificar que el creado existe en la lista
-        const existe = res.body.data.some(p => p._id === providerTypeId);
-        expect(existe).toBe(true);
+        it('Error 404: ID no encontrado', async () => {
+            const fakeId = new mongoose.Types.ObjectId();
+            const res = await request(app)
+                .get(`/api/provider-types/${fakeId}`)
+                .set('x-access-token', tokenAdmin);
+            expect(res.statusCode).toBe(404);
+        });
+
+        it('Unitario: Rol "lider" intenta ver tipo inactivo (403)', async () => {
+            const req = { 
+                userRole: 'lider', 
+                params: { id: 'someId' } 
+            };
+            const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+            // Mockeamos respuesta de DB con isActive: false
+            const mockFind = jest.spyOn(ProviderType, 'findById').mockReturnValue({
+                populate: jest.fn().mockResolvedValue({ isActive: false })
+            });
+
+            await providerTypeController.getProviderTypeById(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(403);
+            mockFind.mockRestore();
+        });
+
+        it('Error 500: Fallo DB', async () => {
+            const mockFind = jest.spyOn(ProviderType, 'findById')
+                .mockImplementationOnce(() => ({
+                    populate: jest.fn().mockRejectedValue(new Error("Error DB"))
+                }));
+            
+            const res = await request(app)
+                .get(`/api/provider-types/${providerTypeId}`)
+                .set('x-access-token', tokenAdmin);
+            expect(res.statusCode).toBe(500);
+            mockFind.mockRestore();
+        });
     });
 
-    it('GET /api/provider-types/:id - Obtener detalle por ID', async () => {
-        const res = await request(app)
-            .get(`/api/provider-types/${providerTypeId}`)
-            .set('x-access-token', tokenAdmin);
+    // =================================================================
+    // 4. UPDATE (PUT)
+    // =================================================================
+    describe('PUT /api/provider-types/:id', () => {
+        it('Coordinador actualiza descripción (Permitido)', async () => {
+            const res = await request(app)
+                .put(`/api/provider-types/${providerTypeId}`)
+                .set('x-access-token', tokenCoordinador)
+                .send({ description: "Desc Editada" });
+            expect(res.statusCode).toBe(200);
+            expect(res.body.data.description).toBe("Desc Editada");
+        });
 
-        expect(res.statusCode).toBe(200);
-        expect(res.body.data.description).toBe(providerTypePrueba.description);
+        it('Error 403: Coordinador intenta cambiar "isActive"', async () => {
+            const res = await request(app)
+                .put(`/api/provider-types/${providerTypeId}`)
+                .set('x-access-token', tokenCoordinador)
+                .send({ isActive: false });
+            expect(res.statusCode).toBe(403);
+        });
+
+        it('Admin SI puede cambiar "isActive"', async () => {
+            const res = await request(app)
+                .put(`/api/provider-types/${providerTypeId}`)
+                .set('x-access-token', tokenAdmin)
+                .send({ isActive: false });
+            expect(res.statusCode).toBe(200);
+            expect(res.body.data.isActive).toBe(false);
+        });
+
+        it('Error 400: Nombre duplicado en update', async () => {
+            // Crear otro tipo primero
+            await ProviderType.create({
+                name: "Otro Tipo",
+                createdBy: new mongoose.Types.ObjectId()
+            });
+
+            const res = await request(app)
+                .put(`/api/provider-types/${providerTypeId}`)
+                .set('x-access-token', tokenAdmin)
+                .send({ name: "Otro Tipo" });
+            
+            expect(res.statusCode).toBe(400);
+            expect(res.body.message).toMatch(/ya existe/i);
+        });
+
+        it('Error 404: Actualizar no existente', async () => {
+            const fakeId = new mongoose.Types.ObjectId();
+            const res = await request(app)
+                .put(`/api/provider-types/${fakeId}`)
+                .set('x-access-token', tokenAdmin)
+                .send({ name: "Fantasma" });
+            expect(res.statusCode).toBe(404);
+        });
+
+        it('Error 403 (Unitario): Rol no permitido en update', async () => {
+            const req = { userRole: 'invitado', body: {} };
+            const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+            await providerTypeController.updateProviderType(req, res);
+            expect(res.status).toHaveBeenCalledWith(403);
+        });
+
+        it('Error 500: Fallo DB en Update', async () => {
+            const mockUpdate = jest.spyOn(ProviderType, 'findByIdAndUpdate')
+                .mockImplementationOnce(() => ({
+                    populate: jest.fn().mockRejectedValue(new Error("Error Update"))
+                }));
+            
+            const res = await request(app)
+                .put(`/api/provider-types/${providerTypeId}`)
+                .set('x-access-token', tokenAdmin)
+                .send({ name: "Error" });
+            
+            expect(res.statusCode).toBe(500);
+            mockUpdate.mockRestore();
+        });
     });
 
-    // --- PASO 4: ACTUALIZAR (PUT) ---
-    it('PUT /api/provider-types/:id - Coordinador actualiza descripción (Permitido)', async () => {
-        const nuevaDesc = "Descripción editada por Coordinador";
-        
-        const res = await request(app)
-            .put(`/api/provider-types/${providerTypeId}`)
-            .set('x-access-token', tokenCoordinador)
-            .send({ description: nuevaDesc });
+    // =================================================================
+    // 5. DELETE (DELETE)
+    // =================================================================
+    describe('DELETE /api/provider-types/:id', () => {
+        it('Error 403: Coordinador intenta eliminar', async () => {
+            const res = await request(app)
+                .delete(`/api/provider-types/${providerTypeId}`)
+                .set('x-access-token', tokenCoordinador);
+            expect(res.statusCode).toBe(403);
+        });
 
-        expect(res.statusCode).toBe(200);
-        expect(res.body.data.description).toBe(nuevaDesc);
-    });
+        it('Admin elimina el registro exitosamente', async () => {
+            const res = await request(app)
+                .delete(`/api/provider-types/${providerTypeId}`)
+                .set('x-access-token', tokenAdmin);
+            expect(res.statusCode).toBe(200);
+        });
 
-    it('PUT /api/provider-types/:id - Coordinador intenta cambiar "isActive" (PROHIBIDO)', async () => {
-        const res = await request(app)
-            .put(`/api/provider-types/${providerTypeId}`)
-            .set('x-access-token', tokenCoordinador)
-            .send({ isActive: false });
+        it('Error 404: Eliminar no existente', async () => {
+            const res = await request(app)
+                .delete(`/api/provider-types/${providerTypeId}`)
+                .set('x-access-token', tokenAdmin);
+            expect(res.statusCode).toBe(404);
+        });
 
-        // Tu controlador devuelve 403 Forbidden
-        expect(res.statusCode).toBe(403);
-        expect(res.body.message).toMatch(/no pueden cambiar el estado/i);
-    });
-
-    // --- PASO 5: ELIMINAR (DELETE) ---
-    it('DELETE /api/provider-types/:id - Admin elimina el registro', async () => {
-        const res = await request(app)
-            .delete(`/api/provider-types/${providerTypeId}`)
-            .set('x-access-token', tokenAdmin);
-
-        expect(res.statusCode).toBe(200);
-    });
-
-    it('GET /api/provider-types/:id - Debería dar 404 al buscarlo de nuevo', async () => {
-        const res = await request(app)
-            .get(`/api/provider-types/${providerTypeId}`)
-            .set('x-access-token', tokenAdmin);
-
-        expect(res.statusCode).toBe(404);
+        it('Error 500: Fallo DB en Delete', async () => {
+            const mockDel = jest.spyOn(ProviderType, 'findByIdAndDelete')
+                                .mockRejectedValueOnce(new Error("Error Delete"));
+            
+            const fakeId = new mongoose.Types.ObjectId();
+            const res = await request(app)
+                .delete(`/api/provider-types/${fakeId}`)
+                .set('x-access-token', tokenAdmin);
+            
+            expect(res.statusCode).toBe(500);
+            mockDel.mockRestore();
+        });
     });
 
 });

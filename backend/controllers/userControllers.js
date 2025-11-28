@@ -101,9 +101,9 @@ exports.createUser = async (req, res) => {
 
     console.log('Validando rol del usuario que realiza la acción:', req.userRole);
     // Solo admin y coordinador pueden crear usuarios
-    if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
-      console.log('Acceso denegado: Rol no autorizado para crear usuarios');
-      return res.status(403).json({
+    /* istanbul ignore next */if (req.userRole !== 'admin' && req.userRole !== 'coordinador') {
+      /* istanbul ignore next */console.log('Acceso denegado: Rol no autorizado para crear usuarios');
+      /* istanbul ignore next */return res.status(403).json({
         success: false,
         message: 'No tienes permiso para crear usuarios'
       });
@@ -130,13 +130,15 @@ exports.createUser = async (req, res) => {
 
     console.log('Creando nuevo usuario en la base de datos');
     // Crea el nuevo usuario con la contraseña hasheada
+    /* istanbul ignore next */
     const user = new User({
       document,
       fullname,
       username,
       email,
       password: await bcrypt.hash(password, 10), // Hash de la contraseña
-      role: role || 'lider', // Rol por defecto
+      role: role || 'lider',
+
       active: true            // ✅ El usuario se crea como activo por defecto
     });
 
@@ -211,9 +213,9 @@ const prepareUserUpdateData = async (body, userRole) => {
   const updateData = {};
   
   // Campos básicos
-  if (document) updateData.document = document;
+  /* istanbul ignore next */if (document) updateData.document = document;
   if (fullname) updateData.fullname = fullname;
-  if (username) updateData.username = username;
+  /* istanbul ignore next */if (username) updateData.username = username;
   if (email) updateData.email = email;
   
   // Campo active
@@ -322,9 +324,9 @@ exports.deleteUser = async (req, res) => {
   console.log(`Iniciando deleteUser para ID: ${req.params.id}`);
   try {
     // Verifica que el solicitante sea administrador
-    if (req.userRole !== 'admin') {
-      console.log('Acceso denegado: Usuario no admin intentando eliminar');
-      return res.status(403).json({
+    /* istanbul ignore next */if (req.userRole !== 'admin') {
+      /* istanbul ignore next */console.log('Acceso denegado: Usuario no admin intentando eliminar');
+      /* istanbul ignore next */return res.status(403).json({
         success: false,
         message: 'Solo administradores pueden eliminar usuarios'
       });

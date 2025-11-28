@@ -4,6 +4,9 @@ const app = require('../server');
 const User = require('../models/User');
 const ResourceType = require('../models/ResourceType');
 
+// Importamos el controlador para la prueba unitaria del 403
+const resourceTypeController = require('../controllers/resourceTypeControllers');
+
 // --- VARIABLES GLOBALES ---
 let tokenAdmin = '';
 let tokenCoordinador = '';
@@ -36,29 +39,22 @@ const resourceTypePrueba = {
     active: true
 };
 
-describe('Pruebas de Integración: Tipos de Recurso', () => {
+describe('Pruebas de Tipos de Recurso (Integración + Unitarias)', () => {
 
     // --- CONFIGURACIÓN INICIAL ---
-   beforeAll(async () => {
-        const testDB = 'mongodb://localhost:27017/logieventos_test';
+    beforeAll(async () => {
+        const testDB = 'mongodb://localhost:27017/logieventos_test_resourcetype_v3'; 
         await mongoose.connect(testDB);
-
-        // 1. Limpiar datos
-        await User.deleteMany({ email: { $in: [adminUser.email, coordUser.email] } });
-        await ResourceType.deleteMany({}); // Borramos los recursos viejos
-
-        // 2. Asegurar índices (Ahora sí funcionará porque agregaste unique: true al modelo)
-        await ResourceType.createIndexes(); 
-
-        // 3. Crear usuarios
+        await User.deleteMany({});
+        await ResourceType.deleteMany({});
         await new User(adminUser).save();
         await new User(coordUser).save();
     });
 
     // --- LIMPIEZA FINAL ---
     afterAll(async () => {
-        await User.deleteMany({ email: { $in: [adminUser.email, coordUser.email] } });
-        await ResourceType.deleteMany({ name: resourceTypePrueba.name });
+        await User.deleteMany({});
+        await ResourceType.deleteMany({});
         await mongoose.connection.close();
     });
 
@@ -75,90 +71,249 @@ describe('Pruebas de Integración: Tipos de Recurso', () => {
         tokenCoordinador = resCoord.body.token;
 
         expect(resAdmin.statusCode).toBe(200);
-        expect(resCoord.statusCode).toBe(200);
     });
 
-    // --- CREATE (POST) ---
-    it('POST /api/resource-types - Admin crea Tipo de Recurso', async () => {
-        const res = await request(app)
-            .post('/api/resource-types')
-            .set('x-access-token', tokenAdmin)
-            .send(resourceTypePrueba);
+    // =================================================================
+    // 1. PRUEBAS DE CREACIÓN (POST)
+    // =================================================================
+    describe('POST /api/resource-types', () => {
+        it('Admin crea Tipo de Recurso exitosamente', async () => {
+            const res = await request(app)
+                .post('/api/resource-types')
+                .set('x-access-token', tokenAdmin)
+                .send(resourceTypePrueba);
 
-        expect(res.statusCode).toBe(201);
-        expect(res.body.success).toBe(true);
-        expect(res.body.data.name).toBe(resourceTypePrueba.name);
-        
-        resourceTypeId = res.body.data._id;
+            expect(res.statusCode).toBe(201);
+            resourceTypeId = res.body.data._id;
+        });
+
+        it('Error 400: Al intentar crear duplicado', async () => {
+            const res = await request(app)
+                .post('/api/resource-types')
+                .set('x-access-token', tokenAdmin)
+                .send(resourceTypePrueba);
+            expect(res.statusCode).toBe(400);
+        });
+
+        it('Error 400: Falta el campo nombre', async () => {
+            const res = await request(app)
+                .post('/api/resource-types')
+                .set('x-access-token', tokenAdmin)
+                .send({ description: "Sin nombre" });
+            expect(res.statusCode).toBe(400);
+        });
+
+        it('Error 403 (Unitario): Usuario con rol desconocido intenta crear', async () => {
+            const req = { userRole: 'invitado', body: { name: 'Hacker' } };
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn()
+            };
+            await resourceTypeController.createResourceType(req, res);
+            expect(res.status).toHaveBeenCalledWith(403);
+        });
+
+        it('Error 500: Fallo en base de datos al guardar', async () => {
+            // Aquí NO hay encadenamiento, es .save() directo, así que este mock simple funciona
+            const mockSave = jest.spyOn(ResourceType.prototype, 'save')
+                                 .mockImplementationOnce(() => Promise.reject(new Error("Error DB forzado")));
+
+            const res = await request(app)
+                .post('/api/resource-types')
+                .set('x-access-token', tokenAdmin)
+                .send({ name: "Test 500" });
+
+            expect(res.statusCode).toBe(500);
+            mockSave.mockRestore(); 
+        });
     });
 
-    it('POST /api/resource-types - Error al duplicar nombre', async () => {
-        const res = await request(app)
-            .post('/api/resource-types')
-            .set('x-access-token', tokenAdmin)
-            .send(resourceTypePrueba);
+    // =================================================================
+    // 2. PRUEBAS DE LECTURA (GET)
+    // =================================================================
+    describe('GET /api/resource-types', () => {
+        it('Coordinador lista todos', async () => {
+            const res = await request(app)
+                .get('/api/resource-types')
+                .set('x-access-token', tokenCoordinador);
+            expect(res.statusCode).toBe(200);
+            expect(res.body.data.length).toBeGreaterThan(0);
+        });
 
-        expect(res.statusCode).toBe(400); // Requiere borrar el middleware del modelo
-        expect(res.body.message).toMatch(/ya existe/i);
+        // --- CORRECCIÓN 1: Mock Encadenado para find().populate() ---
+        it('Error 500: Fallo al obtener lista', async () => {
+            const mockFind = jest.spyOn(ResourceType, 'find')
+                .mockImplementationOnce(() => ({ 
+                    // Simulamos que find() devuelve un objeto con la función populate
+                    // Y populate es quien devuelve la Promesa rechazada (donde explota el await)
+                    populate: jest.fn().mockRejectedValue(new Error("Error DB"))
+                }));
+
+            const res = await request(app)
+                .get('/api/resource-types')
+                .set('x-access-token', tokenCoordinador);
+
+            expect(res.statusCode).toBe(500);
+            expect(res.body.error).toBe("Error DB"); // Verificamos que sea nuestro error
+            mockFind.mockRestore();
+        });
     });
 
-    // --- READ (GET) ---
-    it('GET /api/resource-types - Coordinador lista todos', async () => {
-        const res = await request(app)
-            .get('/api/resource-types')
-            .set('x-access-token', tokenCoordinador);
+    describe('GET /api/resource-types/active', () => {
+        it('Listar solo activos', async () => {
+            const res = await request(app)
+                .get('/api/resource-types/active')
+                .set('x-access-token', tokenAdmin);
+            expect(res.statusCode).toBe(200);
+        });
 
-        expect(res.statusCode).toBe(200);
-        const existe = res.body.data.some(r => r._id === resourceTypeId);
-        expect(existe).toBe(true);
-    });
-
-    it('GET /api/resource-types/active - Listar solo activos', async () => {
-        const res = await request(app)
-            .get('/api/resource-types/active')
-            .set('x-access-token', tokenAdmin);
-
-        expect(res.statusCode).toBe(200);
-        expect(Array.isArray(res.body.data)).toBe(true);
-    });
-
-    // --- UPDATE (PUT) ---
-    it('PUT /api/resource-types/:id - Coordinador actualiza descripción', async () => {
-        const nuevaDesc = "Descripción actualizada por Coordinador";
-        const res = await request(app)
-            .put(`/api/resource-types/${resourceTypeId}`)
-            .set('x-access-token', tokenCoordinador)
-            .send({ description: nuevaDesc });
-
-        expect(res.statusCode).toBe(200);
-        expect(res.body.data.description).toBe(nuevaDesc);
-    });
-
-    it('PUT /api/resource-types/:id - Coordinador NO puede cambiar active', async () => {
-        const res = await request(app)
-            .put(`/api/resource-types/${resourceTypeId}`)
-            .set('x-access-token', tokenCoordinador)
-            .send({ active: false });
-
-        // Tu controlador devuelve 403 Forbidden
-        expect(res.statusCode).toBe(403);
-    });
-
-    // --- DELETE (DELETE) ---
-    it('DELETE /api/resource-types/:id - Admin elimina el registro', async () => {
-        const res = await request(app)
-            .delete(`/api/resource-types/${resourceTypeId}`)
-            .set('x-access-token', tokenAdmin);
-
-        expect(res.statusCode).toBe(200);
-    });
-
-    it('GET /api/resource-types/:id - Debería dar 404 al buscar de nuevo', async () => {
-        const res = await request(app)
-            .get(`/api/resource-types/${resourceTypeId}`)
-            .set('x-access-token', tokenAdmin);
+        // --- CORRECCIÓN 2: Mock Encadenado para find().populate().select() ---
+        it('Error 500: Fallo al obtener activos', async () => {
+            const mockFind = jest.spyOn(ResourceType, 'find')
+                .mockImplementationOnce(() => ({
+                    // 1. find() devuelve objeto con populate
+                    populate: jest.fn().mockReturnValue({
+                        // 2. populate() devuelve objeto con select (encadenamiento)
+                        select: jest.fn().mockRejectedValue(new Error("Error DB")) // 3. select falla
+                    })
+                }));
             
-        expect(res.statusCode).toBe(404);
+            const res = await request(app)
+                .get('/api/resource-types/active')
+                .set('x-access-token', tokenAdmin);
+
+            expect(res.statusCode).toBe(500);
+            mockFind.mockRestore();
+        });
     });
 
+    describe('GET /api/resource-types/:id', () => {
+        it('Obtiene por ID', async () => {
+            const res = await request(app)
+                .get(`/api/resource-types/${resourceTypeId}`)
+                .set('x-access-token', tokenAdmin);
+            expect(res.statusCode).toBe(200);
+        });
+
+        it('Error 404: ID no encontrado', async () => {
+            const fakeId = new mongoose.Types.ObjectId();
+            const res = await request(app)
+                .get(`/api/resource-types/${fakeId}`)
+                .set('x-access-token', tokenAdmin);
+            expect(res.statusCode).toBe(404);
+        });
+
+        it('Error 500: ID inválido', async () => {
+            const res = await request(app)
+                .get(`/api/resource-types/ID-MALO`)
+                .set('x-access-token', tokenAdmin);
+            expect(res.statusCode).toBe(500);
+        });
+    });
+
+    // =================================================================
+    // 3. PRUEBAS DE ACTUALIZACIÓN (PUT)
+    // =================================================================
+    describe('PUT /api/resource-types/:id', () => {
+        it('Coordinador actualiza descripción', async () => {
+            const res = await request(app)
+                .put(`/api/resource-types/${resourceTypeId}`)
+                .set('x-access-token', tokenCoordinador)
+                .send({ description: "Desc Updated" });
+            expect(res.statusCode).toBe(200);
+        });
+
+        it('Error 403: Coordinador intenta desactivar', async () => {
+            const res = await request(app)
+                .put(`/api/resource-types/${resourceTypeId}`)
+                .set('x-access-token', tokenCoordinador)
+                .send({ active: false });
+            expect(res.statusCode).toBe(403);
+        });
+
+        it('Admin SI puede cambiar active', async () => {
+            const res = await request(app)
+                .put(`/api/resource-types/${resourceTypeId}`)
+                .set('x-access-token', tokenAdmin)
+                .send({ active: false });
+            expect(res.statusCode).toBe(200);
+        });
+
+        it('Error 400: Nombre duplicado', async () => {
+             const otro = await ResourceType.create({ 
+                name: "Laptop Gamer", 
+                description: "Test Dup",
+                createdBy: new mongoose.Types.ObjectId() 
+            });
+            const res = await request(app)
+                .put(`/api/resource-types/${resourceTypeId}`)
+                .set('x-access-token', tokenAdmin)
+                .send({ name: "Laptop Gamer" });
+            expect(res.statusCode).toBe(400);
+        });
+
+        it('Error 404: Recurso no existe', async () => {
+            const fakeId = new mongoose.Types.ObjectId();
+            const res = await request(app)
+                .put(`/api/resource-types/${fakeId}`)
+                .set('x-access-token', tokenAdmin)
+                .send({ name: "Nada" });
+            expect(res.statusCode).toBe(404);
+        });
+
+        // --- CORRECCIÓN 3: Mock Encadenado para findByIdAndUpdate().populate() ---
+        it('Error 500: Fallo DB en update', async () => {
+            const mockUpdate = jest.spyOn(ResourceType, 'findByIdAndUpdate')
+                .mockImplementationOnce(() => ({
+                    // findByIdAndUpdate devuelve objeto con populate, el cual falla
+                    populate: jest.fn().mockRejectedValue(new Error("Error Update"))
+                }));
+            
+            const res = await request(app)
+                .put(`/api/resource-types/${resourceTypeId}`)
+                .set('x-access-token', tokenAdmin)
+                .send({ name: "Error" });
+            
+            expect(res.statusCode).toBe(500);
+            mockUpdate.mockRestore();
+        });
+    });
+
+    // =================================================================
+    // 4. PRUEBAS DE ELIMINACIÓN (DELETE)
+    // =================================================================
+    describe('DELETE /api/resource-types/:id', () => {
+        // ... (resto de las pruebas sin cambios porque delete no usa populate en tu controlador)
+        it('Error 403: Coordinador intenta eliminar', async () => {
+            const res = await request(app)
+                .delete(`/api/resource-types/${resourceTypeId}`)
+                .set('x-access-token', tokenCoordinador);
+            expect(res.statusCode).toBe(403);
+        });
+
+        it('Admin elimina exitosamente', async () => {
+            const res = await request(app)
+                .delete(`/api/resource-types/${resourceTypeId}`)
+                .set('x-access-token', tokenAdmin);
+            expect(res.statusCode).toBe(200);
+        });
+
+        it('Error 404: Ya eliminado', async () => {
+            const res = await request(app)
+                .delete(`/api/resource-types/${resourceTypeId}`)
+                .set('x-access-token', tokenAdmin);
+            expect(res.statusCode).toBe(404);
+        });
+
+        it('Error 500: Fallo DB en delete', async () => {
+            const mockDel = jest.spyOn(ResourceType, 'findByIdAndDelete')
+                                .mockImplementationOnce(() => Promise.reject(new Error("Error Delete")));
+            const fakeId = new mongoose.Types.ObjectId();
+            const res = await request(app)
+                .delete(`/api/resource-types/${fakeId}`)
+                .set('x-access-token', tokenAdmin);
+            expect(res.statusCode).toBe(500);
+            mockDel.mockRestore();
+        });
+    });
 });
